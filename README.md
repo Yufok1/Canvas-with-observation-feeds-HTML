@@ -2,6 +2,8 @@
 
 A sovereign web interface for real-time AI observation, analysis, and collaborative synthesis. This application provides a canvas for user observations while integrating live intelligence streams from multiple AI systems, ensuring user sovereignty and comprehensive analysis capabilities.
 
+**Experience the god-tier launch with cinematic ASCII art startup sequences and enjoy an enhanced interface featuring square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
+
 ## Features
 
 ### Core Functionality
@@ -21,6 +23,10 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 - **Real-time Metrics**: System performance monitoring
 - **Auto-save & Export**: Persistent data management
 - **Canvas Change Detection**: Intelligent content analysis triggers
+- **Dynamic GUI Resizing**: CTRL + Mousewheel for instant interface scaling
+- **Real-time Orchestration Status**: Live AI system confidence monitoring
+- **Enhanced Layout**: Square grid design for optimal space utilization
+- **God-tier Launch Experience**: ASCII art batch files for cinematic startup
 
 ### Technical Features
 - **Activity-Based Polling**: Dynamic AI update intervals based on user engagement
@@ -28,6 +34,8 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 - **Parallel Processing**: Concurrent AI system queries for efficiency
 - **Memory Management**: Conversational continuity across sessions
 - **Content Complexity Analysis**: Dynamic domain detection and insight refresh
+- **Full-Height AI Feeds**: Optimized panel layout for maximum content visibility
+- **Active Synthesis Indicators**: Dynamic status messages showing AI processing state
 
 ## Requirements
 
@@ -48,13 +56,29 @@ The application requires the following Ollama models:
 
 ## Quick Start Guide
 
-### Step 1: Download the Repository
+### Option 1: Professional Launch (Recommended)
+Use the provided batch files for the ultimate launch experience:
+
+1. **Double-click `launch-canvas.bat`** (or `launch-canvas-fixed.bat` for pipe-safe version)
+2. Watch the cinematic ASCII art startup sequence
+3. The script will automatically:
+   - Start Ollama server (if not already running)
+   - Launch Python web server
+   - Open your browser to the application
+   - Display real-time status updates
+
+**That's it!** Enjoy the god-tier launch experience with full automation.
+
+### Option 2: Manual Setup
+If you prefer manual control:
+
+#### Step 1: Download the Repository
 ```bash
 git clone https://github.com/Yufok1/Canvas-with-observation-feeds-HTML.git
 cd Canvas-with-observation-feeds-HTML
 ```
 
-### Step 2: Install Ollama
+#### Step 2: Install Ollama
 - Download from: https://ollama.ai/
 - Install and run Ollama
 - Pull the required model:
@@ -62,12 +86,12 @@ cd Canvas-with-observation-feeds-HTML
 ollama pull gemma3:1b
 ```
 
-### Step 3: Start Ollama Server
+#### Step 3: Start Ollama Server
 ```bash
 ollama serve
 ```
 
-### Step 4: Start Local Web Server
+#### Step 4: Start Local Web Server
 **Important**: You must start the server from the project directory that contains the HTML file.
 
 ```bash
@@ -76,10 +100,20 @@ python -m http.server 8000
 
 **Why this matters**: The web server serves files from the directory where it's started. If you start the server from a different directory, you'll get 404 errors when trying to access the HTML file.
 
-### Step 5: Access the Application
+#### Step 5: Access the Application
 Open your browser and go to: `http://localhost:8000/canvas-with-observation-feeds.html`
 
 **That's it!** The AI features will now work because both the web app and Ollama are running locally.
+
+### Enhanced Interface Features
+Once launched, you'll experience:
+- **Square Layout**: Optimized 2x2 grid for balanced viewing
+- **Full-Height Feeds**: Maximum content visibility in each panel
+- **Real-Time Status**: Live orchestration updates in the header
+- **Dynamic Placeholders**: Context-aware status messages
+- **Keyboard Shortcuts**: Prominent CTRL+mousewheel display for resizing
+- **No Breathing Effect**: Clean, professional animations
+- **Active Synthesis Indicators**: Visual feedback for AI processing
 
 ## Why GitHub Pages Won't Work
 
@@ -260,46 +294,84 @@ pollingIntervals: {
 
 ### Common Issues
 
+**Batch File Won't Start**
+- Use `launch-canvas-fixed.bat` if you encounter pipe character issues
+- Ensure Python is installed and in your PATH
+- Run as Administrator if permission errors occur
+- Check that the batch file is in the same directory as the HTML file
+
 **Ollama Connection Failed**
 - Ensure Ollama is running: `ollama serve`
 - Check port 11434 is available
 - Verify model is pulled: `ollama list`
+- Try restarting Ollama if connection issues persist
 
 **Slow Performance**
 - Reduce polling frequency in configuration
 - Clear browser cache and localStorage
 - Use a local server instead of file:// protocol
+- Close other resource-intensive applications
 
 **AI Responses Not Appearing**
-- Check browser console for errors
-- Verify model compatibility
-- Ensure sufficient system resources
+- Check browser console for errors (F12)
+- Verify model compatibility with gemma3:1b
+- Ensure sufficient system resources (4GB+ RAM)
+- Try clearing AI memory and restarting
+
+**Interface Layout Issues**
+- Use CTRL+mousewheel to resize panels
+- Refresh the page if layout appears broken
+- Clear browser cache if CSS doesn't load properly
+- Ensure modern browser (Chrome 90+, Firefox 88+, Edge 90+)
 
 **Memory Issues**
 - Clear AI memory via the "🧠 Clear Memory" button
 - Reset localStorage if problems persist
+- Monitor RAM usage - close other applications if needed
+- Consider restarting the browser session
 
 ### Debug Mode
-Enable verbose logging by opening browser developer tools (F12) and monitoring the console for detailed operation logs.
+Enable verbose logging by opening browser developer tools (F12) and monitoring the console for detailed operation logs. Look for:
+- AI orchestration status messages
+- Network request/response details
+- Canvas change detection events
+- Memory usage warnings
+
+### Batch File Troubleshooting
+If the automated launch fails:
+1. Manually start Ollama: `ollama serve`
+2. Start web server: `python -m http.server 8000`
+3. Open browser to: `http://localhost:8000/canvas-with-observation-feeds.html`
+4. Check console for any remaining errors
 
 ## Contributing
 
 ### Development Setup
 1. Fork the repository
 2. Make changes to the HTML file
-3. Test with Ollama running locally
+3. Test using the provided batch files (`launch-canvas.bat` or `launch-canvas-fixed.bat`)
 4. Ensure cross-browser compatibility
+5. Verify all enhanced UI features work correctly (square layout, real-time status, shortcuts)
+
+### Testing Enhanced Features
+- **Layout Testing**: Verify 2x2 grid layout and CTRL+mousewheel resizing
+- **Status Updates**: Confirm real-time orchestration status in header
+- **Batch Files**: Test both batch file variants for proper startup sequence
+- **Performance**: Monitor memory usage with active AI synthesis
+- **Cross-browser**: Test on Chrome, Firefox, and Edge
 
 ### Code Style
 - Use consistent indentation (4 spaces)
 - Comment complex logic sections
 - Maintain separation of concerns in JavaScript functions
 - Follow HTML5 semantic standards
+- Preserve enhanced UI features and animations
 
 ### Feature Requests
 - Open issues for new AI system integrations
 - Suggest improvements to the governance hierarchy
 - Propose enhancements to the synthesis process
+- Request UI/UX improvements for the orchestration interface
 
 ## License
 
