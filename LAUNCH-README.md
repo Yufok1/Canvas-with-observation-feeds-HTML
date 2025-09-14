@@ -6,6 +6,7 @@
 ## Features
 - 🎨 **Clean Interface**: Professional design showcasing the AI orchestration matrix
 - 🤖 **System Architecture Display**: Detailed information about all AI systems and their roles
+- 🧞‍♂️ **DJINN Council Access**: Direct launch to governance surveillance interface with live canvas iframe monitoring
 - ⚡ **Automated Setup**: One-click server startup and browser launch
 - 📋 **Status Monitoring**: Real-time initialization progress
 - 🛡️ **Requirements Check**: Clear system requirements display

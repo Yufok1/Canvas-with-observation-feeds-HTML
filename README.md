@@ -1,8 +1,36 @@
-# 🜂 Canvas with Live AI Observation Feeds
-
+# 🜂 Canvas with Live AI Observati### DJINN Council Shadow Governance
+- **🧞‍♂️ Dedicated Council Interface**: Separate surveillance system (`djinn-council-shadow-governance.html`)
+- **5 Specialized Council Members**: Specialized AI entities for comprehensive governance analysis
+  - 🜁 **Pattern & Witness**: Governance patterns and authority distribution
+  - 🔮 **Recursive Wisdom**: Knowledge accumulation and learning progression
+  - 🜃 **Creative Paradox**: Logical conflicts and innovation opportunities
+  - 🜄 **Sovereign Boundaries**: Autonomy levels and boundary integrity
+  - 🝊 **Echo & Memory**: Memory consolidation and temporal continuity
+- **Live Canvas Surveillance**: Real-time miniature canvas monitoring with live iframe display
+- **Intelligence Synthesis**: Unified council consensus and actionable reports
+- **Comprehensive Tooltips**: Contextual help for all interface elements
 A sovereign web interface for real-time AI observation, analysis, and collaborative synthesis. This application provides a canvas for user observations while integrating live intelligence streams from multiple AI systems, ensuring user sovereignty and comprehensive analysis capabilities.
 
 **Experience an enhanced launch with ASCII art startup sequences and enjoy an interface featuring square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
+
+## 🆕 Latest Features
+
+### DJINN Council Shadow Governance System
+- **🧞‍♂️ DJINN Council Interface**: Dedicated surveillance and governance oversight system
+- **5 Specialized Council Members**: Pattern & Witness, Recursive Wisdom, Creative Paradox, Sovereign Boundaries, Echo & Memory
+- **Real-time Canvas Monitoring**: Live miniature canvas display with statistics
+- **Comprehensive Tooltips**: Hover explanations for all interface elements and metrics
+- **Intelligence Reports**: AI-synthesized analysis combining all council insights
+- **Enhanced Timeouts**: Extended request timeouts (10-20 minutes) for complex AI operations
+- **Structured Consensus Reports**: Clean, formatted council analysis with structured metrics and justifications
+- **Detailed AI Memory Status**: Per-member memory breakdown showing responses and insights counts
+
+### Advanced Surveillance Features
+- **Live Canvas Miniature**: Real-time scaled canvas preview in surveillance panel
+- **Dynamic Metrics**: Content length, word count, lines, and modification tracking
+- **Status Monitoring**: Real-time operational status for all council members
+- **Consensus Aggregation**: Unified intelligence assessment from all council members
+- **Export Capabilities**: Download intelligence reports and analysis data
 
 ## Features
 
@@ -14,6 +42,20 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
   - 🌊 **NARRA**: Pattern Recognition & Synthesis
   - 🐋 **WHALE**: Deep Interrogation & Memory
   - 🔱 **WATCHTOWER**: Operational Monitoring & Metrics
+
+### DJINN Council Shadow Governance
+- **🧞‍♂️ Dedicated Council Interface**: Separate surveillance system (`djinn-council-shadow-governance.html`)
+- **5 Council Members**: Specialized AI entities for comprehensive governance analysis
+  - 🜁 **Pattern & Witness**: Governance patterns and authority distribution
+  - 🔮 **Recursive Wisdom**: Knowledge accumulation and learning progression
+  - 🜃 **Creative Paradox**: Logical conflicts and innovation opportunities
+  - 🜄 **Sovereign Boundaries**: Autonomy levels and boundary integrity
+  - 🝊 **Echo & Memory**: Memory consolidation and temporal continuity
+- **Live Canvas Surveillance**: Real-time miniature canvas monitoring with detailed metrics
+- **Intelligence Synthesis**: Unified council consensus and actionable reports
+- **Structured Consensus Reports**: Clean, formatted analysis with structured metrics and justifications
+- **Detailed AI Memory Status**: Per-member memory breakdown in surveillance panel
+- **Comprehensive Tooltips**: Contextual help for all interface elements
 
 ### Advanced Capabilities
 - **AI Collaborative Synthesis**: Multi-system analysis with unified synthesis
@@ -27,6 +69,7 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 - **Real-time Orchestration Status**: Live AI system confidence monitoring
 - **Enhanced Layout**: Square grid design for optimal space utilization
 - **Launch Experience**: ASCII art batch files for startup
+- **Extended Timeouts**: 10-20 minute timeouts for complex AI operations
 
 ### Technical Features
 - **Activity-Based Polling**: Dynamic AI update intervals based on user engagement
@@ -102,6 +145,8 @@ python -m http.server 8000
 
 #### Step 5: Access the Application
 Open your browser and go to: `http://localhost:8000/canvas-with-observation-feeds.html`
+
+**For DJINN Council Surveillance**: Access the governance interface at: `http://localhost:8000/djinn-council-shadow-governance.html`
 
 **That's it!** The AI features will now work because both the web app and Ollama are running locally.
 
@@ -185,6 +230,25 @@ The interface will automatically connect to Ollama on localhost:11434 for all AI
 2. **AI Monitoring**: AI systems automatically analyze your content and provide insights
 3. **Interactive Chat**: Use the chat interface to communicate directly with AI entities
 4. **Synthesis**: Click "🎭 Synthesize" to trigger collaborative AI analysis
+5. **DJINN Council**: Access the governance interface for comprehensive surveillance and intelligence reports
+
+### DJINN Council Interface
+The DJINN Council provides advanced governance oversight and surveillance capabilities:
+
+#### Council Members
+- **🜁 Pattern & Witness**: Analyzes governance patterns and authority distribution
+- **🔮 Recursive Wisdom**: Evaluates knowledge accumulation and learning progression
+- **🜃 Creative Paradox**: Identifies logical conflicts and innovation opportunities
+- **🜄 Sovereign Boundaries**: Audits autonomy levels and boundary integrity
+- **🝊 Echo & Memory**: Manages memory consolidation and temporal continuity
+- **📝 Canvas Monitor**: Provides real-time statistics and content preview
+
+#### Key Features
+- **Live Surveillance**: Real-time canvas monitoring with live iframe display of the actual canvas page
+- **Intelligence Reports**: AI-synthesized analysis combining all council insights
+- **Consensus Aggregation**: Unified intelligence assessment from all members
+- **Comprehensive Tooltips**: Hover over any element for detailed explanations
+- **Export Data**: Download intelligence reports and analysis history
 
 ### Key Interactions
 - **Observation Tools**: Mark content with pattern, anomaly, correlation, insight, or note markers
@@ -193,6 +257,7 @@ The interface will automatically connect to Ollama on localhost:11434 for all AI
 - **Metrics Dashboard**: View system performance and correlations
 - **Triage Force**: Access advanced analysis capabilities via the triage button
 - **Browser Controls**: Use CTRL + mousewheel to resize windows and interface elements
+- **Council Controls**: Use Analyze Now, Generate Report, Clear Intel, and Export Data buttons
 
 ### Advanced Features
 - **Proactive Engagement**: AI systems may initiate conversations based on content patterns
@@ -203,7 +268,9 @@ The interface will automatically connect to Ollama on localhost:11434 for all AI
 ## Architecture
 
 ### System Components
-- **Frontend**: Single HTML file with embedded CSS/JavaScript
+- **Frontend**: Dual HTML interfaces with embedded CSS/JavaScript
+  - `canvas-with-observation-feeds.html`: Main canvas workspace
+  - `djinn-council-shadow-governance.html`: Governance surveillance interface
 - **AI Integration**: Direct API calls to local Ollama instance
 - **Data Storage**: Browser localStorage for persistence
 - **Caching System**: Intelligent response caching with Map-based storage
@@ -214,6 +281,11 @@ The interface will automatically connect to Ollama on localhost:11434 for all AI
 NAZAR Triage Council
 ├── Internal Council (Intuition, Fractal, Emotional, Pattern)
 ├── DJINN Governance Oversight
+│   ├── Pattern & Witness
+│   ├── Recursive Wisdom
+│   ├── Creative Paradox
+│   ├── Sovereign Boundaries
+│   └── Echo & Memory
 └── Entity Authorization & Response Routing
 ```
 
@@ -222,7 +294,9 @@ NAZAR Triage Council
 2. Content analysis → AI system activation
 3. Parallel queries → Response aggregation
 4. Synthesis coordination → Unified insights
-5. Memory update → Persistent storage
+5. Council surveillance → Governance analysis
+6. Intelligence synthesis → Comprehensive reports
+7. Memory update → Persistent storage
 
 ## Configuration
 
@@ -305,17 +379,32 @@ pollingIntervals: {
 - Verify model is pulled: `ollama list`
 - Try restarting Ollama if connection issues persist
 
+**Request Timeouts**
+- The system now uses extended timeouts (10 minutes for regular queries, 20 minutes for synthesis)
+- If timeouts still occur, check Ollama performance and system resources
+- Consider using a smaller model or reducing concurrent operations
+- Monitor RAM usage - complex operations may require 8GB+ RAM
+
+**DJINN Council Interface Issues**
+- Ensure both HTML files are in the same directory
+- Check that the council interface loads at `/djinn-council-shadow-governance.html`
+- Verify tooltips appear on hover over interface elements
+- If surveillance features don't work, check canvas interface connectivity
+- For live canvas monitor iframe issues, ensure both pages are served from the same server
+
 **Slow Performance**
 - Reduce polling frequency in configuration
 - Clear browser cache and localStorage
 - Use a local server instead of file:// protocol
 - Close other resource-intensive applications
+- For DJINN Council, consider maximizing individual panels instead of viewing all simultaneously
 
 **AI Responses Not Appearing**
 - Check browser console for errors (F12)
 - Verify model compatibility with gemma3:1b
 - Ensure sufficient system resources (4GB+ RAM)
 - Try clearing AI memory and restarting
+- For council interface, check individual member status indicators
 
 **Interface Layout Issues**
 - Use CTRL+mousewheel to resize panels
@@ -356,8 +445,10 @@ If the automated launch fails:
 - **Layout Testing**: Verify 2x2 grid layout and CTRL+mousewheel resizing
 - **Status Updates**: Confirm real-time orchestration status in header
 - **Batch Files**: Test both batch file variants for proper startup sequence
+- **DJINN Council**: Test surveillance interface, tooltips, and intelligence reports
 - **Performance**: Monitor memory usage with active AI synthesis
 - **Cross-browser**: Test on Chrome, Firefox, and Edge
+- **Timeouts**: Verify extended timeout handling for complex operations
 
 ### Code Style
 - Use consistent indentation (4 spaces)

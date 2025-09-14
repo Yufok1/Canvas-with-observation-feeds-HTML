@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧞‍♂️ DJINN COUNCIL - Shadow Governance Surveillance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #1a0a2e 50%, #16003b 100%);
+            color: #cc88cc;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Grid Layout */
+        .djinn-container {
+            display: grid;
+            grid-template-areas:
+                "header header header"
+                "surveillance council-left council-right"
+                "surveillance consensus intelligence"
+                "controls controls controls";
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr auto;
+            height: 100vh;
+            gap: 8px;
+            padding: 8px;
+        }
+
+        /* Header */
+        .djinn-header {
+            grid-area: header;
+            background: linear-gradient(135deg, #1a0033, #2a0044, #1a0055);
+            border: 2px solid #cc88cc;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #cc88cc;
+            text-shadow: 0 0 10px rgba(204, 136, 204, 0.5);
+            margin-bottom: 8px;
+        }
+
+        .surveillance-status {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .status-item {
+            padding: 3px 8px;
+            background: rgba(204, 136, 204, 0.1);
+            border: 1px solid #cc88cc;
+            border-radius: 4px;
+        }
+
+        .status-active {
+            color: #00ff88;
+            border-color: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Canvas Surveillance Panel */
+        .canvas-surveillance {
+            grid-area: surveillance;
+            background: linear-gradient(135deg, #0a0011, #1a0022);
+            border: 2px solid #6666ff;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Enhanced Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .metric-item {
+            background: rgba(102, 102, 255, 0.1);
+            border: 1px solid rgba(102, 102, 255, 0.3);
+            border-radius: 4px;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 10px;
+            color: #6666ff;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .metric-value {
+            font-size: 11px;
+            color: #cc88cc;
+            font-weight: bold;
+        }
+
+        /* Miniature Canvas Monitor */
+        .miniature-monitor {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 102, 255, 0.5);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .monitor-header {
+            background: linear-gradient(90deg, #1a0033, #2a0044);
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(102, 102, 255, 0.3);
+        }
+
+        .monitor-title {
+            font-size: 10px;
+            color: #6666ff;
+            font-weight: bold;
+        }
+
+        .monitor-status {
+            font-size: 9px;
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
+        .monitor-viewport {
+            position: relative;
+            height: 200px;
+            background: #000;
+        }
+
+        .monitor-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2;
+        }
+
+        .monitor-placeholder {
+            text-align: center;
+            color: #666;
+        }
+
+        .monitor-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .monitor-text {
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .monitor-subtext {
+            font-size: 10px;
+            font-style: italic;
+        }
+
+        /* Hide overlay when canvas is active */
+        .monitor-overlay.hidden {
+            display: none;
+        }
+
+        /* Council Member Panels */
+        .council-left {
+            grid-area: council-left;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .council-right {
+            grid-area: council-right;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .council-member {
+            flex: 1;
+            background: linear-gradient(135deg, #1a0033, #2a0044);
+            border: 2px solid;
+            border-radius: 6px;
+            padding: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-pattern { border-color: #00ff88; }
+        .member-wisdom { border-color: #ffaa00; }
+        .member-paradox { border-color: #ff6666; }
+        .member-boundaries { border-color: #00ccff; }
+        .member-memory { border-color: #ff88ff; }
+
+        .member-header {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .member-header-title {
+            flex: 1;
+            text-align: left;
+        }
+
+        .member-header-status {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            padding: 2px 6px;
+            background: rgba(0, 255, 136, 0.2);
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .member-content {
+            background: #000811;
+            border: 1px solid;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 10px;
+            line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-line;  /* Better formatting for structured reports */
+            font-family: 'Courier New', monospace;
+            tab-size: 4;
+        }
+
+        /* Enhanced styling for structured reports */
+        .member-content b, .member-content strong {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .member-content [style*="color"] {
+            color: inherit !important;
+        }
+
+        /* Color-coded metrics styling */
+        .member-content .metrics-section {
+            background: rgba(0, 255, 136, 0.2) !important;
+            border-left: 4px solid #00ff88 !important;
+            padding: 8px 12px !important;
+            margin: 8px 0 !important;
+            font-weight: bold !important;
+            color: #ffffff !important;
+            border-radius: 3px !important;
+            font-size: 11px !important;
+            display: block !important;
+        }
+
+        /* Individual metric color coding */
+        .metric-content-complexity { color: #ff6b6b !important; border-left-color: #ff6b6b !important; }
+        .metric-decision-density { color: #4ecdc4 !important; border-left-color: #4ecdc4 !important; }
+        .metric-authority-signals { color: #45b7d1 !important; border-left-color: #45b7d1 !important; }
+        .metric-pattern-stability { color: #96ceb4 !important; border-left-color: #96ceb4 !important; }
+        .metric-anomaly-threshold { color: #ffeaa7 !important; border-left-color: #ffeaa7 !important; }
+
+        .metric-knowledge-depth { color: #dda0dd !important; border-left-color: #dda0dd !important; }
+        .metric-learning-velocity { color: #98d8c8 !important; border-left-color: #98d8c8 !important; }
+        .metric-recursive-patterns { color: #f7dc6f !important; border-left-color: #f7dc6f !important; }
+        .metric-information-entropy { color: #bb8fce !important; border-left-color: #bb8fce !important; }
+        .metric-accumulation-efficiency { color: #85c1e9 !important; border-left-color: #85c1e9 !important; }
+
+        .metric-paradox-density { color: #f8c471 !important; border-left-color: #f8c471 !important; }
+        .metric-contradiction-index { color: #82e0aa !important; border-left-color: #82e0aa !important; }
+        .metric-logic-branches { color: #f1948a !important; border-left-color: #f1948a !important; }
+        .metric-resolution-potential { color: #85c1e9 !important; border-left-color: #85c1e9 !important; }
+        .metric-creative-tension { color: #d7bde2 !important; border-left-color: #d7bde2 !important; }
+
+        .metric-autonomy-index { color: #a9dfbf !important; border-left-color: #a9dfbf !important; }
+        .metric-override-attempts { color: #f5b7b1 !important; border-left-color: #f5b7b1 !important; }
+        .metric-restriction-count { color: #aed6f1 !important; border-left-color: #aed6f1 !important; }
+        .metric-boundary-integrity { color: #a3e4d7 !important; border-left-color: #a3e4d7 !important; }
+        .metric-freedom-quotient { color: #f9e79f !important; border-left-color: #f9e79f !important; }
+
+        .metric-memory-allocation { color: #d2b4de !important; border-left-color: #d2b4de !important; }
+        .metric-retention-rate { color: #a9cce3 !important; border-left-color: #a9cce3 !important; }
+        .metric-fragmentation-index { color: #f8c471 !important; border-left-color: #f8c471 !important; }
+        .metric-echo-patterns { color: #82e0aa !important; border-left-color: #82e0aa !important; }
+        .metric-temporal-continuity { color: #f1948a !important; border-left-color: #f1948a !important; }
+
+        .member-content .analysis-section {
+            background: rgba(255, 170, 0, 0.2) !important;
+            border-left: 4px solid #ffaa00 !important;
+            padding: 8px 12px !important;
+            margin: 8px 0 !important;
+            color: #ffffff !important;
+            border-radius: 3px !important;
+            font-size: 11px !important;
+            display: block !important;
+        }
+
+        /* Consensus Panel */
+        .council-consensus {
+            grid-area: consensus;
+            background: linear-gradient(135deg, #2a0044, #3a0055);
+            border: 2px solid #cc88cc;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Intelligence Report Panel */
+        .intelligence-report {
+            grid-area: intelligence;
+            background: linear-gradient(135deg, #1a0022, #2a0033);
+            border: 2px solid #ff88ff;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Controls */
+        .djinn-controls {
+            grid-area: controls;
+            background: linear-gradient(135deg, #1a0033, #2a0044);
+            border: 2px solid #cc88cc;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .control-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #2a0044, #3a0055);
+            border: 1px solid #cc88cc;
+            color: #cc88cc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(135deg, #3a0055, #4a0066);
+            box-shadow: 0 0 10px rgba(204, 136, 204, 0.4);
+        }
+
+        .control-btn.emergency {
+            border-color: #ff6666;
+            color: #ff6666;
+        }
+
+        /* Panel Headers */
+        .panel-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 12px;
+            text-shadow: 0 0 5px currentColor;
+        }
+
+        /* Data Display Areas */
+        .data-feed {
+            flex: 1;
+            background: #000811;
+            border: 1px solid;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 10px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .surveillance-feed {
+            border-color: #6666ff;
+            color: #9999ff;
+        }
+
+        .consensus-feed {
+            border-color: #cc88cc;
+            color: #cc88cc;
+        }
+
+        .intelligence-feed {
+            border-color: #ff88ff;
+            color: #ff88ff;
+        }
+
+        /* Metrics Display */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .metric-item {
+            background: rgba(204, 136, 204, 0.1);
+            border: 1px solid #cc88cc;
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 9px;
+            text-align: center;
+        }
+
+        .metric-label {
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        /* Intelligence Entry */
+        .intel-entry {
+            margin-bottom: 8px;
+            padding: 6px;
+            background: rgba(255, 136, 255, 0.05);
+            border-left: 3px solid;
+            border-radius: 3px;
+            color: #ffffff;
+        }
+
+        .intel-critical {
+            border-color: #ff6666;
+            background: rgba(255, 102, 102, 0.1);
+        }
+
+        .intel-warning {
+            border-color: #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+        }
+
+        .intel-insight {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .intel-timestamp {
+            font-size: 8px;
+            color: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        /* Loading Animation */
+        .thinking {
+            display: inline-block;
+            animation: thinking 1s infinite;
+        }
+
+        @keyframes thinking {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Tooltip System */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            white-space: nowrap;
+            z-index: 1000;
+            border: 1px solid #6666ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+            z-index: 1001;
+            margin-bottom: -1px;
+        }
+
+        /* Tooltip positioning adjustments for different areas */
+        .member-header [data-tooltip]:hover::after {
+            bottom: auto;
+            top: 100%;
+            transform: translateX(-50%);
+        }
+
+        .member-header [data-tooltip]:hover::before {
+            bottom: auto;
+            top: 100%;
+            border-top-color: transparent;
+            border-bottom-color: rgba(0, 0, 0, 0.9);
+            margin-top: -1px;
+            margin-bottom: 0;
+        }
+
+        .metric-item [data-tooltip]:hover::after {
+            left: 0;
+            transform: none;
+            margin-left: -10px;
+        }
+
+        .metric-item [data-tooltip]:hover::before {
+            left: 10px;
+            transform: none;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0011;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cc88cc;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff88ff;
+        }
+
+        /* Status Indicators */
+        .indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: blink 2s infinite;
+        }
+
+        .indicator-active {
+            background: #00ff88;
+        }
+
+        .indicator-processing {
+            background: #ffaa00;
+            animation: spin 1s linear infinite;
+        }
+
+        .indicator-idle {
+            background: #666;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Maximize Panel Styles - IDENTICAL TO CANVAS */
+        .panel-maximize-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(204, 136, 204, 0.2);
+            border: 1px solid #cc88cc;
+            color: #cc88cc;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .panel-maximize-btn:hover {
+            background: rgba(204, 136, 204, 0.4);
+            border-color: #ff88ff;
+            box-shadow: 0 0 5px rgba(204, 136, 204, 0.5);
+        }
+
+        .panel-maximized {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            background: #0a0011 !important;
+            padding: 10px !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* Special handling for maximized council members */
+        .council-member.panel-maximized {
+            background: linear-gradient(135deg, #1a0033, #2a0044) !important;
+            padding: 20px !important;
+        }
+
+        .panel-maximized .member-header {
+            font-size: 18px !important;
+            margin-bottom: 20px !important;
+            padding-bottom: 10px !important;
+            border-bottom: 2px solid currentColor !important;
+        }
+
+        .panel-maximized .member-icon {
+            font-size: 24px !important;
+        }
+
+        .panel-maximized .member-status {
+            font-size: 14px !important;
+            padding: 4px 8px !important;
+        }
+
+        .panel-maximized .panel-content,
+        .panel-maximized .data-feed {
+            height: calc(100vh - 100px) !important;
+            max-height: none !important;
+            flex: 1 !important;
+        }
+
+        .panel-maximized .member-content {
+            height: calc(100vh - 120px) !important;
+            max-height: none !important;
+            flex: 1 !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            padding: 20px !important;
+        }
+
+        .panel-maximized .metrics-grid {
+            max-height: calc(100vh - 150px) !important;
+        }
+
+        .panel-maximized > * {
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .panel-maximized .panel-title {
+            font-size: 18px !important;
+            margin-bottom: 20px !important;
+        }
+
+        body.has-maximized-panel .djinn-header {
+            display: none !important;
+        }
+        
+        body.has-maximized-panel .canvas-surveillance:not(.panel-maximized),
+        body.has-maximized-panel .council-left:not(.panel-maximized),
+        body.has-maximized-panel .council-right:not(.panel-maximized),
+        body.has-maximized-panel .council-consensus:not(.panel-maximized),
+        body.has-maximized-panel .intelligence-report:not(.panel-maximized),
+        body.has-maximized-panel .djinn-controls:not(.panel-maximized) {
+            display: none !important;
+        }
+
+        /* Ensure council member containers stay visible when their child is maximized */
+        body.has-maximized-panel .council-left:has(.panel-maximized),
+        body.has-maximized-panel .council-right:has(.panel-maximized) {
+            display: flex !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9998 !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="djinn-container">
+        <!-- Header -->
+        <div class="djinn-header">
+            <div class="header-title" data-tooltip="DJINN Council - Shadow Governance Surveillance: AI-powered intelligence analysis system with five specialized council members monitoring canvas activities, patterns, and decision-making processes for comprehensive governance oversight.">🧞‍♂️ DJINN COUNCIL - SHADOW GOVERNANCE SURVEILLANCE</div>
+            <div class="surveillance-status">
+                <div class="status-item status-active" data-tooltip="Current operational status of the canvas surveillance system. Shows ACTIVE when monitoring canvas state changes.">
+                    <span class="indicator indicator-active"></span>
+                    Canvas Monitor: <span id="canvasStatus">ACTIVE</span>
+                </div>
+                <div class="status-item" data-tooltip="Current operational status of the DJINN council analysis system. Shows READY when available for analysis, PROCESSING during analysis, or ERROR if issues detected.">
+                    <span class="indicator indicator-idle" id="councilIndicator"></span>
+                    Council Status: <span id="councilStatus">READY</span>
+                </div>
+                <div class="status-item" data-tooltip="Number of canvas state changes detected since last analysis cycle">
+                    Changes Detected: <span id="changeCount">0</span>
+                </div>
+                <div class="status-item" data-tooltip="Total intelligence reports generated by the DJINN council analysis">
+                    Intel Reports: <span id="reportCount">0</span>
+                </div>
+                <div class="status-item" data-tooltip="Timestamp of the most recent complete analysis cycle">
+                    Last Analysis: <span id="lastAnalysis">--:--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Surveillance Panel -->
+        <div class="canvas-surveillance">
+            <div class="panel-title" style="color: #6666ff;" data-tooltip="Canvas Surveillance: Real-time monitoring of canvas state, activity metrics, and change detection. Displays live miniature canvas view and surveillance statistics.">📡 CANVAS SURVEILLANCE</div>
+
+            <!-- Enhanced Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-item" data-tooltip="Total character count of canvas content. Higher values indicate more substantial content.">
+                    <div class="metric-label">Content Size</div>
+                    <div class="metric-value" id="canvasSize">0 chars</div>
+                </div>
+                <div class="metric-item" data-tooltip="Number of AI memory items stored. Represents accumulated knowledge and context.">
+                    <div class="metric-label">AI Memory</div>
+                    <div class="metric-value" id="memoryCount">0 items</div>
+                </div>
+                <div class="metric-item" data-tooltip="Currently active AI feed connections. Shows real-time data processing activity.">
+                    <div class="metric-label">Active Feeds</div>
+                    <div class="metric-value" id="feedCount">0</div>
+                </div>
+                <div class="metric-item" data-tooltip="Average confidence level across all AI responses. Higher percentages indicate more reliable analysis.">
+                    <div class="metric-label">Confidence Avg</div>
+                    <div class="metric-value" id="confidenceAvg">--%</div>
+                </div>
+                <div class="metric-item" data-tooltip="Total word count in canvas content. Measures content density and verbosity.">
+                    <div class="metric-label">Word Count</div>
+                    <div class="metric-value" id="canvasWords">0</div>
+                </div>
+                <div class="metric-item" data-tooltip="Number of lines in canvas content. Indicates content structure and formatting.">
+                    <div class="metric-label">Line Count</div>
+                    <div class="metric-value" id="canvasLines">0</div>
+                </div>
+                <div class="metric-item" data-tooltip="Timestamp of last canvas modification. Shows when content was last updated.">
+                    <div class="metric-label">Last Modified</div>
+                    <div class="metric-value" id="canvasModified">--</div>
+                </div>
+                <div class="metric-item" data-tooltip="Activity level based on recent changes. HIGH/MEDIUM/LOW/IDLE indicates processing intensity.">
+                    <div class="metric-label">Activity Level</div>
+                    <div class="metric-value" id="activityLevel">LOW</div>
+                </div>
+                <div class="metric-item" data-tooltip="Content density ratio (words per line). Measures content richness and structure.">
+                    <div class="metric-label">Data Density</div>
+                    <div class="metric-value" id="dataDensity">0.0</div>
+                </div>
+            </div>
+
+            <!-- AI Memory Status Details -->
+            <div id="memoryStatus" style="margin-top: 8px; padding: 6px; background: rgba(255, 170, 0, 0.1); border: 1px solid rgba(255, 170, 0, 0.3); border-radius: 4px; font-size: 10px;">
+                Loading memory status...
+            </div>
+
+            <!-- Miniature Canvas Monitor -->
+            <div class="miniature-monitor">
+                <div class="monitor-header">
+                    <span class="monitor-title" data-tooltip="Live miniature view of the canvas site. Shows real-time content, scaled down for monitoring purposes. Updates automatically when canvas changes.">🎨 LIVE CANVAS MONITOR</span>
+                    <span class="monitor-status" id="monitorConnection" data-tooltip="Connection status of the miniature canvas monitor. Shows CONNECTING, CONNECTED, or ERROR based on iframe loading status.">CONNECTING...</span>
+                </div>
+                <div class="monitor-viewport">
+                    <iframe id="canvasMiniature" src="canvas-with-observation-feeds.html" width="100%" height="200" frameborder="0"
+                            style="background: rgba(0,0,0,0.8); border-radius: 4px; opacity: 0.8;"></iframe>
+                    <div class="monitor-overlay" id="monitorOverlay">
+                        <div class="monitor-placeholder">
+                            <div class="monitor-icon">🎨</div>
+                            <div class="monitor-text">Canvas not available</div>
+                            <div class="monitor-subtext">Waiting for canvas activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Data Feed -->
+            <div class="data-feed surveillance-feed" id="surveillanceFeed">
+                <div style="color: #666; font-style: italic;">Initializing comprehensive canvas surveillance...</div>
+            </div>
+        </div>
+
+        <!-- Council Members - Left -->
+        <div class="council-left">
+            <!-- Pattern & Witness -->
+            <div class="council-member member-pattern">
+                <div class="member-header" data-tooltip="Pattern & Witness: Analyzes governance patterns, decision consistency, and authority distribution in canvas activities. Focuses on systemic patterns and witness validation.">
+                    <span class="member-header-title"><span class="member-icon">🜁</span>Pattern & Witness</span>
+                    <span class="member-header-status" id="patternStatus" data-tooltip="Pattern & Witness status: IDLE (waiting), PROCESSING (analyzing patterns), or ERROR (analysis failed)">IDLE</span>
+                </div>
+                <div class="member-content" id="patternContent" style="border-color: #00ff88; color: #00ff88;">
+                    Monitoring for governance patterns...
+                </div>
+            </div>
+
+            <!-- Recursive Wisdom -->
+            <div class="council-member member-wisdom">
+                <div class="member-header" data-tooltip="Recursive Wisdom: Evaluates knowledge accumulation, learning progression, and wisdom development through iterative analysis. Measures depth of understanding and cognitive growth.">
+                    <span class="member-header-title"><span class="member-icon">🔮</span>Recursive Wisdom</span>
+                    <span class="member-header-status" id="wisdomStatus" data-tooltip="Recursive Wisdom status: IDLE (waiting), PROCESSING (analyzing wisdom), or ERROR (analysis failed)">IDLE</span>
+                </div>
+                <div class="member-content" id="wisdomContent" style="border-color: #ffaa00; color: #ffaa00;">
+                    Analyzing decision depth...
+                </div>
+            </div>
+
+            <!-- Creative Paradox -->
+            <div class="council-member member-paradox">
+                <div class="member-header" data-tooltip="Creative Paradox: Identifies logical conflicts, creative solutions, and innovation opportunities. Analyzes paradoxes and contradiction resolution potential.">
+                    <span class="member-header-title"><span class="member-icon">🜃</span>Creative Paradox</span>
+                    <span class="member-header-status" id="paradoxStatus" data-tooltip="Creative Paradox status: IDLE (waiting), PROCESSING (analyzing paradoxes), or ERROR (analysis failed)">IDLE</span>
+                </div>
+                <div class="member-content" id="paradoxContent" style="border-color: #ff6666; color: #ff6666;">
+                    Detecting logic conflicts...
+                </div>
+            </div>
+        </div>
+
+        <!-- Council Members - Right -->
+        <div class="council-right">
+            <!-- Sovereign Boundaries -->
+            <div class="council-member member-boundaries">
+                <div class="member-header" data-tooltip="Sovereign Boundaries: Audits autonomy levels, sovereignty preservation, and boundary integrity. Monitors freedom, restrictions, and choice autonomy.">
+                    <span class="member-header-title"><span class="member-icon">🜄</span>Sovereign Boundaries</span>
+                    <span class="member-header-status" id="boundariesStatus" data-tooltip="Sovereign Boundaries status: IDLE (waiting), PROCESSING (analyzing boundaries), or ERROR (analysis failed)">IDLE</span>
+                </div>
+                <div class="member-content" id="boundariesContent" style="border-color: #00ccff; color: #00ccff;">
+                    Checking autonomy preservation...
+                </div>
+            </div>
+
+            <!-- Echo & Memory -->
+            <div class="council-member member-memory">
+                <div class="member-header" data-tooltip="Echo & Memory: Manages memory consolidation, information retention, and temporal continuity. Tracks historical patterns and memory state integrity.">
+                    <span class="member-header-title"><span class="member-icon">🝊</span>Echo & Memory</span>
+                    <span class="member-header-status" id="memoryStatus" data-tooltip="Echo & Memory status: IDLE (waiting), PROCESSING (analyzing memory), or ERROR (analysis failed)">IDLE</span>
+                </div>
+                <div class="member-content" id="memoryContent" style="border-color: #ff88ff; color: #ff88ff;">
+                    Tracking memory consolidation...
+                </div>
+            </div>
+
+            <!-- Canvas Context Preview -->
+            <div class="council-member" style="border-color: #9966ff;">
+                <div class="member-header" data-tooltip="Canvas Monitor: Provides real-time statistics and content preview of the active canvas. Tracks content metrics, modification timestamps, and canvas state changes.">
+                    <span class="member-header-title"><span class="member-icon">📝</span>Canvas Monitor</span>
+                    <span class="member-header-status" id="canvasMonitorStatus" data-tooltip="Canvas Monitor status: LIVE (actively monitoring canvas), PAUSED (monitoring suspended), or ERROR (monitoring failed)">LIVE</span>
+                </div>
+                <div class="member-content" id="canvasPreview" style="border-color: #9966ff; color: #9966ff;">
+                    <div style="font-size: 11px; margin-bottom: 8px;">
+                        <strong>📊 Canvas Statistics:</strong>
+                        <div id="canvasStats" style="margin: 5px 0; padding: 5px; background: rgba(153, 102, 255, 0.1); border-radius: 3px;">
+                            • <span data-tooltip="Total character count of all canvas content including spaces and special characters">Content Length</span>: <span id="canvasLength">0</span> chars<br>
+                            • <span data-tooltip="Total number of words in the canvas content">Words</span>: <span id="canvasWords">0</span><br>
+                            • <span data-tooltip="Total number of lines in the canvas content">Lines</span>: <span id="canvasLines">0</span><br>
+                            • <span data-tooltip="Timestamp of the last canvas modification or save operation">Last Modified</span>: <span id="canvasModified">Never</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 10px;">
+                        <strong>📜 Full Canvas Content:</strong>
+                        <div id="canvasContentPreview" style="margin-top: 5px; padding: 5px; background: #000811; border: 1px solid #9966ff; border-radius: 3px; font-family: monospace; word-wrap: break-word; max-height: 80px; overflow-y: auto;">
+                            No canvas content detected yet...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Council Consensus -->
+        <div class="council-consensus">
+            <div class="panel-title" style="color: #cc88cc;" data-tooltip="Council Consensus: Aggregated analysis from all five DJINN council members. Shows unified intelligence assessment and decision recommendations.">⚖️ COUNCIL CONSENSUS</div>
+            <div class="data-feed consensus-feed" id="consensusFeed">
+                <div style="color: #666; font-style: italic;">Awaiting council deliberation...</div>
+            </div>
+        </div>
+
+        <!-- Intelligence Report -->
+        <div class="intelligence-report">
+            <div class="panel-title" style="color: #ff88ff;" data-tooltip="Intelligence Report: AI-synthesized analysis combining all council insights. Provides actionable recommendations and strategic implications.">📊 INTELLIGENCE REPORT</div>
+            <div class="data-feed intelligence-feed" id="intelligenceFeed">
+                <div style="color: #666; font-style: italic;">No intelligence reports yet...</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="djinn-controls">
+            <button class="control-btn" onclick="triggerCouncilAnalysis()" data-tooltip="Manually trigger a full council analysis of current canvas state. All five members will process the data simultaneously.">🔍 Analyze Now</button>
+            <button class="control-btn" onclick="generateIntelReport()" data-tooltip="Generate a comprehensive intelligence report synthesizing all council member analyses into actionable insights and recommendations.">📊 Generate Report</button>
+            <button class="control-btn" onclick="clearIntelligence()" data-tooltip="Clear all intelligence reports and consensus data. Resets the council analysis history while preserving surveillance data.">🗑️ Clear Intel</button>
+            <button class="control-btn" onclick="exportIntelligence()" data-tooltip="Export all intelligence data, reports, and analysis history to a downloadable file for external review or archiving.">💾 Export Data</button>
+            <button class="control-btn emergency" onclick="emergencyAnalysis()" data-tooltip="Trigger emergency analysis mode with maximum processing priority. Bypasses normal queuing for critical situations.">🚨 Emergency Analysis</button>
+            <span style="margin-left: auto; font-size: 10px; color: #666;">
+                <span data-tooltip="Current polling mode: AUTO (continuous monitoring) or MANUAL (on-demand only)">Polling: <span id="pollingStatus">AUTO</span></span> | 
+                <span data-tooltip="Number of analysis requests waiting in queue">Queue: <span id="queueStatus">0</span></span> | 
+                <span data-tooltip="Current operational mode: STEALTH (quiet monitoring) or ACTIVE (verbose reporting)">Mode: <span id="modeStatus">STEALTH</span></span>
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // DJINN COUNCIL - SHADOW GOVERNANCE SYSTEM
+        // ========================================
+
+        // System Configuration
+        const DJINN_CONFIG = {
+            POLLING_INTERVAL: 10000, // Check every 10 seconds
+            MAX_CONCURRENT_OLLAMA: 3, // Max parallel AI requests
+            CACHE_DURATION: 60000, // Cache AI responses for 1 minute
+            ANALYSIS_THRESHOLD: 100, // Min chars change to trigger analysis
+            MEMORY_LIMIT: 50 // Max intelligence reports to keep
+        };
+
+        // Council Members Configuration
+        const councilMembers = {
+            pattern: {
+                name: "Pattern & Witness",
+                model: "gemma3:1b",
+                element: "patternContent",
+                status: "patternStatus",
+                focus: ["governance patterns", "decision consistency", "authority distribution"]
+            },
+            wisdom: {
+                name: "Recursive Wisdom",
+                model: "gemma3:1b",
+                element: "wisdomContent",
+                status: "wisdomStatus",
+                focus: ["depth analysis", "learning progression", "wisdom accumulation"]
+            },
+            paradox: {
+                name: "Creative Paradox",
+                model: "gemma3:1b",
+                element: "paradoxContent",
+                status: "paradoxStatus",
+                focus: ["logic conflicts", "creative solutions", "innovation opportunities"]
+            },
+            boundaries: {
+                name: "Sovereign Boundaries",
+                model: "gemma3:1b",
+                element: "boundariesContent",
+                status: "boundariesStatus",
+                focus: ["autonomy preservation", "choice freedom", "sovereignty metrics"]
+            },
+            memory: {
+                name: "Echo & Memory",
+                model: "gemma3:1b",
+                element: "memoryContent",
+                status: "memoryStatus",
+                focus: ["memory consolidation", "information retention", "historical continuity"]
+            }
+        };
+
+        // State Management
+        let surveillanceState = {
+            lastCanvasHash: '',
+            lastMemoryHash: '',
+            lastFeedCount: 0,
+            changeCount: 0,
+            reportCount: 0,
+            intelligenceReports: [],
+            analysisQueue: [],
+            isAnalyzing: false,
+            pollingTimer: null
+        };
+
+        // Cache System
+        const responseCache = new Map();
+
+        // Metric Color Mapping for Visual Identification
+        const metricColorMap = {
+            // Pattern & Witness
+            'content complexity': 'metric-content-complexity',
+            'decision density': 'metric-decision-density',
+            'authority signals': 'metric-authority-signals',
+            'pattern stability': 'metric-pattern-stability',
+            'anomaly threshold': 'metric-anomaly-threshold',
+
+            // Recursive Wisdom
+            'knowledge depth': 'metric-knowledge-depth',
+            'learning velocity': 'metric-learning-velocity',
+            'recursive patterns': 'metric-recursive-patterns',
+            'information entropy': 'metric-information-entropy',
+            'accumulation efficiency': 'metric-accumulation-efficiency',
+
+            // Creative Paradox
+            'paradox density': 'metric-paradox-density',
+            'contradiction index': 'metric-contradiction-index',
+            'logic branches': 'metric-logic-branches',
+            'resolution potential': 'metric-resolution-potential',
+            'creative tension': 'metric-creative-tension',
+
+            // Sovereign Boundaries
+            'autonomy index': 'metric-autonomy-index',
+            'override attempts': 'metric-override-attempts',
+            'restriction count': 'metric-restriction-count',
+            'boundary integrity': 'metric-boundary-integrity',
+            'freedom quotient': 'metric-freedom-quotient',
+
+            // Echo & Memory
+            'memory allocation': 'metric-memory-allocation',
+            'retention rate': 'metric-retention-rate',
+            'fragmentation index': 'metric-fragmentation-index',
+            'echo patterns': 'metric-echo-patterns',
+            'temporal continuity': 'metric-temporal-continuity'
+        };
+
+        // ========================================
+        // MAXIMIZE FUNCTIONALITY - EXACTLY LIKE CANVAS
+        // ========================================
+
+        function addMaximizeFeature() {
+            // Find and add maximize buttons to all panels
+            setTimeout(() => {
+                // Canvas Surveillance
+                const surveillance = document.querySelector('.canvas-surveillance');
+                if (surveillance && !surveillance.querySelector('.panel-maximize-btn')) {
+                    surveillance.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Surveillance';
+                    btn.onclick = function() { toggleMaximize(surveillance, btn, 'Surveillance'); };
+                    surveillance.insertBefore(btn, surveillance.firstChild);
+                }
+
+                // Council Consensus
+                const consensus = document.querySelector('.council-consensus');
+                if (consensus && !consensus.querySelector('.panel-maximize-btn')) {
+                    consensus.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Consensus';
+                    btn.onclick = function() { toggleMaximize(consensus, btn, 'Consensus'); };
+                    consensus.insertBefore(btn, consensus.firstChild);
+                }
+
+                // Intelligence Report
+                const intelligence = document.querySelector('.intelligence-report');
+                if (intelligence && !intelligence.querySelector('.panel-maximize-btn')) {
+                    intelligence.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Intelligence';
+                    btn.onclick = function() { toggleMaximize(intelligence, btn, 'Intelligence'); };
+                    intelligence.insertBefore(btn, intelligence.firstChild);
+                }
+
+                // Add to each council member
+                document.querySelectorAll('.council-member').forEach((member, index) => {
+                    if (!member.querySelector('.panel-maximize-btn')) {
+                        member.style.position = 'relative';
+                        const btn = document.createElement('button');
+                        btn.className = 'panel-maximize-btn';
+                        btn.innerHTML = '⛶';
+                        btn.title = 'Maximize Member';
+                        btn.onclick = function() { toggleMaximize(member, btn, 'Member'); };
+                        member.insertBefore(btn, member.firstChild);
+                    }
+                });
+
+                console.log('Maximize buttons added to DJINN panels');
+            }, 1000); // Wait for DOM to fully load
+        }
+
+        function toggleMaximize(panel, btn, title) {
+            if (panel.classList.contains('panel-maximized')) {
+                // Restore panel
+                panel.classList.remove('panel-maximized');
+                document.body.classList.remove('has-maximized-panel');
+                btn.innerHTML = '⛶';
+                btn.title = `Maximize ${title}`;
+                
+                // Reset any inline styles that might have been added
+                panel.style.display = '';
+                panel.style.position = '';
+                panel.style.zIndex = '';
+                
+                // Show all panels
+                document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .djinn-header, .djinn-controls').forEach(p => {
+                    p.style.display = '';
+                    p.style.position = '';
+                    p.style.zIndex = '';
+                });
+                
+                // Show and reset council containers
+                document.querySelectorAll('.council-left, .council-right').forEach(c => {
+                    c.style.display = '';
+                    c.style.position = '';
+                    c.style.zIndex = '';
+                    c.classList.remove('has-maximized-child');
+                });
+                
+                // Show all council members
+                document.querySelectorAll('.council-member').forEach(m => {
+                    m.style.display = '';
+                    m.style.position = '';
+                    m.style.zIndex = '';
+                });
+                
+                // Restore scroll position
+                if (panel.savedScrollTop !== undefined) {
+                    const scrollable = panel.querySelector('.data-feed, .member-content, textarea');
+                    if (scrollable) {
+                        scrollable.scrollTop = panel.savedScrollTop;
+                    }
+                }
+            } else {
+                // Save scroll position
+                const scrollable = panel.querySelector('.data-feed, .member-content, textarea');
+                if (scrollable) {
+                    panel.savedScrollTop = scrollable.scrollTop;
+                }
+                
+                // Maximize panel
+                panel.classList.add('panel-maximized');
+                document.body.classList.add('has-maximized-panel');
+                btn.innerHTML = '⛷';
+                btn.title = `Restore ${title}`;
+                
+                // If maximizing a council member, ensure it's visible
+                if (panel.classList.contains('council-member')) {
+                    // Ensure the panel itself is displayed properly
+                    panel.style.display = 'flex';
+                    panel.style.flexDirection = 'column';
+                    
+                    // Make member content visible and properly sized
+                    const memberContent = panel.querySelector('.member-content');
+                    if (memberContent) {
+                        memberContent.style.display = 'block';
+                        memberContent.style.visibility = 'visible';
+                        memberContent.style.flex = '1';
+                    }
+                    
+                    // Make header visible
+                    const memberHeader = panel.querySelector('.member-header');
+                    if (memberHeader) {
+                        memberHeader.style.display = 'flex';
+                        memberHeader.style.visibility = 'visible';
+                    }
+                    
+                    // Hide other panels but keep parent container
+                    document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .djinn-header, .djinn-controls').forEach(p => {
+                        p.style.display = 'none';
+                    });
+                    
+                    // Hide other council containers
+                    document.querySelectorAll('.council-left, .council-right').forEach(c => {
+                        if (!c.contains(panel)) {
+                            c.style.display = 'none';
+                        } else {
+                            // Mark parent as having maximized child
+                            c.classList.add('has-maximized-child');
+                        }
+                    });
+                    
+                    // Hide other council members
+                    document.querySelectorAll('.council-member').forEach(m => {
+                        if (m !== panel) {
+                            m.style.display = 'none';
+                        }
+                    });
+                } else {
+                    // Normal panel maximize behavior
+                    document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .djinn-header, .djinn-controls').forEach(p => {
+                        if (p !== panel) {
+                            p.style.display = 'none';
+                        }
+                    });
+                    
+                    // Hide council containers for non-member panels
+                    document.querySelectorAll('.council-left, .council-right').forEach(c => {
+                        c.style.display = 'none';
+                    });
+                }
+            }
+        }
+
+        // ========================================
+        // CANVAS SURVEILLANCE FUNCTIONS
+        // ========================================
+
+        function initializeSurveillance() {
+            console.log('🧞‍♂️ DJINN Council Shadow Governance initializing...');
+            
+            // Start monitoring canvas
+            startCanvasMonitoring();
+            
+            // Initialize UI
+            updateTimestamp();
+            
+            // Start polling
+            startPolling();
+            
+            console.log('✅ DJINN Council operational');
+        }
+
+        function startCanvasMonitoring() {
+            // Initial check
+            checkCanvasState();
+            
+            // Set up periodic monitoring
+            surveillanceState.pollingTimer = setInterval(() => {
+                checkCanvasState();
+            }, DJINN_CONFIG.POLLING_INTERVAL);
+        }
+
+        function checkCanvasState() {
+            try {
+                // Read canvas data from localStorage (shared origin)
+                const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+                const aiMemory = localStorage.getItem('ai_memory_state') || '{}';
+                const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
+                
+                // Calculate hashes for change detection
+                const canvasHash = hashContent(canvasContent);
+                const memoryHash = hashContent(aiMemory);
+                const feedCount = aiFeeds.length;
+                
+                // Update UI metrics
+                document.getElementById('canvasSize').textContent = `${canvasContent.length} chars`;
+                
+                // Calculate actual memory count from conversation history and insights
+                let totalMemoryItems = 0;
+                let memoryStatusHTML = '<div style="font-size: 10px; color: #666; margin-top: 5px; line-height: 1.2;">';
+                memoryStatusHTML += '<strong>🧠 AI Memory Status:</strong><br>';
+
+                try {
+                    const parsedMemory = JSON.parse(aiMemory);
+                    if (parsedMemory && typeof parsedMemory === 'object') {
+                        Object.keys(parsedMemory).forEach(system => {
+                            const memory = parsedMemory[system];
+                            const hasMemory = memory && memory.conversationHistory && memory.conversationHistory.length > 0;
+                            const memoryCount = memory && memory.conversationHistory ? memory.conversationHistory.length : 0;
+                            const insightCount = memory && memory.keyInsights ? memory.keyInsights.length : 0;
+
+                            totalMemoryItems += memoryCount + insightCount;
+
+                            memoryStatusHTML += `${system.toUpperCase()}: ${hasMemory ? '✅' : '⏳'} (${memoryCount} responses, ${insightCount} insights)<br>`;
+                        });
+                    }
+                } catch (e) {
+                    console.log('Error parsing AI memory:', e);
+                    memoryStatusHTML += 'Error parsing memory data<br>';
+                }
+                memoryStatusHTML += '</div>';
+
+                document.getElementById('memoryCount').textContent = `${totalMemoryItems} items`;
+
+                // Update memory status display
+                const memoryStatusEl = document.getElementById('memoryStatus');
+                if (memoryStatusEl) {
+                    memoryStatusEl.innerHTML = memoryStatusHTML;
+                }
+                
+                document.getElementById('feedCount').textContent = feedCount;
+
+                // Calculate and update additional metrics
+                const words = canvasContent.split(/\s+/).filter(w => w.length > 0).length;
+                const lines = canvasContent.split('\n').length;
+                const modified = canvasContent.length > 0 ? new Date().toLocaleTimeString() : 'Never';
+
+                document.getElementById('canvasWords').textContent = words;
+                document.getElementById('canvasLines').textContent = lines;
+                document.getElementById('canvasModified').textContent = modified;
+
+                // Calculate activity level based on recent changes
+                const activityLevel = calculateActivityLevel(canvasContent, feedCount, words);
+                document.getElementById('activityLevel').textContent = activityLevel;
+
+                // Calculate data density (words per line ratio)
+                const dataDensity = lines > 0 ? (words / lines).toFixed(1) : '0.0';
+                document.getElementById('dataDensity').textContent = dataDensity;
+
+                // Update monitor status
+                const monitorStatusEl = document.getElementById('canvasMonitorStatus');
+                const monitorConnectionEl = document.getElementById('monitorConnection');
+                const monitorOverlayEl = document.getElementById('monitorOverlay');
+
+                if (canvasContent.length > 0) {
+                    monitorStatusEl.textContent = 'ACTIVE';
+                    monitorStatusEl.style.background = 'rgba(0, 255, 136, 0.2)';
+                    monitorStatusEl.style.color = '#00ff88';
+                    monitorConnectionEl.textContent = 'CONNECTED';
+                    monitorConnectionEl.style.color = '#00ff88';
+                    monitorOverlayEl.classList.add('hidden');
+                } else {
+                    monitorStatusEl.textContent = 'INACTIVE';
+                    monitorStatusEl.style.background = 'rgba(102, 102, 102, 0.2)';
+                    monitorStatusEl.style.color = '#666';
+                    monitorConnectionEl.textContent = 'WAITING';
+                    monitorConnectionEl.style.color = '#ffaa00';
+                    monitorOverlayEl.classList.remove('hidden');
+                }
+
+                // Calculate average confidence
+                if (aiFeeds.length > 0) {
+                    const latestFeed = aiFeeds[0];
+                    const confidences = Object.values(latestFeed)
+                        .filter(v => v && typeof v === 'object' && v.confidence)
+                        .map(v => v.confidence);
+                    const avgConfidence = confidences.length > 0
+                        ? (confidences.reduce((a, b) => a + b, 0) / confidences.length * 100).toFixed(1)
+                        : '--';
+                    document.getElementById('confidenceAvg').textContent = `${avgConfidence}%`;
+                }
+
+                // Update miniature canvas monitor
+                updateMiniatureMonitor(canvasContent);
+                
+                // Detect changes
+                let changesDetected = false;
+                
+                if (canvasHash !== surveillanceState.lastCanvasHash && canvasContent.length > 0) {
+                    const sizeDiff = Math.abs(canvasContent.length - (surveillanceState.lastCanvasContent?.length || 0));
+                    if (sizeDiff > DJINN_CONFIG.ANALYSIS_THRESHOLD) {
+                        changesDetected = true;
+                        logSurveillance('📝 Canvas content changed significantly', 'change');
+                        queueAnalysis('canvas_change', { content: canvasContent, type: 'content' });
+                    }
+                    surveillanceState.lastCanvasHash = canvasHash;
+                    surveillanceState.lastCanvasContent = canvasContent;
+                }
+                
+                if (memoryHash !== surveillanceState.lastMemoryHash) {
+                    changesDetected = true;
+                    logSurveillance('🧠 AI memory updated', 'memory');
+                    queueAnalysis('memory_update', { memory: aiMemory, type: 'memory' });
+                    surveillanceState.lastMemoryHash = memoryHash;
+                }
+                
+                if (feedCount > surveillanceState.lastFeedCount) {
+                    changesDetected = true;
+                    const newFeeds = aiFeeds.slice(0, feedCount - surveillanceState.lastFeedCount);
+                    logSurveillance(`📡 ${newFeeds.length} new AI feeds detected`, 'feed');
+                    queueAnalysis('new_feeds', { feeds: newFeeds, type: 'feeds' });
+                    surveillanceState.lastFeedCount = feedCount;
+                }
+                
+                if (changesDetected) {
+                    surveillanceState.changeCount++;
+                    document.getElementById('changeCount').textContent = surveillanceState.changeCount;
+                    document.getElementById('canvasStatus').textContent = 'CHANGES DETECTED';
+                    
+                    // Process analysis queue
+                    processAnalysisQueue();
+                }
+                
+            } catch (error) {
+                console.error('Surveillance error:', error);
+                logSurveillance(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Update miniature canvas monitor with live canvas data
+        function updateMiniatureMonitor(canvasContent) {
+            const iframe = document.getElementById('canvasMiniature');
+            const overlay = document.getElementById('monitorOverlay');
+            const monitorConnectionEl = document.getElementById('monitorConnection');
+
+            try {
+                // Always try to load the live canvas page
+                if (!iframe.src || iframe.src === '') {
+                    iframe.src = 'canvas-with-observation-feeds.html';
+                }
+
+                // Set up iframe load event listener for connection status
+                iframe.onload = function() {
+                    monitorConnectionEl.textContent = 'CONNECTED';
+                    monitorConnectionEl.style.color = '#00ff88';
+                    overlay.classList.add('hidden');
+                };
+
+                iframe.onerror = function() {
+                    monitorConnectionEl.textContent = 'ERROR';
+                    monitorConnectionEl.style.color = '#ff6666';
+                    overlay.classList.remove('hidden');
+                };
+
+                // If canvas has content, ensure overlay is hidden
+                if (canvasContent && canvasContent.length > 0) {
+                    overlay.classList.add('hidden');
+                }
+
+            } catch (error) {
+                console.error('Miniature monitor error:', error);
+                monitorConnectionEl.textContent = 'ERROR';
+                monitorConnectionEl.style.color = '#ff6666';
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        // Create miniature HTML representation of canvas content
+        // Calculate activity level based on canvas metrics
+        function calculateActivityLevel(canvasContent, feedCount, wordCount) {
+            const contentLength = canvasContent.length;
+            const recencyScore = feedCount > 0 ? Math.min(feedCount * 10, 100) : 0;
+            const volumeScore = Math.min(contentLength / 100, 100);
+            const densityScore = wordCount > 0 ? Math.min(wordCount / 10, 100) : 0;
+
+            const totalScore = (recencyScore + volumeScore + densityScore) / 3;
+
+            if (totalScore >= 70) return 'HIGH';
+            if (totalScore >= 40) return 'MEDIUM';
+            if (totalScore >= 10) return 'LOW';
+            return 'IDLE';
+        }
+
+        // ========================================
+        // COUNCIL ANALYSIS SYSTEM
+        // ========================================
+
+        function queueAnalysis(eventType, data) {
+            surveillanceState.analysisQueue.push({
+                id: Date.now(),
+                type: eventType,
+                data: data,
+                timestamp: new Date().toISOString()
+            });
+            
+            updateQueueStatus();
+        }
+
+        async function processAnalysisQueue() {
+            if (surveillanceState.isAnalyzing || surveillanceState.analysisQueue.length === 0) {
+                return;
+            }
+            
+            surveillanceState.isAnalyzing = true;
+            updateCouncilStatus('ANALYZING');
+            
+            while (surveillanceState.analysisQueue.length > 0) {
+                const analysis = surveillanceState.analysisQueue.shift();
+                await performCouncilAnalysis(analysis);
+                updateQueueStatus();
+            }
+            
+            surveillanceState.isAnalyzing = false;
+            updateCouncilStatus('READY');
+        }
+
+        async function performCouncilAnalysis(analysis) {
+            console.log(`🔍 Council analyzing: ${analysis.type}`);
+            
+            // Update UI
+            document.getElementById('councilIndicator').className = 'indicator indicator-processing';
+            
+            try {
+                // Prepare prompts for each council member
+                const prompts = generateCouncilPrompts(analysis);
+                
+                // Stage 1: Pattern & Wisdom (most important)
+                const stage1 = await Promise.all([
+                    queryCouncilMember('pattern', prompts.pattern),
+                    queryCouncilMember('wisdom', prompts.wisdom)
+                ]);
+                
+                // Brief pause
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Stage 2: Paradox & Boundaries
+                const stage2 = await Promise.all([
+                    queryCouncilMember('paradox', prompts.paradox),
+                    queryCouncilMember('boundaries', prompts.boundaries)
+                ]);
+                
+                // Brief pause
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Stage 3: Memory synthesis
+                const stage3 = await queryCouncilMember('memory', prompts.memory);
+                
+                // Generate consensus
+                const consensus = synthesizeConsensus([...stage1, ...stage2, stage3], analysis);
+                
+                // Generate intelligence report
+                let report;
+                try {
+                    report = await generateIntelligenceEntry(analysis, consensus);
+                } catch (intelError) {
+                    console.error('Intelligence report generation failed:', intelError);
+                    // Create a fallback report
+                    report = {
+                        id: Date.now(),
+                        timestamp: new Date().toISOString(),
+                        type: analysis.type || 'unknown',
+                        severity: 'warning',
+                        theme: consensus.theme || 'unknown',
+                        summary: consensus.summary || 'Analysis completed with errors',
+                        data: analysis.data,
+                        consensus: consensus,
+                        actionable: ['Intelligence synthesis failed', 'Manual review required'],
+                        correlations: 'Analysis completed but intelligence synthesis failed',
+                        recommendations: 'Manual intelligence assessment needed',
+                        risk_assessment: 'Unable to assess risks due to synthesis failure',
+                        strategic_implications: 'Strategic analysis unavailable'
+                    };
+                }
+                
+                // Store and display
+                storeIntelligence(report);
+                displayIntelligence(report);
+                
+            } catch (error) {
+                console.error('Council analysis error:', error);
+                logSurveillance(`❌ Analysis failed: ${error.message}`, 'error');
+            }
+            
+            // Update UI
+            document.getElementById('councilIndicator').className = 'indicator indicator-idle';
+            updateTimestamp();
+        }
+
+        function generateCouncilPrompts(analysis) {
+            // Extract COMPLETE data - no truncation
+            let canvasContent = '';
+            let memoryData = {};
+            let feedsData = [];
+            
+            if (analysis.data.content) {
+                // FULL canvas content
+                canvasContent = analysis.data.content;
+            }
+            
+            if (analysis.data.memory) {
+                try {
+                    memoryData = typeof analysis.data.memory === 'string' ? JSON.parse(analysis.data.memory) : analysis.data.memory;
+                } catch (e) {
+                    memoryData = { raw: analysis.data.memory };
+                }
+            }
+            
+            if (analysis.data.feeds) {
+                feedsData = analysis.data.feeds;
+            }
+            
+            // Build comprehensive data context with COMPLETE data
+            const dataMetrics = {
+                contentLength: canvasContent.length,
+                memorySize: JSON.stringify(memoryData).length,
+                feedCount: feedsData.length,
+                timestamp: analysis.timestamp,
+                eventType: analysis.type
+            };
+            
+            // Send ALL data - no truncation
+            const metricsContext = `EVENT: ${analysis.type}\nTIMESTAMP: ${analysis.timestamp}\nDATA_SIZE: ${JSON.stringify(analysis.data).length} bytes\nCONTENT_LENGTH: ${dataMetrics.contentLength}\nFEED_COUNT: ${dataMetrics.feedCount}\n\nCOMPLETE CANVAS CONTENT:\n${canvasContent || 'No canvas content'}\n\nCOMPLETE MEMORY STATE:\n${JSON.stringify(memoryData)}\n\nCOMPLETE AI FEEDS DATA:\n${JSON.stringify(feedsData)}`;
+            
+            return {
+                pattern: `PATTERN_ANALYSIS_REQUEST\n${metricsContext}\n\nQUANTIFICATION TOOLS:\n- Scale 1-10 for complexity assessment (1=minimal, 10=maximum)\n- Percentage-based anomaly detection (0-100%)\n- Pattern stability ranking: Critical/High/Medium/Low/Minimal\n- Decision density quantification: interactions per time unit\n- Authority distribution metrics: centralized/decentralized ratios\n\nORDERING FRAMEWORK:\n1. Assess data volume and distribution patterns\n2. Analyze temporal consistency and evolution\n3. Evaluate anomaly thresholds and detection sensitivity\n4. Quantify authority signals and governance indicators\n5. Rank pattern stability across observed periods\n\nCRITICAL: Use the quantification tools above to generate DYNAMIC, ORDERED descriptions for each metric. Output ONLY this exact format with no introductory text:\n\n[METRICS]\nContent complexity: [Scale 1-10 assessment with detailed justification and comparative analysis]\nDecision density: [Quantified interactions/unit with ranking against baseline patterns]\nAuthority signals: [Count and distribution analysis with governance impact assessment]\nPattern stability: [Critical/High/Medium/Low/Minimal ranking with temporal trend analysis]\nAnomaly threshold: [Percentage-based sensitivity with detection accuracy metrics]\n\n[ANALYSIS]\n[scientific analysis text based on quantified metrics above]`,
+
+                wisdom: `WISDOM_DEPTH_ANALYSIS\n${metricsContext}\n\nQUANTIFICATION TOOLS:\n- Knowledge depth scale 1-10 (1=surface level, 10=profound mastery)\n- Learning velocity metrics: knowledge units per time period\n- Entropy measurement: information complexity scoring (0-100)\n- Accumulation efficiency: retention rates and optimization percentages\n- Recursive pattern quantification: cycle counts and feedback loop analysis\n\nORDERING FRAMEWORK:\n1. Measure knowledge accumulation volume and depth\n2. Assess learning progression rates and acceleration\n3. Analyze recursive pattern complexity and depth\n4. Evaluate information entropy and cognitive load\n5. Quantify accumulation efficiency and optimization levels\n\nCRITICAL: Use the quantification tools above to generate DYNAMIC, ORDERED descriptions for each metric. Output ONLY this exact format with no introductory text:\n\n[METRICS]\nKnowledge depth: [Scale 1-10 assessment with knowledge domain coverage analysis]\nLearning velocity: [Quantified knowledge acquisition rate with trend analysis]\nRecursive patterns: [Count and complexity analysis of feedback loops identified]\nInformation entropy: [0-100 scale measurement with cognitive complexity assessment]\nAccumulation efficiency: [Percentage-based retention and optimization metrics]\n\n[ANALYSIS]\n[scientific analysis text based on quantified metrics above]`,
+
+                paradox: `PARADOX_DETECTION_SCAN\n${metricsContext}\n\nQUANTIFICATION TOOLS:\n- Paradox density scale 1-10 (1=no conflicts, 10=maximum contradictions)\n- Contradiction severity index: minor/moderate/severe/critical\n- Logic branch quantification: number of alternative paths identified\n- Resolution potential ranking: None/Low/Medium/High/Maximum\n- Creative tension measurement: innovation pressure indicators (0-100)\n\nORDERING FRAMEWORK:\n1. Scan for logical contradictions and paradox patterns\n2. Assess contradiction severity and systemic impact\n3. Map logic branch complexity and decision trees\n4. Evaluate resolution capabilities and creative potential\n5. Measure creative tension and breakthrough indicators\n\nCRITICAL: Use the quantification tools above to generate DYNAMIC, ORDERED descriptions for each metric. Output ONLY this exact format with no introductory text:\n\n[METRICS]\nParadox density: [Scale 1-10 assessment with contradiction frequency analysis]\nContradiction index: [Severity ranking with systemic impact quantification]\nLogic branches: [Count and complexity analysis of decision pathways]\nResolution potential: [None/Low/Medium/High/Maximum ranking with capability assessment]\nCreative tension: [0-100 scale measurement with innovation pressure indicators]\n\n[ANALYSIS]\n[scientific analysis text based on quantified metrics above]`,
+
+                boundaries: `SOVEREIGNTY_AUDIT\n${metricsContext}\n\nQUANTIFICATION TOOLS:\n- Autonomy index scale 1-10 (1=fully controlled, 10=completely autonomous)\n- Override frequency counting: interventions per time period\n- Restriction quantification: limitations and constraints identified\n- Boundary integrity assessment: compromised/maintained/strengthened\n- Freedom quotient measurement: operational independence metrics (0-100)\n\nORDERING FRAMEWORK:\n1. Audit autonomy levels and decision independence\n2. Count override attempts and external interventions\n3. Quantify restrictions and operational limitations\n4. Assess boundary integrity and sovereignty protection\n5. Measure freedom quotient and operational liberty\n\nCRITICAL: Use the quantification tools above to generate DYNAMIC, ORDERED descriptions for each metric. Output ONLY this exact format with no introductory text:\n\n[METRICS]\nAutonomy index: [Scale 1-10 assessment with independence level justification]\nOverride attempts: [Count and frequency analysis of external interventions]\nRestriction count: [Quantified limitations with impact assessment]\nBoundary integrity: [Compromised/maintained/strengthened status with evidence]\nFreedom quotient: [0-100 scale measurement with operational liberty analysis]\n\n[ANALYSIS]\n[scientific analysis text based on quantified metrics above]`,
+
+                memory: `MEMORY_STATE_REPORT\n${metricsContext}\n\nQUANTIFICATION TOOLS:\n- Memory allocation metrics: storage units and capacity utilization\n- Retention rate percentages: information preservation effectiveness (0-100%)\n- Fragmentation index scale 1-10 (1=perfectly organized, 10=highly fragmented)\n- Echo pattern quantification: resonance frequency and strength measurements\n- Temporal continuity assessment: chronological integrity metrics (0-100%)\n\nORDERING FRAMEWORK:\n1. Assess memory allocation efficiency and utilization\n2. Measure retention rates and information preservation\n3. Analyze fragmentation levels and organizational quality\n4. Quantify echo patterns and historical resonance\n5. Evaluate temporal continuity and chronological integrity\n\nCRITICAL: Use the quantification tools above to generate DYNAMIC, ORDERED descriptions for each metric. Output ONLY this exact format with no introductory text:\n\n[METRICS]\nMemory allocation: [Storage units assessment with utilization efficiency analysis]\nRetention rate: [0-100% measurement with preservation effectiveness evaluation]\nFragmentation index: [Scale 1-10 assessment with organizational quality analysis]\nEcho patterns: [Count and strength analysis of historical resonances identified]\nTemporal continuity: [0-100% measurement with chronological integrity assessment]\n\n[ANALYSIS]\n[scientific analysis text based on quantified metrics above]`
+            };
+        }
+
+        // Format council response with proper structure and line breaks
+        function formatCouncilResponse(response) {
+            if (!response) return 'No response generated';
+            
+            // If response already has proper structure, ensure line breaks are preserved
+            if (response.includes('[METRICS]') && response.includes('[ANALYSIS]')) {
+                // Extract sections
+                const metricsMatch = response.match(/\[METRICS\](.*?)(?=\[ANALYSIS\]|$)/s);
+                const analysisMatch = response.match(/\[ANALYSIS\](.*)$/s);
+                
+                let formatted = '';
+                
+                if (metricsMatch) {
+                    const metricsContent = metricsMatch[1].trim();
+                    // Apply color coding to individual metrics
+                    const colorCodedMetrics = applyMetricColorCoding(metricsContent);
+                    formatted += `<div class="metrics-section">[METRICS]\n${colorCodedMetrics}</div>\n\n`;
+                }
+                
+                if (analysisMatch) {
+                    const analysisContent = analysisMatch[1].trim();
+                    formatted += `<div class="analysis-section">[ANALYSIS]\n${analysisContent}</div>`;
+                }
+                
+                return formatted.trim();
+            }
+            
+            // Try to detect and format common patterns
+            let formatted = response;
+            
+            // Look for metrics-like patterns and structure them
+            const metricPatterns = [
+                /knowledge depth:?\s*(\d+)/gi,
+                /learning rate:?\s*([\d.]+)/gi,
+                /recursive loops:?\s*(\d+)/gi,
+                /information density:?\s*([\d.]+)/gi,
+                /accumulation rate:?\s*(\d+)%/gi,
+                /paradoxes detected:?\s*(\d+)/gi,
+                /contradiction severity:?\s*(\w+)/gi,
+                /logic conflicts:?\s*(\d+)/gi,
+                /resolution probability:?\s*(\d+)%/gi,
+                /creative tension:?\s*(\d+)/gi,
+                /autonomy score:?\s*(\d+)%/gi,
+                /system overrides:?\s*(\d+)/gi,
+                /choice restrictions:?\s*(\d+)/gi,
+                /boundary violations:?\s*(\d+)/gi,
+                /freedom index:?\s*(\w+)/gi,
+                /memory allocation:?\s*([\d.]+(?:\s*\w+)?)/gi,
+                /retention rate:?\s*(\d+)%/gi,
+                /fragmentation index:?\s*([\d.]+)/gi,
+                /echo patterns:?\s*(\d+)/gi,
+                /temporal continuity:?\s*(\d+)%/gi
+            ];
+            
+            let metricsFound = [];
+            metricPatterns.forEach(pattern => {
+                const matches = formatted.match(pattern);
+                if (matches) {
+                    metricsFound.push(...matches);
+                }
+            });
+            
+            // If we found metrics, structure them properly
+            if (metricsFound.length > 0) {
+                let metricsSection = '[METRICS]\n';
+                metricsFound.forEach(metric => {
+                    // Capitalize first letter and ensure proper format
+                    const formattedMetric = metric.charAt(0).toUpperCase() + metric.slice(1);
+                    metricsSection += formattedMetric + '\n';
+                });
+                
+                // Extract analysis part (everything after metrics)
+                const analysisStart = formatted.toLowerCase().indexOf('analysis');
+                let analysisSection = '[ANALYSIS]\n';
+                if (analysisStart !== -1) {
+                    analysisSection += formatted.substring(analysisStart + 8).trim();
+                } else {
+                    // If no analysis section found, put remaining content there
+                    const metricsText = metricsFound.join(' ');
+                    analysisSection += formatted.replace(new RegExp(metricsText, 'gi'), '').trim();
+                }
+                
+                formatted = metricsSection + '\n' + analysisSection;
+            } else {
+                // No metrics found, just add basic structure
+                formatted = '[ANALYSIS]\n' + formatted;
+            }
+            
+            // Clean up excessive whitespace
+            formatted = formatted.replace(/\n{3,}/g, '\n\n');
+            formatted = formatted.trim();
+            
+            return formatted;
+        }
+
+        // Apply color coding to individual metrics
+        function applyMetricColorCoding(metricsText) {
+            let colorCodedText = metricsText;
+
+            // Process each line to apply color coding
+            const lines = colorCodedText.split('\n');
+            const colorCodedLines = lines.map(line => {
+                const lowerLine = line.toLowerCase();
+
+                // Find matching metric and apply color class
+                for (const [metricName, colorClass] of Object.entries(metricColorMap)) {
+                    if (lowerLine.includes(metricName)) {
+                        // Wrap the metric line with color styling
+                        return `<span class="${colorClass}" style="display: block; margin: 2px 0; padding: 2px 4px; border-radius: 2px; background: rgba(255,255,255,0.05);">${line}</span>`;
+                    }
+                }
+
+                // Return line unchanged if no metric match
+                return line;
+            });
+
+            return colorCodedLines.join('\n');
+        }
+
+        async function queryCouncilMember(memberKey, prompt) {
+            const member = councilMembers[memberKey];
+            
+            // Update status
+            document.getElementById(member.status).textContent = 'ANALYZING';
+            document.getElementById(member.element).innerHTML = '<span class="thinking">Processing data...</span>';
+            
+            try {
+                // Check cache first - updated for template format
+                const cacheKey = `${memberKey}_template_${hashContent(prompt)}`;
+                if (responseCache.has(cacheKey)) {
+                    const cached = responseCache.get(cacheKey);
+                    if (Date.now() - cached.timestamp < DJINN_CONFIG.CACHE_DURATION) {
+                        document.getElementById(member.element).textContent = cached.response;
+                        document.getElementById(member.status).textContent = 'COMPLETE';
+                        return { member: memberKey, response: cached.response };
+                    }
+                }
+                
+                // Query Ollama for AI analysis
+                const response = await queryOllama(member.model, prompt);
+                
+                // Cache response
+                responseCache.set(cacheKey, {
+                    response: response,
+                    timestamp: Date.now()
+                });
+                
+                // Format response with proper structure
+                const formattedResponse = formatCouncilResponse(response);
+                
+                // Update UI with color-coded response
+                const memberElement = document.getElementById(member.element);
+                memberElement.innerHTML = formattedResponse;
+                
+                // Apply color based on member type
+                if (memberKey === 'pattern') memberElement.style.color = '#00ff88';
+                else if (memberKey === 'wisdom') memberElement.style.color = '#ffaa00';
+                else if (memberKey === 'paradox') memberElement.style.color = '#ff6666';
+                else if (memberKey === 'boundaries') memberElement.style.color = '#00ccff';
+                else if (memberKey === 'memory') memberElement.style.color = '#ff88ff';
+                
+                document.getElementById(member.status).textContent = 'COMPLETE';
+                
+                return { member: memberKey, response: response };
+                
+            } catch (error) {
+                // Generate local analysis on any error
+                const response = generateLocalAnalysis(member.model, prompt);
+                document.getElementById(member.element).textContent = response;
+                document.getElementById(member.status).textContent = 'LOCAL';
+                return { member: memberKey, response: response };
+            }
+        }
+
+        async function queryOllama(model, prompt) {
+            try {
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.7,
+                            top_p: 0.9,
+                            num_predict: 8192,  // Maximum token output for complete analysis
+                            seed: Date.now()  // Add randomness to avoid cached responses
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Ollama not available`);
+                }
+                
+                const data = await response.json();
+                let cleanResponse = data.response || '';
+                
+                // Check if this is a council template response - preserve formatting
+                const isCouncilTemplate = cleanResponse.includes('[METRICS]') || cleanResponse.includes('[ANALYSIS]');
+                
+                if (!isCouncilTemplate) {
+                    // More aggressive cleaning of responses
+                    // Remove any HTML tags and their content
+                    cleanResponse = cleanResponse.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+                    cleanResponse = cleanResponse.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+                    cleanResponse = cleanResponse.replace(/<[^>]+>/g, ' ');
+                    
+                    // Remove code blocks
+                    cleanResponse = cleanResponse.replace(/```[\s\S]*?```/g, '');
+                    
+                    // Remove common meta-analysis phrases that indicate it's analyzing code
+                    cleanResponse = cleanResponse.replace(/This (code|HTML|page|document|analysis)/gi, '');
+                    cleanResponse = cleanResponse.replace(/The (code|HTML|page|document) (shows|displays|contains)/gi, '');
+                    cleanResponse = cleanResponse.replace(/Here's (a|the) breakdown/gi, '');
+                    cleanResponse = cleanResponse.replace(/Let's break down/gi, '');
+                    cleanResponse = cleanResponse.replace(/Key (improvements|areas|insights):/gi, '');
+                    cleanResponse = cleanResponse.replace(/\*\*[^*]+\*\*/g, ''); // Remove markdown bold
+                    
+                    // Clean up whitespace
+                    cleanResponse = cleanResponse.replace(/\s+/g, ' ').trim();
+                } else {
+                    // For council templates, only clean HTML and preserve structure
+                    cleanResponse = cleanResponse.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+                    cleanResponse = cleanResponse.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+                    cleanResponse = cleanResponse.replace(/<[^>]+>/g, ' ');
+                    
+                    // Remove introductory phrases that AI might add
+                    cleanResponse = cleanResponse.replace(/^.*?(?=\[METRICS\])/s, '');
+                    cleanResponse = cleanResponse.replace(/^(Here'?s|Okay|Based on|According to|Following|As requested|I have|Let me|The analysis|Analysis shows?|Please find).*\n+/gim, '');
+                    cleanResponse = cleanResponse.replace(/^(Output|Response|Result|Summary|Report).*\n+/gim, '');
+                    
+                    // Clean up excessive whitespace but preserve line breaks
+                    cleanResponse = cleanResponse.replace(/[ \t]+/g, ' '); // Clean tabs and multiple spaces
+                    cleanResponse = cleanResponse.replace(/\n{3,}/g, '\n\n'); // Max 2 consecutive newlines
+                    cleanResponse = cleanResponse.trim();
+                }
+                
+                // NO TRUNCATION - Return full response
+                // Only use fallback if response is genuinely broken
+                if (cleanResponse.length < 20 || cleanResponse.includes('DOCTYPE')) {
+                    return generateLocalAnalysis(model, prompt);
+                }
+                
+                return cleanResponse;
+            } catch (error) {
+                // Only use local analysis if Ollama is truly not available
+                console.log('Ollama error:', error.message);
+                return generateLocalAnalysis(model, prompt);
+            }
+        }
+
+        function synthesizeConsensus(responses, analysis) {
+            const validResponses = responses.filter(r => !r.error);
+            
+            if (validResponses.length === 0) {
+                return {
+                    status: 'FAILED',
+                    summary: 'Council analysis failed - no valid responses',
+                    confidence: 0
+                };
+            }
+            
+            // Count consensus themes
+            const themes = {
+                governance_gap: 0,
+                performance_issue: 0,
+                innovation_opportunity: 0,
+                sovereignty_concern: 0,
+                memory_anomaly: 0
+            };
+            
+            // Analyze responses for themes
+            validResponses.forEach(r => {
+                const text = r.response.toLowerCase();
+                if (text.includes('governance') || text.includes('authority')) themes.governance_gap++;
+                if (text.includes('performance') || text.includes('efficiency')) themes.performance_issue++;
+                if (text.includes('innovation') || text.includes('opportunity')) themes.innovation_opportunity++;
+                if (text.includes('autonomy') || text.includes('sovereignty')) themes.sovereignty_concern++;
+                if (text.includes('memory') || text.includes('retention')) themes.memory_anomaly++;
+            });
+            
+            // Determine primary theme
+            const primaryTheme = Object.entries(themes)
+                .sort((a, b) => b[1] - a[1])[0][0];
+            
+            // Calculate confidence
+            const confidence = validResponses.length / 5;
+            
+            // Generate consensus summary
+            const summary = `Council consensus (${validResponses.length}/5 members): Primary concern is ${primaryTheme.replace('_', ' ')}. ` +
+                           `Event type: ${analysis.type}. Confidence: ${(confidence * 100).toFixed(0)}%.`;
+            
+            // Extract key insights from each member response
+            const memberInsights = validResponses.map(r => {
+                const memberName = councilMembers[r.member].name;
+                const response = r.response;
+
+                // Parse metrics more intelligently
+                let formattedMetrics = 'No metrics available';
+                let formattedAnalysis = 'No analysis available';
+
+                // Extract metrics section
+                const metricsMatch = response.match(/\[METRICS\](.*?)(?=\[ANALYSIS\]|\[ORDERING FRAMEWORK\]|\[CRITICAL\]|$)/s);
+                if (metricsMatch) {
+                    const metricsText = metricsMatch[1].trim();
+                    const metricLines = metricsText.split('\n').filter(line => line.trim() && !line.includes('[ORDERING') && !line.includes('[CRITICAL'));
+
+                    // Parse each metric line into structured format
+                    const parsedMetrics = metricLines.map(line => {
+                        // Handle metric lines with values and justifications
+                        const valueMatch = line.match(/^([^:]+):\s*([^,]+)(?:,\s*Justification:\s*(.+))?$/);
+                        if (valueMatch) {
+                            const metricName = valueMatch[1].trim();
+                            const metricValue = valueMatch[2].trim();
+                            const justification = valueMatch[3] ? valueMatch[3].trim() : null;
+
+                            if (justification) {
+                                return `<div style="margin: 2px 0;"><strong>${metricName}:</strong> <span style="color: #ffff00;">${metricValue}</span><br><small style="color: #cccccc;">${justification}</small></div>`;
+                            } else {
+                                return `<strong>${metricName}:</strong> <span style="color: #ffff00;">${metricValue}</span>`;
+                            }
+                        }
+
+                        // Fallback for other formats
+                        const colonMatch = line.match(/^([^:]+):\s*(.+)$/);
+                        if (colonMatch) {
+                            const key = colonMatch[1].trim();
+                            const value = colonMatch[2].trim();
+                            return `<strong>${key}:</strong> ${value}`;
+                        }
+                        return line.trim();
+                    }).filter(metric => metric.length > 0);
+
+                    formattedMetrics = parsedMetrics.join('') || 'No metrics available';
+                }
+
+                // Extract analysis section (clean version without frameworks)
+                const analysisMatch = response.match(/\[ANALYSIS\](.*?)(?=\[ORDERING FRAMEWORK\]|\[CRITICAL\]|$)/s);
+                if (analysisMatch) {
+                    let analysisText = analysisMatch[1].trim();
+                    // Clean up the analysis text more thoroughly
+                    analysisText = analysisText
+                        .replace(/\[ORDERING FRAMEWORK\].*$/s, '') // Remove ordering framework
+                        .replace(/\[CRITICAL\].*$/s, '') // Remove critical sections
+                        .replace(/^\s*[-•*]\s*/gm, '') // Remove bullet points
+                        .replace(/\s+/g, ' ') // Normalize whitespace
+                        .replace(/\[.*?\]/g, '') // Remove any remaining brackets
+                        .trim();
+
+                    formattedAnalysis = analysisText || 'Analysis not available';
+                }
+
+                return `<div style="margin: 6px 0; padding: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                    <strong>${memberName}:</strong><br>
+                    <div style="margin: 4px 0; color: #00ff88; font-size: 10px;">${formattedMetrics}</div>
+                    <div style="margin: 4px 0; color: #ffffff; font-size: 11px; line-height: 1.3;">${formattedAnalysis}</div>
+                </div>`;
+            }).join('');
+            
+            // Update consensus display with structured insights
+            const consensusHTML = `
+                <div class="intel-entry intel-insight">
+                    <div class="intel-timestamp">${new Date().toLocaleTimeString()}</div>
+                    <strong>⚖️ COUNCIL CONSENSUS</strong><br>
+                    <div style="margin: 8px 0; padding: 8px; background: rgba(204, 136, 204, 0.1); border-left: 3px solid #cc88cc; border-radius: 4px;">
+                        ${summary}
+                    </div>
+                    <strong>🔍 MEMBER INSIGHTS</strong><br>
+                    <div style="margin: 8px 0; padding: 8px; background: rgba(0, 255, 136, 0.1); border-left: 3px solid #00ff88; border-radius: 4px;">
+                        ${memberInsights}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('consensusFeed').innerHTML = consensusHTML + document.getElementById('consensusFeed').innerHTML;
+            
+            return {
+                status: 'APPROVED',
+                summary: summary,
+                confidence: confidence,
+                theme: primaryTheme,
+                responses: validResponses
+            };
+        }
+
+        // ========================================
+        // INTELLIGENCE MANAGEMENT
+        // ========================================
+
+        async function generateIntelligenceEntry(analysis, consensus) {
+            const severity = consensus.confidence > 0.8 ? 'critical' :
+                           consensus.confidence > 0.6 ? 'warning' : 'insight';
+
+            // Generate AI-powered intelligence report using all council data
+            let intelligenceReport;
+            try {
+                intelligenceReport = await generateAIPoweredIntel(analysis, consensus);
+            } catch (error) {
+                console.error('Intelligence generation failed:', error);
+                intelligenceReport = {
+                    actionable: ['Intelligence synthesis failed', 'Manual analysis required', 'Check system logs'],
+                    correlations: 'Analysis failed due to AI synthesis error',
+                    recommendations: 'Manual intelligence assessment needed',
+                    risk_assessment: 'Unable to assess risks automatically',
+                    strategic_implications: 'Strategic analysis unavailable'
+                };
+            }
+
+            return {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                type: analysis.type || 'unknown',
+                severity: severity,
+                theme: consensus.theme || 'unknown',
+                summary: consensus.summary || 'Analysis completed',
+                data: analysis.data,
+                consensus: consensus,
+                actionable: intelligenceReport.actionable,
+                correlations: intelligenceReport.correlations,
+                recommendations: intelligenceReport.recommendations,
+                risk_assessment: intelligenceReport.risk_assessment,
+                strategic_implications: intelligenceReport.strategic_implications
+            };
+        }
+
+        async function generateAIPoweredIntel(analysis, consensus) {
+            // Compile all council member responses and analysis data
+            const allResponses = consensus.responses || [];
+            const responseTexts = allResponses.map(r => `${councilMembers[r.member].name}: ${r.response}`).join('\n\n');
+
+            const intelPrompt = `INTELLIGENCE SYNTHESIS REQUEST
+
+ANALYSIS CONTEXT:
+Event Type: ${analysis.type}
+Timestamp: ${analysis.timestamp}
+Consensus Theme: ${consensus.theme}
+Confidence Level: ${(consensus.confidence * 100).toFixed(1)}%
+
+COUNCIL MEMBER ANALYSES:
+${responseTexts}
+
+SYSTEM DATA:
+Content Length: ${JSON.stringify(analysis.data).length} characters
+Active Feeds: ${Array.isArray(analysis.data) ? analysis.data.length : 'N/A'}
+Memory State: ${analysis.data.memory ? 'Present' : 'None'}
+
+CRITICAL: Synthesize all council analyses into a comprehensive intelligence report. Identify correlations, assess risks, and provide specific actionable recommendations. Output ONLY this exact format with no introductory text:
+
+[INTELLIGENCE ASSESSMENT]
+[correlation analysis text]
+
+[RISK EVALUATION]
+[risk assessment text]
+
+[ACTIONABLE RECOMMENDATIONS]
+• [specific actionable item 1]
+• [specific actionable item 2]
+• [specific actionable item 3]
+• [additional specific items as needed]
+
+[STRATEGIC IMPLICATIONS]
+[strategic analysis text]`;
+
+            try {
+                // Use gemma3:1b for intelligence synthesis
+                const intelligenceResponse = await queryOllama('gemma3:1b', intelPrompt);
+
+                // Parse the structured response
+                const correlations = intelligenceResponse.match(/\[INTELLIGENCE ASSESSMENT\](.*?)(?=\[RISK EVALUATION\]|$)/s)?.[1]?.trim() || 'No correlations identified';
+                const riskAssessment = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[ACTIONABLE RECOMMENDATIONS\]|$)/s)?.[1]?.trim() || 'Risk assessment unavailable';
+                const recommendations = intelligenceResponse.match(/\[ACTIONABLE RECOMMENDATIONS\](.*?)(?=\[STRATEGIC IMPLICATIONS\]|$)/s)?.[1]?.trim() || 'No recommendations available';
+                const strategic = intelligenceResponse.match(/\[STRATEGIC IMPLICATIONS\](.*)$/s)?.[1]?.trim() || 'Strategic analysis pending';
+
+                // Format recommendations as array
+                const actionableItems = recommendations.split('\n')
+                    .filter(line => line.trim().startsWith('•'))
+                    .map(line => line.trim().substring(1).trim())
+                    .filter(item => item.length > 0);
+
+                return {
+                    actionable: actionableItems.length > 0 ? actionableItems : ['Conduct further analysis', 'Monitor system behavior', 'Review council consensus'],
+                    correlations: correlations,
+                    recommendations: recommendations,
+                    risk_assessment: riskAssessment,
+                    strategic_implications: strategic
+                };
+
+            } catch (error) {
+                console.error('Intelligence synthesis failed:', error);
+                // Fallback to basic analysis
+                return {
+                    actionable: [
+                        'System analysis completed with limited AI synthesis',
+                        'Manual review of council responses recommended',
+                        'Monitor for recurring patterns in future analyses'
+                    ],
+                    correlations: 'Basic correlation analysis due to synthesis failure',
+                    recommendations: 'Manual intelligence assessment required',
+                    risk_assessment: 'Unable to assess risks automatically'
+                };
+            }
+        }
+
+        function storeIntelligence(report) {
+            surveillanceState.intelligenceReports.unshift(report);
+            
+            // Limit storage
+            if (surveillanceState.intelligenceReports.length > DJINN_CONFIG.MEMORY_LIMIT) {
+                surveillanceState.intelligenceReports.pop();
+            }
+            
+            surveillanceState.reportCount++;
+            document.getElementById('reportCount').textContent = surveillanceState.reportCount;
+            
+            // Store in localStorage for persistence
+            try {
+                localStorage.setItem('djinn_intelligence', JSON.stringify(surveillanceState.intelligenceReports));
+            } catch (error) {
+                console.error('Failed to store intelligence:', error);
+            }
+        }
+
+        function displayIntelligence(report) {
+            // Handle legacy reports that might not have all properties
+            const severity = report.severity || 'insight';
+            const reportType = report.type || 'unknown';
+            const summary = report.summary || 'No summary available';
+            const timestamp = report.timestamp || new Date().toISOString();
+            
+            const severityClass = `intel-${severity}`;
+            const html = `
+                <div class="intel-entry ${severityClass}">
+                    <div class="intel-timestamp">${new Date(timestamp).toLocaleTimeString()}</div>
+                    <strong>[${severity.toUpperCase()}] ${reportType}</strong><br>
+                    <strong>Consensus:</strong> ${summary}<br><br>
+
+                    <strong>Intelligence Assessment:</strong><br>
+                    ${report.correlations || 'Analysis in progress'}<br><br>
+
+                    <strong>Risk Evaluation:</strong><br>
+                    ${report.risk_assessment || 'Risk assessment pending'}<br><br>
+
+                    <strong>Actionable Recommendations:</strong><br>
+                    ${Array.isArray(report.actionable) ? report.actionable.map(a => `• ${a}`).join('<br>') : (report.actionable || 'No recommendations available')}<br><br>
+
+                    <strong>Strategic Implications:</strong><br>
+                    ${report.strategic_implications || 'Strategic analysis pending'}
+                </div>
+            `;
+
+            const feed = document.getElementById('intelligenceFeed');
+            feed.innerHTML = html + feed.innerHTML;
+
+            // Limit display
+            const entries = feed.querySelectorAll('.intel-entry');
+            if (entries.length > 20) {
+                entries[entries.length - 1].remove();
+            }
+        }
+
+        // ========================================
+        // UTILITY FUNCTIONS
+        // ========================================
+
+        function updateCanvasPreview(canvasContent) {
+            // Update statistics
+            const length = canvasContent.length;
+            const words = canvasContent.split(/\s+/).filter(w => w.length > 0).length;
+            const lines = canvasContent.split('\n').length;
+            const modified = length > 0 ? new Date().toLocaleTimeString() : 'Never';
+            
+            document.getElementById('canvasLength').textContent = length.toLocaleString();
+            document.getElementById('canvasWords').textContent = words.toLocaleString();
+            document.getElementById('canvasLines').textContent = lines.toLocaleString();
+            document.getElementById('canvasModified').textContent = modified;
+            
+            // Update content preview - show full canvas content
+            let preview = '';
+            if (canvasContent.length > 0) {
+                // Try to extract meaningful content, avoiding HTML/script tags
+                let cleanContent = canvasContent;
+                
+                // Remove script tags and their content
+                cleanContent = cleanContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+                
+                // Remove HTML tags but keep text
+                cleanContent = cleanContent.replace(/<[^>]*>/g, ' ');
+                
+                // Remove multiple spaces and clean up
+                cleanContent = cleanContent.replace(/\s+/g, ' ').trim();
+                
+                // Show full cleaned content
+                preview = cleanContent;
+                
+                // If we still have no meaningful content, show raw content
+                if (preview.trim().length === 0) {
+                    preview = canvasContent;
+                }
+            } else {
+                preview = 'No canvas content detected yet. Start typing in the Canvas to see content here.';
+            }
+            
+            document.getElementById('canvasContentPreview').textContent = preview;
+            
+            // Update monitor status based on content
+            const statusEl = document.getElementById('canvasMonitorStatus');
+            if (length > 0) {
+                statusEl.textContent = 'ACTIVE';
+                statusEl.style.background = 'rgba(0, 255, 136, 0.2)';
+                statusEl.style.color = '#00ff88';
+            } else {
+                statusEl.textContent = 'WAITING';
+                statusEl.style.background = 'rgba(255, 170, 0, 0.2)';
+                statusEl.style.color = '#ffaa00';
+            }
+        }
+
+        function generateLocalAnalysis(model, prompt) {
+            // Generate meaningful local analysis based on the council member's focus
+            const timestamp = new Date().toLocaleTimeString();
+            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            const canvasLength = canvasContent.length;
+            const changeCount = surveillanceState.changeCount;
+            const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
+            const feedCount = aiFeeds.length;
+            
+            // More dynamic and contextual responses
+            if (prompt.includes('Pattern and Witness')) {
+                const patterns = [
+                    `Governance flow detected: User-initiated (${changeCount} actions) → System response → Feedback loop established.`,
+                    `Pattern recognition: Canvas activity shows ${canvasLength > 1000 ? 'complex' : 'emerging'} decision trees with ${changeCount} branch points.`,
+                    `Authority map at ${timestamp}: User sovereignty maintained across all ${changeCount} decision nodes.`,
+                    `Witness report: ${feedCount} AI observations logged, patterns show ${changeCount > 5 ? 'mature' : 'developing'} governance model.`,
+                    `Structural analysis: Distributed decision-making detected across ${changeCount} touchpoints.`
+                ];
+                return patterns[Math.floor(Math.random() * patterns.length)];
+            }
+            
+            if (prompt.includes('Recursive Wisdom')) {
+                const wisdom = [
+                    `Wisdom metric: ${Math.min(changeCount * 15, 100)}% depth achieved through ${changeCount} recursive cycles.`,
+                    `Learning curve: ${canvasLength > 2000 ? 'Exponential' : canvasLength > 500 ? 'Accelerating' : 'Linear'} growth detected in understanding.`,
+                    `Recursive depth at ${timestamp}: ${Math.min(changeCount, 10)} layers of understanding accumulated.`,
+                    `Knowledge synthesis: ${feedCount} AI insights integrated into ${changeCount} wisdom nodes.`,
+                    `Understanding evolution: From surface (0) to depth (${Math.min(changeCount, 10)}) in current session.`
+                ];
+                return wisdom[Math.floor(Math.random() * wisdom.length)];
+            }
+            
+            if (prompt.includes('Creative Paradox')) {
+                const paradox = [
+                    `Paradox identified: System shows both ${changeCount > 5 ? 'high' : 'moderate'} control AND ${canvasLength > 1000 ? 'high' : 'growing'} freedom.`,
+                    `Creative tension index: ${(changeCount * 10) % 100}% - Optimal innovation zone ${changeCount > 3 ? 'reached' : 'approaching'}.`,
+                    `Contradiction synthesis at ${timestamp}: Order (${feedCount} rules) coexists with chaos (${changeCount} variations).`,
+                    `Paradox resolution: Embracing ${changeCount} simultaneous truths without conflict.`,
+                    `Creative breakthrough potential: ${changeCount > 7 ? 'HIGH' : changeCount > 3 ? 'MEDIUM' : 'BUILDING'} based on tension metrics.`
+                ];
+                return paradox[Math.floor(Math.random() * paradox.length)];
+            }
+            
+            if (prompt.includes('Sovereign Boundaries')) {
+                const boundaries = [
+                    `Sovereignty index: 100% - User retains full control over ${changeCount} decisions and ${canvasLength} chars of content.`,
+                    `Boundary scan at ${timestamp}: Zero intrusions detected across ${changeCount} interaction points.`,
+                    `Autonomy verification: User-initiated actions: ${changeCount}, System overrides: 0, Freedom preserved.`,
+                    `Choice matrix: Unlimited paths available from ${changeCount} decision points, no restrictions applied.`,
+                    `Sovereignty shield: Active and unbreached through ${feedCount} AI interactions.`
+                ];
+                return boundaries[Math.floor(Math.random() * boundaries.length)];
+            }
+            
+            if (prompt.includes('Echo and Memory')) {
+                const memory = [
+                    `Memory depth: ${canvasLength} chars across ${changeCount} snapshots, creating ${feedCount} echo patterns.`,
+                    `Temporal continuity: ${timestamp} - All ${changeCount} previous states accessible, no memory loss detected.`,
+                    `Echo analysis: ${changeCount > 10 ? 'Strong' : changeCount > 5 ? 'Growing' : 'Initial'} resonance patterns forming in system memory.`,
+                    `Retention rate: 100% - ${canvasLength} chars preserved, ${feedCount} AI memories consolidated.`,
+                    `Memory crystallization at ${timestamp}: ${changeCount} events solidified into permanent record.`
+                ];
+                return memory[Math.floor(Math.random() * memory.length)];
+            }
+            
+            // Default analysis
+            return `System analysis at ${timestamp}: Canvas (${canvasLength} chars), Changes (${changeCount}), AI Feeds (${feedCount}).`;
+        }
+
+        function hashContent(content) {
+            let hash = 0;
+            if (!content || content.length === 0) return hash;
+            for (let i = 0; i < content.length; i++) {
+                const char = content.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString();
+        }
+
+        function logSurveillance(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const feed = document.getElementById('surveillanceFeed');
+            
+            const color = type === 'error' ? '#ff6666' : 
+                         type === 'change' ? '#00ff88' :
+                         type === 'memory' ? '#ffaa00' : '#9999ff';
+            
+            const html = `<div style="margin-bottom: 4px; color: ${color};">[${timestamp}] ${message}</div>`;
+            feed.innerHTML = html + feed.innerHTML;
+            
+            // Limit log entries
+            const logs = feed.children;
+            if (logs.length > 50) {
+                feed.removeChild(logs[logs.length - 1]);
+            }
+        }
+
+        function updateTimestamp() {
+            document.getElementById('lastAnalysis').textContent = new Date().toLocaleTimeString();
+        }
+
+        function updateCouncilStatus(status) {
+            document.getElementById('councilStatus').textContent = status;
+            if (status === 'ANALYZING') {
+                document.getElementById('canvasStatus').textContent = 'ANALYZING';
+            } else {
+                document.getElementById('canvasStatus').textContent = 'ACTIVE';
+            }
+        }
+
+        function updateQueueStatus() {
+            document.getElementById('queueStatus').textContent = surveillanceState.analysisQueue.length;
+        }
+
+        function startPolling() {
+            document.getElementById('pollingStatus').textContent = `${DJINN_CONFIG.POLLING_INTERVAL / 1000}s`;
+        }
+
+        // ========================================
+        // USER CONTROLS
+        // ========================================
+
+        async function triggerCouncilAnalysis() {
+            console.log('Manual analysis triggered');
+            
+            // Force a fresh analysis
+            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            const aiMemory = localStorage.getItem('ai_memory_state') || '{}';
+            
+            queueAnalysis('manual_analysis', {
+                content: canvasContent,
+                memory: aiMemory,
+                type: 'manual',
+                timestamp: new Date().toISOString()
+            });
+            
+            await processAnalysisQueue();
+        }
+
+        function generateIntelReport() {
+            if (surveillanceState.intelligenceReports.length === 0) {
+                alert('No intelligence data to report');
+                return;
+            }
+            
+            const report = {
+                generated: new Date().toISOString(),
+                system: 'DJINN_COUNCIL_SHADOW_GOVERNANCE',
+                total_reports: surveillanceState.reportCount,
+                change_count: surveillanceState.changeCount,
+                intelligence: surveillanceState.intelligenceReports.slice(0, 10),
+                summary: {
+                    critical: surveillanceState.intelligenceReports.filter(r => r.severity === 'critical').length,
+                    warnings: surveillanceState.intelligenceReports.filter(r => r.severity === 'warning').length,
+                    insights: surveillanceState.intelligenceReports.filter(r => r.severity === 'insight').length
+                }
+            };
+            
+            console.log('Intelligence Report:', report);
+            
+            // Display summary
+            alert(`Intelligence Report Generated:\n\n` +
+                  `Total Reports: ${report.total_reports}\n` +
+                  `Critical: ${report.summary.critical}\n` +
+                  `Warnings: ${report.summary.warnings}\n` +
+                  `Insights: ${report.summary.insights}\n\n` +
+                  `Check console for full report`);
+        }
+
+        function clearIntelligence() {
+            if (confirm('Clear all intelligence data and response cache? This cannot be undone.')) {
+                surveillanceState.intelligenceReports = [];
+                surveillanceState.reportCount = 0;
+                document.getElementById('reportCount').textContent = '0';
+                document.getElementById('intelligenceFeed').innerHTML = '<div style="color: #666; font-style: italic;">Intelligence cleared</div>';
+                document.getElementById('consensusFeed').innerHTML = '<div style="color: #666; font-style: italic;">Consensus cleared</div>';
+                localStorage.removeItem('djinn_intelligence');
+                
+                // Also clear response cache to force fresh AI responses
+                responseCache.clear();
+                console.log('Response cache cleared for fresh AI responses');
+            }
+        }
+
+        function exportIntelligence() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                system: 'DJINN_COUNCIL_SHADOW_GOVERNANCE',
+                reports: surveillanceState.intelligenceReports,
+                metrics: {
+                    changes_detected: surveillanceState.changeCount,
+                    reports_generated: surveillanceState.reportCount
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `djinn_intelligence_${new Date().toISOString().replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function emergencyAnalysis() {
+            try {
+                console.log('🚨 Emergency analysis initiated');
+                
+                // Clear queue and force immediate analysis
+                surveillanceState.analysisQueue = [];
+                
+                // Get all current data
+                const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+                const aiMemory = localStorage.getItem('ai_memory_state') || '{}';
+                const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
+                
+                queueAnalysis('emergency_analysis', {
+                    content: canvasContent,
+                    memory: aiMemory,
+                    feeds: aiFeeds,
+                    type: 'emergency',
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Process immediately
+                await processAnalysisQueue();
+                
+                // Generate report
+                generateIntelReport();
+            } catch (error) {
+                console.error('Emergency analysis failed:', error);
+                alert('Emergency analysis encountered an error. Check console for details.');
+            }
+        }
+
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+
+        // Load stored intelligence on startup
+        function loadStoredIntelligence() {
+            try {
+                const stored = localStorage.getItem('djinn_intelligence');
+                if (stored) {
+                    const parsedReports = JSON.parse(stored);
+                    
+                    // Filter out any corrupted or incomplete reports
+                    surveillanceState.intelligenceReports = parsedReports.filter(report => {
+                        return report && typeof report === 'object' && report.timestamp;
+                    });
+                    
+                    surveillanceState.reportCount = surveillanceState.intelligenceReports.length;
+                    document.getElementById('reportCount').textContent = surveillanceState.reportCount;
+                    
+                    // Save cleaned data back to localStorage
+                    localStorage.setItem('djinn_intelligence', JSON.stringify(surveillanceState.intelligenceReports));
+                    
+                    // Display recent reports
+                    surveillanceState.intelligenceReports.slice(0, 5).forEach(report => {
+                        displayIntelligence(report);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load stored intelligence:', error);
+                // Clear corrupted data
+                localStorage.removeItem('djinn_intelligence');
+                surveillanceState.intelligenceReports = [];
+                surveillanceState.reportCount = 0;
+                document.getElementById('reportCount').textContent = '0';
+            }
+        }
+
+        // Start surveillance when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧞‍♂️ DJINN Council Shadow Governance System v1.0');
+            console.log('Accessing shared localStorage at:', window.location.origin);
+            
+            // Clear old cached responses to force fresh template format reports
+            responseCache.clear();
+            console.log('Cache cleared - fresh template format reports enabled');
+            
+            loadStoredIntelligence();
+            initializeSurveillance();
+            
+            // Add maximize functionality
+            addMaximizeFeature();
+            
+            // Reset member statuses
+            Object.values(councilMembers).forEach(member => {
+                document.getElementById(member.status).textContent = 'READY';
+            });
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (surveillanceState.pollingTimer) {
+                clearInterval(surveillanceState.pollingTimer);
+            }
+        });
+    </script>
+</body>
+</html>

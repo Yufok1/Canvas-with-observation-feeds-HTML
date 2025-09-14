@@ -32,7 +32,9 @@ This project follows a code of conduct to ensure a welcoming environment for all
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/your-username/canvas-ai-feeds.git`
 3. Create a feature branch: `git checkout -b feature/your-feature-name`
-4. Make your changes
+4. Make your changes to both HTML files:
+   - `canvas-with-observation-feeds.html` (main canvas interface)
+   - `djinn-council-shadow-governance.html` (governance surveillance)
 5. Test thoroughly with Ollama running locally
 6. Commit your changes: `git commit -m "Add: brief description of changes"`
 
@@ -58,16 +60,23 @@ This project follows a code of conduct to ensure a welcoming environment for all
 ## Development Guidelines
 
 ### Project Structure
-- Keep the single HTML file approach for simplicity
-- Embed CSS and JavaScript within the HTML file
+- Maintain dual HTML file architecture for separation of concerns
+  - `canvas-with-observation-feeds.html`: Main canvas workspace and AI orchestration
+  - `djinn-council-shadow-governance.html`: Governance surveillance and intelligence analysis
+- Embed CSS and JavaScript within HTML files for simplicity
 - Use semantic HTML5 elements
 - Follow progressive enhancement principles
+- Ensure consistent tooltip implementation across interfaces
 
 ### Testing
 - Test with different Ollama models
 - Verify functionality across browsers
 - Check performance with large canvas content
 - Test memory management and caching
+- Validate DJINN Council interface and tooltip functionality
+- Test intelligence report generation and export features
+- Verify extended timeout handling for complex operations
+- Test live canvas iframe monitoring in DJINN Council
 
 ### Commit Messages
 Use clear, descriptive commit messages:
@@ -85,17 +94,22 @@ Refactor: code improvement description
 - Cross-browser compatibility improvements
 - Enhanced error handling
 - Additional AI model support
+- DJINN Council interface improvements
+- Tooltip system enhancements
 
 ### Medium Priority
-- UI/UX improvements
+- UI/UX improvements for both interfaces
 - New visualization features
 - Export functionality enhancements
 - Mobile responsiveness
+- Intelligence report formatting improvements
+- Surveillance panel enhancements (detailed memory status, metrics display)
 
 ### Low Priority
 - Additional language support
 - Theme customization
 - Advanced analytics features
+- Council member specialization enhancements
 
 ## Getting Help
 

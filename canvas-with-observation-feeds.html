@@ -612,31 +612,55 @@ Ready for your first collaborative synthesis! 🚀</textarea>
             const pollingStatus = document.getElementById('pollingStatus');
 
             try {
-                // Process primary systems in parallel
+                // Process primary systems sequentially to avoid overwhelming Ollama
                 if (pollingStatus) pollingStatus.textContent = '🔄 Processing primary AI...';
-                const primaryResults = await Promise.allSettled(
-                    processingGroups.primary.map(system => updateFeedProgressive(system))
-                );
+                const primaryResults = [];
+                for (const system of processingGroups.primary) {
+                    try {
+                        const result = await updateFeedProgressive(system);
+                        primaryResults.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        primaryResults.push({ status: 'rejected', reason: error });
+                    }
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
                 allResults.push(...primaryResults);
 
                 // Brief pause between groups
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
-                // Process secondary systems in parallel
+                // Process secondary systems sequentially
                 if (pollingStatus) pollingStatus.textContent = '🔄 Processing secondary AI...';
-                const secondaryResults = await Promise.allSettled(
-                    processingGroups.secondary.map(system => updateFeedProgressive(system))
-                );
+                const secondaryResults = [];
+                for (const system of processingGroups.secondary) {
+                    try {
+                        const result = await updateFeedProgressive(system);
+                        secondaryResults.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        secondaryResults.push({ status: 'rejected', reason: error });
+                    }
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
                 allResults.push(...secondaryResults);
 
                 // Brief pause before tertiary
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
-                // Process tertiary systems
+                // Process tertiary systems sequentially
                 if (pollingStatus) pollingStatus.textContent = '🔄 Processing monitoring AI...';
-                const tertiaryResults = await Promise.allSettled(
-                    processingGroups.tertiary.map(system => updateFeedProgressive(system))
-                );
+                const tertiaryResults = [];
+                for (const system of processingGroups.tertiary) {
+                    try {
+                        const result = await updateFeedProgressive(system);
+                        tertiaryResults.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        tertiaryResults.push({ status: 'rejected', reason: error });
+                    }
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
                 allResults.push(...tertiaryResults);
 
                 // Log results
@@ -1021,13 +1045,21 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             }
 
             const maxRetries = 2;
-            const timeout = 180000; // 180 second timeout for reliable model completion
+            const timeout = 600000; // 10 minute timeout for reliable model completion
 
             try {
                 console.log(`Attempting to query Ollama for ${system} with model ${model} (attempt ${retryCount + 1})`);
                 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                const timeoutId = setTimeout(() => {
+                    console.log(`⏱️ Timeout reached for ${system}, aborting request`);
+                    controller.abort();
+                }, timeout);
+                
+                // Add abort listener for debugging
+                controller.signal.addEventListener('abort', () => {
+                    console.log(`🚫 Request aborted for ${system}, reason:`, controller.signal.reason);
+                });
                 
                 const response = await fetch('http://localhost:11434/api/generate', {
                     method: 'POST',
@@ -1040,7 +1072,7 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                         options: {
                             temperature: 0.7,
                             top_p: 0.9,
-                            num_predict: 800 // Increased for better responses
+                            num_predict: 2048 // Maximum tokens for complete responses
                         }
                     })
                 });
@@ -1093,7 +1125,7 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
 
                 // Better error messages based on error type
                 if (error.name === 'AbortError') {
-                    return `⏱️ ${system.toUpperCase()}: Request timeout after ${timeout/1000}s - Ollama may be overloaded`;
+                    return `⏱️ ${system.toUpperCase()}: Request timeout after ${timeout/1000}s - Ollama may be overloaded or unresponsive`;
                 } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
                     return `🔌 ${system.toUpperCase()}: Connection failed - Check if Ollama is running on localhost:11434`;
                 } else {
@@ -1114,7 +1146,7 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             }
 
             const maxRetries = 2;
-            const timeout = 240000; // 240 second timeout for synthesis operations
+            const timeout = 1200000; // 20 minute timeout for synthesis operations
 
             try {
                 console.log(`Attempting SYNTHESIS query for ${system} with model ${model} (attempt ${retryCount + 1})`);
@@ -1133,8 +1165,8 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                         options: {
                             temperature: 0.7,
                             top_p: 0.9,
-                            num_predict: 1500, // Much higher for synthesis
-                            max_tokens: 1500
+                            num_predict: 2048, // Maximum tokens for complete synthesis
+                            max_tokens: 2048
                         }
                     })
                 });
@@ -2758,10 +2790,185 @@ Your direct response as ${entity.toUpperCase()}:`;
             }
         }
 
+        // Panel Maximize/Restore Functionality
+        function addMaximizeFeature() {
+            // Add CSS for maximize functionality if not already added
+            if (!document.getElementById('maximizeStyles')) {
+                const style = document.createElement('style');
+                style.id = 'maximizeStyles';
+                style.textContent = `
+                    .panel-maximize-btn {
+                        position: absolute;
+                        top: 5px;
+                        right: 5px;
+                        background: rgba(78, 205, 196, 0.2);
+                        border: 1px solid #4ecdc4;
+                        color: #4ecdc4;
+                        cursor: pointer;
+                        padding: 2px 6px;
+                        border-radius: 3px;
+                        font-size: 12px;
+                        z-index: 10;
+                        transition: all 0.3s;
+                    }
+
+                    .panel-maximize-btn:hover {
+                        background: rgba(78, 205, 196, 0.4);
+                        border-color: #66ffee;
+                        box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+                    }
+
+                    .panel-maximized {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 0 !important;
+                        width: 100vw !important;
+                        height: 100vh !important;
+                        z-index: 9999 !important;
+                        margin: 0 !important;
+                        border-radius: 0 !important;
+                        background: #000811 !important;
+                        padding: 10px !important;
+                    }
+
+                    .panel-maximized .panel-content,
+                    .panel-maximized textarea,
+                    .panel-maximized .canvas-workspace {
+                        height: calc(100vh - 100px) !important;
+                        max-height: none !important;
+                    }
+
+                    .panel-maximized .observations-list,
+                    .panel-maximized .entity-display,
+                    .panel-maximized #liveFeedsContainer {
+                        max-height: calc(100vh - 150px) !important;
+                    }
+
+                    .panel-maximized > * {
+                        display: block !important;
+                        visibility: visible !important;
+                    }
+                    
+                    body.has-maximized-panel .interface-header {
+                        display: none !important;
+                    }
+                    
+                    body.has-maximized-panel .main-canvas:not(.panel-maximized),
+                    body.has-maximized-panel .synthesis-canvas:not(.panel-maximized),
+                    body.has-maximized-panel .observation-feeds:not(.panel-maximized),
+                    body.has-maximized-panel .metrics-panel:not(.panel-maximized) {
+                        display: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // Find and add maximize buttons to all panels
+            setTimeout(() => {
+                // Main canvas
+                const mainCanvas = document.querySelector('.main-canvas');
+                if (mainCanvas && !mainCanvas.querySelector('.panel-maximize-btn')) {
+                    mainCanvas.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Canvas';
+                    btn.onclick = function() { toggleMaximize(mainCanvas, btn, 'Canvas'); };
+                    mainCanvas.insertBefore(btn, mainCanvas.firstChild);
+                }
+                
+                // Synthesis canvas  
+                const synthesisCanvas = document.querySelector('.synthesis-canvas');
+                if (synthesisCanvas && !synthesisCanvas.querySelector('.panel-maximize-btn')) {
+                    synthesisCanvas.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Synthesis';
+                    btn.onclick = function() { toggleMaximize(synthesisCanvas, btn, 'Synthesis'); };
+                    synthesisCanvas.insertBefore(btn, synthesisCanvas.firstChild);
+                }
+                
+                // Observation feeds (find by class that contains 'observation-feeds')
+                const observationFeeds = document.querySelector('.observation-feeds');
+                if (observationFeeds && !observationFeeds.querySelector('.panel-maximize-btn')) {
+                    observationFeeds.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Feeds';
+                    btn.onclick = function() { toggleMaximize(observationFeeds, btn, 'Feeds'); };
+                    observationFeeds.insertBefore(btn, observationFeeds.firstChild);
+                }
+                
+                // Live metrics
+                const liveMetrics = document.querySelector('.live-metrics');
+                if (liveMetrics && !liveMetrics.querySelector('.panel-maximize-btn')) {
+                    liveMetrics.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Metrics';
+                    btn.onclick = function() { toggleMaximize(liveMetrics, btn, 'Metrics'); };
+                    liveMetrics.insertBefore(btn, liveMetrics.firstChild);
+                }
+                
+                console.log('Maximize buttons added to panels');
+            }, 1000); // Wait for DOM to fully load
+
+        }
+
+        function toggleMaximize(panel, btn, title) {
+            if (panel.classList.contains('panel-maximized')) {
+                // Restore panel
+                panel.classList.remove('panel-maximized');
+                document.body.classList.remove('has-maximized-panel');
+                btn.innerHTML = '⛶';
+                btn.title = `Maximize ${title}`;
+                
+                // Show all panels
+                document.querySelectorAll('.main-canvas, .synthesis-canvas, .observation-feeds, .metrics-panel, .interface-header').forEach(p => {
+                    p.style.display = '';
+                });
+                
+                // Restore scroll position
+                if (panel.savedScrollTop !== undefined) {
+                    const scrollable = panel.querySelector('textarea, .observations-list, .entity-display, #liveFeedsContainer');
+                    if (scrollable) {
+                        scrollable.scrollTop = panel.savedScrollTop;
+                    }
+                }
+            } else {
+                // Save scroll position
+                const scrollable = panel.querySelector('textarea, .observations-list, .entity-display, #liveFeedsContainer');
+                if (scrollable) {
+                    panel.savedScrollTop = scrollable.scrollTop;
+                }
+                
+                // Maximize panel
+                panel.classList.add('panel-maximized');
+                document.body.classList.add('has-maximized-panel');
+                btn.innerHTML = '⛷';
+                btn.title = `Restore ${title}`;
+                
+                // Hide other panels
+                document.querySelectorAll('.main-canvas, .synthesis-canvas, .observation-feeds, .metrics-panel, .interface-header').forEach(p => {
+                    if (p !== panel) {
+                        p.style.display = 'none';
+                    }
+                });
+            }
+        }
+
         // INITIALIZE ON LOAD
         document.addEventListener('DOMContentLoaded', function() {
             // Load AI memory from previous sessions
             loadMemoryFromStorage();
+            
+            // Add maximize functionality to panels
+            addMaximizeFeature();
 
             initializeCombinedInterface();
 
