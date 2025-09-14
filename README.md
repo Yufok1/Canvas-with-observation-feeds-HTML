@@ -2,7 +2,7 @@
 
 A sovereign web interface for real-time AI observation, analysis, and collaborative synthesis. This application provides a canvas for user observations while integrating live intelligence streams from multiple AI systems, ensuring user sovereignty and comprehensive analysis capabilities.
 
-**Experience the god-tier launch with cinematic ASCII art startup sequences and enjoy an enhanced interface featuring square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
+**Experience an enhanced launch with ASCII art startup sequences and enjoy an interface featuring square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
 
 ## Features
 
@@ -26,7 +26,7 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 - **Dynamic GUI Resizing**: CTRL + Mousewheel for instant interface scaling
 - **Real-time Orchestration Status**: Live AI system confidence monitoring
 - **Enhanced Layout**: Square grid design for optimal space utilization
-- **God-tier Launch Experience**: ASCII art batch files for cinematic startup
+- **Launch Experience**: ASCII art batch files for startup
 
 ### Technical Features
 - **Activity-Based Polling**: Dynamic AI update intervals based on user engagement
@@ -60,14 +60,14 @@ The application requires the following Ollama models:
 Use the provided batch files for the ultimate launch experience:
 
 1. **Double-click `launch-canvas.bat`**
-2. Watch the cinematic ASCII art startup sequence
+2. Watch the ASCII art startup sequence
 3. The script will automatically:
    - Start Ollama server (if not already running)
    - Launch Python web server
    - Open your browser to the application
    - Display real-time status updates
 
-**That's it!** Enjoy the god-tier launch experience with full automation.
+**That's it!** Enjoy the launch experience with full automation.
 
 ### Option 2: Manual Setup
 If you prefer manual control:
