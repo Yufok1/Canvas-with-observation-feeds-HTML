@@ -176,6 +176,11 @@
             50% { opacity: 0.8; }
         }
 
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         .feed-djinn { border-color: #cc88cc; color: #cc88cc; }
         .feed-nazar { border-color: #6666ff; color: #6666ff; }
         .feed-narra { border-color: #4ecdc4; color: #4ecdc4; }
@@ -481,6 +486,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
             <span>🎯 Your Observations: <span id="totalObs">0</span></span>
             <span>🔄 AI Polling: <span id="pollingStatus">30s intervals</span></span>
             <span>📝 Canvas Changes: <span id="canvasChangeStatus">No changes</span></span>
+            <span>🎭 Auto Synthesis: <span id="synthesisRoundStatus">Ready</span></span>
         </div>
     </div>
 
@@ -509,6 +515,9 @@ Ready for your first collaborative synthesis! 🚀</textarea>
 
         // AI FEEDS STORAGE
         let aiFeeds = [];
+
+        // OBSERVATIONS STORAGE
+        let observations = [];
 
         // SYSTEM METRICS STORAGE
         let systemMetrics = {
@@ -597,9 +606,248 @@ Ready for your first collaborative synthesis! 🚀</textarea>
         };
 
         // PARALLEL AI PROCESSING SYSTEM
+        // AUTOMATED SYNTHESIS TRACKING SYSTEM
+        let automatedSynthesisTracker = {
+            currentRound: {
+                roundId: null,
+                startTime: null,
+                completedSystems: new Set(),
+                systemResponses: {},
+                allComplete: false,
+                synthesisTriggered: false
+            },
+
+            // Initialize new synthesis round
+            startNewRound: function() {
+                this.currentRound = {
+                    roundId: `round_${Date.now()}`,
+                    startTime: new Date().toISOString(),
+                    completedSystems: new Set(),
+                    systemResponses: {},
+                    allComplete: false,
+                    synthesisTriggered: false,
+                    synthesisCompleted: false
+                };
+                console.log(`🎯 Starting new AI synthesis round: ${this.currentRound.roundId}`);
+                return this.currentRound.roundId;
+            },
+
+            // Record system completion
+            recordSystemCompletion: function(system, response) {
+                if (!this.currentRound.roundId) {
+                    this.startNewRound();
+                }
+
+                this.currentRound.completedSystems.add(system);
+                this.currentRound.systemResponses[system] = {
+                    response: response,
+                    timestamp: new Date().toISOString(),
+                    confidence: this.extractConfidence(response)
+                };
+
+                console.log(`✅ ${system.toUpperCase()} completed round ${this.currentRound.roundId} (${this.currentRound.completedSystems.size}/5)`);
+
+                // Update DJINN council communication immediately after completion
+                this.updateDjinnCouncilCommunication();
+
+                // Check if all systems are complete
+                this.checkRoundCompletion();
+            },
+
+            // Check if all five systems have completed
+            checkRoundCompletion: function() {
+                const requiredSystems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+                const completedCount = this.currentRound.completedSystems.size;
+
+                if (completedCount === 5 && !this.currentRound.allComplete) {
+                    this.currentRound.allComplete = true;
+                    console.log(`🎉 ALL SYSTEMS COMPLETE: Round ${this.currentRound.roundId} finished with all 5 AI agents`);
+
+                    // Automatically trigger synthesis
+                    this.triggerAutomatedSynthesis();
+                }
+            },
+
+            // Automatically trigger synthesis when all systems complete
+            triggerAutomatedSynthesis: async function() {
+                if (this.currentRound.synthesisTriggered) return;
+
+                this.currentRound.synthesisTriggered = true;
+                console.log(`🚀 AUTO-TRIGGERING SYNTHESIS: All 5 AI agents have updated their perspectives`);
+
+                // Set synthesis status to "working"
+                this.setSynthesisStatus('working');
+
+                try {
+                    // Wait a moment for UI to update
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Trigger the synthesis
+                    await triggerAISynthesis();
+
+                    // Record synthesis completion
+                    this.recordSynthesisCompletion();
+
+                    // Set synthesis status to "complete"
+                    this.setSynthesisStatus('complete');
+
+                    // Wait a bit before allowing new rounds
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+
+                    // Reset for next round
+                    this.setSynthesisStatus('ready');
+
+                } catch (error) {
+                    console.error('❌ Automated synthesis failed:', error);
+                    this.setSynthesisStatus('error');
+                    // Still allow new rounds after error
+                    setTimeout(() => this.setSynthesisStatus('ready'), 5000);
+                }
+            },
+
+            // Set synthesis status with visual feedback
+            setSynthesisStatus: function(status) {
+                const synthesisCanvas = document.getElementById('synthesisCanvas');
+                const synthesisStatus = document.getElementById('synthesisStatus');
+
+                if (!synthesisCanvas || !synthesisStatus) return;
+
+                let statusText = '';
+                let statusColor = '';
+                let placeholderText = '';
+
+                switch(status) {
+                    case 'working':
+                        statusText = '🔄 SYNTHESIZING...';
+                        statusColor = '#ffd93d';
+                        placeholderText = '🧠 AI SYNTHESIS IN PROGRESS...\n\nPlease wait while the DJINN council processes all agent responses and generates comprehensive analysis...';
+                        break;
+                    case 'complete':
+                        statusText = '✅ SYNTHESIS COMPLETE';
+                        statusColor = '#6bcf7f';
+                        placeholderText = '🎭 COLLABORATIVE SYNTHESIS OUTPUT\n\nSynthesis reports will appear here after all AI agents complete their analysis rounds...';
+                        break;
+                    case 'error':
+                        statusText = '❌ SYNTHESIS ERROR';
+                        statusColor = '#ff6b6b';
+                        placeholderText = '🎭 COLLABORATIVE SYNTHESIS OUTPUT\n\nSynthesis reports will appear here after all AI agents complete their analysis rounds...';
+                        break;
+                    case 'ready':
+                    default:
+                        statusText = '⏳ READY FOR SYNTHESIS';
+                        statusColor = '#4ecdc4';
+                        placeholderText = '🎭 COLLABORATIVE SYNTHESIS OUTPUT\n\nSynthesis reports will appear here after all AI agents complete their analysis rounds...';
+                        break;
+                }
+
+                synthesisStatus.textContent = statusText;
+                synthesisStatus.style.color = statusColor;
+                synthesisStatus.style.animation = status === 'working' ? 'pulse 1s infinite' : 'none';
+                synthesisCanvas.placeholder = placeholderText;
+
+                // Update localStorage for DJINN council communication
+                localStorage.setItem('synthesis_progress', statusText);
+            },
+
+            // Record synthesis completion
+            recordSynthesisCompletion: function() {
+                this.currentRound.synthesisCompleted = true;
+                console.log(`✅ SYNTHESIS COMPLETE: Round ${this.currentRound.roundId} synthesis report generated`);
+
+                // Update monitoring system
+                this.updateEvolutionTracking();
+            },
+
+            // Update evolution tracking
+            updateEvolutionTracking: function() {
+                const evolutionData = {
+                    roundId: this.currentRound.roundId,
+                    startTime: this.currentRound.startTime,
+                    completionTime: new Date().toISOString(),
+                    systemResponses: this.currentRound.systemResponses,
+                    totalSystems: 5,
+                    synthesisTriggered: true
+                };
+
+                // Store in localStorage for persistence
+                const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                evolutionHistory.unshift(evolutionData);
+                if (evolutionHistory.length > 20) evolutionHistory.pop(); // Keep last 20 rounds
+
+                localStorage.setItem('ai_evolution_history', JSON.stringify(evolutionHistory));
+
+                // Update DJINN council communication
+                this.updateDjinnCouncilCommunication();
+
+                console.log(`📊 Evolution tracking updated for round ${this.currentRound.roundId}`);
+            },
+
+            // Update communication with DJINN council
+            updateDjinnCouncilCommunication: function() {
+                const councilData = {
+                    currentRound: this.currentRound.roundId,
+                    completedSystems: this.currentRound.completedSystems.size,
+                    totalSystems: 5,
+                    allComplete: this.currentRound.allComplete,
+                    synthesisTriggered: this.currentRound.synthesisTriggered,
+                    lastUpdate: new Date().toISOString()
+                };
+
+                localStorage.setItem('canvas_synthesis_status', JSON.stringify(councilData));
+                console.log(`📡 Updated DJINN council communication: ${councilData.completedSystems}/5 systems complete`);
+            },
+
+            // Check if synthesis is currently in progress
+            isSynthesisInProgress: function() {
+                return this.currentRound && this.currentRound.synthesisTriggered && !this.currentRound.synthesisCompleted;
+            },
+
+            // Extract confidence level from AI response
+            extractConfidence: function(response) {
+                if (!response || typeof response !== 'string') return 0.5;
+
+                const confidenceIndicators = ['certain', 'confident', 'clearly', 'definitely', 'absolutely'];
+                const uncertaintyIndicators = ['maybe', 'perhaps', 'possibly', 'unclear', 'uncertain'];
+
+                let confidence = 0.5;
+
+                confidenceIndicators.forEach(word => {
+                    if (response.toLowerCase().includes(word)) confidence += 0.1;
+                });
+
+                uncertaintyIndicators.forEach(word => {
+                    if (response.toLowerCase().includes(word)) confidence -= 0.1;
+                });
+
+                return Math.max(0.1, Math.min(1.0, confidence));
+            },
+
+            // Get current round status
+            getRoundStatus: function() {
+                return {
+                    roundId: this.currentRound.roundId,
+                    completedCount: this.currentRound.completedSystems.size,
+                    totalRequired: 5,
+                    allComplete: this.currentRound.allComplete,
+                    synthesisTriggered: this.currentRound.synthesisTriggered,
+                    systemResponses: Object.keys(this.currentRound.systemResponses)
+                };
+            }
+        };
+
         async function pollAIDataParallel() {
             const currentTime = new Date();
+
+            // Check if synthesis is still in progress
+            if (automatedSynthesisTracker.isSynthesisInProgress()) {
+                console.log('⏳ Synthesis in progress, waiting before starting new round...');
+                return; // Skip this polling cycle
+            }
+
             console.log('🚀 Starting parallel AI processing...');
+
+            // Start new synthesis round
+            const roundId = automatedSynthesisTracker.startNewRound();
 
             // Group AI systems by processing priority
             const processingGroups = {
@@ -619,6 +867,8 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     try {
                         const result = await updateFeedProgressive(system);
                         primaryResults.push({ status: 'fulfilled', value: result });
+
+                        // Completion recording now handled in updateWithAIResponse
                     } catch (error) {
                         primaryResults.push({ status: 'rejected', reason: error });
                     }
@@ -637,6 +887,8 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     try {
                         const result = await updateFeedProgressive(system);
                         secondaryResults.push({ status: 'fulfilled', value: result });
+
+                        // Completion recording now handled in updateWithAIResponse
                     } catch (error) {
                         secondaryResults.push({ status: 'rejected', reason: error });
                     }
@@ -655,6 +907,8 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     try {
                         const result = await updateFeedProgressive(system);
                         tertiaryResults.push({ status: 'fulfilled', value: result });
+
+                        // Completion recording now handled in updateWithAIResponse
                     } catch (error) {
                         tertiaryResults.push({ status: 'rejected', reason: error });
                     }
@@ -668,6 +922,18 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 const failed = allResults.filter(r => r.status === 'rejected').length;
                 console.log(`✅ Parallel processing complete: ${successful} successful, ${failed} failed`);
 
+                // Update status to show round completion
+                if (pollingStatus) {
+                    const roundStatus = automatedSynthesisTracker.getRoundStatus();
+                    if (roundStatus.allComplete) {
+                        pollingStatus.textContent = `🎯 Round ${roundStatus.roundId.split('_')[1]} Complete - Auto Synthesis Triggered`;
+                        pollingStatus.style.color = '#00ff88';
+                    } else {
+                        pollingStatus.textContent = `⚠️ Round ${roundStatus.roundId.split('_')[1]} Partial (${roundStatus.completedCount}/5)`;
+                        pollingStatus.style.color = '#ffaa00';
+                    }
+                }
+
             } catch (error) {
                 console.error('🚨 Parallel processing error:', error);
             }
@@ -675,6 +941,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
             // Update memory and save state
             updateMemoryStatus();
             updateHeaderOrchestrationStatus();
+            updateDisplays();
             saveMemoryToStorage();
 
             // Create feed entries for successful responses
@@ -847,6 +1114,22 @@ Ready for your first collaborative synthesis! 🚀</textarea>
 
                 synthesisStatus.textContent = '✅ Synthesis Complete';
                 synthesisStatus.style.color = '#6bcf7f';
+
+                // Communicate synthesis report to DJINN council
+                try {
+                    // Store synthesis report in localStorage for DJINN council
+                    localStorage.setItem('synthesis_report', synthesisResult);
+                    
+                    // Store synthesis canvas content for DJINN council access
+                    localStorage.setItem('synthesis_canvas_content', synthesisCanvas.value);
+                    
+                    // Trigger event to notify DJINN council of synthesis completion
+                    localStorage.setItem('synthesis_report_generated', Date.now().toString());
+                    
+                    console.log('📡 Synthesis report communicated to DJINN council');
+                } catch (storageError) {
+                    console.warn('⚠️ Failed to communicate synthesis to DJINN council:', storageError);
+                }
 
                 // Reset status after 5 seconds
                 setTimeout(() => {
@@ -1971,6 +2254,12 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                     // Update display even if no change (for length updates)
                     canvasChangeTracker.updateStatusDisplay();
                 }
+
+                // Update synthesis and other displays
+                updateDisplays();
+
+                // Update DJINN council communication periodically
+                automatedSynthesisTracker.updateDjinnCouncilCommunication();
             }, 5000); // Check every 5 seconds
 
             console.log('📝 Canvas change detection initialized');
@@ -2117,6 +2406,12 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         function updateWithAIResponse(system, aiResponse) {
             updateFeedUI(system, aiResponse);
             updateMetrics(system, 0.85 + Math.random() * 0.15);
+
+            // Record completion for automated synthesis tracking
+            if (aiResponse && !aiResponse.includes('❌') && !aiResponse.includes('failed') && !aiResponse.includes('error')) {
+                automatedSynthesisTracker.recordSystemCompletion(system, aiResponse);
+                console.log(`✅ ${system.toUpperCase()} completion recorded for synthesis tracking`);
+            }
         }
 
         function updateWithFallbackResponse(system) {
@@ -2267,10 +2562,26 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             document.getElementById('corrCount').textContent = correlations.length;
             document.getElementById('totalObs').textContent = observations.length;
             document.getElementById('obsCount').textContent = observations.length;
-            
+
             const canvas = document.getElementById('mainCanvas');
             if (canvas) {
                 document.getElementById('canvasLength').textContent = canvas.value.length;
+            }
+
+            // Update synthesis round status
+            const synthesisStatusElement = document.getElementById('synthesisRoundStatus');
+            if (synthesisStatusElement) {
+                const roundStatus = automatedSynthesisTracker.getRoundStatus();
+                if (roundStatus.allComplete) {
+                    synthesisStatusElement.textContent = `Round ${roundStatus.roundId.split('_')[1]} Complete`;
+                    synthesisStatusElement.style.color = '#00ff88';
+                } else if (roundStatus.completedCount > 0) {
+                    synthesisStatusElement.textContent = `${roundStatus.completedCount}/5 Systems`;
+                    synthesisStatusElement.style.color = '#ffaa00';
+                } else {
+                    synthesisStatusElement.textContent = 'Ready';
+                    synthesisStatusElement.style.color = '#4ecdc4';
+                }
             }
         }
 

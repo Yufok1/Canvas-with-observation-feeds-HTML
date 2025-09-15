@@ -29,6 +29,7 @@ This project includes two comprehensive Windows batch scripts for launching the 
 - 📋 **Status Monitoring**: Real-time initialization progress
 - 🛡️ **Requirements Check**: Clear system requirements display
 - 🧠 **Complete Memory Integration**: Council members access all stored AI memories, conversation histories, and cross-member insights
+- 🔧 **Recent Fixes**: Includes latest bug fixes and performance improvements (September 15, 2025)
 
 ## Usage
 
@@ -68,6 +69,15 @@ LAUNCH_CANVAS_SURVEILLANCE.bat
 - Python installed and in PATH
 - Modern terminal
 - Ollama running (for AI functionality)
+- **Recent Updates**: Improved error handling and performance optimizations (September 15, 2025)
+
+## System Compatibility
+- **Operating System**: Windows 10/11
+- **Python Version**: 3.7+ (automatically detected)
+- **Browser**: Chrome 90+, Firefox 88+, Edge 90+
+- **RAM**: 4GB minimum, 8GB recommended for optimal performance
+- **Storage**: 2GB free space for Ollama models
+- **Network**: Local Ollama connection (localhost:11434)
 
 ## Quick Start
 Choose your preferred launch method:

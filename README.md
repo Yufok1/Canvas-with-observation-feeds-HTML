@@ -2,7 +2,38 @@
 
 A sovereign web interface for real-time AI observation, analysis, and collaborative synthesis. This application provides a canvas for user observations while integrating live intelligence streams from multiple AI systems, ensuring user sovereignty and comprehensive analysis capabilities.
 
-**Experience an enhanced launch with ASCII art startup sequences and enjoy an interface featuring square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
+**Experience an enhanced launch with ASCII art startup sequences and enjoy an**AI Responses Not Appearing**
+- Check browser console for errors (F12)
+- Verify model compatibility with gemma3:1b
+- Ensure sufficient system resources (4GB+ RAM)
+- Try clearing AI memory and restarting
+- For council interface, check individual member status indicators
+- **Recent Fix**: Check for JavaScript syntax errors that may prevent page loading
+
+**Interface Layout Issues**
+- Use CTRL+mousewheel to resize panels
+- Refresh the page if layout appears broken
+- Clear browser cache if CSS doesn't load properly
+- Ensure modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- **Recent Fix**: Layout issues from JavaScript errors have been resolved
+
+**Correlative Analysis Errors**
+- **Recent Fix**: ReferenceError for `triggerCorrelativeAnalysis` has been resolved
+- Ensure both canvas and DJINN Council interfaces are loaded
+- Check localStorage for proper data synchronization
+- Verify cross-window communication is functioning
+
+**Synthesis Workflow Issues**
+- **Recent Fix**: AI agents now properly trigger synthesis after completion
+- Check that all 5 AI systems have completed their rounds
+- Verify polling is prevented during synthesis processes
+- Monitor real-time status updates in the header
+
+**Memory Issues**
+- Clear AI memory via the "🧠 Clear Memory" button
+- Reset localStorage if problems persist
+- Monitor RAM usage - close other applications if needed
+- **Recent Fix**: Improved memory compression prevents quota exceeded errorsng square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
 
 ## 🆕 Latest Features
 
@@ -24,6 +55,22 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 - **Full-Panel Display System**: Intelligence and consensus reports utilize complete interface real estate for comprehensive visibility
 - **Ecosystem-Wide Intelligence**: Strategic analysis covers document evolution, memory bank trends, dashboard metrics, and insight synthesis
 - **Memory Compression System**: Intelligent localStorage management prevents quota exceeded errors while preserving essential analysis data
+
+## 🛠️ Recent Updates (September 15, 2025)
+
+### Bug Fixes & Improvements
+- **✅ Syntax Error Resolution**: Fixed JavaScript syntax error in canvas file that was preventing proper loading
+- **✅ Correlative Analysis Integration**: Implemented missing `triggerCorrelativeAnalysis` function for DJINN Council
+- **✅ Synthesis Workflow Enhancement**: Improved AI agent completion tracking and synthesis triggering
+- **✅ Polling Prevention**: Added safeguards to prevent premature polling during synthesis processes
+- **✅ Real-time Status Updates**: Enhanced cross-window communication between canvas and DJINN Council
+- **✅ Error Handling**: Improved error handling and user feedback throughout the system
+
+### Technical Improvements
+- **Enhanced Memory Management**: Better localStorage compression and quota management
+- **Improved Cross-Window Communication**: More reliable data synchronization between interfaces
+- **Better Error Recovery**: Graceful handling of network timeouts and API failures
+- **Performance Optimizations**: Reduced memory usage and improved response times
 
 ## Features
 
@@ -446,7 +493,10 @@ If the automated launch fails:
 - **DJINN Council**: Test surveillance interface, tooltips, and intelligence reports
 - **Performance**: Monitor memory usage with active AI synthesis
 - **Cross-browser**: Test on Chrome, Firefox, and Edge
-- **Timeouts**: Verify extended timeout handling for complex operations
+- **Synthesis Workflow**: Verify AI agent completion triggers synthesis properly
+- **Correlative Analysis**: Test DJINN Council correlative analysis functionality
+- **Error Handling**: Verify graceful handling of network timeouts and API failures
+- **Memory Management**: Test localStorage compression and quota management
 
 ### Code Style
 - Use consistent indentation (4 spaces)

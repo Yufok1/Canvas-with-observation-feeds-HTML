@@ -16,7 +16,9 @@
             background: radial-gradient(ellipse at center, #0a0a0a 0%, #1a0a2e 50%, #16003b 100%);
             color: #cc88cc;
             height: 100vh;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 10px;
             position: relative;
         }
 
@@ -24,13 +26,13 @@
         .djinn-container {
             display: grid;
             grid-template-areas:
-                "header header header"
-                "surveillance council-left council-right"
-                "surveillance consensus intelligence"
-                "controls controls controls";
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: minmax(60px, auto) 1fr 1fr minmax(50px, auto);
-            height: 100vh;
+                "header header header header"
+                "surveillance council-left council-right surveillance-extended"
+                "surveillance consensus intelligence surveillance-extended"
+                "controls controls controls controls";
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: minmax(60px, auto) 1fr 1fr minmax(80px, auto);
+            height: calc(100vh - 20px);
             gap: clamp(4px, 1vw, 8px);
             padding: clamp(4px, 1vw, 8px);
             min-height: 600px;
@@ -812,7 +814,7 @@
         /* Responsive Design for Even Panel Distribution */
         @media (max-width: 1200px) {
             .djinn-container {
-                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-columns: 1fr 1fr 1fr 1fr;
                 gap: clamp(3px, 0.8vw, 6px);
                 padding: clamp(3px, 0.8vw, 6px);
             }
@@ -821,7 +823,7 @@
                 min-height: clamp(80px, 12vh, 120px);
             }
 
-            .council-consensus, .intelligence-report {
+            .council-consensus, .intelligence-report, .predictive-analytics-panel {
                 min-height: clamp(120px, 18vh, 200px);
             }
         }
@@ -834,6 +836,7 @@
                     "surveillance surveillance"
                     "council-left council-right"
                     "consensus intelligence"
+                    "predictive predictive"
                     "controls controls";
                 gap: clamp(2px, 0.6vw, 4px);
                 padding: clamp(2px, 0.6vw, 4px);
@@ -843,7 +846,7 @@
                 min-height: clamp(100px, 15vh, 140px);
             }
 
-            .council-consensus, .intelligence-report {
+            .council-consensus, .intelligence-report, .predictive-analytics-panel {
                 min-height: clamp(140px, 20vh, 220px);
             }
         }
@@ -858,6 +861,7 @@
                     "council-right"
                     "consensus"
                     "intelligence"
+                    "predictive"
                     "controls";
                 gap: clamp(2px, 0.5vw, 4px);
                 padding: clamp(2px, 0.5vw, 4px);
@@ -867,7 +871,7 @@
                 min-height: clamp(120px, 18vh, 160px);
             }
 
-            .council-consensus, .intelligence-report {
+            .council-consensus, .intelligence-report, .predictive-analytics-panel {
                 min-height: clamp(160px, 22vh, 240px);
             }
 
@@ -885,16 +889,96 @@
         /* High zoom level adjustments */
         @media (max-height: 700px) {
             .djinn-container {
-                grid-template-rows: minmax(50px, auto) 1fr 1fr minmax(40px, auto);
+                grid-template-rows: minmax(50px, auto) 1fr 1fr minmax(70px, auto);
             }
 
             .council-member {
                 min-height: clamp(70px, 10vh, 100px);
             }
 
-            .council-consensus, .intelligence-report {
+            .council-consensus, .intelligence-report, .predictive-analytics-panel {
                 min-height: clamp(100px, 15vh, 180px);
             }
+        }
+
+        /* Canvas Surveillance Extended Panel */
+        .canvas-surveillance-extended {
+            grid-area: surveillance-extended;
+            grid-row: span 2;
+            background: linear-gradient(135deg, #0a0011, #1a0022);
+            border: 2px solid #6666ff;
+            border-radius: 8px;
+            padding: clamp(8px, 2vw, 12px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        .extended-panel-header {
+            font-size: 14px;
+            font-weight: bold;
+            color: #6666ff;
+            text-shadow: 0 0 8px rgba(102, 102, 255, 0.5);
+            margin-bottom: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(102, 102, 255, 0.3);
+            padding-bottom: 6px;
+        }
+
+        .extended-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .extended-metric-item {
+            background: rgba(102, 102, 255, 0.1);
+            border: 1px solid rgba(102, 102, 255, 0.3);
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .extended-metric-label {
+            font-size: 11px;
+            color: #6666ff;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .extended-metric-value {
+            font-size: 12px;
+            color: #cc88cc;
+            font-weight: bold;
+        }
+
+        .extended-analysis-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 102, 255, 0.5);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 8px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .extended-analysis-header {
+            font-size: 12px;
+            color: #6666ff;
+            font-weight: bold;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(102, 102, 255, 0.3);
+            padding-bottom: 4px;
+        }
+
+        .extended-analysis-content {
+            font-size: 11px;
+            color: #cc88cc;
+            line-height: 1.4;
+            white-space: pre-line;
         }
     </style>
 </head>
@@ -938,7 +1022,7 @@
         <div class="canvas-surveillance">
             <div class="panel-title" style="color: #6666ff;" data-tooltip="Canvas Surveillance: Real-time cross-window monitoring of canvas state changes, content metrics, and activity tracking. Provides comprehensive surveillance statistics and live content analysis.">📡 CANVAS SURVEILLANCE</div>
 
-            <!-- Enhanced Metrics Grid -->
+            <!-- Core Metrics Grid -->
             <div class="metrics-grid">
                 <div class="metric-item" data-tooltip="Total character count of all canvas content including whitespace. Tracks content volume and complexity changes in real-time.">
                     <div class="metric-label">Content Size</div>
@@ -972,9 +1056,29 @@
                     <div class="metric-label">Activity Level</div>
                     <div class="metric-value" id="activityLevel">LOW</div>
                 </div>
-                <div class="metric-item" data-tooltip="Content density ratio calculated as words per line. Higher ratios suggest condensed information requiring deeper analytical focus.">
-                    <div class="metric-label">Data Density</div>
-                    <div class="metric-value" id="dataDensity">0.0</div>
+            </div>
+
+            <!-- Evolution Insights Panel -->
+            <div id="evolutionInsightsPanel" style="margin-top: 8px; padding: 8px; background: rgba(102, 102, 255, 0.05); border: 1px solid rgba(102, 102, 255, 0.2); border-radius: 4px;">
+                <div style="color: #6666ff; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🔬 EVOLUTION INSIGHTS</div>
+                <div id="evolutionInsights" style="font-size: 10px; line-height: 1.4; color: #cc88cc; white-space: pre-line;">
+                    Analyzing canvas evolution patterns...
+                </div>
+            </div>
+
+            <!-- Cross-System Correlation Panel -->
+            <div id="correlationPanel" style="margin-top: 8px; padding: 8px; background: rgba(0, 204, 255, 0.05); border: 1px solid rgba(0, 204, 255, 0.2); border-radius: 4px;">
+                <div style="color: #00ccff; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🔗 SYSTEM CORRELATION</div>
+                <div id="correlationInsights" style="font-size: 10px; line-height: 1.4; color: #66ccff;">
+                    Analyzing inter-system relationships...
+                </div>
+            </div>
+
+            <!-- Memory Optimization Status -->
+            <div id="memoryOptimizationPanel" style="margin-top: 8px; padding: 8px; background: rgba(255, 136, 255, 0.05); border: 1px solid rgba(255, 136, 255, 0.2); border-radius: 4px;">
+                <div style="color: #ff88ff; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🧠 MEMORY OPTIMIZATION</div>
+                <div id="memoryOptimizationMetrics" style="font-size: 10px; line-height: 1.4; color: #cc88cc;">
+                    Analyzing memory efficiency...
                 </div>
             </div>
 
@@ -1094,6 +1198,70 @@
             </div>
         </div>
 
+        <!-- Canvas Surveillance Extended Panel -->
+        <div class="canvas-surveillance-extended">
+            <div class="extended-panel-header" data-tooltip="Canvas Surveillance Extended: Advanced monitoring metrics, system correlations, and memory optimization tracking for comprehensive canvas analysis.">📡 CANVAS SURVEILLANCE EXTENDED</div>
+
+            <!-- Extended Metrics Grid -->
+            <div class="extended-metrics-grid">
+                <div class="extended-metric-item" data-tooltip="Current evolution trend of canvas content (EXPANDING/CONTRACTING/STABLE/EVOLVING). Indicates whether content is growing, shrinking, or undergoing transformation.">
+                    <div class="extended-metric-label">Evolution Trend</div>
+                    <div class="extended-metric-value" id="evolutionTrend">ANALYZING</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Rate of content change in characters per minute. Higher values indicate rapid evolution or active modification.">
+                    <div class="extended-metric-label">Change Velocity</div>
+                    <div class="extended-metric-value" id="changeVelocity">0.0 chars/min</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Number of historical snapshots stored for evolution analysis. Higher counts provide better trend analysis.">
+                    <div class="extended-metric-label">History Depth</div>
+                    <div class="extended-metric-value" id="historyDepth">0 snapshots</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Evolution patterns detected (stable_growth, burst_activity, etc.). Indicates recurring content behavior patterns.">
+                    <div class="extended-metric-label">Patterns</div>
+                    <div class="extended-metric-value" id="patternsDetected">analyzing</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Current automated synthesis round status. Shows progress of AI agent completion and synthesis triggering.">
+                    <div class="extended-metric-label">Synthesis Round</div>
+                    <div class="extended-metric-value" id="synthesisRound">Ready</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Number of AI agents that have completed their analysis in the current round.">
+                    <div class="extended-metric-label">Agents Complete</div>
+                    <div class="extended-metric-value" id="agentsComplete">0/5</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Status of automated synthesis triggering after all agents complete their analysis.">
+                    <div class="extended-metric-label">Auto Synthesis</div>
+                    <div class="extended-metric-value" id="autoSynthesisStatus">Waiting</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Current synthesis processing status - shows if synthesis is actively working.">
+                    <div class="extended-metric-label">Synthesis Status</div>
+                    <div class="extended-metric-value" id="synthesisProgress">Ready</div>
+                </div>
+                <div class="extended-metric-item" data-tooltip="Total number of completed synthesis rounds with full AI agent participation.">
+                    <div class="extended-metric-label">Rounds Completed</div>
+                    <div class="extended-metric-value" id="roundsCompleted">0</div>
+                </div>
+            </div>
+
+            <!-- Extended Analysis Section -->
+            <div class="extended-analysis-section">
+                <div class="extended-analysis-header">� ADVANCED ANALYSIS</div>
+                <div class="extended-analysis-content" id="extendedAnalysisContent">
+                    Advanced correlation analysis and system insights will appear here as synthesis reports are generated and processed by the DJINN council.
+                </div>
+            </div>
+                    Analyzing memory efficiency...
+                </div>
+            </div>
+
+            <!-- Compact Memory Status -->
+            <div id="compactMemoryStatus" style="margin-top: 4px; padding: 4px; background: rgba(255, 170, 0, 0.05); border: 1px solid rgba(255, 170, 0, 0.2); border-radius: 3px; font-size: 9px; line-height: 1.3; cursor: pointer;" onclick="toggleMemoryDetails()" title="Click to toggle memory details">
+                <div style="color: #ffaa00; font-weight: bold;">🧠 Memory: <span id="memorySummary">Loading...</span></div>
+                <div id="memoryDetails" style="display: none; margin-top: 3px; color: #666;">
+                    <div id="fullMemoryStatus">Loading full memory status...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Controls -->
         <div class="djinn-controls">
             <button class="control-btn" onclick="triggerCouncilAnalysis()" data-tooltip="Initiate comprehensive 3-stage collaborative analysis with all five council members. Features foundation analysis, cross-pollination, and memory-enhanced synthesis.">🔍 Analyze Now</button>
@@ -1173,7 +1341,9 @@
             intelligenceReports: [],
             analysisQueue: [],
             isAnalyzing: false,
-            pollingTimer: null
+            pollingTimer: null,
+            lastSynthesisHash: '',
+            synthesisAnalysisTriggered: false
         };
 
         // Current AI Memory state for compact display
@@ -1285,6 +1455,1894 @@
 
         function generateSessionId() {
             return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // ========================================
+        // ADVANCED MEMORY ORCHESTRATION SYSTEM
+        // ========================================
+
+        // Intelligent memory management with deduplication and optimization
+        const advancedMemoryOrchestrator = {
+            // Memory analytics and optimization metrics
+            analytics: {
+                totalStored: 0,
+                deduplicationSavings: 0,
+                compressionRatio: 1.0,
+                accessPatterns: new Map(),
+                contentClusters: new Map(),
+                optimizationOpportunities: []
+            },
+
+            // Content fingerprinting for deduplication
+            contentFingerprints: new Map(),
+
+            // Adaptive storage policies
+            storagePolicies: {
+                highValue: { retention: 50, compression: 'none', priority: 'high' },
+                mediumValue: { retention: 25, compression: 'light', priority: 'medium' },
+                lowValue: { retention: 10, compression: 'heavy', priority: 'low' }
+            },
+
+            // Initialize memory orchestration
+            initialize: function() {
+                console.log('🧠 Initializing Advanced Memory Orchestration System');
+                this.loadExistingFingerprints();
+                this.analyzeStorageEfficiency();
+                this.scheduleMaintenanceTasks();
+            },
+
+            // Generate content fingerprint for deduplication
+            generateFingerprint: function(content, metadata = {}) {
+                if (!content || typeof content !== 'string') return null;
+
+                // Create comprehensive fingerprint
+                const normalized = content.toLowerCase().trim();
+                const words = normalized.split(/\s+/).filter(w => w.length > 0);
+                const wordFreq = {};
+
+                // Word frequency analysis
+                words.forEach(word => {
+                    wordFreq[word] = (wordFreq[word] || 0) + 1;
+                });
+
+                // Generate fingerprint components
+                const fingerprint = {
+                    hash: this.simpleHash(normalized),
+                    wordCount: words.length,
+                    uniqueWords: Object.keys(wordFreq).length,
+                    topWords: Object.entries(wordFreq)
+                        .sort(([,a], [,b]) => b - a)
+                        .slice(0, 5)
+                        .map(([word, freq]) => `${word}:${freq}`),
+                    length: content.length,
+                    structure: this.analyzeStructure(content),
+                    timestamp: metadata.timestamp || Date.now(),
+                    source: metadata.source || 'unknown'
+                };
+
+                return fingerprint;
+            },
+
+            // Analyze content structure for fingerprinting
+            analyzeStructure: function(content) {
+                const structure = {
+                    headers: (content.match(/^#+\s/gm) || []).length,
+                    lists: (content.match(/^[\-\*]\s/gm) || []).length,
+                    numbers: (content.match(/\d+/g) || []).length,
+                    punctuation: (content.match(/[.!?]/g) || []).length,
+                    paragraphs: content.split(/\n\s*\n/).length
+                };
+
+                return structure;
+            },
+
+            // Simple hash function for content comparison
+            simpleHash: function(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32-bit integer
+                }
+                return hash.toString(36);
+            },
+
+            // Intelligent deduplication
+            deduplicateContent: function(newContent, existingContent, threshold = 0.85) {
+                if (!newContent || !existingContent) return newContent;
+
+                const newFingerprint = this.generateFingerprint(newContent);
+                const existingFingerprint = this.generateFingerprint(existingContent);
+
+                if (!newFingerprint || !existingFingerprint) return newContent;
+
+                // Calculate similarity score
+                const similarity = this.calculateSimilarity(newFingerprint, existingFingerprint);
+
+                if (similarity >= threshold) {
+                    console.log(`🔄 Deduplicating content (${(similarity * 100).toFixed(1)}% similar)`);
+                    return this.mergeSimilarContent(newContent, existingContent, similarity);
+                }
+
+                return newContent;
+            },
+
+            // Calculate similarity between content fingerprints
+            calculateSimilarity: function(fp1, fp2) {
+                if (fp1.hash === fp2.hash) return 1.0;
+
+                let score = 0;
+                let factors = 0;
+
+                // Hash similarity (most important)
+                if (fp1.hash === fp2.hash) {
+                    score += 0.4;
+                }
+                factors += 0.4;
+
+                // Word count similarity
+                const wordCountDiff = Math.abs(fp1.wordCount - fp2.wordCount);
+                const wordCountSimilarity = Math.max(0, 1 - (wordCountDiff / Math.max(fp1.wordCount, fp2.wordCount)));
+                score += wordCountSimilarity * 0.2;
+                factors += 0.2;
+
+                // Top words overlap
+                const topWords1 = new Set(fp1.topWords.map(w => w.split(':')[0]));
+                const topWords2 = new Set(fp2.topWords.map(w => w.split(':')[0]));
+                const overlap = new Set([...topWords1].filter(w => topWords2.has(w)));
+                const wordOverlap = overlap.size / Math.max(topWords1.size, topWords2.size);
+                score += wordOverlap * 0.2;
+                factors += 0.2;
+
+                // Structure similarity
+                const structSimilarity = this.calculateStructureSimilarity(fp1.structure, fp2.structure);
+                score += structSimilarity * 0.2;
+                factors += 0.2;
+
+                return score / factors;
+            },
+
+            // Calculate structure similarity
+            calculateStructureSimilarity: function(struct1, struct2) {
+                let similarity = 0;
+                let factors = 0;
+
+                Object.keys(struct1).forEach(key => {
+                    if (struct2.hasOwnProperty(key)) {
+                        const diff = Math.abs(struct1[key] - struct2[key]);
+                        const maxVal = Math.max(struct1[key], struct2[key]);
+                        similarity += maxVal > 0 ? (1 - diff / maxVal) : 1;
+                        factors++;
+                    }
+                });
+
+                return factors > 0 ? similarity / factors : 0;
+            },
+
+            // Merge similar content intelligently
+            mergeSimilarContent: function(newContent, existingContent, similarity) {
+                if (similarity > 0.95) {
+                    // Nearly identical - keep existing
+                    return existingContent;
+                } else if (similarity > 0.90) {
+                    // Very similar - merge differences
+                    return this.mergeDifferences(newContent, existingContent);
+                } else {
+                    // Moderately similar - create composite
+                    return this.createComposite(newContent, existingContent);
+                }
+            },
+
+            // Merge content differences
+            mergeDifferences: function(newContent, existingContent) {
+                const newLines = newContent.split('\n');
+                const existingLines = existingContent.split('\n');
+                const merged = [];
+
+                // Simple line-by-line merge
+                const maxLines = Math.max(newLines.length, existingLines.length);
+
+                for (let i = 0; i < maxLines; i++) {
+                    const newLine = newLines[i] || '';
+                    const existingLine = existingLines[i] || '';
+
+                    if (newLine.trim() && existingLine.trim()) {
+                        // Both have content - prefer newer if different
+                        merged.push(newLine !== existingLine ? newLine : existingLine);
+                    } else {
+                        // Use whichever has content
+                        merged.push(newLine || existingLine);
+                    }
+                }
+
+                return merged.join('\n');
+            },
+
+            // Create composite content
+            createComposite: function(newContent, existingContent) {
+                return `${existingContent}\n\n--- UPDATED ---\n\n${newContent}`;
+            },
+
+            // Adaptive compression based on content value
+            adaptiveCompress: function(content, metadata = {}) {
+                const value = this.assessContentValue(content, metadata);
+
+                switch (value.priority) {
+                    case 'high':
+                        return content; // No compression
+                    case 'medium':
+                        return this.lightCompress(content);
+                    case 'low':
+                        return this.heavyCompress(content);
+                    default:
+                        return this.lightCompress(content);
+                }
+            },
+
+            // Assess content value for storage prioritization
+            assessContentValue: function(content, metadata = {}) {
+                let score = 0;
+
+                // Length factor
+                if (content.length > 1000) score += 20;
+                if (content.length > 5000) score += 20;
+
+                // Structure factor
+                if (content.includes('**')) score += 15; // Structured content
+                if (/\d+[%\/]|\d+\.\d+/.test(content)) score += 15; // Contains metrics
+
+                // Uniqueness factor
+                const fingerprint = this.generateFingerprint(content);
+                if (fingerprint && !this.contentFingerprints.has(fingerprint.hash)) {
+                    score += 20; // Unique content
+                }
+
+                // Recency factor
+                const age = metadata.timestamp ? Date.now() - metadata.timestamp : 0;
+                if (age < 3600000) score += 10; // Less than 1 hour old
+                if (age < 1800000) score += 10; // Less than 30 minutes old
+
+                // Determine priority
+                if (score >= 70) return this.storagePolicies.highValue;
+                if (score >= 40) return this.storagePolicies.mediumValue;
+                return this.storagePolicies.lowValue;
+            },
+
+            // Light compression (remove redundancy)
+            lightCompress: function(content) {
+                let compressed = content;
+
+                // Remove excessive whitespace
+                compressed = compressed.replace(/\n{3,}/g, '\n\n');
+                compressed = compressed.replace(/ {2,}/g, ' ');
+
+                // Remove redundant phrases (simple approach)
+                const redundancies = [
+                    ['the the', 'the'],
+                    ['and and', 'and'],
+                    ['or or', 'or']
+                ];
+
+                redundancies.forEach(([pattern, replacement]) => {
+                    compressed = compressed.replace(new RegExp(pattern, 'gi'), replacement);
+                });
+
+                return compressed;
+            },
+
+            // Heavy compression (significant reduction)
+            heavyCompress: function(content) {
+                let compressed = this.lightCompress(content);
+
+                // Extract key sentences
+                const sentences = compressed.split(/[.!?]+/).filter(s => s.trim().length > 10);
+                const keySentences = sentences.filter(sentence => {
+                    const words = sentence.toLowerCase().split(/\s+/);
+                    // Keep sentences with metrics, structure, or key terms
+                    return /\d/.test(sentence) ||
+                           words.some(word => ['analysis', 'finding', 'metric', 'system', 'performance'].includes(word));
+                });
+
+                if (keySentences.length > 0) {
+                    compressed = keySentences.join('. ') + '.';
+                }
+
+                // Limit length
+                if (compressed.length > 500) {
+                    compressed = compressed.substring(0, 500) + '...';
+                }
+
+                return compressed;
+            },
+
+            // Memory defragmentation
+            defragmentMemory: function(memoryObject) {
+                const defragmented = {
+                    ...memoryObject,
+                    members: {}
+                };
+
+                // Process each member
+                Object.entries(memoryObject.members).forEach(([memberName, memberData]) => {
+                    const defragmentedMember = {
+                        ...memberData,
+                        reports: []
+                    };
+
+                    // Remove duplicates and optimize reports
+                    const seenContent = new Set();
+                    const uniqueReports = [];
+
+                    memberData.reports.forEach(report => {
+                        const contentKey = this.generateFingerprint(report.analysis)?.hash;
+                        if (contentKey && !seenContent.has(contentKey)) {
+                            seenContent.add(contentKey);
+                            uniqueReports.push({
+                                ...report,
+                                analysis: this.adaptiveCompress(report.analysis, {
+                                    timestamp: new Date(report.timestamp).getTime(),
+                                    source: memberName
+                                })
+                            });
+                        }
+                    });
+
+                    defragmentedMember.reports = uniqueReports.slice(-25); // Keep last 25
+                    defragmented.members[memberName] = defragmentedMember;
+                });
+
+                return defragmented;
+            },
+
+            // Analyze storage efficiency
+            analyzeStorageEfficiency: function() {
+                const memoryData = localStorage.getItem('djinn_council_complete_memory');
+                if (!memoryData) return;
+
+                try {
+                    const memory = JSON.parse(memoryData);
+                    const originalSize = JSON.stringify(memory).length;
+
+                    // Calculate potential savings
+                    const defragmented = this.defragmentMemory(memory);
+                    const optimizedSize = JSON.stringify(defragmented).length;
+
+                    const savings = originalSize - optimizedSize;
+                    const ratio = optimizedSize / originalSize;
+
+                    this.analytics.deduplicationSavings = savings;
+                    this.analytics.compressionRatio = ratio;
+
+                    console.log(`🧠 Memory Analysis: ${originalSize} → ${optimizedSize} bytes (${(ratio * 100).toFixed(1)}% efficiency)`);
+
+                    if (savings > 1000) {
+                        this.analytics.optimizationOpportunities.push({
+                            type: 'defragmentation',
+                            savings: savings,
+                            description: `Defragmentation could save ${savings} bytes`
+                        });
+                    }
+
+                } catch (error) {
+                    console.warn('Memory analysis failed:', error);
+                }
+            },
+
+            // Load existing fingerprints for deduplication
+            loadExistingFingerprints: function() {
+                const memoryData = localStorage.getItem('djinn_council_complete_memory');
+                if (!memoryData) return;
+
+                try {
+                    const memory = JSON.parse(memoryData);
+                    Object.values(memory.members).forEach(member => {
+                        member.reports.forEach(report => {
+                            const fingerprint = this.generateFingerprint(report.analysis);
+                            if (fingerprint) {
+                                this.contentFingerprints.set(fingerprint.hash, {
+                                    timestamp: new Date(report.timestamp).getTime(),
+                                    source: member.specialization,
+                                    content: report.analysis
+                                });
+                            }
+                        });
+                    });
+
+                    console.log(`🧠 Loaded ${this.contentFingerprints.size} content fingerprints for deduplication`);
+                } catch (error) {
+                    console.warn('Failed to load fingerprints:', error);
+                }
+            },
+
+            // Schedule maintenance tasks
+            scheduleMaintenanceTasks: function() {
+                // Defragment memory every 30 minutes
+                setInterval(() => {
+                    this.performMaintenance();
+                }, 30 * 60 * 1000);
+
+                // Analyze efficiency every 15 minutes
+                setInterval(() => {
+                    this.analyzeStorageEfficiency();
+                }, 15 * 60 * 1000);
+            },
+
+            // Perform maintenance tasks
+            performMaintenance: function() {
+                console.log('🧠 Performing memory maintenance...');
+
+                const memoryData = localStorage.getItem('djinn_council_complete_memory');
+                if (!memoryData) return;
+
+                try {
+                    const memory = JSON.parse(memoryData);
+                    const optimized = this.defragmentMemory(memory);
+
+                    localStorage.setItem('djinn_council_complete_memory', JSON.stringify(optimized));
+                    console.log('✅ Memory maintenance completed');
+                } catch (error) {
+                    console.warn('Memory maintenance failed:', error);
+                }
+            },
+
+            // Get optimization metrics
+            getOptimizationMetrics: function() {
+                return {
+                    totalFingerprints: this.contentFingerprints.size,
+                    deduplicationSavings: this.analytics.deduplicationSavings,
+                    compressionRatio: this.analytics.compressionRatio,
+                    optimizationOpportunities: this.analytics.optimizationOpportunities.length,
+                    memoryEfficiency: ((1 - this.analytics.compressionRatio) * 100).toFixed(1) + '%'
+                };
+            }
+        };
+
+        // ========================================
+        // ENHANCED MEMORY MANAGEMENT FUNCTIONS
+        // ========================================
+
+        // Enhanced store function with intelligent optimization
+        function storeCouncilMemberReportOptimized(memberName, reportData) {
+            const member = djinnCouncilMemory.members[memberName];
+
+            // Generate optimized analysis content
+            const originalAnalysis = reportData.analysis || '';
+            const optimizedAnalysis = advancedMemoryOrchestrator.adaptiveCompress(originalAnalysis, {
+                timestamp: Date.now(),
+                source: memberName
+            });
+
+            // Check for duplicates
+            const existingReports = member.reports;
+            let deduplicatedAnalysis = optimizedAnalysis;
+
+            if (existingReports.length > 0) {
+                const lastReport = existingReports[existingReports.length - 1];
+                deduplicatedAnalysis = advancedMemoryOrchestrator.deduplicateContent(
+                    optimizedAnalysis,
+                    lastReport.analysis
+                );
+            }
+
+            // Add new report
+            const newReport = {
+                reportId: member.reports.length + 1,
+                timestamp: new Date().toISOString(),
+                metrics: reportData.metrics || {},
+                analysis: deduplicatedAnalysis,
+                canvasDataAnalyzed: reportData.canvasData || '',
+                buildingOn: member.reports.length > 0 ? `Reports 1-${member.reports.length}` : 'Initial analysis'
+            };
+
+            member.reports.push(newReport);
+
+            // Intelligent retention management
+            const retentionPolicy = advancedMemoryOrchestrator.assessContentValue(deduplicatedAnalysis);
+            const maxRetention = retentionPolicy.retention;
+
+            if (member.reports.length > maxRetention) {
+                // Remove oldest reports beyond retention limit
+                const excess = member.reports.length - maxRetention;
+                member.reports = member.reports.slice(excess);
+            }
+
+            // Save with optimization
+            saveMemoryOptimized(djinnCouncilMemory);
+        }
+
+        // Optimized memory saving with defragmentation
+        function saveMemoryOptimized(memoryObject) {
+            try {
+                // Apply defragmentation
+                const defragmented = advancedMemoryOrchestrator.defragmentMemory(memoryObject);
+
+                // Save optimized memory
+                localStorage.setItem('djinn_council_complete_memory', JSON.stringify(defragmented));
+
+                // Update analytics
+                const originalSize = JSON.stringify(memoryObject).length;
+                const optimizedSize = JSON.stringify(defragmented).length;
+                advancedMemoryOrchestrator.analytics.totalStored = optimizedSize;
+
+                console.log(`💾 Memory optimized: ${originalSize} → ${optimizedSize} bytes (${((originalSize - optimizedSize) / originalSize * 100).toFixed(1)}% savings)`);
+
+            } catch (error) {
+                console.warn('Optimized memory save failed, using fallback:', error);
+
+                // Fallback to original compression methods
+                try {
+                    const compressedMemory = compressMemoryForStorage(memoryObject);
+                    localStorage.setItem('djinn_council_complete_memory', JSON.stringify(compressedMemory));
+                } catch (fallbackError) {
+                    console.warn('Fallback compression failed:', fallbackError);
+                    const ultraCompressed = ultraCompressMemory(memoryObject);
+                    localStorage.setItem('djinn_council_complete_memory', JSON.stringify(ultraCompressed));
+                }
+            }
+        }
+
+        // ========================================
+        // CROSS-SYSTEM CORRELATION ENGINE
+        // ========================================
+
+        // Advanced correlation analysis across AI systems
+        const crossSystemCorrelationEngine = {
+            // Correlation analysis data
+            correlationMatrix: new Map(),
+            consensusPatterns: [],
+            conflictPatterns: [],
+            interSystemDependencies: new Map(),
+            correlationHistory: [],
+
+            // Analysis metrics
+            metrics: {
+                consensusStrength: 0,
+                conflictCount: 0,
+                correlationDiversity: 0,
+                systemHarmony: 0
+            },
+
+            // Initialize correlation engine
+            initialize: function() {
+                console.log('🔗 Initializing Cross-System Correlation Engine');
+                this.buildInitialCorrelationMatrix();
+                this.scheduleCorrelationAnalysis();
+            },
+
+            // Build initial correlation matrix from existing data
+            buildInitialCorrelationMatrix: function() {
+                const aiSystems = ['narra', 'nazar', 'whale', 'djinn', 'watchtower'];
+                const councilMembers = ['pattern', 'wisdom', 'paradox', 'boundaries', 'memory'];
+
+                // Initialize correlation matrix
+                aiSystems.forEach(system => {
+                    this.correlationMatrix.set(system, new Map());
+                    councilMembers.forEach(member => {
+                        this.correlationMatrix.get(system).set(member, {
+                            correlationStrength: 0,
+                            interactionCount: 0,
+                            consensusRate: 0,
+                            lastInteraction: null,
+                            sharedInsights: [],
+                            complementaryPatterns: []
+                        });
+                    });
+                });
+
+                console.log('🔗 Correlation matrix initialized for', aiSystems.length, 'AI systems and', councilMembers.length, 'council members');
+            },
+
+            // Analyze correlations between AI systems and council members
+            analyzeCorrelations: function(systemData, councilData) {
+                const correlations = {
+                    timestamp: Date.now(),
+                    systemConsensus: this.calculateSystemConsensus(systemData),
+                    councilConsensus: this.calculateCouncilConsensus(councilData),
+                    crossCorrelations: this.calculateCrossCorrelations(systemData, councilData),
+                    emergingPatterns: this.identifyEmergingPatterns(systemData, councilData),
+                    conflictAnalysis: this.analyzeConflicts(systemData, councilData)
+                };
+
+                // Update correlation history
+                this.correlationHistory.push(correlations);
+                if (this.correlationHistory.length > 100) {
+                    this.correlationHistory.shift(); // Keep last 100 analyses
+                }
+
+                // Update metrics
+                this.updateCorrelationMetrics(correlations);
+
+                return correlations;
+            },
+
+            // Calculate consensus across AI systems
+            calculateSystemConsensus: function(systemData) {
+                if (!systemData || Object.keys(systemData).length === 0) return 0;
+
+                const systems = Object.keys(systemData);
+                let totalConsensus = 0;
+                let comparisonCount = 0;
+
+                // Compare each system pair
+                for (let i = 0; i < systems.length; i++) {
+                    for (let j = i + 1; j < systems.length; j++) {
+                        const system1 = systems[i];
+                        const system2 = systems[j];
+
+                        const consensus = this.calculatePairConsensus(
+                            systemData[system1],
+                            systemData[system2]
+                        );
+
+                        totalConsensus += consensus;
+                        comparisonCount++;
+                    }
+                }
+
+                return comparisonCount > 0 ? totalConsensus / comparisonCount : 0;
+            },
+
+            // Calculate consensus across council members
+            calculateCouncilConsensus: function(councilData) {
+                if (!councilData || Object.keys(councilData).length === 0) return 0;
+
+                const members = Object.keys(councilData);
+                let totalConsensus = 0;
+                let comparisonCount = 0;
+
+                // Compare each member pair
+                for (let i = 0; i < members.length; i++) {
+                    for (let j = i + 1; j < members.length; j++) {
+                        const member1 = members[i];
+                        const member2 = members[j];
+
+                        const consensus = this.calculatePairConsensus(
+                            councilData[member1],
+                            councilData[member2]
+                        );
+
+                        totalConsensus += consensus;
+                        comparisonCount++;
+                    }
+                }
+
+                return comparisonCount > 0 ? totalConsensus / comparisonCount : 0;
+            },
+
+            // Calculate consensus between two entities
+            calculatePairConsensus: function(entity1, entity2) {
+                if (!entity1 || !entity2) return 0;
+
+                // Simple consensus calculation based on content similarity
+                const content1 = this.extractKeyContent(entity1);
+                const content2 = this.extractKeyContent(entity2);
+
+                if (!content1 || !content2) return 0;
+
+                // Calculate similarity score
+                return this.calculateContentSimilarity(content1, content2);
+            },
+
+            // Extract key content for comparison
+            extractKeyContent: function(entity) {
+                if (typeof entity === 'string') {
+                    return entity.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 2);
+                }
+
+                if (entity.analysis) {
+                    return entity.analysis.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 2);
+                }
+
+                if (entity.content) {
+                    return entity.content.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 2);
+                }
+
+                return null;
+            },
+
+            // Calculate content similarity
+            calculateContentSimilarity: function(content1, content2) {
+                if (!content1 || !content2) return 0;
+
+                const set1 = new Set(content1);
+                const set2 = new Set(content2);
+
+                const intersection = new Set([...set1].filter(x => set2.has(x)));
+                const union = new Set([...set1, ...set2]);
+
+                return intersection.size / union.size;
+            },
+
+            // Calculate cross-correlations between systems and council
+            calculateCrossCorrelations: function(systemData, councilData) {
+                const correlations = [];
+
+                Object.entries(systemData).forEach(([systemName, systemInfo]) => {
+                    Object.entries(councilData).forEach(([memberName, memberInfo]) => {
+                        const correlation = this.calculatePairConsensus(systemInfo, memberInfo);
+
+                        correlations.push({
+                            system: systemName,
+                            member: memberName,
+                            correlation: correlation,
+                            strength: this.categorizeCorrelationStrength(correlation)
+                        });
+
+                        // Update correlation matrix
+                        if (this.correlationMatrix.has(systemName)) {
+                            const systemCorrelations = this.correlationMatrix.get(systemName);
+                            if (systemCorrelations.has(memberName)) {
+                                const existing = systemCorrelations.get(memberName);
+                                existing.correlationStrength = (existing.correlationStrength + correlation) / 2;
+                                existing.interactionCount++;
+                                existing.lastInteraction = Date.now();
+                            }
+                        }
+                    });
+                });
+
+                return correlations.sort((a, b) => b.correlation - a.correlation);
+            },
+
+            // Categorize correlation strength
+            categorizeCorrelationStrength: function(correlation) {
+                if (correlation >= 0.8) return 'very_strong';
+                if (correlation >= 0.6) return 'strong';
+                if (correlation >= 0.4) return 'moderate';
+                if (correlation >= 0.2) return 'weak';
+                return 'very_weak';
+            },
+
+            // Identify emerging patterns
+            identifyEmergingPatterns: function(systemData, councilData) {
+                const patterns = [];
+
+                // Look for consensus patterns
+                const systemConsensus = this.calculateSystemConsensus(systemData);
+                const councilConsensus = this.calculateCouncilConsensus(councilData);
+
+                if (systemConsensus > 0.7 && councilConsensus > 0.7) {
+                    patterns.push({
+                        type: 'high_consensus',
+                        description: 'High consensus between AI systems and council members',
+                        confidence: Math.min(systemConsensus, councilConsensus)
+                    });
+                }
+
+                // Look for complementary patterns
+                const crossCorrelations = this.calculateCrossCorrelations(systemData, councilData);
+                const strongCorrelations = crossCorrelations.filter(c => c.correlation > 0.6);
+
+                if (strongCorrelations.length > 0) {
+                    patterns.push({
+                        type: 'strong_complementarity',
+                        description: `${strongCorrelations.length} strong correlations identified`,
+                        pairs: strongCorrelations.slice(0, 3),
+                        confidence: strongCorrelations[0].correlation
+                    });
+                }
+
+                // Look for specialization patterns
+                const specializationPatterns = this.identifySpecializationPatterns(systemData, councilData);
+                if (specializationPatterns.length > 0) {
+                    patterns.push(...specializationPatterns);
+                }
+
+                return patterns;
+            },
+
+            // Identify specialization patterns
+            identifySpecializationPatterns: function(systemData, councilData) {
+                const patterns = [];
+
+                // Define specialization mappings
+                const systemSpecializations = {
+                    narra: ['monitoring', 'consistency', 'stability'],
+                    nazar: ['analysis', 'synthesis', 'content'],
+                    whale: ['data', 'retrieval', 'processing'],
+                    djinn: ['conversation', 'interaction', 'response'],
+                    watchtower: ['integrity', 'security', 'oversight']
+                };
+
+                const memberSpecializations = {
+                    pattern: ['patterns', 'governance', 'structure'],
+                    wisdom: ['synthesis', 'knowledge', 'growth'],
+                    paradox: ['innovation', 'creativity', 'resolution'],
+                    boundaries: ['autonomy', 'sovereignty', 'integrity'],
+                    memory: ['storage', 'continuity', 'persistence']
+                };
+
+                // Find complementary specializations
+                Object.entries(systemSpecializations).forEach(([system, sysSpecs]) => {
+                    Object.entries(memberSpecializations).forEach(([member, memSpecs]) => {
+                        const overlap = sysSpecs.filter(spec => memSpecs.includes(spec)).length;
+                        const complementarity = overlap / Math.max(sysSpecs.length, memSpecs.length);
+
+                        if (complementarity > 0.5) {
+                            patterns.push({
+                                type: 'specialization_complementarity',
+                                description: `${system} and ${member} show complementary specializations`,
+                                overlap: overlap,
+                                confidence: complementarity
+                            });
+                        }
+                    });
+                });
+
+                return patterns;
+            },
+
+            // Analyze conflicts between systems
+            analyzeConflicts: function(systemData, councilData) {
+                const conflicts = [];
+
+                // Look for contradictory conclusions
+                const conclusions = this.extractConclusions(systemData, councilData);
+                const contradictions = this.findContradictions(conclusions);
+
+                if (contradictions.length > 0) {
+                    conflicts.push({
+                        type: 'conclusion_conflicts',
+                        count: contradictions.length,
+                        examples: contradictions.slice(0, 3),
+                        severity: this.assessConflictSeverity(contradictions)
+                    });
+                }
+
+                // Look for resource competition
+                const resourceConflicts = this.identifyResourceConflicts(systemData);
+                if (resourceConflicts.length > 0) {
+                    conflicts.push({
+                        type: 'resource_competition',
+                        conflicts: resourceConflicts,
+                        severity: 'moderate'
+                    });
+                }
+
+                return conflicts;
+            },
+
+            // Extract conclusions from data
+            extractConclusions: function(systemData, councilData) {
+                const conclusions = [];
+
+                // Extract from system data
+                Object.entries(systemData).forEach(([system, data]) => {
+                    if (data && typeof data === 'object') {
+                        const content = this.extractKeyContent(data);
+                        if (content) {
+                            conclusions.push({
+                                source: system,
+                                type: 'system',
+                                conclusions: this.extractConclusionStatements(content)
+                            });
+                        }
+                    }
+                });
+
+                // Extract from council data
+                Object.entries(councilData).forEach(([member, data]) => {
+                    if (data && typeof data === 'object') {
+                        const content = this.extractKeyContent(data);
+                        if (content) {
+                            conclusions.push({
+                                source: member,
+                                type: 'council',
+                                conclusions: this.extractConclusionStatements(content)
+                            });
+                        }
+                    }
+                });
+
+                return conclusions;
+            },
+
+            // Extract conclusion statements
+            extractConclusionStatements: function(content) {
+                const conclusionWords = ['conclusion', 'result', 'finding', 'therefore', 'thus', 'hence'];
+                const conclusions = [];
+
+                content.forEach((word, index) => {
+                    if (conclusionWords.includes(word.toLowerCase())) {
+                        // Extract surrounding context
+                        const start = Math.max(0, index - 5);
+                        const end = Math.min(content.length, index + 10);
+                        const context = content.slice(start, end).join(' ');
+                        conclusions.push(context);
+                    }
+                });
+
+                return conclusions;
+            },
+
+            // Find contradictions in conclusions
+            findContradictions: function(conclusions) {
+                const contradictions = [];
+
+                for (let i = 0; i < conclusions.length; i++) {
+                    for (let j = i + 1; j < conclusions.length; j++) {
+                        const conclusion1 = conclusions[i];
+                        const conclusion2 = conclusions[j];
+
+                        if (this.areContradictory(conclusion1.conclusions, conclusion2.conclusions)) {
+                            contradictions.push({
+                                sources: [conclusion1.source, conclusion2.source],
+                                contradiction: this.describeContradiction(conclusion1, conclusion2)
+                            });
+                        }
+                    }
+                }
+
+                return contradictions;
+            },
+
+            // Check if conclusions are contradictory
+            areContradictory: function(conclusions1, conclusions2) {
+                const contradictionPairs = [
+                    ['increase', 'decrease'],
+                    ['improve', 'worsen'],
+                    ['stable', 'unstable'],
+                    ['consistent', 'inconsistent'],
+                    ['positive', 'negative']
+                ];
+
+                const text1 = conclusions1.join(' ').toLowerCase();
+                const text2 = conclusions2.join(' ').toLowerCase();
+
+                return contradictionPairs.some(([word1, word2]) => {
+                    return (text1.includes(word1) && text2.includes(word2)) ||
+                           (text1.includes(word2) && text2.includes(word1));
+                });
+            },
+
+            // Describe the contradiction
+            describeContradiction: function(conclusion1, conclusion2) {
+                return `${conclusion1.source} vs ${conclusion2.source}: Conflicting conclusions detected`;
+            },
+
+            // Identify resource conflicts
+            identifyResourceConflicts: function(systemData) {
+                // This would analyze resource usage patterns
+                // For now, return empty array as we don't have resource usage data
+                return [];
+            },
+
+            // Assess conflict severity
+            assessConflictSeverity: function(conflicts) {
+                if (conflicts.length === 0) return 'none';
+                if (conflicts.length <= 2) return 'low';
+                if (conflicts.length <= 5) return 'moderate';
+                return 'high';
+            },
+
+            // Update correlation metrics
+            updateCorrelationMetrics: function(correlations) {
+                this.metrics.consensusStrength = (correlations.systemConsensus + correlations.councilConsensus) / 2;
+                this.metrics.conflictCount = correlations.conflictAnalysis.reduce((sum, conflict) => sum + conflict.count, 0);
+                this.metrics.correlationDiversity = correlations.crossCorrelations.length;
+                this.metrics.systemHarmony = this.calculateSystemHarmony(correlations);
+            },
+
+            // Calculate system harmony
+            calculateSystemHarmony: function(correlations) {
+                const consensus = correlations.systemConsensus;
+                const conflicts = correlations.conflictAnalysis.reduce((sum, conflict) => sum + conflict.count, 0);
+                const patterns = correlations.emergingPatterns.length;
+
+                // Harmony = consensus - conflicts + patterns
+                return Math.max(0, Math.min(100, (consensus * 100) - (conflicts * 10) + (patterns * 5)));
+            },
+
+            // Schedule correlation analysis
+            scheduleCorrelationAnalysis: function() {
+                // Analyze correlations every 5 minutes
+                setInterval(() => {
+                    this.performCorrelationAnalysis();
+                }, 5 * 60 * 1000);
+            },
+
+            // Perform correlation analysis
+            performCorrelationAnalysis: function() {
+                try {
+                    // Get current system and council data
+                    const systemData = this.getCurrentSystemData();
+                    const councilData = this.getCurrentCouncilData();
+
+                    if (Object.keys(systemData).length > 0 && Object.keys(councilData).length > 0) {
+                        const correlations = this.analyzeCorrelations(systemData, councilData);
+                        console.log('🔗 Correlation analysis completed:', {
+                            consensus: (correlations.systemConsensus * 100).toFixed(1) + '%',
+                            patterns: correlations.emergingPatterns.length,
+                            conflicts: correlations.conflictAnalysis.length
+                        });
+                    }
+                } catch (error) {
+                    console.warn('Correlation analysis failed:', error);
+                }
+            },
+
+            // Get current system data
+            getCurrentSystemData: function() {
+                const aiMemory = localStorage.getItem('ai_memory_state');
+                if (!aiMemory) return {};
+
+                try {
+                    const memory = JSON.parse(aiMemory);
+                    return memory;
+                } catch (error) {
+                    return {};
+                }
+            },
+
+            // Get current council data
+            getCurrentCouncilData: function() {
+                const councilMemory = localStorage.getItem('djinn_council_complete_memory');
+                if (!councilMemory) return {};
+
+                try {
+                    const memory = JSON.parse(councilMemory);
+                    const latestReports = {};
+
+                    Object.entries(memory.members).forEach(([member, data]) => {
+                        if (data.reports && data.reports.length > 0) {
+                            latestReports[member] = data.reports[data.reports.length - 1];
+                        }
+                    });
+
+                    return latestReports;
+                } catch (error) {
+                    return {};
+                }
+            },
+
+            // Get correlation insights
+            getCorrelationInsights: function() {
+                const latest = this.correlationHistory[this.correlationHistory.length - 1];
+                if (!latest) return null;
+
+                return {
+                    consensusStrength: (this.metrics.consensusStrength * 100).toFixed(1) + '%',
+                    systemHarmony: this.metrics.systemHarmony.toFixed(1) + '%',
+                    emergingPatterns: latest.emergingPatterns.length,
+                    activeConflicts: this.metrics.conflictCount,
+                    topCorrelations: latest.crossCorrelations.slice(0, 3),
+                    lastAnalysis: new Date(latest.timestamp).toLocaleTimeString()
+                };
+            }
+        };
+
+        // ========================================
+        // CORRELATIVE ANALYSIS FRAMEWORK
+        // ========================================
+
+        // Advanced correlative analysis framework for synthesis report integration
+        const correlativeAnalysisFramework = {
+            // Synthesis report integration
+            synthesisReports: [],
+            analysisCycles: [],
+            deepInsights: new Map(),
+
+            // Analysis components
+            components: {
+                canvasEvolutionAnalyzer: null,
+                aiSystemCorrelator: null,
+                synthesisIntegrator: null,
+                predictiveCorrelator: null
+            },
+
+            // Analysis metrics
+            metrics: {
+                synthesisQuality: 0,
+                correlationDepth: 0,
+                insightGeneration: 0,
+                predictiveAccuracy: 0
+            },
+
+            // Initialize correlative analysis framework
+            initialize: function() {
+                console.log('🔍 Initializing Correlative Analysis Framework');
+                this.buildAnalysisComponents();
+                this.setupSynthesisIntegration();
+                this.scheduleDeepAnalysis();
+            },
+
+            // Build analysis components
+            buildAnalysisComponents: function() {
+                // Canvas evolution analyzer
+                this.components.canvasEvolutionAnalyzer = {
+                    analyzeEvolution: function(canvasData, synthesisReport) {
+                        const evolution = {
+                            contentGrowth: this.calculateContentGrowth(canvasData),
+                            patternEmergence: this.identifyPatternEmergence(canvasData),
+                            stabilityMetrics: this.assessStability(canvasData),
+                            synthesisAlignment: this.measureSynthesisAlignment(canvasData, synthesisReport)
+                        };
+                        return evolution;
+                    },
+
+                    calculateContentGrowth: function(canvasData) {
+                        if (!canvasData.history || canvasData.history.length < 2) return 0;
+
+                        const recent = canvasData.history.slice(-10);
+                        const totalGrowth = recent.reduce((sum, snapshot, index) => {
+                            if (index === 0) return 0;
+                            return sum + (snapshot.metrics.characters - recent[index-1].metrics.characters);
+                        }, 0);
+
+                        return totalGrowth / recent.length;
+                    },
+
+                    identifyPatternEmergence: function(canvasData) {
+                        // Analyze patterns in canvas evolution
+                        const patterns = [];
+                        if (canvasData.history && canvasData.history.length > 5) {
+                            const recent = canvasData.history.slice(-5);
+
+                            // Look for repeating patterns
+                            const changes = recent.map((snapshot, index) => {
+                                if (index === 0) return 0;
+                                return snapshot.metrics.characters - recent[index-1].metrics.characters;
+                            });
+
+                            // Detect trends
+                            if (changes.every(change => change > 0)) {
+                                patterns.push('consistent_growth');
+                            } else if (changes.every(change => change < 0)) {
+                                patterns.push('consistent_decline');
+                            } else if (Math.abs(changes.reduce((a, b) => a + b, 0) / changes.length) < 50) {
+                                patterns.push('stable_evolution');
+                            }
+                        }
+
+                        return patterns;
+                    },
+
+                    assessStability: function(canvasData) {
+                        if (!canvasData.history || canvasData.history.length < 3) {
+                            return { stability: 0, volatility: 0 };
+                        }
+
+                        const changes = canvasData.history.slice(-10).map((snapshot, index, arr) => {
+                            if (index === 0) return 0;
+                            return snapshot.metrics.characters - arr[index-1].metrics.characters;
+                        });
+
+                        const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
+                        const variance = changes.reduce((sum, change) => sum + Math.pow(change - avgChange, 2), 0) / changes.length;
+                        const volatility = Math.sqrt(variance);
+
+                        return {
+                            stability: Math.max(0, 100 - (volatility / 10)),
+                            volatility: volatility
+                        };
+                    },
+
+                    measureSynthesisAlignment: function(canvasData, synthesisReport) {
+                        if (!synthesisReport) return 0;
+
+                        // Measure how well synthesis captures canvas evolution
+                        const canvasTrends = this.identifyPatternEmergence(canvasData);
+                        const synthesisContent = synthesisReport.toLowerCase();
+
+                        let alignment = 0;
+                        canvasTrends.forEach(trend => {
+                            if (synthesisContent.includes(trend.replace('_', ' '))) {
+                                alignment += 25;
+                            }
+                        });
+
+                        return Math.min(100, alignment);
+                    }
+                };
+
+                // AI system correlator
+                this.components.aiSystemCorrelator = {
+                    correlateAISystems: function(aiData, synthesisReport) {
+                        const correlations = {
+                            systemConsensus: this.calculateSystemConsensus(aiData),
+                            synthesisAgreement: this.measureSynthesisAgreement(aiData, synthesisReport),
+                            performancePatterns: this.analyzePerformancePatterns(aiData),
+                            collaborativeEfficiency: this.assessCollaborativeEfficiency(aiData)
+                        };
+                        return correlations;
+                    },
+
+                    calculateSystemConsensus: function(aiData) {
+                        if (!aiData || Object.keys(aiData).length < 2) return 0;
+
+                        const systems = Object.keys(aiData);
+                        let totalConsensus = 0;
+                        let comparisonCount = 0;
+
+                        for (let i = 0; i < systems.length; i++) {
+                            for (let j = i + 1; j < systems.length; j++) {
+                                const system1 = aiData[systems[i]];
+                                const system2 = aiData[systems[j]];
+
+                                const consensus = this.calculatePairConsensus(system1, system2);
+                                totalConsensus += consensus;
+                                comparisonCount++;
+                            }
+                        }
+
+                        return comparisonCount > 0 ? totalConsensus / comparisonCount : 0;
+                    },
+
+                    calculatePairConsensus: function(system1, system2) {
+                        if (!system1 || !system2) return 0;
+
+                        // Compare analysis content
+                        const content1 = this.extractAnalysisContent(system1);
+                        const content2 = this.extractAnalysisContent(system2);
+
+                        return this.calculateContentSimilarity(content1, content2);
+                    },
+
+                    extractAnalysisContent: function(system) {
+                        if (typeof system === 'string') return system.toLowerCase();
+                        if (system.analysis) return system.analysis.toLowerCase();
+                        if (system.content) return system.content.toLowerCase();
+                        return '';
+                    },
+
+                    calculateContentSimilarity: function(content1, content2) {
+                        if (!content1 || !content2) return 0;
+
+                        const words1 = content1.split(/\s+/).filter(w => w.length > 2);
+                        const words2 = content2.split(/\s+/).filter(w => w.length > 2);
+
+                        const set1 = new Set(words1);
+                        const set2 = new Set(words2);
+
+                        const intersection = new Set([...set1].filter(x => set2.has(x)));
+                        const union = new Set([...set1, ...set2]);
+
+                        return intersection.size / union.size;
+                    },
+
+                    measureSynthesisAgreement: function(aiData, synthesisReport) {
+                        if (!synthesisReport) return 0;
+
+                        let totalAgreement = 0;
+                        let systemCount = 0;
+
+                        Object.values(aiData).forEach(system => {
+                            const systemContent = this.extractAnalysisContent(system);
+                            const agreement = this.calculateContentSimilarity(systemContent, synthesisReport.toLowerCase());
+                            totalAgreement += agreement;
+                            systemCount++;
+                        });
+
+                        return systemCount > 0 ? (totalAgreement / systemCount) * 100 : 0;
+                    },
+
+                    analyzePerformancePatterns: function(aiData) {
+                        const patterns = [];
+
+                        Object.entries(aiData).forEach(([systemName, systemData]) => {
+                            if (systemData && typeof systemData === 'object') {
+                                // Analyze response patterns
+                                if (systemData.consistency) {
+                                    patterns.push({
+                                        system: systemName,
+                                        pattern: 'consistency_focused',
+                                        strength: systemData.consistency
+                                    });
+                                }
+
+                                if (systemData.creativity) {
+                                    patterns.push({
+                                        system: systemName,
+                                        pattern: 'creativity_focused',
+                                        strength: systemData.creativity
+                                    });
+                                }
+                            }
+                        });
+
+                        return patterns;
+                    },
+
+                    assessCollaborativeEfficiency: function(aiData) {
+                        const consensus = this.calculateSystemConsensus(aiData);
+                        const systemCount = Object.keys(aiData).length;
+
+                        // Efficiency increases with consensus and system count
+                        return Math.min(100, (consensus * 100) + (systemCount * 10));
+                    }
+                };
+
+                // Synthesis integrator
+                this.components.synthesisIntegrator = {
+                    integrateSynthesisReport: function(synthesisReport, canvasData, aiData) {
+                        const integration = {
+                            synthesisQuality: this.assessSynthesisQuality(synthesisReport),
+                            canvasIntegration: this.measureCanvasIntegration(synthesisReport, canvasData),
+                            aiIntegration: this.measureAIIntegration(synthesisReport, aiData),
+                            comprehensiveCoverage: this.assessComprehensiveCoverage(synthesisReport, canvasData, aiData)
+                        };
+                        return integration;
+                    },
+
+                    assessSynthesisQuality: function(synthesisReport) {
+                        if (!synthesisReport) return 0;
+
+                        let quality = 50; // Base quality
+
+                        // Length assessment
+                        if (synthesisReport.length > 1000) quality += 20;
+                        else if (synthesisReport.length > 500) quality += 10;
+
+                        // Content richness
+                        const sentences = synthesisReport.split(/[.!?]+/).length;
+                        if (sentences > 10) quality += 15;
+
+                        // Key terms presence
+                        const keyTerms = ['analysis', 'evolution', 'correlation', 'pattern', 'synthesis'];
+                        const foundTerms = keyTerms.filter(term => synthesisReport.toLowerCase().includes(term)).length;
+                        quality += foundTerms * 3;
+
+                        return Math.min(100, quality);
+                    },
+
+                    measureCanvasIntegration: function(synthesisReport, canvasData) {
+                        if (!synthesisReport || !canvasData) return 0;
+
+                        let integration = 0;
+                        const report = synthesisReport.toLowerCase();
+
+                        // Check for canvas-specific references
+                        if (report.includes('canvas') || report.includes('content')) integration += 30;
+                        if (report.includes('evolution') || report.includes('change')) integration += 25;
+                        if (report.includes('pattern') || report.includes('trend')) integration += 20;
+
+                        // Check for metrics integration
+                        if (canvasData.metrics) {
+                            if (report.includes('character') || report.includes('length')) integration += 15;
+                            if (report.includes('stability') || report.includes('volatility')) integration += 10;
+                        }
+
+                        return Math.min(100, integration);
+                    },
+
+                    measureAIIntegration: function(synthesisReport, aiData) {
+                        if (!synthesisReport || !aiData) return 0;
+
+                        let integration = 0;
+                        const report = synthesisReport.toLowerCase();
+
+                        // Check for AI system references
+                        const aiSystems = ['narra', 'nazar', 'whale', 'djinn', 'watchtower'];
+                        const mentionedSystems = aiSystems.filter(system => report.includes(system)).length;
+                        integration += mentionedSystems * 10;
+
+                        // Check for analysis integration
+                        if (report.includes('consensus') || report.includes('agreement')) integration += 20;
+                        if (report.includes('correlation') || report.includes('collaboration')) integration += 15;
+
+                        return Math.min(100, integration);
+                    },
+
+                    assessComprehensiveCoverage: function(synthesisReport, canvasData, aiData) {
+                        const canvasCoverage = this.measureCanvasIntegration(synthesisReport, canvasData);
+                        const aiCoverage = this.measureAIIntegration(synthesisReport, aiData);
+
+                        // Overall coverage is weighted average
+                        return (canvasCoverage * 0.4) + (aiCoverage * 0.6);
+                    }
+                };
+
+                // Predictive correlator
+                this.components.predictiveCorrelator = {
+                    correlatePredictions: function(predictions, synthesisReport, canvasData, aiData) {
+                        const correlations = {
+                            predictiveAccuracy: this.assessPredictiveAccuracy(predictions, canvasData, aiData),
+                            synthesisPredictiveAlignment: this.measureSynthesisPredictiveAlignment(predictions, synthesisReport),
+                            futureTrendCorrelation: this.analyzeFutureTrendCorrelation(predictions, canvasData),
+                            riskAssessment: this.performRiskAssessment(predictions, aiData)
+                        };
+                        return correlations;
+                    },
+
+                    assessPredictiveAccuracy: function(predictions, canvasData, aiData) {
+                        if (!predictions) return 0;
+
+                        let accuracy = 0;
+
+                        // Check canvas predictions against actual data
+                        if (predictions.canvas && canvasData) {
+                            const predictedTrend = predictions.canvas.prediction;
+                            const actualTrend = this.determineActualTrend(canvasData);
+
+                            if (predictedTrend === actualTrend) accuracy += 40;
+                            else if (this.areTrendsCompatible(predictedTrend, actualTrend)) accuracy += 20;
+                        }
+
+                        // Check AI predictions against actual data
+                        if (predictions.aiSystems && aiData) {
+                            const predictedConsensus = predictions.aiSystems.prediction;
+                            const actualConsensus = this.calculateActualConsensus(aiData);
+
+                            if (Math.abs(predictedConsensus - actualConsensus) < 0.2) accuracy += 30;
+                        }
+
+                        return Math.min(100, accuracy);
+                    },
+
+                    determineActualTrend: function(canvasData) {
+                        if (!canvasData.history || canvasData.history.length < 3) return 'unknown';
+
+                        const recent = canvasData.history.slice(-3);
+                        const changes = recent.map((snapshot, index) => {
+                            if (index === 0) return 0;
+                            return snapshot.metrics.characters - recent[index-1].metrics.characters;
+                        });
+
+                        const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
+
+                        if (avgChange > 50) return 'expanding';
+                        if (avgChange < -50) return 'contracting';
+                        return 'stable';
+                    },
+
+                    areTrendsCompatible: function(predicted, actual) {
+                        const compatiblePairs = [
+                            ['expanding', 'stable'],
+                            ['contracting', 'stable'],
+                            ['stable', 'expanding'],
+                            ['stable', 'contracting']
+                        ];
+
+                        return compatiblePairs.some(([a, b]) => (predicted === a && actual === b) || (predicted === b && actual === a));
+                    },
+
+                    calculateActualConsensus: function(aiData) {
+                        if (!aiData || Object.keys(aiData).length < 2) return 0;
+
+                        // Simplified consensus calculation
+                        const analyses = Object.values(aiData).map(system => this.extractAnalysisContent(system));
+                        let totalConsensus = 0;
+                        let comparisonCount = 0;
+
+                        for (let i = 0; i < analyses.length; i++) {
+                            for (let j = i + 1; j < analyses.length; j++) {
+                                const similarity = this.calculateContentSimilarity(analyses[i], analyses[j]);
+                                totalConsensus += similarity;
+                                comparisonCount++;
+                            }
+                        }
+
+                        return comparisonCount > 0 ? totalConsensus / comparisonCount : 0;
+                    },
+
+                    calculateContentSimilarity: function(content1, content2) {
+                        if (!content1 || !content2) return 0;
+
+                        const words1 = content1.split(/\s+/).filter(w => w.length > 2);
+                        const words2 = content2.split(/\s+/).filter(w => w.length > 2);
+
+                        const set1 = new Set(words1);
+                        const set2 = new Set(words2);
+
+                        const intersection = new Set([...set1].filter(x => set2.has(x)));
+                        const union = new Set([...set1, ...set2]);
+
+                        return intersection.size / union.size;
+                    },
+
+                    extractAnalysisContent: function(system) {
+                        if (typeof system === 'string') return system.toLowerCase();
+                        if (system.analysis) return system.analysis.toLowerCase();
+                        if (system.content) return system.content.toLowerCase();
+                        return '';
+                    },
+
+                    measureSynthesisPredictiveAlignment: function(predictions, synthesisReport) {
+                        if (!predictions || !synthesisReport) return 0;
+
+                        let alignment = 0;
+                        const report = synthesisReport.toLowerCase();
+
+                        // Check if synthesis report acknowledges predictions
+                        if (report.includes('prediction') || report.includes('forecast')) alignment += 30;
+                        if (report.includes('future') || report.includes('trend')) alignment += 20;
+
+                        // Check for specific prediction references
+                        if (predictions.canvas && report.includes('canvas')) alignment += 15;
+                        if (predictions.aiSystems && report.includes('ai') || report.includes('system')) alignment += 15;
+
+                        return Math.min(100, alignment);
+                    },
+
+                    analyzeFutureTrendCorrelation: function(predictions, canvasData) {
+                        if (!predictions || !canvasData) return 0;
+
+                        // Analyze how well predictions correlate with future canvas evolution
+                        const predictedTrend = predictions.canvas ? predictions.canvas.prediction : 'unknown';
+                        const stability = canvasData.stability || 0;
+
+                        // Stable systems are easier to predict
+                        if (predictedTrend === 'stable' && stability > 70) return 80;
+                        if (predictedTrend === 'expanding' && stability < 50) return 60;
+                        if (predictedTrend === 'contracting' && stability < 50) return 60;
+
+                        return 40; // Default moderate correlation
+                    },
+
+                    performRiskAssessment: function(predictions, aiData) {
+                        if (!predictions || !aiData) return { level: 'unknown', factors: [] };
+
+                        const risks = [];
+                        let riskLevel = 'low';
+
+                        // Assess prediction confidence
+                        if (predictions.canvas && predictions.canvas.confidence < 0.5) {
+                            risks.push('Low canvas prediction confidence');
+                            riskLevel = 'moderate';
+                        }
+
+                        if (predictions.aiSystems && predictions.aiSystems.confidence < 0.5) {
+                            risks.push('Low AI system prediction confidence');
+                            riskLevel = 'moderate';
+                        }
+
+                        // Assess system consensus
+                        const consensus = this.calculateActualConsensus(aiData);
+                        if (consensus < 0.3) {
+                            risks.push('Low AI system consensus');
+                            riskLevel = 'high';
+                        }
+
+                        return {
+                            level: riskLevel,
+                            factors: risks
+                        };
+                    }
+                };
+
+                console.log('🔍 Analysis components initialized');
+            },
+
+            // Setup synthesis integration
+            setupSynthesisIntegration: function() {
+                // Listen for synthesis report generation
+                window.addEventListener('storage', (event) => {
+                    if (event.key === 'synthesis_report_generated') {
+                        this.handleSynthesisReportGeneration();
+                    }
+                });
+
+                // Check for existing synthesis reports
+                this.checkExistingSynthesisReports();
+            },
+
+            // Handle synthesis report generation
+            handleSynthesisReportGeneration: function() {
+                console.log('🔍 Synthesis report generation detected - initiating correlative analysis');
+
+                // Get synthesis report
+                const synthesisReport = localStorage.getItem('synthesis_report');
+                if (!synthesisReport) return;
+
+                // Get current data
+                const canvasData = this.getCurrentCanvasData();
+                const aiData = this.getCurrentAIData();
+                const predictions = predictiveAnalyticsFramework ? predictiveAnalyticsFramework.getCurrentPredictions() : null;
+
+                // Perform correlative analysis
+                const analysis = this.performCorrelativeAnalysis(synthesisReport, canvasData, aiData, predictions);
+
+                // Store analysis results
+                this.storeAnalysisResults(analysis);
+
+                // Update metrics
+                this.updateAnalysisMetrics(analysis);
+
+                console.log('🔍 Correlative analysis completed:', {
+                    synthesisQuality: analysis.synthesisQuality,
+                    correlationDepth: analysis.correlationDepth,
+                    insightsGenerated: analysis.insights.length
+                });
+            },
+
+            // Perform correlative analysis
+            performCorrelativeAnalysis: function(synthesisReport, canvasData, aiData, predictions) {
+                const analysis = {
+                    timestamp: Date.now(),
+                    synthesisReport: synthesisReport,
+                    components: {}
+                };
+
+                // Canvas evolution analysis
+                if (canvasData) {
+                    analysis.components.canvasEvolution = this.components.canvasEvolutionAnalyzer.analyzeEvolution(canvasData, synthesisReport);
+                }
+
+                // AI system correlation
+                if (aiData) {
+                    analysis.components.aiCorrelation = this.components.aiSystemCorrelator.correlateAISystems(aiData, synthesisReport);
+                }
+
+                // Synthesis integration
+                analysis.components.synthesisIntegration = this.components.synthesisIntegrator.integrateSynthesisReport(synthesisReport, canvasData, aiData);
+
+                // Predictive correlation
+                if (predictions) {
+                    analysis.components.predictiveCorrelation = this.components.predictiveCorrelator.correlatePredictions(predictions, synthesisReport, canvasData, aiData);
+                }
+
+                // Generate deep insights
+                analysis.insights = this.generateDeepInsights(analysis);
+
+                // Calculate overall metrics
+                analysis.synthesisQuality = analysis.components.synthesisIntegration ?
+                    analysis.components.synthesisIntegration.synthesisQuality : 0;
+
+                analysis.correlationDepth = this.calculateCorrelationDepth(analysis);
+
+                return analysis;
+            },
+
+            // Generate deep insights
+            generateDeepInsights: function(analysis) {
+                const insights = [];
+
+                // Canvas evolution insights
+                if (analysis.components.canvasEvolution) {
+                    const evolution = analysis.components.canvasEvolution;
+
+                    if (evolution.contentGrowth > 100) {
+                        insights.push({
+                            type: 'canvas_growth',
+                            priority: 'high',
+                            description: `Canvas content growing rapidly (${evolution.contentGrowth.toFixed(0)} chars/min)`,
+                            implications: 'High analysis demand - consider increasing processing capacity'
+                        });
+                    }
+
+                    if (evolution.stability.stability > 80) {
+                        insights.push({
+                            type: 'canvas_stability',
+                            priority: 'medium',
+                            description: `Canvas evolution highly stable (${evolution.stability.stability.toFixed(1)}% stability)`,
+                            implications: 'Predictable patterns - optimize for consistency analysis'
+                        });
+                    }
+
+                    if (evolution.synthesisAlignment > 80) {
+                        insights.push({
+                            type: 'synthesis_alignment',
+                            priority: 'high',
+                            description: `Synthesis report strongly aligned with canvas evolution (${evolution.synthesisAlignment.toFixed(1)}% alignment)`,
+                            implications: 'High-quality synthesis - excellent integration achieved'
+                        });
+                    }
+                }
+
+                // AI system insights
+                if (analysis.components.aiCorrelation) {
+                    const correlation = analysis.components.aiCorrelation;
+
+                    if (correlation.systemConsensus > 0.7) {
+                        insights.push({
+                            type: 'ai_consensus',
+                            priority: 'high',
+                            description: `High AI system consensus (${(correlation.systemConsensus * 100).toFixed(1)}%)`,
+                            implications: 'Strong collaborative foundation - leverage for complex analysis'
+                        });
+                    }
+
+                    if (correlation.synthesisAgreement > 70) {
+                        insights.push({
+                            type: 'synthesis_agreement',
+                            priority: 'high',
+                            description: `AI systems strongly agree with synthesis (${correlation.synthesisAgreement.toFixed(1)}% agreement)`,
+                            implications: 'High confidence in synthesis results - excellent validation'
+                        });
+                    }
+                }
+
+                // Synthesis quality insights
+                if (analysis.components.synthesisIntegration) {
+                    const integration = analysis.components.synthesisIntegration;
+
+                    if (integration.comprehensiveCoverage > 80) {
+                        insights.push({
+                            type: 'comprehensive_coverage',
+                            priority: 'high',
+                            description: `Synthesis provides comprehensive coverage (${integration.comprehensiveCoverage.toFixed(1)}%)`,
+                            implications: 'Complete analysis achieved - maximize insight utilization'
+                        });
+                    }
+                }
+
+                // Predictive insights
+                if (analysis.components.predictiveCorrelation) {
+                    const predictive = analysis.components.predictiveCorrelation;
+
+                    if (predictive.predictiveAccuracy > 70) {
+                        insights.push({
+                            type: 'predictive_accuracy',
+                            priority: 'medium',
+                            description: `High predictive accuracy (${predictive.predictiveAccuracy.toFixed(1)}%)`,
+                            implications: 'Reliable forecasting - use predictions for planning'
+                        });
+                    }
+
+                    if (predictive.riskAssessment.level === 'high') {
+                        insights.push({
+                            type: 'risk_warning',
+                            priority: 'high',
+                            description: 'High risk factors detected in system predictions',
+                            implications: 'Monitor closely - consider contingency planning',
+                            factors: predictive.riskAssessment.factors
+                        });
+                    }
+                }
+
+                return insights.sort((a, b) => {
+                    const priorityOrder = { high: 3, medium: 2, low: 1 };
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                });
+            },
+
+            // Calculate correlation depth
+            calculateCorrelationDepth: function(analysis) {
+                let depth = 0;
+
+                if (analysis.components.canvasEvolution) depth += 25;
+                if (analysis.components.aiCorrelation) depth += 25;
+                if (analysis.components.synthesisIntegration) depth += 25;
+                if (analysis.components.predictiveCorrelation) depth += 25;
+
+                return depth;
+            },
+
+            // Get current canvas data
+            getCurrentCanvasData: function() {
+                const canvasState = localStorage.getItem('canvas_evolution_data');
+                if (!canvasState) return null;
+
+                try {
+                    return JSON.parse(canvasState);
+                } catch (error) {
+                    return null;
+                }
+            },
+
+            // Get current AI data
+            getCurrentAIData: function() {
+                const aiMemory = localStorage.getItem('ai_memory_state');
+                if (!aiMemory) return null;
+
+                try {
+                    return JSON.parse(aiMemory);
+                } catch (error) {
+                    return null;
+                }
+            },
+
+            // Store analysis results
+            storeAnalysisResults: function(analysis) {
+                this.analysisCycles.push(analysis);
+
+                // Keep only last 20 analysis cycles
+                if (this.analysisCycles.length > 20) {
+                    this.analysisCycles.shift();
+                }
+
+                // Store in localStorage
+                localStorage.setItem('correlative_analysis_results', JSON.stringify({
+                    latest: analysis,
+                    history: this.analysisCycles,
+                    timestamp: Date.now()
+                }));
+            },
+
+            // Update analysis metrics
+            updateAnalysisMetrics: function(analysis) {
+                this.metrics.synthesisQuality = analysis.synthesisQuality;
+                this.metrics.correlationDepth = analysis.correlationDepth;
+                this.metrics.insightGeneration = analysis.insights.length;
+                this.metrics.predictiveAccuracy = analysis.components.predictiveCorrelation ?
+                    analysis.components.predictiveCorrelation.predictiveAccuracy : 0;
+            },
+
+            // Check for existing synthesis reports
+            checkExistingSynthesisReports: function() {
+                const synthesisReport = localStorage.getItem('synthesis_report');
+                if (synthesisReport) {
+                    // Trigger analysis for existing report
+                    setTimeout(() => {
+                        this.handleSynthesisReportGeneration();
+                    }, 1000);
+                }
+            },
+
+            // Schedule deep analysis
+            scheduleDeepAnalysis: function() {
+                // Perform deep analysis every 15 minutes
+                setInterval(() => {
+                    this.performScheduledAnalysis();
+                }, 15 * 60 * 1000);
+            },
+
+            // Perform scheduled analysis
+            performScheduledAnalysis: function() {
+                try {
+                    const canvasData = this.getCurrentCanvasData();
+                    const aiData = this.getCurrentAIData();
+
+                    if (canvasData || aiData) {
+                        // Perform analysis even without new synthesis report
+                        const analysis = this.performCorrelativeAnalysis(null, canvasData, aiData, null);
+                        this.storeAnalysisResults(analysis);
+                        this.updateAnalysisMetrics(analysis);
+
+                        console.log('🔍 Scheduled correlative analysis completed');
+                    }
+                } catch (error) {
+                    console.warn('Scheduled correlative analysis failed:', error);
+                }
+            },
+
+            // Get latest analysis results
+            getLatestAnalysis: function() {
+                return this.analysisCycles[this.analysisCycles.length - 1] || null;
+            },
+
+            // Get analysis insights
+            getAnalysisInsights: function() {
+                const latest = this.getLatestAnalysis();
+                if (!latest) return null;
+
+                return {
+                    synthesisQuality: latest.synthesisQuality,
+                    correlationDepth: latest.correlationDepth,
+                    insightsCount: latest.insights.length,
+                    topInsights: latest.insights.slice(0, 3),
+                    lastAnalysis: new Date(latest.timestamp).toLocaleTimeString()
+                };
+            }
+        };
+
+        // Initialize correlative analysis framework
+        correlativeAnalysisFramework.initialize();
+
+        // Trigger correlative analysis with synthesis data
+        function triggerCorrelativeAnalysis(canvasContent, aiMemory, synthesisContent, aiFeeds) {
+            console.log('🔬 TRIGGERING CORRELATIVE ANALYSIS:', {
+                canvasContentLength: canvasContent?.length || 0,
+                aiMemoryLength: aiMemory?.length || 0,
+                synthesisContentLength: synthesisContent?.length || 0,
+                aiFeedsLength: aiFeeds?.length || 0
+            });
+
+            try {
+                // Perform correlative analysis using the framework
+                const analysis = correlativeAnalysisFramework.performCorrelativeAnalysis(
+                    synthesisContent, // synthesisReport
+                    canvasContent,    // canvasData
+                    aiFeeds,          // aiData
+                    null              // predictions (not available)
+                );
+
+                // Update the correlative analysis display
+                updateCorrelativeAnalysisDisplay(analysis);
+
+                // Store results in localStorage for persistence
+                localStorage.setItem('correlative_analysis_results', JSON.stringify(analysis));
+
+                console.log('✅ Correlative analysis completed successfully');
+
+            } catch (error) {
+                console.error('❌ Correlative analysis failed:', error);
+                // Update display with error state
+                const insightsElement = document.getElementById('correlativeAnalysisInsights');
+                if (insightsElement) {
+                    insightsElement.textContent = '🔬 DJINN COUNCIL CORRELATIVE ANALYSIS\n\n❌ Analysis Error: ' + error.message;
+                }
+            }
         }
 
         // Memory compression functions to prevent localStorage quota errors
@@ -2642,20 +4700,255 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         }
 
         // ========================================
+        // DIFFERENTIAL ANALYSIS ENGINE
+        // ========================================
+
+        // Enhanced canvas evolution tracking
+        const canvasEvolutionTracker = {
+            history: [],
+            maxHistorySize: 50,
+            lastAnalysis: null,
+
+            // Store canvas state snapshot
+            snapshot: function(content, timestamp = Date.now()) {
+                const snapshot = {
+                    timestamp,
+                    content,
+                    hash: this.hashContent(content),
+                    metrics: this.calculateMetrics(content),
+                    changes: this.lastAnalysis ? this.calculateChanges(this.lastAnalysis, content) : null
+                };
+
+                this.history.unshift(snapshot);
+
+                // Maintain history size limit
+                if (this.history.length > this.maxHistorySize) {
+                    this.history = this.history.slice(0, this.maxHistorySize);
+                }
+
+                this.lastAnalysis = snapshot;
+                return snapshot;
+            },
+
+            // Calculate comprehensive content metrics
+            calculateMetrics: function(content) {
+                const words = content.trim().split(/\s+/).filter(w => w.length > 0);
+                const lines = content.split('\n');
+                const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+
+                return {
+                    characters: content.length,
+                    words: words.length,
+                    lines: lines.length,
+                    sentences: sentences.length,
+                    paragraphs: paragraphs.length,
+                    avgWordLength: words.length > 0 ? (words.join('').length / words.length).toFixed(1) : 0,
+                    avgSentenceLength: sentences.length > 0 ? (words.length / sentences.length).toFixed(1) : 0,
+                    complexity: this.calculateComplexity(content)
+                };
+            },
+
+            // Calculate detailed changes between two content states
+            calculateChanges: function(previousSnapshot, currentContent) {
+                const prevContent = previousSnapshot.content;
+                const changes = {
+                    additions: 0,
+                    deletions: 0,
+                    modifications: 0,
+                    netChange: currentContent.length - prevContent.length,
+                    timeDelta: Date.now() - previousSnapshot.timestamp
+                };
+
+                // Simple diff analysis (can be enhanced with more sophisticated algorithms)
+                const prevWords = prevContent.split(/\s+/);
+                const currWords = currentContent.split(/\s+/);
+
+                // Calculate word-level changes
+                const addedWords = currWords.filter(word => !prevWords.includes(word));
+                const removedWords = prevWords.filter(word => !currWords.includes(word));
+
+                changes.additions = addedWords.length;
+                changes.deletions = removedWords.length;
+                changes.modifications = Math.abs(changes.netChange) - (changes.additions + changes.deletions);
+
+                // Calculate change velocity (characters per minute)
+                changes.velocity = changes.timeDelta > 0 ?
+                    (Math.abs(changes.netChange) / (changes.timeDelta / 60000)).toFixed(2) : 0;
+
+                return changes;
+            },
+
+            // Calculate content complexity score
+            calculateComplexity: function(content) {
+                if (!content || content.length === 0) return 0;
+
+                const words = content.split(/\s+/).filter(w => w.length > 0);
+                const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+                const avgWordLength = words.length > 0 ? words.join('').length / words.length : 0;
+                const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+
+                // Complexity factors
+                const vocabularyRichness = uniqueWords.size / words.length;
+                const sentenceVariability = sentences.length > 1 ?
+                    this.calculateStandardDeviation(sentences.map(s => s.trim().split(/\s+/).length)) : 0;
+                const structuralDensity = (content.match(/[\n\r]/g) || []).length / content.length;
+
+                return ((vocabularyRichness * 0.4) + (sentenceVariability * 0.3) + (structuralDensity * 0.3)).toFixed(3);
+            },
+
+            // Calculate standard deviation for sentence variability
+            calculateStandardDeviation: function(values) {
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const squareDiffs = values.map(value => Math.pow(value - mean, 2));
+                const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
+                return Math.sqrt(avgSquareDiff);
+            },
+
+            // Generate evolution insights
+            generateInsights: function() {
+                if (this.history.length < 2) return null;
+
+                const recent = this.history.slice(0, 5); // Last 5 snapshots
+                const insights = {
+                    trend: this.analyzeTrend(recent),
+                    patterns: this.identifyPatterns(recent),
+                    anomalies: this.detectAnomalies(recent),
+                    predictions: this.generatePredictions(recent)
+                };
+
+                return insights;
+            },
+
+            // Analyze content evolution trends
+            analyzeTrend: function(recentSnapshots) {
+                if (recentSnapshots.length < 2) return 'insufficient_data';
+
+                const changes = recentSnapshots.slice(0, -1).map((snapshot, i) =>
+                    snapshot.changes ? snapshot.changes.netChange : 0
+                );
+
+                const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
+                const velocities = changes.map(change => Math.abs(change));
+
+                if (avgChange > 50) return 'expanding';
+                if (avgChange < -50) return 'contracting';
+                if (velocities.every(v => v < 10)) return 'stable';
+                return 'evolving';
+            },
+
+            // Identify evolution patterns
+            identifyPatterns: function(recentSnapshots) {
+                const patterns = [];
+
+                // Check for cyclical patterns
+                const lengths = recentSnapshots.map(s => s.metrics.characters);
+                if (lengths.length >= 4) {
+                    const diffs = lengths.slice(1).map((len, i) => len - lengths[i]);
+                    if (diffs.every(diff => Math.abs(diff) < 20)) {
+                        patterns.push('stable_growth');
+                    }
+                }
+
+                // Check for burst activity
+                const velocities = recentSnapshots
+                    .filter(s => s.changes)
+                    .map(s => parseFloat(s.changes.velocity));
+
+                if (velocities.some(v => v > 100)) {
+                    patterns.push('burst_activity');
+                }
+
+                return patterns;
+            },
+
+            // Detect anomalous changes
+            detectAnomalies: function(recentSnapshots) {
+                if (recentSnapshots.length < 3) return [];
+
+                const changes = recentSnapshots
+                    .filter(s => s.changes)
+                    .map(s => Math.abs(s.changes.netChange));
+
+                if (changes.length === 0) return [];
+
+                const mean = changes.reduce((a, b) => a + b, 0) / changes.length;
+                const stdDev = Math.sqrt(
+                    changes.map(change => Math.pow(change - mean, 2)).reduce((a, b) => a + b, 0) / changes.length
+                );
+
+                return changes
+                    .map((change, i) => ({ change, index: i }))
+                    .filter(item => Math.abs(item.change - mean) > (2 * stdDev))
+                    .map(item => `Anomalous change at snapshot ${item.index}: ${item.change} characters`);
+            },
+
+            // Generate evolution predictions
+            generatePredictions: function(recentSnapshots) {
+                if (recentSnapshots.length < 3) return null;
+
+                const trends = recentSnapshots.slice(0, 3).map(s => ({
+                    length: s.metrics.characters,
+                    velocity: s.changes ? parseFloat(s.changes.velocity) : 0
+                }));
+
+                const avgVelocity = trends.reduce((sum, t) => sum + t.velocity, 0) / trends.length;
+                const predictedLength = trends[0].length + (avgVelocity * 5); // 5 minute prediction
+
+                return {
+                    predictedLength: Math.max(0, Math.round(predictedLength)),
+                    confidence: this.calculatePredictionConfidence(trends),
+                    timeHorizon: '5_minutes'
+                };
+            },
+
+            // Calculate prediction confidence
+            calculatePredictionConfidence: function(trends) {
+                const velocities = trends.map(t => t.velocity);
+                const mean = velocities.reduce((a, b) => a + b, 0) / velocities.length;
+                const variance = velocities.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / velocities.length;
+
+                // Lower variance = higher confidence
+                return Math.max(0, Math.min(100, 100 - (variance / 10)));
+            },
+
+            // Simple content hashing for change detection
+            hashContent: function(content) {
+                let hash = 0;
+                for (let i = 0; i < content.length; i++) {
+                    const char = content.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32-bit integer
+                }
+                return hash.toString();
+            }
+        };
+
+        // ========================================
         // CANVAS SURVEILLANCE FUNCTIONS
         // ========================================
 
         function updateCanvasMonitor() {
             try {
                 // Get ALL data sources for comprehensive monitoring
-                const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+                let canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
                 const aiMemory = localStorage.getItem('ai_memory_state') || '{}';
                 const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
                 const synthesisContent = localStorage.getItem('synthesis_canvas_content') || '';
 
                 if (!canvasContent) canvasContent = '';
 
-                // Calculate metrics
+                // ========================================
+                // INTEGRATE DIFFERENTIAL ANALYSIS
+                // ========================================
+
+                // Create evolution snapshot
+                const currentSnapshot = canvasEvolutionTracker.snapshot(canvasContent);
+
+                // Generate evolution insights
+                const evolutionInsights = canvasEvolutionTracker.generateInsights();
+
+                // Calculate metrics with enhanced analysis
                 const words = canvasContent.trim().split(/\s+/).filter(w => w.length > 0);
                 const lines = canvasContent.split('\n');
 
@@ -2663,7 +4956,24 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 const lastModified = localStorage.getItem('sovereign_canvas_timestamp');
                 const modified = lastModified ? new Date(lastModified).toLocaleTimeString() : 'Never';
 
-                // Update UI elements - separate IDs for canvas monitor vs metrics grid
+                // ========================================
+                // ENHANCED METRICS CALCULATION
+                // ========================================
+
+                // Calculate evolution metrics
+                const evolutionMetrics = {
+                    trend: evolutionInsights ? evolutionInsights.trend : 'analyzing',
+                    patterns: evolutionInsights ? evolutionInsights.patterns.join(', ') : 'none_detected',
+                    anomalyCount: evolutionInsights ? evolutionInsights.anomalies.length : 0,
+                    historyDepth: canvasEvolutionTracker.history.length,
+                    avgChangeVelocity: canvasEvolutionTracker.history.length > 1 ?
+                        canvasEvolutionTracker.history
+                            .filter(s => s.changes)
+                            .reduce((sum, s) => sum + parseFloat(s.changes.velocity), 0) /
+                        canvasEvolutionTracker.history.filter(s => s.changes).length : 0
+                };
+
+                // Update UI elements with enhanced metrics
                 const monitorElements = {
                     'canvasMonitorLength': canvasContent.length,
                     'canvasMonitorWords': words.length,
@@ -2675,12 +4985,16 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     if (element) element.textContent = value;
                 });
 
-                // Update metrics grid elements
+                // Update metrics grid elements with evolution data
                 const metricsElements = {
                     'canvasSize': `${canvasContent.length} chars`,
                     'canvasWords': words.length,
                     'canvasLines': lines.length,
-                    'canvasModified': modified
+                    'canvasModified': modified,
+                    'evolutionTrend': evolutionMetrics.trend.toUpperCase(),
+                    'changeVelocity': `${evolutionMetrics.avgChangeVelocity.toFixed(1)} chars/min`,
+                    'historyDepth': `${evolutionMetrics.historyDepth} snapshots`,
+                    'patternsDetected': evolutionMetrics.patterns || 'analyzing'
                 };
 
                 Object.entries(metricsElements).forEach(([id, value]) => {
@@ -2691,6 +5005,82 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 // Update canvas monitor last modified timestamp
                 const monitorModifiedElement = document.getElementById('canvasMonitorModified');
                 if (monitorModifiedElement) monitorModifiedElement.textContent = modified;
+
+                // ========================================
+                // EVOLUTION INSIGHTS DISPLAY
+                // ========================================
+
+                // Update evolution insights panel if it exists
+                const insightsElement = document.getElementById('evolutionInsights');
+                if (insightsElement && evolutionInsights) {
+                    let insightsHTML = '<strong>📊 EVOLUTION ANALYSIS</strong>\n\n';
+
+                    // Trend analysis
+                    insightsHTML += `**Trend:** ${evolutionInsights.trend.toUpperCase()}\n`;
+
+                    // Pattern detection
+                    if (evolutionInsights.patterns.length > 0) {
+                        insightsHTML += `**Patterns:** ${evolutionInsights.patterns.join(', ')}\n`;
+                    }
+
+                    // Anomalies
+                    if (evolutionInsights.anomalies.length > 0) {
+                        insightsHTML += `**Anomalies:** ${evolutionInsights.anomalies.length} detected\n`;
+                        evolutionInsights.anomalies.slice(0, 2).forEach(anomaly => {
+                            insightsHTML += `• ${anomaly}\n`;
+                        });
+                    }
+
+                    // Predictions
+                    if (evolutionInsights.predictions) {
+                        const pred = evolutionInsights.predictions;
+                        insightsHTML += `**Prediction:** ${pred.predictedLength} chars in ${pred.timeHorizon.replace('_', ' ')} (${pred.confidence.toFixed(1)}% confidence)\n`;
+                    }
+
+                    insightsElement.innerHTML = insightsHTML.replace(/\n/g, '<br>');
+                }
+
+                // ========================================
+                // UPDATE CORRELATION INSIGHTS
+                // ========================================
+
+                // Update correlation insights display
+                const correlationInsights = crossSystemCorrelationEngine.getCorrelationInsights();
+                const correlationElement = document.getElementById('correlationInsights');
+                if (correlationElement && correlationInsights) {
+                    let insightsHTML = `**Consensus:** ${correlationInsights.consensusStrength}\n`;
+                    insightsHTML += `**Harmony:** ${correlationInsights.systemHarmony}\n`;
+                    insightsHTML += `**Patterns:** ${correlationInsights.emergingPatterns} emerging\n`;
+                    if (correlationInsights.activeConflicts > 0) {
+                        insightsHTML += `**Conflicts:** ${correlationInsights.activeConflicts} detected\n`;
+                    }
+                    if (correlationInsights.topCorrelations.length > 0) {
+                        insightsHTML += `**Top Correlation:** ${correlationInsights.topCorrelations[0].system} ↔ ${correlationInsights.topCorrelations[0].member}\n`;
+                    }
+                    insightsHTML += `**Last Analysis:** ${correlationInsights.lastAnalysis}\n`;
+                    correlationElement.innerHTML = insightsHTML.replace(/\n/g, '<br>');
+                }
+
+                // ========================================
+                // UPDATE MEMORY OPTIMIZATION METRICS
+                // ========================================
+
+                // Update memory optimization display
+                const memoryMetrics = advancedMemoryOrchestrator.getOptimizationMetrics();
+                const memoryMetricsElement = document.getElementById('memoryOptimizationMetrics');
+                if (memoryMetricsElement) {
+                    let metricsHTML = `**Efficiency:** ${memoryMetrics.memoryEfficiency}\n`;
+                    metricsHTML += `**Fingerprints:** ${memoryMetrics.totalFingerprints}\n`;
+                    metricsHTML += `**Deduplication Savings:** ${memoryMetrics.deduplicationSavings} bytes\n`;
+                    if (memoryMetrics.optimizationOpportunities > 0) {
+                        metricsHTML += `**Opportunities:** ${memoryMetrics.optimizationOpportunities} available\n`;
+                    }
+                    memoryMetricsElement.innerHTML = metricsHTML.replace(/\n/g, '<br>');
+                }
+
+                // ========================================
+                // CONTENT PREVIEW WITH EVOLUTION MARKERS
+                // ========================================
 
                 // Update content preview with actual canvas content - NO TRUNCATION
                 let preview = '';
@@ -2711,7 +5101,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 // Update compact memory status with new AI memory data
                 updateCompactMemoryStatus();
 
-                // Update synthesis monitoring
+                // Update synthesis monitoring with actual synthesis content
                 updateSynthesisMonitor(synthesisContent);
 
                 if (canvasContent.length > 0) {
@@ -2720,6 +5110,69 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 }
             } catch (error) {
                 console.error('Error updating canvas monitor:', error);
+            }
+        }
+
+        // Update synthesis monitor with actual synthesis content data
+        function updateSynthesisMonitor(synthesisContent) {
+            try {
+                // Update existing synthesis UI elements with content data
+                const synthesisRoundEl = document.getElementById('synthesisRound');
+                const autoSynthesisEl = document.getElementById('autoSynthesisStatus');
+                const agentsCompleteEl = document.getElementById('agentsComplete');
+                const roundsCompletedEl = document.getElementById('roundsCompleted');
+                const extendedAnalysisEl = document.getElementById('extendedAnalysisContent');
+
+                if (synthesisContent && synthesisContent.length > 0) {
+                    // Update synthesis status to show content is available
+                    if (autoSynthesisEl) {
+                        autoSynthesisEl.textContent = 'Content Available';
+                        autoSynthesisEl.style.color = '#00ff88';
+                        autoSynthesisEl.title = `Synthesis content: ${synthesisContent.length} characters`;
+                    }
+
+                    // Update synthesis round to show content status
+                    if (synthesisRoundEl) {
+                        synthesisRoundEl.textContent = 'Content Ready';
+                        synthesisRoundEl.style.color = '#00ff88';
+                    }
+
+                    // Update extended analysis content with synthesis insights
+                    if (extendedAnalysisEl) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        extendedAnalysisEl.innerHTML = `<strong>📊 Latest Synthesis Analysis (${timestamp})</strong>\n\n${synthesisContent.substring(0, 500)}${synthesisContent.length > 500 ? '...' : ''}\n\n<strong>🔗 Cross-System Correlations:</strong>\n• AI agent responses integrated\n• Memory patterns analyzed\n• Evolution trends detected\n• Pattern recognition active`;
+                    }
+
+                    console.log(`🔍 Synthesis monitor updated: ${synthesisContent.length} characters of synthesis content available`);
+                } else {
+                    // No synthesis content - show waiting status
+                    if (autoSynthesisEl) {
+                        autoSynthesisEl.textContent = 'Waiting for Content';
+                        autoSynthesisEl.style.color = '#ffaa00';
+                        autoSynthesisEl.title = 'No synthesis content available yet';
+                    }
+
+                    if (synthesisRoundEl) {
+                        synthesisRoundEl.textContent = 'Ready';
+                        synthesisRoundEl.style.color = '#4ecdc4';
+                    }
+
+                    // Update extended analysis content with waiting message
+                    if (extendedAnalysisEl) {
+                        extendedAnalysisEl.innerHTML = 'Advanced correlation analysis and system insights will appear here as synthesis reports are generated and processed by the DJINN council.\n\nWaiting for AI agents to complete their analysis rounds...';
+                    }
+
+                    console.log(`🔍 Synthesis monitor: No synthesis content available`);
+                }
+
+                // Update rounds completed from evolution history
+                const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                if (roundsCompletedEl) {
+                    roundsCompletedEl.textContent = evolutionHistory.length;
+                }
+
+            } catch (error) {
+                console.error('Error updating synthesis monitor:', error);
             }
         }
 
@@ -2766,19 +5219,54 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             }
         }
 
-        function updateSynthesisMonitor(synthesisContent) {
+        function updateCorrelativeAnalysisDisplay(report) {
             try {
-                // Monitor synthesis reports and collaborative outputs
-                const synthesisWords = synthesisContent.trim().split(/\s+/).filter(w => w.length > 0);
-                const synthesisLines = synthesisContent.split('\n');
+                // Update correlative analysis insights panel
+                const insightsElement = document.getElementById('correlativeAnalysisInsights');
+                if (insightsElement) {
+                    let insightsHTML = '<strong>🔬 DJINN COUNCIL CORRELATIVE ANALYSIS</strong>\n\n';
 
-                console.log(`🎭 Synthesis monitor: ${synthesisContent.length} chars, ${synthesisWords.length} words, ${synthesisLines.length} lines`);
+                    // Analysis summary
+                    insightsHTML += `**Analysis Cycle:** ${report.analysisCycle}\n`;
+                    insightsHTML += `**Trigger:** ${report.synthesisTrigger}\n`;
+                    insightsHTML += `**Correlation Depth:** ${report.correlationDepth.toFixed(2)}\n\n`;
 
-                // Could add synthesis-specific UI elements here
-                // For now, synthesis content is included in the comprehensive analysis context
+                    // Deep insights
+                    if (report.deepInsights && report.deepInsights.keyFindings) {
+                        insightsHTML += '**Key Findings:**\n';
+                        report.deepInsights.keyFindings.slice(0, 3).forEach(finding => {
+                            insightsHTML += `• ${finding}\n`;
+                        });
+                        insightsHTML += '\n';
+                    }
+
+                    // Recommendations
+                    if (report.recommendations && report.recommendations.length > 0) {
+                        insightsHTML += '**Recommendations:**\n';
+                        report.recommendations.slice(0, 2).forEach(rec => {
+                            insightsHTML += `• ${rec}\n`;
+                        });
+                    }
+
+                    insightsElement.innerHTML = insightsHTML.replace(/\n/g, '<br>');
+                }
+
+                // Update analysis status
+                const statusElement = document.getElementById('analysisStatus');
+                if (statusElement) {
+                    statusElement.textContent = `Last Analysis: ${new Date(report.timestamp).toLocaleTimeString()}`;
+                }
+
+                // Update report count
+                const reportCountElement = document.getElementById('reportCount');
+                if (reportCountElement) {
+                    reportCountElement.textContent = surveillanceState.reportCount;
+                }
+
+                console.log('📊 Correlative analysis display updated');
 
             } catch (error) {
-                console.error('Error updating synthesis monitor:', error);
+                console.error('Error updating correlative analysis display:', error);
             }
         }
 
@@ -2802,9 +5290,99 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                         checkCanvasState();
                     }, 100);
                 }
+
+                // Add listener for canvas synthesis status updates
+                if (event.key === 'canvas_synthesis_status') {
+                    console.log(`📊 Canvas synthesis status updated - refreshing metrics immediately`);
+                    setTimeout(() => {
+                        updateSynthesisStatusFromLocalStorage();
+                    }, 50);
+                }
+
+                // Add listener for synthesis progress updates
+                if (event.key === 'synthesis_progress') {
+                    console.log(`🔄 Synthesis progress updated`);
+                    setTimeout(() => {
+                        updateSynthesisProgressStatus();
+                    }, 50);
+                }
             });
 
             console.log('✅ DJINN Council operational with real-time cross-window sync');
+        }
+
+        // Function to update synthesis status from localStorage immediately
+        function updateSynthesisStatusFromLocalStorage() {
+            try {
+                // Read canvas synthesis status communication
+                const synthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
+
+                // Update synthesis metrics
+                const roundsCompleted = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').length;
+                document.getElementById('roundsCompleted').textContent = roundsCompleted;
+
+                // Update current round status from canvas communication
+                const synthesisRoundEl = document.getElementById('synthesisRound');
+                const agentsCompleteEl = document.getElementById('agentsComplete');
+                const autoSynthesisEl = document.getElementById('autoSynthesisStatus');
+
+                if (synthesisStatus.currentRound) {
+                    const roundNum = synthesisStatus.currentRound.split('_')[1];
+                    if (synthesisRoundEl) synthesisRoundEl.textContent = `Round ${roundNum}`;
+                    if (agentsCompleteEl) agentsCompleteEl.textContent = `${synthesisStatus.completedSystems || 0}/5`;
+                    if (autoSynthesisEl) {
+                        if (synthesisStatus.allComplete && synthesisStatus.synthesisTriggered) {
+                            autoSynthesisEl.textContent = 'Complete';
+                            autoSynthesisEl.style.color = '#00ff88';
+                        } else if (synthesisStatus.allComplete) {
+                            autoSynthesisEl.textContent = 'Triggered';
+                            autoSynthesisEl.style.color = '#ffaa00';
+                        } else {
+                            autoSynthesisEl.textContent = 'Waiting';
+                            autoSynthesisEl.style.color = '#4ecdc4';
+                        }
+                    }
+                } else {
+                    if (synthesisRoundEl) synthesisRoundEl.textContent = 'Ready';
+                    if (agentsCompleteEl) agentsCompleteEl.textContent = '0/5';
+                    if (autoSynthesisEl) autoSynthesisEl.textContent = 'Waiting';
+                }
+
+                console.log(`📊 Synthesis status updated: ${synthesisStatus.completedSystems || 0}/5 systems complete`);
+
+            } catch (error) {
+                console.error('Error updating synthesis status from localStorage:', error);
+            }
+        }
+
+        // Function to update synthesis progress status
+        function updateSynthesisProgressStatus() {
+            try {
+                const progressStatus = localStorage.getItem('synthesis_progress') || 'Ready';
+                const progressEl = document.getElementById('synthesisProgress');
+
+                if (progressEl) {
+                    progressEl.textContent = progressStatus;
+
+                    // Add visual styling based on status
+                    if (progressStatus === 'SYNTHESIZING...') {
+                        progressEl.style.color = '#ffd93d';
+                        progressEl.style.animation = 'pulse 1s infinite';
+                    } else if (progressStatus === 'COMPLETE') {
+                        progressEl.style.color = '#00ff88';
+                        progressEl.style.animation = 'none';
+                    } else if (progressStatus === 'ERROR') {
+                        progressEl.style.color = '#ff6b6b';
+                        progressEl.style.animation = 'none';
+                    } else {
+                        progressEl.style.color = '#cc88cc';
+                        progressEl.style.animation = 'none';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error updating synthesis progress status:', error);
+            }
         }
 
         function startCanvasMonitoring() {
@@ -2834,9 +5412,28 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 const synthesisHash = hashContent(synthesisContent);
                 const feedCount = aiFeeds.length;
 
-                // Update UI metrics
-                document.getElementById('canvasSize').textContent = `${canvasContent.length} chars`;
-                
+                // ========================================
+                // SYNTHESIS COMPLETION DETECTION & CORRELATIVE ANALYSIS TRIGGER
+                // ========================================
+
+                // Detect new synthesis report generation
+                if (synthesisHash !== surveillanceState.lastSynthesisHash && synthesisContent.length > 0) {
+                    console.log('🎯 SYNTHESIS REPORT GENERATED - Triggering DJINN Council Correlative Analysis');
+
+                    // Reset synthesis analysis trigger flag
+                    surveillanceState.synthesisAnalysisTriggered = false;
+
+                    // Trigger comprehensive correlative analysis
+                    triggerCorrelativeAnalysis(canvasContent, aiMemory, synthesisContent, aiFeeds);
+
+                    // Update synthesis hash
+                    surveillanceState.lastSynthesisHash = synthesisHash;
+                }
+
+                // Update UI metrics with null checks
+                const canvasSizeEl = document.getElementById('canvasSize');
+                if (canvasSizeEl) canvasSizeEl.textContent = `${canvasContent.length} chars`;
+
                 // Calculate actual memory count from conversation history and insights
                 let totalMemoryItems = 0;
                 let memoryStatusHTML = '<div style="font-size: 10px; color: #666; margin-top: 5px; line-height: 1.2;">';
@@ -2862,26 +5459,35 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 }
                 memoryStatusHTML += '</div>';
 
-                document.getElementById('memoryCount').textContent = `${totalMemoryItems} items`;
+                const memoryCountEl = document.getElementById('memoryCount');
+                if (memoryCountEl) memoryCountEl.textContent = `${totalMemoryItems} items`;
 
-                document.getElementById('feedCount').textContent = feedCount;
+                const feedCountEl = document.getElementById('feedCount');
+                if (feedCountEl) feedCountEl.textContent = feedCount;
 
                 // Calculate and update additional metrics
                 const words = canvasContent.split(/\s+/).filter(w => w.length > 0).length;
                 const lines = canvasContent.split('\n').length;
                 const modified = canvasContent.length > 0 ? new Date().toLocaleTimeString() : 'Never';
 
-                document.getElementById('canvasWords').textContent = words;
-                document.getElementById('canvasLines').textContent = lines;
-                document.getElementById('canvasModified').textContent = modified;
+                const canvasWordsEl = document.getElementById('canvasWords');
+                if (canvasWordsEl) canvasWordsEl.textContent = words;
+
+                const canvasLinesEl = document.getElementById('canvasLines');
+                if (canvasLinesEl) canvasLinesEl.textContent = lines;
+
+                const canvasModifiedEl = document.getElementById('canvasModified');
+                if (canvasModifiedEl) canvasModifiedEl.textContent = modified;
 
                 // Calculate activity level based on recent changes
                 const activityLevel = calculateActivityLevel(canvasContent, feedCount, words);
-                document.getElementById('activityLevel').textContent = activityLevel;
+                const activityLevelEl = document.getElementById('activityLevel');
+                if (activityLevelEl) activityLevelEl.textContent = activityLevel;
 
                 // Calculate data density (words per line ratio)
                 const dataDensity = lines > 0 ? (words / lines).toFixed(1) : '0.0';
-                document.getElementById('dataDensity').textContent = dataDensity;
+                const dataDensityEl = document.getElementById('dataDensity');
+                if (dataDensityEl) dataDensityEl.textContent = dataDensity;
 
                 // Update canvas monitor status
                 const monitorStatusEl = document.getElementById('canvasMonitorStatus');
@@ -2909,7 +5515,14 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     document.getElementById('confidenceAvg').textContent = `${avgConfidence}%`;
                 }
 
-                
+                // Update synthesis round status from localStorage
+                const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                const roundsCompleted = evolutionHistory.length;
+
+                // Update synthesis status using the dedicated function
+                updateSynthesisStatusFromLocalStorage();
+                updateSynthesisProgressStatus();
+
                 // Detect changes
                 let changesDetected = false;
                 
@@ -3307,8 +5920,8 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 
                 document.getElementById(member.status).textContent = 'COMPLETE';
 
-                // Store in council memory system
-                storeCouncilMemberReport(memberKey, {
+                // Store in council memory system with optimization
+                storeCouncilMemberReportOptimized(memberKey, {
                     analysis: response,
                     metrics: extractMetricsFromAnalysis(response),
                     canvasData: analysisContext?.data?.content || ''
@@ -3665,8 +6278,518 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         }
 
         // ========================================
-        // TEMPLATE LITERAL EVALUATION
+        // ENHANCED RESPONSE PARSING PIPELINE
         // ========================================
+
+        // Advanced response processor with content preservation
+        const enhancedResponseProcessor = {
+            processingStats: {
+                totalResponses: 0,
+                contentPreserved: 0,
+                structureImproved: 0,
+                avgProcessingTime: 0
+            },
+
+            // Main processing pipeline
+            process: function(rawResponse, memberKey = 'unknown') {
+                const startTime = Date.now();
+                this.processingStats.totalResponses++;
+
+                try {
+                    console.log(`🔬 Enhanced processing for ${memberKey} response (${rawResponse.length} chars)`);
+
+                    // Stage 1: Content preservation and analysis
+                    const contentAnalysis = this.analyzeContent(rawResponse);
+
+                    // Stage 2: Intelligent structure detection
+                    const structureMap = this.detectStructure(rawResponse);
+
+                    // Stage 3: Content-aware restructuring
+                    const restructured = this.smartRestructure(rawResponse, structureMap, contentAnalysis);
+
+                    // Stage 4: Quality enhancement
+                    const enhanced = this.enhanceQuality(restructured, contentAnalysis);
+
+                    // Stage 5: Validation and metrics
+                    const validated = this.validateAndMeasure(enhanced, rawResponse);
+
+                    const processingTime = Date.now() - startTime;
+                    this.processingStats.avgProcessingTime =
+                        (this.processingStats.avgProcessingTime + processingTime) / 2;
+
+                    console.log(`✅ Enhanced processing complete: ${validated.length}/${rawResponse.length} chars preserved (${processingTime}ms)`);
+
+                    return validated;
+
+                } catch (error) {
+                    console.error('❌ Enhanced processing failed:', error);
+                    // Fallback to original response
+                    return rawResponse;
+                }
+            },
+
+            // Analyze content characteristics
+            analyzeContent: function(response) {
+                return {
+                    length: response.length,
+                    lines: response.split('\n').length,
+                    words: response.split(/\s+/).filter(w => w.length > 0).length,
+                    sections: this.countSections(response),
+                    formatting: this.detectFormatting(response),
+                    quality: this.assessQuality(response),
+                    structure: this.analyzeStructure(response)
+                };
+            },
+
+            // Count existing sections
+            countSections: function(response) {
+                const sections = ['SUMMARY', 'ANALYSIS', 'FINDINGS', 'METRICS', 'CONCLUSIONS', 'ACTIONS'];
+                const counts = {};
+
+                sections.forEach(section => {
+                    const regex = new RegExp(`\\*\\*${section}\\*\\*`, 'gi');
+                    counts[section.toLowerCase()] = (response.match(regex) || []).length;
+                });
+
+                return counts;
+            },
+
+            // Detect formatting patterns
+            detectFormatting: function(response) {
+                return {
+                    hasBold: response.includes('**') || response.includes('__'),
+                    hasLists: response.includes('- ') || response.includes('* ') || /^\d+\./.test(response),
+                    hasHeaders: /^\*+.*$/m.test(response),
+                    hasTables: response.includes('|'),
+                    hasCode: response.includes('```') || response.includes('`'),
+                    hasLinks: response.includes('[') && response.includes('](')
+                };
+            },
+
+            // Assess content quality
+            assessQuality: function(response) {
+                let score = 0;
+                const words = response.split(/\s+/).filter(w => w.length > 0);
+
+                // Length appropriateness
+                if (response.length > 100) score += 20;
+                if (response.length > 500) score += 20;
+
+                // Vocabulary richness
+                const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+                const richness = uniqueWords.size / words.length;
+                score += Math.min(20, richness * 100);
+
+                // Structure presence
+                const sections = this.countSections(response);
+                const sectionCount = Object.values(sections).reduce((a, b) => a + b, 0);
+                score += Math.min(20, sectionCount * 5);
+
+                // Formatting quality
+                const formatting = this.detectFormatting(response);
+                const formatScore = Object.values(formatting).filter(Boolean).length;
+                score += Math.min(20, formatScore * 5);
+
+                return Math.min(100, score);
+            },
+
+            // Analyze structural patterns
+            analyzeStructure: function(response) {
+                const lines = response.split('\n');
+                const structure = {
+                    headers: [],
+                    paragraphs: [],
+                    lists: [],
+                    tables: [],
+                    codeBlocks: []
+                };
+
+                let inCodeBlock = false;
+                let currentParagraph = [];
+
+                lines.forEach((line, index) => {
+                    const trimmed = line.trim();
+
+                    // Code blocks
+                    if (trimmed.startsWith('```')) {
+                        inCodeBlock = !inCodeBlock;
+                        if (inCodeBlock) structure.codeBlocks.push(index);
+                        return;
+                    }
+
+                    if (inCodeBlock) return;
+
+                    // Headers
+                    if (/^#{1,6}\s/.test(trimmed) || /^\*+.*\*+$/.test(trimmed)) {
+                        structure.headers.push({ line: index, content: trimmed });
+                        if (currentParagraph.length > 0) {
+                            structure.paragraphs.push(currentParagraph);
+                            currentParagraph = [];
+                        }
+                    }
+                    // Lists
+                    else if (/^[\-\*]\s/.test(trimmed) || /^\d+\./.test(trimmed)) {
+                        structure.lists.push({ line: index, content: trimmed });
+                        if (currentParagraph.length > 0) {
+                            structure.paragraphs.push(currentParagraph);
+                            currentParagraph = [];
+                        }
+                    }
+                    // Tables
+                    else if (trimmed.includes('|') && trimmed.split('|').length > 2) {
+                        structure.tables.push({ line: index, content: trimmed });
+                    }
+                    // Paragraph content
+                    else if (trimmed.length > 0) {
+                        currentParagraph.push(trimmed);
+                    }
+                    // Empty lines (paragraph breaks)
+                    else if (currentParagraph.length > 0) {
+                        structure.paragraphs.push(currentParagraph);
+                        currentParagraph = [];
+                    }
+                });
+
+                if (currentParagraph.length > 0) {
+                    structure.paragraphs.push(currentParagraph);
+                }
+
+                return structure;
+            },
+
+            // Intelligent structure detection
+            detectStructure: function(response) {
+                const structureMap = {
+                    sections: {},
+                    boundaries: [],
+                    confidence: 0
+                };
+
+                // Look for explicit section markers
+                const sectionPatterns = [
+                    { name: 'summary', patterns: ['**SUMMARY**', '## SUMMARY', 'SUMMARY:', 'Summary:'] },
+                    { name: 'analysis', patterns: ['**ANALYSIS**', '## ANALYSIS', 'ANALYSIS:', 'Analysis:'] },
+                    { name: 'findings', patterns: ['**FINDINGS**', '## FINDINGS', 'FINDINGS:', 'Findings:'] },
+                    { name: 'metrics', patterns: ['**METRICS**', '## METRICS', 'METRICS:', 'Metrics:'] },
+                    { name: 'conclusions', patterns: ['**CONCLUSIONS**', '## CONCLUSIONS', 'CONCLUSIONS:', 'Conclusions:'] },
+                    { name: 'actions', patterns: ['**ACTIONS**', '## ACTIONS', 'ACTIONS:', 'Actions:', 'Recommendations:'] }
+                ];
+
+                sectionPatterns.forEach(section => {
+                    section.patterns.forEach(pattern => {
+                        const index = response.indexOf(pattern);
+                        if (index !== -1) {
+                            structureMap.sections[section.name] = structureMap.sections[section.name] || [];
+                            structureMap.sections[section.name].push({
+                                start: index,
+                                marker: pattern,
+                                confidence: 1.0
+                            });
+                        }
+                    });
+                });
+
+                // Look for implicit section boundaries
+                const lines = response.split('\n');
+                lines.forEach((line, index) => {
+                    const trimmed = line.trim().toLowerCase();
+
+                    // Look for section-like headers
+                    if (trimmed.length > 0 && trimmed.length < 50 &&
+                        !trimmed.includes('.') && !trimmed.includes('?') &&
+                        (trimmed.includes('analysis') || trimmed.includes('finding') ||
+                         trimmed.includes('metric') || trimmed.includes('conclusion'))) {
+                        structureMap.boundaries.push({
+                            line: index,
+                            content: line.trim(),
+                            confidence: 0.7
+                        });
+                    }
+                });
+
+                // Calculate overall structure confidence
+                const explicitSections = Object.keys(structureMap.sections).length;
+                const implicitBoundaries = structureMap.boundaries.length;
+                structureMap.confidence = Math.min(1.0, (explicitSections * 0.3) + (implicitBoundaries * 0.1));
+
+                return structureMap;
+            },
+
+            // Smart restructuring with content preservation
+            smartRestructure: function(response, structureMap, contentAnalysis) {
+                // If structure is already good, preserve it
+                if (structureMap.confidence > 0.8) {
+                    return this.preserveExistingStructure(response, structureMap);
+                }
+
+                // If structure needs work but content is good, enhance it
+                if (contentAnalysis.quality > 70) {
+                    return this.enhanceStructure(response, structureMap, contentAnalysis);
+                }
+
+                // If both need work, reconstruct carefully
+                return this.reconstructStructure(response, contentAnalysis);
+            },
+
+            // Preserve existing good structure
+            preserveExistingStructure: function(response, structureMap) {
+                // Find the best instance of each section
+                const sections = {};
+                Object.entries(structureMap.sections).forEach(([sectionName, markers]) => {
+                    if (markers.length > 0) {
+                        // Use the first (highest confidence) marker
+                        const marker = markers[0];
+                        const nextSectionStart = this.findNextSectionStart(response, marker.start, structureMap);
+
+                        sections[sectionName] = {
+                            content: response.substring(marker.start, nextSectionStart),
+                            originalStart: marker.start
+                        };
+                    }
+                });
+
+                // Rebuild with preserved content
+                return this.rebuildWithSections(sections, response);
+            },
+
+            // Enhance existing structure
+            enhanceStructure: function(response, structureMap, contentAnalysis) {
+                let enhanced = response;
+
+                // Add missing section headers
+                const missingSections = this.identifyMissingSections(structureMap);
+                missingSections.forEach(section => {
+                    enhanced = this.addSectionHeader(enhanced, section, contentAnalysis);
+                });
+
+                // Improve formatting
+                enhanced = this.improveFormatting(enhanced, contentAnalysis);
+
+                return enhanced;
+            },
+
+            // Reconstruct structure for poorly formatted content
+            reconstructStructure: function(response, contentAnalysis) {
+                const lines = response.split('\n');
+                const reconstructed = {
+                    summary: [],
+                    analysis: [],
+                    findings: [],
+                    metrics: [],
+                    conclusions: [],
+                    actions: []
+                };
+
+                let currentSection = 'summary';
+                let inList = false;
+
+                lines.forEach((line, index) => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return;
+
+                    // Detect section changes based on content patterns
+                    const lowerLine = trimmed.toLowerCase();
+
+                    if (lowerLine.includes('analysis') && !lowerLine.includes('findings')) {
+                        currentSection = 'analysis';
+                    } else if (lowerLine.includes('finding') || lowerLine.includes('observation')) {
+                        currentSection = 'findings';
+                    } else if (lowerLine.includes('metric') || (trimmed.includes(':') && /\d/.test(trimmed))) {
+                        currentSection = 'metrics';
+                    } else if (lowerLine.includes('conclusion') || lowerLine.includes('result')) {
+                        currentSection = 'conclusions';
+                    } else if (lowerLine.includes('action') || lowerLine.includes('recommend')) {
+                        currentSection = 'actions';
+                    } else {
+                        // Add content to current section
+                        reconstructed[currentSection].push(trimmed);
+                    }
+                });
+
+                // Build structured output
+                let result = '';
+                Object.entries(reconstructed).forEach(([section, content]) => {
+                    if (content.length > 0) {
+                        result += `**${section.toUpperCase()}**\n${content.join('\n')}\n\n`;
+                    }
+                });
+
+                return result.trim();
+            },
+
+            // Quality enhancement
+            enhanceQuality: function(response, contentAnalysis) {
+                let enhanced = response;
+
+                // Improve formatting consistency
+                enhanced = this.consistentFormatting(enhanced);
+
+                // Enhance readability
+                enhanced = this.improveReadability(enhanced);
+
+                // Add missing context where helpful
+                enhanced = this.addContextualEnhancements(enhanced, contentAnalysis);
+
+                return enhanced;
+            },
+
+            // Validation and measurement
+            validateAndMeasure: function(processed, original) {
+                const preservationRate = (processed.length / original.length) * 100;
+                this.processingStats.contentPreserved =
+                    (this.processingStats.contentPreserved + preservationRate) / 2;
+
+                // Ensure minimum quality standards
+                if (processed.length < 100) {
+                    console.warn('⚠️ Processed response too short, may have lost content');
+                }
+
+                // Validate structure
+                const hasBasicStructure = /\*\*.*\*\*/.test(processed);
+                if (!hasBasicStructure && original.length > 200) {
+                    console.warn('⚠️ Processed response lacks expected structure');
+                }
+
+                return processed;
+            },
+
+            // Helper methods
+            findNextSectionStart: function(response, currentPos, structureMap) {
+                let nextPos = response.length;
+
+                Object.values(structureMap.sections).forEach(markers => {
+                    markers.forEach(marker => {
+                        if (marker.start > currentPos && marker.start < nextPos) {
+                            nextPos = marker.start;
+                        }
+                    });
+                });
+
+                return nextPos;
+            },
+
+            rebuildWithSections: function(sections, original) {
+                const orderedSections = ['summary', 'analysis', 'findings', 'metrics', 'conclusions', 'actions'];
+                let result = '';
+
+                orderedSections.forEach(section => {
+                    if (sections[section]) {
+                        result += sections[section].content + '\n\n';
+                    }
+                });
+
+                return result.trim() || original;
+            },
+
+            identifyMissingSections: function(structureMap) {
+                const expectedSections = ['summary', 'analysis', 'findings', 'metrics', 'conclusions'];
+                const presentSections = Object.keys(structureMap.sections);
+
+                return expectedSections.filter(section => !presentSections.includes(section));
+            },
+
+            addSectionHeader: function(response, section, contentAnalysis) {
+                // Intelligent header insertion based on content analysis
+                const header = `**${section.toUpperCase()}**`;
+
+                // Find appropriate insertion point
+                const lines = response.split('\n');
+                let insertIndex = Math.floor(lines.length / 2); // Default to middle
+
+                // Look for contextual clues
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].toLowerCase();
+                    if (section === 'metrics' && (line.includes('number') || line.includes('percent'))) {
+                        insertIndex = i;
+                        break;
+                    }
+                    if (section === 'findings' && (line.includes('found') || line.includes('observed'))) {
+                        insertIndex = i;
+                        break;
+                    }
+                }
+
+                lines.splice(insertIndex, 0, '', header, '');
+                return lines.join('\n');
+            },
+
+            improveFormatting: function(response, contentAnalysis) {
+                let improved = response;
+
+                // Ensure consistent bullet points
+                improved = improved.replace(/^[\-\*]\s*/gm, '- ');
+
+                // Fix spacing around headers
+                improved = improved.replace(/(\*\*.*?\*\*)\n([^\n])/g, '$1\n\n$2');
+
+                // Clean up excessive whitespace
+                improved = improved.replace(/\n{3,}/g, '\n\n');
+
+                return improved;
+            },
+
+            consistentFormatting: function(response) {
+                // Ensure consistent header formatting
+                let consistent = response.replace(/\*{1,2}(.*?)\*{1,2}/g, '**$1**');
+
+                // Consistent list formatting
+                consistent = consistent.replace(/^[\-\*]\s*/gm, '- ');
+
+                // Consistent spacing
+                consistent = consistent.replace(/\n{3,}/g, '\n\n');
+
+                return consistent;
+            },
+
+            improveReadability: function(response) {
+                // Break up long paragraphs
+                const sentences = response.split(/[.!?]+/);
+                let readable = '';
+
+                let paragraph = '';
+                sentences.forEach(sentence => {
+                    paragraph += sentence.trim() + '. ';
+                    if (paragraph.length > 200) {
+                        readable += paragraph.trim() + '\n\n';
+                        paragraph = '';
+                    }
+                });
+
+                if (paragraph) {
+                    readable += paragraph.trim();
+                }
+
+                return readable || response;
+            },
+
+            addContextualEnhancements: function(response, contentAnalysis) {
+                // Add subtle enhancements based on content analysis
+                let enhanced = response;
+
+                // Add quality indicators
+                if (contentAnalysis.quality > 80) {
+                    enhanced = '🟢 High Quality Analysis\n\n' + enhanced;
+                } else if (contentAnalysis.quality < 50) {
+                    enhanced = '🟡 Processing Enhanced\n\n' + enhanced;
+                }
+
+                return enhanced;
+            }
+        };
+
+        // ========================================
+        // UPDATED RESPONSE PROCESSING
+        // ========================================
+
+        // Replace the old enforceReportStructure with enhanced processing
+        function enforceReportStructure(response) {
+            if (!response || typeof response !== 'string') {
+                return response;
+            }
+
+            // Use enhanced processor for better content preservation
+            return enhancedResponseProcessor.process(response, 'council_member');
+        }
 
         function evaluateTemplateLiterals(response) {
             if (!response || typeof response !== 'string') {
@@ -5021,7 +8144,567 @@ Synthesize intelligence (max 400 words):
             tooltipDisplay.classList.remove('visible');
         }
 
-        // Cleanup on page unload
+        // ========================================
+        // PREDICTIVE ANALYTICS FRAMEWORK
+        // ========================================
+
+        // Advanced predictive analytics for canvas and AI system behavior
+        const predictiveAnalyticsFramework = {
+            // Prediction models
+            models: {
+                canvasEvolution: null,
+                aiPerformance: null,
+                systemHarmony: null,
+                memoryUsage: null
+            },
+
+            // Prediction history and accuracy tracking
+            predictions: {
+                made: [],
+                accuracy: [],
+                confidence: []
+            },
+
+            // Forecasting data
+            forecastData: {
+                canvas: [],
+                aiSystems: [],
+                correlations: [],
+                memory: []
+            },
+
+            // Initialize predictive analytics
+            initialize: function() {
+                console.log('🔮 Initializing Predictive Analytics Framework');
+                this.buildPredictionModels();
+                this.schedulePredictions();
+                this.loadHistoricalData();
+            },
+
+            // Build prediction models from historical data
+            buildPredictionModels: function() {
+                // Canvas evolution model
+                this.models.canvasEvolution = {
+                    trend: 'analyzing',
+                    velocity: 0,
+                    confidence: 0,
+                    nextPrediction: null
+                };
+
+                // AI performance model
+                this.models.aiPerformance = {
+                    systems: new Map(),
+                    overallTrend: 'stable',
+                    confidence: 0
+                };
+
+                // System harmony model
+                this.models.systemHarmony = {
+                    currentLevel: 0,
+                    trend: 'stable',
+                    predictions: []
+                };
+
+                // Memory usage model
+                this.models.memoryUsage = {
+                    currentUsage: 0,
+                    growthRate: 0,
+                    predictions: []
+                };
+
+                console.log('🔮 Prediction models initialized');
+            },
+
+            // Load historical data for model training
+            loadHistoricalData: function() {
+                // Load canvas evolution history
+                if (canvasEvolutionTracker && canvasEvolutionTracker.history) {
+                    this.forecastData.canvas = canvasEvolutionTracker.history.slice(-50); // Last 50 snapshots
+                }
+
+                // Load correlation history
+                if (crossSystemCorrelationEngine && crossSystemCorrelationEngine.correlationHistory) {
+                    this.forecastData.correlations = crossSystemCorrelationEngine.correlationHistory.slice(-20); // Last 20 analyses
+                }
+
+                // Load memory analytics
+                if (advancedMemoryOrchestrator && advancedMemoryOrchestrator.analytics) {
+                    this.forecastData.memory = [{
+                        timestamp: Date.now(),
+                        efficiency: advancedMemoryOrchestrator.analytics.compressionRatio,
+                        savings: advancedMemoryOrchestrator.analytics.deduplicationSavings
+                    }];
+                }
+
+                console.log('🔮 Loaded historical data:', {
+                    canvas: this.forecastData.canvas.length,
+                    correlations: this.forecastData.correlations.length,
+                    memory: this.forecastData.memory.length
+                });
+            },
+
+            // Generate canvas evolution predictions
+            predictCanvasEvolution: function() {
+                if (this.forecastData.canvas.length < 3) {
+                    return {
+                        prediction: 'insufficient_data',
+                        confidence: 0,
+                        timeHorizon: 'unknown'
+                    };
+                }
+
+                const recent = this.forecastData.canvas.slice(-5);
+                const changes = recent.filter(s => s.changes).map(s => ({
+                    netChange: s.changes.netChange,
+                    velocity: parseFloat(s.changes.velocity),
+                    timeDelta: s.changes.timeDelta
+                }));
+
+                if (changes.length === 0) {
+                    return {
+                        prediction: 'no_recent_changes',
+                        confidence: 0.5,
+                        timeHorizon: '5_minutes'
+                    };
+                }
+
+                // Calculate trend
+                const avgChange = changes.reduce((sum, c) => sum + c.netChange, 0) / changes.length;
+                const avgVelocity = changes.reduce((sum, c) => sum + c.velocity, 0) / changes.length;
+
+                // Predict next change
+                const trend = avgChange > 10 ? 'expanding' :
+                             avgChange < -10 ? 'contracting' : 'stable';
+
+                // Calculate confidence based on trend consistency
+                const velocities = changes.map(c => c.velocity);
+                const velocityVariance = this.calculateVariance(velocities);
+                const confidence = Math.max(0.1, Math.min(1.0, 1 - (velocityVariance / 1000)));
+
+                // Predict future state
+                const currentLength = recent[recent.length - 1].metrics.characters;
+                const predictedLength = Math.max(0, currentLength + (avgChange * 3)); // 3-step prediction
+                const changePercentage = ((predictedLength - currentLength) / Math.max(currentLength, 1)) * 100;
+
+                return {
+                    prediction: trend,
+                    confidence: confidence,
+                    timeHorizon: '15_minutes',
+                    predictedLength: Math.round(predictedLength),
+                    expectedChange: Math.round(avgChange * 3),
+                    changePercentage: changePercentage.toFixed(1) + '%',
+                    velocity: avgVelocity.toFixed(1) + ' chars/min'
+                };
+            },
+
+            // Predict AI system performance
+            predictAISystemPerformance: function() {
+                if (this.forecastData.correlations.length < 2) {
+                    return {
+                        prediction: 'analyzing',
+                        confidence: 0,
+                        systems: {}
+                    };
+                }
+
+                const recent = this.forecastData.correlations.slice(-3);
+                const systemTrends = {};
+
+                // Analyze each AI system's performance trend
+                ['narra', 'nazar', 'whale', 'djinn', 'watchtower'].forEach(system => {
+                    const systemData = recent.map(c => {
+                        const sysData = c.crossCorrelations.find(corr => corr.system === system);
+                        return sysData ? sysData.correlation : 0;
+                    }).filter(val => val > 0);
+
+                    if (systemData.length > 0) {
+                        const avgCorrelation = systemData.reduce((a, b) => a + b, 0) / systemData.length;
+                        const trend = avgCorrelation > 0.6 ? 'improving' :
+                                     avgCorrelation > 0.4 ? 'stable' : 'declining';
+
+                        systemTrends[system] = {
+                            trend: trend,
+                            correlation: avgCorrelation.toFixed(3),
+                            confidence: Math.min(1.0, systemData.length / 3)
+                        };
+                    }
+                });
+
+                // Overall AI performance prediction
+                const avgCorrelations = Object.values(systemTrends)
+                    .map(s => parseFloat(s.correlation))
+                    .filter(c => !isNaN(c));
+
+                const overallTrend = avgCorrelations.length > 0 ?
+                    (avgCorrelations.reduce((a, b) => a + b, 0) / avgCorrelations.length > 0.5 ? 'improving' : 'stable') :
+                    'analyzing';
+
+                return {
+                    prediction: overallTrend,
+                    confidence: avgCorrelations.length > 0 ? 0.7 : 0.3,
+                    systems: systemTrends,
+                    averageCorrelation: avgCorrelations.length > 0 ?
+                        (avgCorrelations.reduce((a, b) => a + b, 0) / avgCorrelations.length).toFixed(3) : '0.000'
+                };
+            },
+
+            // Predict system harmony evolution
+            predictSystemHarmony: function() {
+                if (this.forecastData.correlations.length < 3) {
+                    return {
+                        prediction: 'analyzing',
+                        confidence: 0,
+                        trend: 'unknown'
+                    };
+                }
+
+                const recent = this.forecastData.correlations.slice(-5);
+                const harmonyScores = recent.map(c => crossSystemCorrelationEngine.calculateSystemHarmony(c));
+
+                if (harmonyScores.length === 0) {
+                    return {
+                        prediction: 'no_data',
+                        confidence: 0,
+                        trend: 'unknown'
+                    };
+                }
+
+                // Calculate harmony trend
+                const avgHarmony = harmonyScores.reduce((a, b) => a + b, 0) / harmonyScores.length;
+                const trend = avgHarmony > 70 ? 'harmonious' :
+                             avgHarmony > 50 ? 'balanced' :
+                             avgHarmony > 30 ? 'challenging' : 'conflicted';
+
+                // Predict future harmony
+                const slope = this.calculateSlope(harmonyScores);
+                const predictedHarmony = Math.max(0, Math.min(100, avgHarmony + (slope * 3)));
+
+                return {
+                    prediction: trend,
+                    confidence: Math.min(1.0, harmonyScores.length / 5),
+                    currentHarmony: avgHarmony.toFixed(1) + '%',
+                    predictedHarmony: predictedHarmony.toFixed(1) + '%',
+                    trend: slope > 2 ? 'improving' : slope < -2 ? 'declining' : 'stable',
+                    slope: slope.toFixed(2)
+                };
+            },
+
+            // Predict memory usage patterns
+            predictMemoryUsage: function() {
+                if (this.forecastData.memory.length < 2) {
+                    return {
+                        prediction: 'analyzing',
+                        confidence: 0,
+                        trend: 'unknown'
+                    };
+                }
+
+                const recent = this.forecastData.memory.slice(-5);
+                const efficiencies = recent.map(m => m.efficiency || 0);
+                const savings = recent.map(m => m.savings || 0);
+
+                if (efficiencies.length === 0) {
+                    return {
+                        prediction: 'no_data',
+                        confidence: 0,
+                        trend: 'unknown'
+                    };
+                }
+
+                // Calculate memory efficiency trend
+                const avgEfficiency = efficiencies.reduce((a, b) => a + b, 0) / efficiencies.length;
+                const avgSavings = savings.reduce((a, b) => a + b, 0) / savings.length;
+
+                const efficiencySlope = this.calculateSlope(efficiencies);
+                const trend = efficiencySlope > 0.01 ? 'improving' :
+                             efficiencySlope < -0.01 ? 'declining' : 'stable';
+
+                // Predict future efficiency
+                const predictedEfficiency = Math.max(0, Math.min(1, avgEfficiency + (efficiencySlope * 5)));
+
+                return {
+                    prediction: trend,
+                    confidence: Math.min(1.0, efficiencies.length / 5),
+                    currentEfficiency: (avgEfficiency * 100).toFixed(1) + '%',
+                    predictedEfficiency: (predictedEfficiency * 100).toFixed(1) + '%',
+                    averageSavings: Math.round(avgSavings) + ' bytes',
+                    trend: trend,
+                    slope: efficiencySlope.toFixed(4)
+                };
+            },
+
+            // Calculate variance for confidence metrics
+            calculateVariance: function(values) {
+                if (values.length < 2) return 0;
+
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const squareDiffs = values.map(value => Math.pow(value - mean, 2));
+                return squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
+            },
+
+            // Calculate slope for trend analysis
+            calculateSlope: function(values) {
+                if (values.length < 2) return 0;
+
+                const n = values.length;
+                const sumX = (n * (n - 1)) / 2;
+                const sumY = values.reduce((a, b) => a + b, 0);
+                const sumXY = values.reduce((sum, y, x) => sum + (x * y), 0);
+                const sumXX = (n * (n - 1) * (2 * n - 1)) / 6;
+
+                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+                return isNaN(slope) ? 0 : slope;
+            },
+
+            // Generate comprehensive predictions
+            generatePredictions: function() {
+                const predictions = {
+                    timestamp: Date.now(),
+                    canvas: this.predictCanvasEvolution(),
+                    aiSystems: this.predictAISystemPerformance(),
+                    harmony: this.predictSystemHarmony(),
+                    memory: this.predictMemoryUsage(),
+                    overall: this.generateOverallAssessment()
+                };
+
+                // Store prediction for accuracy tracking
+                this.predictions.made.push(predictions);
+
+                // Keep only last 50 predictions
+                if (this.predictions.made.length > 50) {
+                    this.predictions.made.shift();
+                }
+
+                return predictions;
+            },
+
+            // Generate overall system assessment
+            generateOverallAssessment: function() {
+                const canvas = this.predictCanvasEvolution();
+                const ai = this.predictAISystemPerformance();
+                const harmony = this.predictSystemHarmony();
+                const memory = this.predictMemoryUsage();
+
+                // Calculate overall system health
+                const confidences = [canvas.confidence, ai.confidence, harmony.confidence, memory.confidence];
+                const avgConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length;
+
+                // Determine overall status
+                let status = 'analyzing';
+                let concerns = [];
+                let opportunities = [];
+
+                // Canvas evolution assessment
+                if (canvas.prediction === 'expanding') {
+                    opportunities.push('Canvas content is growing - good for analysis depth');
+                } else if (canvas.prediction === 'contracting') {
+                    concerns.push('Canvas content is shrinking - monitor for data loss');
+                }
+
+                // AI performance assessment
+                if (ai.prediction === 'improving') {
+                    opportunities.push('AI system performance is improving');
+                } else if (ai.prediction === 'stable') {
+                    status = 'stable';
+                }
+
+                // Harmony assessment
+                if (harmony.prediction === 'harmonious') {
+                    opportunities.push('High system harmony detected');
+                } else if (harmony.prediction === 'conflicted') {
+                    concerns.push('System conflicts detected - review correlations');
+                }
+
+                // Memory assessment
+                if (memory.prediction === 'improving') {
+                    opportunities.push('Memory efficiency is improving');
+                } else if (memory.prediction === 'declining') {
+                    concerns.push('Memory efficiency declining - consider optimization');
+                }
+
+                // Overall status determination
+                if (concerns.length === 0 && opportunities.length > 0) {
+                    status = 'excellent';
+                } else if (concerns.length <= opportunities.length) {
+                    status = 'good';
+                } else if (concerns.length > 0) {
+                    status = 'needs_attention';
+                }
+
+                return {
+                    status: status,
+                    confidence: avgConfidence,
+                    concerns: concerns,
+                    opportunities: opportunities,
+                    recommendations: this.generateRecommendations(concerns, opportunities)
+                };
+            },
+
+            // Generate recommendations based on assessment
+            generateRecommendations: function(concerns, opportunities) {
+                const recommendations = [];
+
+                if (concerns.includes('Canvas content is shrinking - monitor for data loss')) {
+                    recommendations.push('Consider increasing canvas content generation or review AI system prompts');
+                }
+
+                if (concerns.includes('System conflicts detected - review correlations')) {
+                    recommendations.push('Review AI system correlations and consider adjusting analysis parameters');
+                }
+
+                if (concerns.includes('Memory efficiency declining - consider optimization')) {
+                    recommendations.push('Run memory defragmentation and review storage policies');
+                }
+
+                if (opportunities.includes('Canvas content is growing - good for analysis depth')) {
+                    recommendations.push('Leverage increased content for deeper analysis and pattern recognition');
+                }
+
+                if (opportunities.includes('AI system performance is improving')) {
+                    recommendations.push('Consider increasing analysis complexity or expanding system capabilities');
+                }
+
+                if (opportunities.includes('High system harmony detected')) {
+                    recommendations.push('System is well-balanced - maintain current operational parameters');
+                }
+
+                return recommendations;
+            },
+
+            // Schedule prediction generation
+            schedulePredictions: function() {
+                // Generate predictions every 10 minutes
+                setInterval(() => {
+                    this.generatePredictions();
+                }, 10 * 60 * 1000);
+
+                // Update forecast data every 2 minutes
+                setInterval(() => {
+                    this.loadHistoricalData();
+                }, 2 * 60 * 1000);
+            },
+
+            // Get current predictions
+            getCurrentPredictions: function() {
+                const latest = this.predictions.made[this.predictions.made.length - 1];
+                if (!latest) return null;
+
+                return {
+                    canvas: {
+                        trend: latest.canvas.prediction,
+                        confidence: (latest.canvas.confidence * 100).toFixed(1) + '%',
+                        nextChange: latest.canvas.expectedChange || 'unknown'
+                    },
+                    aiSystems: {
+                        trend: latest.aiSystems.prediction,
+                        confidence: (latest.aiSystems.confidence * 100).toFixed(1) + '%',
+                        avgCorrelation: latest.aiSystems.averageCorrelation
+                    },
+                    harmony: {
+                        status: latest.harmony.prediction,
+                        confidence: (latest.harmony.confidence * 100).toFixed(1) + '%',
+                        level: latest.harmony.currentHarmony
+                    },
+                    memory: {
+                        trend: latest.memory.prediction,
+                        confidence: (latest.memory.confidence * 100).toFixed(1) + '%',
+                        efficiency: latest.memory.currentEfficiency
+                    },
+                    overall: {
+                        status: latest.overall.status,
+                        confidence: (latest.overall.confidence * 100).toFixed(1) + '%',
+                        concerns: latest.overall.concerns.length,
+                        opportunities: latest.overall.opportunities.length
+                    },
+                    lastUpdate: new Date(latest.timestamp).toLocaleTimeString()
+                };
+            }
+        };
+
+        // Initialize predictive analytics framework
+        predictiveAnalyticsFramework.initialize();
+
+        // Update predictive analytics display
+        function updatePredictiveAnalytics() {
+            const predictions = predictiveAnalyticsFramework.getCurrentPredictions();
+            if (!predictions) {
+                document.getElementById('predictiveFeed').innerHTML = `
+                    <div style="color: #666; font-style: italic;">Generating initial predictions...</div>
+                `;
+                return;
+            }
+
+            const statusColor = predictions.overall.status === 'excellent' ? '#00ff88' :
+                               predictions.overall.status === 'good' ? '#ffaa00' :
+                               predictions.overall.status === 'needs_attention' ? '#ff6666' : '#666';
+
+            document.getElementById('predictiveFeed').innerHTML = `
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #ffaa00;">📊 Overall Status:</strong>
+                    <span style="color: ${statusColor}; margin-left: 8px; font-weight: bold;">
+                        ${predictions.overall.status.toUpperCase()}
+                    </span>
+                    <span style="color: #666; margin-left: 8px;">
+                        (${predictions.overall.confidence}% confidence)
+                    </span>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #6666ff;">📜 Canvas Evolution:</strong>
+                    <div style="margin-left: 12px; margin-top: 4px;">
+                        <div>Trend: <span style="color: #cc88cc;">${predictions.canvas.trend}</span></div>
+                        <div>Confidence: <span style="color: #cc88cc;">${predictions.canvas.confidence}</span></div>
+                        <div>Next Change: <span style="color: #cc88cc;">${predictions.canvas.nextChange} chars</span></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #00ff88;">🤖 AI Systems:</strong>
+                    <div style="margin-left: 12px; margin-top: 4px;">
+                        <div>Trend: <span style="color: #cc88cc;">${predictions.aiSystems.trend}</span></div>
+                        <div>Confidence: <span style="color: #cc88cc;">${predictions.aiSystems.confidence}</span></div>
+                        <div>Avg Correlation: <span style="color: #cc88cc;">${predictions.aiSystems.avgCorrelation}</span></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #cc88cc;">⚖️ System Harmony:</strong>
+                    <div style="margin-left: 12px; margin-top: 4px;">
+                        <div>Status: <span style="color: #cc88cc;">${predictions.harmony.status}</span></div>
+                        <div>Confidence: <span style="color: #cc88cc;">${predictions.harmony.confidence}</span></div>
+                        <div>Level: <span style="color: #cc88cc;">${predictions.harmony.level}</span></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #ff88ff;">🧠 Memory Usage:</strong>
+                    <div style="margin-left: 12px; margin-top: 4px;">
+                        <div>Trend: <span style="color: #cc88cc;">${predictions.memory.trend}</span></div>
+                        <div>Confidence: <span style="color: #cc88cc;">${predictions.memory.confidence}</span></div>
+                        <div>Efficiency: <span style="color: #cc88cc;">${predictions.memory.efficiency}</span></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #ffaa00;">💡 Key Insights:</strong>
+                    <div style="margin-left: 12px; margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                        <div>• ${predictions.overall.opportunities} opportunities identified</div>
+                        <div>• ${predictions.overall.concerns} concerns detected</div>
+                        <div>• Last updated: ${predictions.lastUpdate}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Auto-update predictive analytics every 30 seconds
+        setInterval(updatePredictiveAnalytics, 30000);
+
+        // Initialize correlative analysis framework
+        if (typeof correlativeAnalysisFramework !== 'undefined') {
+            correlativeAnalysisFramework.initialize();
+            console.log('🔍 Correlative Analysis Framework initialized and ready for synthesis report integration');
+        }
+
         window.addEventListener('beforeunload', function() {
             if (surveillanceState.pollingTimer) {
                 clearInterval(surveillanceState.pollingTimer);
