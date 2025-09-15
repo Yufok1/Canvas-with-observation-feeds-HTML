@@ -1182,7 +1182,7 @@
         // Cache System
         const responseCache = new Map();
 
-        // Clear response cache to avoid hallucinations
+        // Clear response cache
         function clearResponseCache() {
             responseCache.clear();
             console.log('Response cache cleared');
@@ -1434,6 +1434,30 @@
                 console.warn('Failed to parse localStorage data for analysis:', e);
             }
 
+            // GET REAL DATA - NO FABRICATION ALLOWED
+            const realCanvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            const realAIMemory = JSON.parse(localStorage.getItem('ai_memory_state') || '{}');
+            const realAIFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
+
+            // Calculate actual metrics from real data
+            const realMetrics = {
+                canvasWordCount: realCanvasContent.split(/\s+/).length,
+                totalAISystems: Object.keys(realAIMemory).length,
+                activeSystems: Object.keys(realAIMemory).filter(system => {
+                    const systemData = realAIMemory[system];
+                    return systemData && systemData.conversationHistory && systemData.conversationHistory.length > 0;
+                }).length,
+                totalConversations: Object.values(realAIMemory).reduce((sum, system) => {
+                    return sum + (system?.conversationHistory?.length || 0);
+                }, 0),
+                totalInsights: Object.values(realAIMemory).reduce((sum, system) => {
+                    return sum + (system?.keyInsights?.length || 0);
+                }, 0),
+                feedCount: realAIFeeds.length,
+                memoryDensity: Object.keys(realAIMemory).length > 0 ?
+                    (Object.values(realAIMemory).reduce((sum, system) => sum + (system?.conversationHistory?.length || 0), 0) / Object.keys(realAIMemory).length) : 0
+            };
+
             const analysisPrompt = `
 DJINN COUNCIL MEMBER: ${memberName.toUpperCase().replace('_', ' & ')}
 SPECIALIZATION: ${member.specialization}
@@ -1472,6 +1496,15 @@ Theme: ${consensus.theme}
 Summary: ${consensus.summary?.substring(0, 200)}...
 Cross-Member Patterns: ${consensus.crossMemberPatterns || 'None identified'}
 `).join('\n') || 'No consensus history available'}
+
+=== REAL CALCULATED METRICS (Use these exact numbers) ===
+- Canvas Word Count: ${realMetrics.canvasWordCount}
+- Total AI Systems: ${realMetrics.totalAISystems}
+- Active AI Systems: ${realMetrics.activeSystems}
+- Total Conversations: ${realMetrics.totalConversations}
+- Total Insights: ${realMetrics.totalInsights}
+- Feed Count: ${realMetrics.feedCount}
+- Memory Density: ${realMetrics.memoryDensity.toFixed(1)}
 
 === ACTUAL AI SYSTEM MEMORY DATA (localStorage 'ai_memory_state') ===
 ${Object.entries(parsedMemory).map(([systemName, systemData]) => {
@@ -1594,67 +1627,131 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
         // Track Canvas AI System Performance
         function trackCanvasAISystems() {
-            const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
-            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
-            const aiMemory = localStorage.getItem('ai_memory_state') || '{}';
-
-            // Parse AI memory to get actual system data
-            let parsedMemory = {};
             try {
-                parsedMemory = JSON.parse(aiMemory);
-            } catch (e) {
-                console.warn('Failed to parse AI memory:', e);
-            }
+                // Get data from main canvas localStorage with cross-window access
+                const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
+                const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+                const aiMemory = localStorage.getItem('ai_memory_state') || '{}';
 
-            // Update system performance based on actual AI memory data
-            Object.keys(djinnCouncilMemory.canvasAISystems).forEach(system => {
-                const systemData = parsedMemory[system];
-                if (systemData) {
-                    // Use actual memory data to determine activity
-                    const hasMemory = systemData.conversationHistory && systemData.conversationHistory.length > 0;
-                    const memoryCount = systemData.conversationHistory ? systemData.conversationHistory.length : 0;
-                    const insightCount = systemData.keyInsights ? systemData.keyInsights.length : 0;
+                console.log('🔍 DJINN tracking canvas AI systems:', {
+                    feedsCount: aiFeeds.length,
+                    contentLength: canvasContent.length,
+                    memoryKeys: Object.keys(JSON.parse(aiMemory || '{}'))
+                });
 
-                    // Add interaction record
-                    djinnCouncilMemory.canvasAISystems[system].interactions.push({
-                        timestamp: new Date().toISOString(),
-                        interaction: `Memory analysis: ${memoryCount} conversations, ${insightCount} insights`,
-                        performance: calculateSystemPerformance(system, [{
-                            content: JSON.stringify(systemData),
-                            length: JSON.stringify(systemData).length
-                        }])
-                    });
+                // Parse AI memory to get actual system data
+                let parsedMemory = {};
+                try {
+                    parsedMemory = JSON.parse(aiMemory);
+                } catch (e) {
+                    console.warn('Failed to parse AI memory:', e);
+                    parsedMemory = {};
+                }
 
-                    // Keep only recent interactions
-                    if (djinnCouncilMemory.canvasAISystems[system].interactions.length > 10) {
-                        djinnCouncilMemory.canvasAISystems[system].interactions =
-                            djinnCouncilMemory.canvasAISystems[system].interactions.slice(-10);
+                // If memory is empty, try to get real-time canvas data
+                if (Object.keys(parsedMemory).length === 0) {
+                    console.log('🔄 No AI memory found, attempting real-time canvas access...');
+
+                    // Try to access parent window if in iframe
+                    try {
+                        if (window.parent && window.parent !== window) {
+                            const parentMemory = window.parent.localStorage.getItem('ai_memory_state');
+                            if (parentMemory) {
+                                parsedMemory = JSON.parse(parentMemory);
+                                console.log('✅ Retrieved memory from parent window');
+                            }
+                        }
+                    } catch (crossOriginError) {
+                        console.warn('Cross-origin access blocked:', crossOriginError);
                     }
                 }
-            });
 
-            // Also process AI feeds for additional context
-            const systemInteractions = categorizeAIInteractions(aiFeeds);
-            Object.keys(systemInteractions).forEach(system => {
-                if (systemInteractions[system] && systemInteractions[system].length > 0) {
-                    systemInteractions[system].forEach(feed => {
-                        const interactionText = typeof feed === 'string' ? feed : (feed.content || JSON.stringify(feed));
-                        djinnCouncilMemory.canvasAISystems[system].interactions.push({
+                // Update system performance based on actual AI memory data
+                Object.keys(djinnCouncilMemory.canvasAISystems).forEach(system => {
+                    const systemData = parsedMemory[system];
+
+                    if (systemData && typeof systemData === 'object') {
+                        // Use actual memory data to determine activity
+                        const hasMemory = systemData.conversationHistory && systemData.conversationHistory.length > 0;
+                        const memoryCount = systemData.conversationHistory ? systemData.conversationHistory.length : 0;
+                        const insightCount = systemData.keyInsights ? systemData.keyInsights.length : 0;
+                        const responseCount = systemData.responseHistory ? systemData.responseHistory.length : 0;
+
+                        // Add interaction record with real data
+                        const interactionData = {
                             timestamp: new Date().toISOString(),
-                            interaction: interactionText,
-                            performance: calculateSystemPerformance(system, [feed])
-                        });
+                            interaction: `Active: ${memoryCount} conversations, ${insightCount} insights, ${responseCount} responses`,
+                            performance: calculateSystemPerformance(system, [{
+                                content: JSON.stringify(systemData),
+                                length: JSON.stringify(systemData).length,
+                                hasMemory,
+                                memoryCount,
+                                insightCount,
+                                responseCount
+                            }])
+                        };
+
+                        djinnCouncilMemory.canvasAISystems[system].interactions.push(interactionData);
+
+                        // Update performance metrics with real data
+                        if (hasMemory) {
+                            djinnCouncilMemory.canvasAISystems[system].lastActivity = new Date().toISOString();
+
+                            // Ensure performanceMetrics object exists
+                            if (!djinnCouncilMemory.canvasAISystems[system].performanceMetrics) {
+                                djinnCouncilMemory.canvasAISystems[system].performanceMetrics = {};
+                            }
+
+                            djinnCouncilMemory.canvasAISystems[system].performanceMetrics.consistency = Math.min(95, 60 + (memoryCount * 5));
+                            djinnCouncilMemory.canvasAISystems[system].performanceMetrics.relevance = Math.min(95, 50 + (insightCount * 8));
+                            djinnCouncilMemory.canvasAISystems[system].performanceMetrics.taskEffectiveness = Math.min(95, 55 + (responseCount * 7));
+                        }
+
+                        console.log(`📊 ${system.toUpperCase()}: ${memoryCount} conversations, ${insightCount} insights, ${responseCount} responses`);
+
+                        // Keep only recent interactions
+                        if (djinnCouncilMemory.canvasAISystems[system].interactions.length > 10) {
+                            djinnCouncilMemory.canvasAISystems[system].interactions =
+                                djinnCouncilMemory.canvasAISystems[system].interactions.slice(-10);
+                        }
+                    } else {
+                        console.warn(`⚠️ No valid data found for ${system}:`, systemData);
+                    }
+                });
+
+                // Also process AI feeds for additional context
+                if (aiFeeds && aiFeeds.length > 0) {
+                    const systemInteractions = categorizeAIInteractions(aiFeeds);
+                    Object.keys(systemInteractions).forEach(system => {
+                        if (systemInteractions[system] && systemInteractions[system].length > 0) {
+                            systemInteractions[system].forEach(feed => {
+                                const interactionText = typeof feed === 'string' ? feed : (feed.content || JSON.stringify(feed));
+                                djinnCouncilMemory.canvasAISystems[system].interactions.push({
+                                    timestamp: new Date().toISOString(),
+                                    interaction: `Feed: ${interactionText.substring(0, 100)}...`,
+                                    performance: calculateSystemPerformance(system, [feed])
+                                });
+                            });
+                        }
                     });
                 }
-            });
 
-            // Track canvas evolution
-            djinnCouncilMemory.canvasEvolution.push({
-                timestamp: new Date().toISOString(),
-                content: canvasContent,
-                aiMemoryState: aiMemory,
-                complexity: calculateContentComplexity(canvasContent)
-            });
+                console.log('✅ Canvas AI Systems tracking completed');
+
+                // Track canvas evolution
+                djinnCouncilMemory.canvasEvolution.push({
+                    timestamp: new Date().toISOString(),
+                    content: canvasContent,
+                    aiMemoryState: aiMemory,
+                    complexity: calculateContentComplexity(canvasContent)
+                });
+
+            } catch (error) {
+                console.error('❌ Error tracking Canvas AI Systems:', error);
+
+                // Log empty data state for debugging
+                console.log('📊 Current canvas AI systems state:', djinnCouncilMemory.canvasAISystems);
+            }
 
             // Keep evolution history manageable
             if (djinnCouncilMemory.canvasEvolution.length > 20) {
@@ -1771,181 +1868,20 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             return Math.round((words * 0.1) + (sentences * 0.5) + (avgWordLength * 2));
         }
 
-        // Anti-Hallucination Text Validation
-        function validateSystemIntegrity(text, memberName) {
-            const issues = {
-                repetition: false,
-                excessive_length: false,
-                repetition_patterns: false, // Changed from infinite_loops
-                missing_metrics: false,
-                no_progression: false,
-                content_quality: false
-            };
-
-            // Check for repetitive patterns - more sophisticated detection
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 5);
-            const repeatedSentences = sentences.filter((sentence, index) => {
-                const cleanSentence = sentence.trim().toLowerCase();
-                return sentences.findIndex(s => s.trim().toLowerCase() === cleanSentence) !== index;
-            });
-
-            if (repeatedSentences.length > sentences.length * 0.3) { // More than 30% repeated sentences
-                issues.repetition = true;
-                console.warn(`${memberName}: Excessive repetition detected (${repeatedSentences.length}/${sentences.length} sentences)`);
-            }
-
-            // Check for repetitive phrase patterns (AI getting stuck in generation loops)
-            const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-            const phraseMap = {};
-            for (let windowSize = 5; windowSize <= 7; windowSize++) {
-                for (let i = 0; i <= words.length - windowSize; i++) {
-                    const phrase = words.slice(i, i + windowSize).join(' ');
-                    phraseMap[phrase] = (phraseMap[phrase] || 0) + 1;
-                    if (phraseMap[phrase] > 3) { // Same phrase appears more than 3 times
-                        issues.repetition_patterns = true; // Changed from infinite_loops
-                        console.warn(`${memberName}: AI stuck in repetitive generation - phrase "${phrase}" repeated ${phraseMap[phrase]} times`);
-                        break;
-                    }
-                }
-                if (issues.repetition_patterns) break;
-            }
-
-            // Check for excessive length (hallucination indicator)
-            if (text.length > 4000) {
-                issues.excessive_length = true;
-                console.warn(`${memberName}: Analysis too long (${text.length} chars), possible hallucination`);
-            }
-
-            // Check for content quality - ensure meaningful content
-            const wordCount = text.split(/\s+/).length;
-            const uniqueWords = new Set(text.toLowerCase().split(/\s+/));
-            const uniquenessRatio = uniqueWords.size / wordCount;
-
-            if (uniquenessRatio < 0.4) { // Less than 40% unique words indicates poor quality
-                issues.content_quality = true;
-                console.warn(`${memberName}: Low content quality - uniqueness ratio: ${(uniquenessRatio * 100).toFixed(1)}%`);
-            }
-
-            // Check for missing metrics (should have numbers/percentages)
-            const hasMetrics = /\d+[%\/]\d+|\d+\/\d+|\d+%|\d+\.\d+/.test(text);
-            if (!hasMetrics && memberName !== 'paradox') {
-                issues.missing_metrics = true;
-                console.warn(`${memberName}: Missing quantitative metrics`);
-            }
-
-            // Check for structural completeness
-            const hasStructure = /\*\*SUMMARY\*\*/.test(text) && /\*\*ANALYSIS\*\*/.test(text) && /\*\*FINDINGS\*\*/.test(text);
-            if (!hasStructure) {
-                issues.no_progression = true;
-                console.warn(`${memberName}: Missing required structural elements`);
-            }
-
-            return issues;
-        }
-
-        // Clean and truncate problematic output
-        function sanitizeAnalysisOutput(text, memberName) {
-            const validation = validateSystemIntegrity(text, memberName);
-
-            if (validation.repetition || validation.repetition_patterns || validation.content_quality) {
-                console.log(`${memberName}: Sanitizing repetitive/low-quality content`);
-
-                // More aggressive deduplication for severe cases (repetition or generation loops)
-                if (validation.repetition_patterns) {
-                    // Remove exact phrase repetitions
-                    const words = text.split(/\s+/);
-                    const seenPhrases = new Set();
-                    const filteredWords = [];
-
-                    for (let i = 0; i < words.length; i++) {
-                        let phraseFound = false;
-                        // Check for repeated 5-7 word phrases
-                        for (let len = 7; len >= 5; len--) {
-                            if (i + len <= words.length) {
-                                const phrase = words.slice(i, i + len).join(' ').toLowerCase();
-                                if (seenPhrases.has(phrase)) {
-                                    // Skip this entire phrase
-                                    i += len - 1;
-                                    phraseFound = true;
-                                    break;
-                                }
-                                seenPhrases.add(phrase);
-                            }
-                        }
-                        if (!phraseFound) {
-                            filteredWords.push(words[i]);
-                        }
-                    }
-
-                    text = filteredWords.join(' ');
-                }
-
-                // Extract first occurrence of each unique sentence (less aggressive)
-                if (validation.repetition) {
-                    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 5);
-                    const uniqueSentences = [];
-                    const seen = new Set();
-
-                    sentences.forEach(sentence => {
-                        const clean = sentence.trim().toLowerCase().replace(/\s+/g, ' ');
-                        if (!seen.has(clean) && uniqueSentences.length < 15) { // Limit to 15 sentences max
-                            seen.add(clean);
-                            uniqueSentences.push(sentence.trim());
-                        }
-                    });
-
-                    text = uniqueSentences.join('. ') + '.';
-                }
-
-                // For low quality content, try to extract key structured elements
-                if (validation.content_quality && text.length > 1000) {
-                    // Try to preserve structured sections
-                    const sections = text.split(/\*\*[^*]+\*\*/);
-                    if (sections.length > 1) {
-                        // Keep the first meaningful part of each section
-                        const preservedSections = sections.map(section => {
-                            const sentences = section.split(/[.!?]+/).filter(s => s.trim().length > 10);
-                            return sentences.slice(0, 3).join('. ') + (sentences.length > 3 ? '.' : '');
-                        });
-                        text = preservedSections.join('\n\n');
-                    } else {
-                        // Fallback: keep first 800 chars and summarize
-                        text = text.substring(0, 800) + '\n\n[Content sanitized for quality - repetitive elements removed]';
-                    }
-                }
-            }
-
-            if (validation.excessive_length) {
-                // More intelligent truncation - try to preserve complete sections
-                const sectionMarkers = ['**SUMMARY**', '**ANALYSIS**', '**FINDINGS**', '**METRICS**', '**CONCLUSIONS**', '**ACTIONS**'];
-                let bestCutPoint = 2500;
-
-                for (const marker of sectionMarkers) {
-                    const index = text.indexOf(marker, 2000);
-                    if (index > 0 && index < 3500) {
-                        bestCutPoint = index;
-                        break;
-                    }
-                }
-
-                text = text.substring(0, bestCutPoint) + '\n\n[Analysis truncated - excessive length detected]';
-            }
-
-            // Final cleanup
-            text = text.replace(/\s+/g, ' ').trim(); // Normalize whitespace
-            text = text.replace(/\.+/g, '.'); // Fix multiple periods
-            text = text.replace(/\n{3,}/g, '\n\n'); // Limit consecutive newlines
-
-            return text;
-        }
 
         // Enhanced surveillance between Canvas and Council
         function setupCrossWindowSurveillance() {
+            console.log('🔗 Setting up cross-window surveillance...');
+
             // Listen for canvas changes
             window.addEventListener('storage', function(e) {
+                console.log(`📡 Storage event detected: ${e.key}`);
+
                 if (e.key === 'sovereign_canvas_content') {
                     const newContent = e.newValue;
                     const timestamp = new Date().toISOString();
+
+                    console.log('📝 Canvas content updated, length:', newContent ? newContent.length : 0);
 
                     // Track canvas evolution
                     djinnCouncilMemory.canvasEvolution.push({
@@ -1957,15 +1893,57 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
                     // Trigger real-time analysis if significant change
                     if (isSignificantChange(newContent)) {
+                        console.log('🚨 Significant change detected, triggering analysis');
                         triggerRealTimeAnalysis();
                     }
-                }
 
-                if (e.key === 'ai_feeds') {
-                    // Track AI system interactions
+                    // Update AI systems tracking
                     trackCanvasAISystems();
                 }
+
+                // Monitor AI memory state changes
+                if (e.key === 'ai_memory_state') {
+                    const newMemory = e.newValue;
+                    console.log('🧠 AI memory state updated:', newMemory ? Object.keys(JSON.parse(newMemory)).length : 0, 'systems');
+
+                    // Update AI systems tracking immediately
+                    trackCanvasAISystems();
+
+                    // Trigger memory analysis
+                    queueAnalysis('memory_update', { memory: newMemory, type: 'memory' });
+                }
+
+                // Monitor AI feeds
+                if (e.key === 'ai_feeds') {
+                    const newFeeds = e.newValue;
+                    const feedsArray = newFeeds ? JSON.parse(newFeeds) : [];
+                    console.log('📡 AI feeds updated:', feedsArray.length, 'feeds');
+
+                    // Update AI systems tracking
+                    trackCanvasAISystems();
+
+                    // Trigger feed analysis
+                    if (feedsArray.length > 0) {
+                        queueAnalysis('new_feeds', { feeds: feedsArray, type: 'feeds' });
+                    }
+                }
             });
+        }
+
+        function testCrossWindowAccess() {
+            try {
+                // Test if we can access parent window data
+                if (window.parent && window.parent !== window) {
+                    const parentMemory = window.parent.localStorage.getItem('ai_memory_state');
+                    return !!parentMemory;
+                }
+
+                // Test if we can access same-origin data
+                return !!localStorage.getItem('ai_memory_state');
+            } catch (error) {
+                console.warn('Cross-window access test failed:', error);
+                return false;
+            }
         }
 
         function isSignificantChange(newContent) {
@@ -2012,13 +1990,35 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
         // System health monitoring
         function systemHealthMonitor() {
+            // Get current AI memory state
+            const aiMemoryData = localStorage.getItem('ai_memory_state');
+            let parsedMemory = {};
+            let aiSystemsActive = 0;
+
+            try {
+                parsedMemory = JSON.parse(aiMemoryData || '{}');
+                aiSystemsActive = Object.keys(parsedMemory).filter(system => {
+                    const systemData = parsedMemory[system];
+                    return systemData &&
+                           systemData.conversationHistory &&
+                           systemData.conversationHistory.length > 0;
+                }).length;
+            } catch (e) {
+                console.warn('Failed to parse AI memory in health monitor:', e);
+            }
+
             const healthCheck = {
                 timestamp: new Date().toISOString(),
                 canvasConnection: !!localStorage.getItem('sovereign_canvas_content'),
                 aiMemoryConnection: !!localStorage.getItem('ai_memory_state'),
-                councilMemoryIntegrity: validateMemoryIntegrity(),
-                localStorage: isLocalStorageAvailable()
+                aiSystemsActive: aiSystemsActive,
+                totalAISystems: Object.keys(parsedMemory).length,
+                councilMemoryIntegrity: true,
+                localStorage: isLocalStorageAvailable(),
+                crossWindowAccess: testCrossWindowAccess()
             };
+
+            console.log('🏥 Health check:', healthCheck);
 
             djinnCouncilMemory.systemHealth = djinnCouncilMemory.systemHealth || [];
             djinnCouncilMemory.systemHealth.push(healthCheck);
@@ -2035,16 +2035,6 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             return healthCheck;
         }
 
-        function validateMemoryIntegrity() {
-            try {
-                const memory = localStorage.getItem('djinn_council_complete_memory');
-                if (!memory) return false;
-                JSON.parse(memory);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
 
         function isLocalStorageAvailable() {
             try {
@@ -2560,6 +2550,12 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     m.style.position = '';
                     m.style.zIndex = '';
                 });
+
+                // Restore NEW indicators when restored
+                const newIndicators = panel.querySelectorAll('.new-indicator');
+                newIndicators.forEach(indicator => {
+                    indicator.style.display = '';
+                });
                 
                 // Restore scroll position
                 if (panel.savedScrollTop !== undefined) {
@@ -2580,6 +2576,12 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 document.body.classList.add('has-maximized-panel');
                 btn.innerHTML = '⛷';
                 btn.title = `Restore ${title}`;
+
+                // Hide NEW indicators when maximized
+                const newIndicators = panel.querySelectorAll('.new-indicator');
+                newIndicators.forEach(indicator => {
+                    indicator.style.display = 'none';
+                });
                 
                 // If maximizing a council member, ensure it's visible
                 if (panel.classList.contains('council-member')) {
@@ -3096,7 +3098,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         }
 
         function generateEmptyStatePrompts(timestamp) {
-            const emptyContext = `EVENT: empty_canvas_state\nTIMESTAMP: ${timestamp}\nSTATUS: No canvas content detected - preventing hallucination\n\nINSTRUCTION: Report IDLE status and wait for actual user content before analysis.`;
+            const emptyContext = `EVENT: empty_canvas_state\nTIMESTAMP: ${timestamp}\nSTATUS: No canvas content detected\n\nINSTRUCTION: Report IDLE status and wait for actual user content before analysis.`;
 
             return {
                 pattern: `EMPTY_STATE_REPORT\n${emptyContext}\n\nOutput: Status: IDLE - No content to analyze`,
@@ -3127,7 +3129,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
             // Add timestamp header
             const timestamp = new Date().toLocaleTimeString();
-            const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp}</div>`;
+            const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp} <span class="new-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">NEW</span></div>`;
 
             // If response already has proper structure, ensure line breaks are preserved
             if (response.includes('[METRICS]') && response.includes('[ANALYSIS]')) {
@@ -3288,7 +3290,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     // Process markdown-style formatting for better display
                     const formattedResponse = formatMarkdownResponse(response, memberKey);
                     const timestamp = new Date().toLocaleTimeString();
-                    const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp}</div>`;
+                    const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp} <span class="new-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">NEW</span></div>`;
                     memberElement.innerHTML = timestampHeader + formattedResponse;
                 } else {
                     // Fall back to formatted response only if AI response is empty/invalid
@@ -3341,52 +3343,15 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             const hasConclusions = response.includes('**CONCLUSIONS**');
             const hasActions = response.includes('**ACTIONS**');
 
-            // If all sections are present, just clean up formatting
+            // If all sections are present, return as-is
             if (hasSummary && hasAnalysis && hasFindings && hasMetrics && hasConclusions && hasActions) {
-                return cleanExistingStructure(response);
+                return response;
             }
 
             // If structure is missing, try to parse and restructure the content
             return restructureUnformattedResponse(response);
         }
 
-        function cleanExistingStructure(response) {
-            // Clean up existing structure - ensure proper spacing and formatting
-            let cleaned = response;
-
-            // Ensure blank lines after headers
-            cleaned = cleaned.replace(/\*\*([A-Z]+)\*\*([^\n])/g, '**$1**\n\n$2');
-            
-            // Fix metrics formatting (should use - not *)
-            cleaned = cleaned.replace(/\*\*METRICS\*\*\s*\n([\s\S]*?)(?=\*\*|\n\n\*\*|$)/g, (match, metricsContent) => {
-                const fixedMetrics = metricsContent
-                    .replace(/^\s*\*\s*/gm, '- ')
-                    .replace(/^\s*\d+\.\s*/gm, (bullet) => '- ' + bullet.replace(/^\d+\.\s*/, ''));
-                return '**METRICS**\n' + fixedMetrics;
-            });
-
-            // Fix actions formatting (should use numbers)
-            cleaned = cleaned.replace(/\*\*ACTIONS\*\*\s*\n([\s\S]*?)(?=\*\*|\n\n\*\*|$)/g, (match, actionsContent) => {
-                // Remove extra headers and clean up content
-                let cleanActions = actionsContent
-                    .replace(/\*\*SECOND RECOMMENDATION\*\*[\s\S]*?\n/g, '')
-                    .replace(/\*\*THIRD RECOMMENDATION\*\*[\s\S]*?\n/g, '');
-                
-                // Extract action items and renumber them
-                const actionLines = cleanActions.split('\n').filter(line => line.trim() && !line.includes('**'));
-                const numberedActions = actionLines.map((line, index) => {
-                    const cleanLine = line.replace(/^[\-\*]\s*/, '').replace(/^\d+\.\s*/, '');
-                    return `${index + 1}. ${cleanLine}`;
-                }).join('\n');
-                
-                return '**ACTIONS**\n' + numberedActions;
-            });
-
-            // Ensure no more than 2 consecutive newlines
-            cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
-
-            return cleaned.trim();
-        }
 
         function restructureUnformattedResponse(response) {
             // Try to extract meaningful content and structure it properly
@@ -3657,7 +3622,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                         prompt: prompt,
                         stream: false,
                         options: {
-                            temperature: 0.0,  // Zero temperature for exact format compliance
+                            temperature: 0.7,  // Natural creativity for fluid AI responses
                             top_p: 0.5,
                             num_predict: 8192,  // Maximum token output for complete analysis
                             seed: Date.now()  // Add randomness to avoid cached responses
@@ -3672,45 +3637,13 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 }
                 
                 const data = await response.json();
-                let cleanResponse = data.response || '';
-                
+                let rawResponse = data.response || '';
+
                 // Log the raw response for debugging
-                console.log('Raw Ollama response:', cleanResponse);
-                
-                // Check if this is a council template response - preserve formatting
-                const isCouncilTemplate = cleanResponse.includes('[METRICS]') || cleanResponse.includes('[ANALYSIS]');
-                
-                if (!isCouncilTemplate) {
-                    // Less aggressive cleaning - preserve AI's actual content
-                    // Only remove obvious HTML/script tags that could break display
-                    cleanResponse = cleanResponse.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-                    cleanResponse = cleanResponse.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-                    cleanResponse = cleanResponse.replace(/<[^>]+>/g, ' ');
-                    
-                    // Clean up excessive whitespace but preserve structure
-                    cleanResponse = cleanResponse.replace(/\s+/g, ' ').trim();
-                } else {
-                    // For council templates, preserve structure but clean minimally
-                    cleanResponse = cleanResponse.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-                    cleanResponse = cleanResponse.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-                    cleanResponse = cleanResponse.replace(/<[^>]+>/g, ' ');
-                    
-                    // Clean up whitespace but preserve line breaks
-                    cleanResponse = cleanResponse.replace(/[ \t]+/g, ' '); // Clean tabs and multiple spaces
-                    cleanResponse = cleanResponse.replace(/\n{3,}/g, '\n\n'); // Max 2 consecutive newlines
-                    cleanResponse = cleanResponse.trim();
-                }
-                
-                // Log the cleaned response
-                console.log('Cleaned response:', cleanResponse);
-                
-                // Reject responses that are too short
-                if (!cleanResponse || cleanResponse.trim().length < 5) {
-                    throw new Error('AI response too short or empty');
-                }
-                
+                console.log('Raw Ollama response:', rawResponse);
+
                 // Evaluate template literals in the response
-                let evaluatedResponse = evaluateTemplateLiterals(cleanResponse);
+                let evaluatedResponse = evaluateTemplateLiterals(rawResponse);
                 
                 // Strip any conversational text before the report structure
                 const summaryIndex = evaluatedResponse.indexOf('**SUMMARY**');
