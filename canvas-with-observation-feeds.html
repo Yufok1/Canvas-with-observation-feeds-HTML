@@ -1,0 +1,3591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🜂 CANVAS WITH LIVE AI OBSERVATION FEEDS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #1a1a2e 50%, #0f0f23 100%);
+            color: #00ff41;
+            height: 100vh;
+            overflow: auto;
+            margin: 0;
+        }
+
+        .combined-interface {
+            display: grid;
+            grid-template-areas:
+                "header header"
+                "canvas feeds"
+                "synthesis metrics"
+                "footer footer";
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr auto;
+            height: 100vh;
+            gap: 8px;
+            padding: 8px;
+            overflow: hidden;
+        }
+
+        .interface-header {
+            grid-area: header;
+            background: linear-gradient(135deg, #001122, #002233, #001144);
+            border: 3px solid #4ecdc4;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .orchestration-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+
+        .status-high { background: rgba(78, 205, 196, 0.2); color: #4ecdc4; }
+        .status-medium { background: rgba(255, 217, 61, 0.2); color: #ffd93d; }
+        .status-low { background: rgba(107, 114, 128, 0.2); color: #6b7280; }
+
+        .main-canvas {
+            grid-area: canvas;
+            background: linear-gradient(135deg, #001122, #002233, #001144);
+            border: 3px solid #4ecdc4;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .synthesis-canvas {
+            grid-area: synthesis;
+            background: linear-gradient(135deg, #110022, #220033, #110044);
+            border: 3px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .observation-feeds {
+            grid-area: feeds;
+            background: linear-gradient(135deg, #001100, #002200, #001122);
+            border: 2px solid #00ff41;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .live-metrics {
+            grid-area: metrics;
+            background: linear-gradient(135deg, #110011, #220022, #110033);
+            border: 2px solid #cc88cc;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #metricsContainer {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }        .interface-footer {
+            grid-area: footer;
+            background: linear-gradient(135deg, #111111, #222222);
+            border: 1px solid #666666;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 14px;
+            text-shadow: 0 0 5px currentColor;
+        }
+
+        .canvas-workspace {
+            flex: 1;
+            background: #000811;
+            border: 2px solid #4ecdc4;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff41;
+            resize: none;
+            outline: none;
+            line-height: 1.4;
+            overflow-y: auto;
+            min-height: 200px;
+        }
+
+        .canvas-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .canvas-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #003366, #004477);
+            border: 1px solid #4ecdc4;
+            color: #4ecdc4;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .observation-feed {
+            background: #000811;
+            border: 1px solid;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 11px;
+            line-height: 1.4;
+            animation: feedPulse 3s infinite;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        @keyframes feedPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .feed-djinn { border-color: #cc88cc; color: #cc88cc; }
+        .feed-nazar { border-color: #6666ff; color: #6666ff; }
+        .feed-narra { border-color: #4ecdc4; color: #4ecdc4; }
+        .feed-whale { border-color: #00ff41; color: #00ff41; }
+        .feed-watchtower { border-color: #ffaa00; color: #ffaa00; }
+
+        .feeds-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            scrollbar-width: thin;
+            scrollbar-color: #4ecdc4 #001122;
+        }
+        
+        .feeds-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .feeds-container::-webkit-scrollbar-track {
+            background: #001122;
+        }
+        
+        .feeds-container::-webkit-scrollbar-thumb {
+            background: #4ecdc4;
+            border-radius: 3px;
+        }
+        
+        .feed-content {
+            margin: 8px 0;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .timestamp {
+            font-size: 9px;
+            opacity: 0.6;
+            float: right;
+            margin-bottom: 5px;
+        }
+
+        .metric-item {
+            background: #000811;
+            border: 1px solid #cc88cc;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .correlation-display {
+            background: #000811;
+            border: 1px solid #666666;
+            border-radius: 4px;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 9px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .observation-tools {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .obs-tool {
+            padding: 4px 8px;
+            background: #001122;
+            border: 1px solid #4ecdc4;
+            color: #4ecdc4;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 9px;
+            transition: all 0.3s;
+        }
+
+        .obs-tool:hover {
+            background: rgba(78, 205, 196, 0.2);
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff41;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .timestamp {
+            font-size: 8px;
+            opacity: 0.6;
+            float: right;
+        }
+
+        .observation-marker {
+            background: rgba(78, 205, 196, 0.1);
+            border-left: 3px solid #4ecdc4;
+            padding: 4px;
+            margin: 4px 0;
+            font-size: 10px;
+            font-style: italic;
+        }
+
+        @keyframes mouseInsightPulse {
+            0% { opacity: 0; transform: translateY(10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="combined-interface">
+        <!-- HEADER -->
+        <div class="interface-header">
+            <h1>🜂 CANVAS WITH LIVE AI OBSERVATION FEEDS</h1>
+            <div style="margin-top: 8px; font-size: 12px;">
+                <span class="live-indicator"></span>Your Canvas + Live AI Intelligence Streams
+                <span style="margin-left: 20px; background: rgba(78, 205, 196, 0.2); padding: 2px 6px; border-radius: 3px; font-weight: bold; color: #4ecdc4;">🎛️ CTRL + Mousewheel: Resize GUI</span>
+                <span style="margin-left: 20px;">Last AI Update: <span id="lastUpdate">--:--:--</span></span>
+                <span style="margin-left: 20px;">Observations: <span id="obsCount">0</span></span>
+            </div>
+            <div style="margin-top: 6px; font-size: 11px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span>🎯 Activity: <span id="activityLevel" style="color: #4ecdc4;">HIGH</span></span>
+                    <span style="margin-left: 15px;">⚡ Orchestration: <span id="orchestrationStatus">STANDBY</span></span>
+                    <span style="margin-left: 15px;">🤖 Active Systems: <span id="activeSystems">5/5</span></span>
+                </div>
+                <div>
+                    <span>🧠 DJINN: <span id="djinnStatus" style="color: #cc88cc;">--</span></span>
+                    <span style="margin-left: 10px;">🔮 NAZAR: <span id="nazarStatus" style="color: #6666ff;">--</span></span>
+                    <span style="margin-left: 10px;">🌊 NARRA: <span id="narraStatus" style="color: #4ecdc4;">--</span></span>
+                    <span style="margin-left: 10px;">🐋 WHALE: <span id="whaleStatus" style="color: #00ff41;">--</span></span>
+                    <span style="margin-left: 10px;">🔱 WATCHTOWER: <span id="watchtowerStatus" style="color: #ffaa00;">--</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CANVAS -->
+        <div class="main-canvas">
+            <div class="panel-title">📝 Your Sovereign Canvas</div>
+            <div class="canvas-controls">
+                <button class="canvas-btn" onclick="saveCanvas()">💾 Save</button>
+                <button class="canvas-btn" onclick="exportData()">📊 Export</button>
+                <button class="canvas-btn" onclick="clearCanvas()">🗑️ Clear</button>
+                <button class="canvas-btn" onclick="clearAIMemory()" title="Clear AI conversation memory">🧠 Clear Memory</button>
+                <button class="canvas-btn" onclick="showTriageCapabilities()">🔧 Triage Force</button>
+                <span style="margin-left: auto; font-size: 10px;">Auto-save: <span id="autoSaveStatus">ON</span></span>
+            </div>
+
+            <textarea id="mainCanvas" class="canvas-workspace" placeholder="🜂 Your sovereign observations and assessments... The AI feeds will inform but not interfere with your analysis.">🜂 SOVEREIGN CANVAS INITIALIZED
+
+═══════════════════════════════════════════════════════════════════════════════
+📝 YOUR OBSERVATIONS & ASSESSMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+This is YOUR workspace for observations, analysis, and assessments.
+
+The AI feeds to the right provide live intelligence streams to inform your analysis,
+but this canvas remains yours for sovereign observation and judgment.
+
+═══════════════════════════════════════════════════════════════════════════════
+🔍 OBSERVATION LOG:
+═══════════════════════════════════════════════════════════════════════════════
+
+• Canvas initialized and ready for your observations
+• AI intelligence feeds active and monitoring
+• Correlation analysis available for reference
+• System metrics provide operational context
+
+⚡ READY FOR YOUR SOVEREIGN ANALYSIS ⚡</textarea>
+
+            <div class="observation-tools">
+                <button class="obs-tool" onclick="markObservation('pattern')">🔍 Pattern</button>
+                <button class="obs-tool" onclick="markObservation('anomaly')">⚠️ Anomaly</button>
+                <button class="obs-tool" onclick="markObservation('correlation')">🔗 Correlation</button>
+                <button class="obs-tool" onclick="markObservation('insight')">💡 Insight</button>
+                <button class="obs-tool" onclick="markObservation('note')">📝 Note</button>
+            </div>
+        </div>
+
+        <!-- AI SYNTHESIS CANVAS -->
+        <div class="synthesis-canvas">
+            <div class="canvas-controls">
+                <span style="font-weight: bold; color: #4ecdc4;">🎭 AI Synthesis Board</span>
+                <button id="synthesizeBtn" class="canvas-btn" title="Trigger collaborative AI synthesis">🎭 Synthesize</button>
+                <button id="clearSynthesisBtn" class="canvas-btn">🗑️ Clear</button>
+                <button id="exportSynthesisBtn" class="canvas-btn">📤 Export</button>
+                <span style="margin-left: auto; font-size: 10px;">Status: <span id="synthesisStatus">Ready</span></span>
+            </div>
+
+            <textarea id="synthesisCanvas" class="canvas-workspace" placeholder="🤝 AI Collaborative Synthesis Workspace - AI systems work together here..." readonly style="background: #001122; border: 2px solid #ff6b6b;">🎭 AI SYNTHESIS BOARD INITIALIZED
+
+═══════════════════════════════════════════════════════════════════════════════
+🤝 COLLABORATIVE AI SYNTHESIS WORKSPACE
+═══════════════════════════════════════════════════════════════════════════════
+
+This is where AI systems collaborate and synthesize their insights.
+Click "🎭 Synthesize" to trigger collaborative analysis.
+
+Current Synthesis Status: Ready for collaboration
+Last Synthesis: None
+
+AI Systems Available for Collaboration:
+• ⚖️ DJINN - Governance & Strategic Analysis
+• 🔮 NAZAR - Fractal & Consciousness Analysis
+• 🌊 NARRA - Pattern Recognition & Synthesis
+• 🐋 WHALE - Deep Interrogation & Memory
+• 🔱 WATCHTOWER - Operational Monitoring & Metrics
+
+Synthesis Process:
+1. AI systems analyze current canvas content
+2. Each contributes specialized insights
+3. Systems collaborate to create unified synthesis
+4. Collective intelligence emerges from collaboration
+
+Ready for your first collaborative synthesis! 🚀</textarea>
+        </div>
+                <!-- OBSERVATION FEEDS -->
+                <div class="top-section observation-feeds">
+                    <div class="panel-title">📡 Live AI Feeds & Chat</div>
+
+                    <!-- AI ENTITY CHATS -->
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <input type="text" id="entityInput" placeholder="Chat with AI entities..." style="flex: 1; padding: 4px; background: #000811; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; font-size: 10px;">
+                            <select id="entitySelect" style="padding: 4px; background: #000811; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; font-size: 10px;">
+                                <option value="narra">🌊 NAR'RA</option>
+                                <option value="nazar">🔮 NAZAR</option>
+                                <option value="djinn">⚖️ DJINN</option>
+                                <option value="whale">🐋 WHALE</option>
+                                <option value="watchtower">🔱 TOWER</option>
+                            </select>
+                            <button onclick="sendEntityMessage()" style="padding: 4px 8px; background: #003366; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; cursor: pointer; font-size: 9px;">→</button>
+                        </div>
+
+                        <div id="entityChatDisplay" style="background: #000811; border: 1px solid #4ecdc4; border-radius: 4px; padding: 8px; max-height: 120px; overflow-y: auto; font-size: 10px; margin-bottom: 10px;">
+                            <div style="color: #666666; font-style: italic;">AI entities ready for conversation...</div>
+                        </div>
+                    </div>
+
+                    <div class="feeds-container" id="liveFeedsContainer">
+                        <!-- AI feeds populate here -->
+                    </div>
+
+                </div>
+
+                <!-- LIVE METRICS -->
+                <div class="bottom-section live-metrics">
+                    <div class="panel-title">📊 Live Metrics</div>
+                    <div id="metricsContainer">
+                        <div class="metric-item">
+                            <div>⚖️ Djinn Council</div>
+                            <div>Governance: <span id="djinnMetric">--</span>%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div>🔮 Nazar Fractal</div>
+                            <div>Resonance: <span id="nazarMetric">--</span>%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div>🌊 NAR'RA</div>
+                            <div>Patterns: <span id="narraMetric">--</span></div>
+                        </div>
+                        <div class="metric-item">
+                            <div>🐋 Whale Analysis</div>
+                            <div>Depth: <span id="whaleMetric">--</span>%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div>🔱 Watchtower</div>
+                            <div>Operations: <span id="watchtowerMetric">--</span>%</div>
+                        </div>
+                    </div>
+
+                    <div class="correlation-display" id="correlationDisplay">
+                        <h4 style="margin-bottom: 5px;">🔗 Live Correlations:</h4>
+                        <div>Initializing correlation analysis...</div>
+                    </div>
+
+                    <div class="memory-status" id="memoryStatus">
+                        <h4 style="margin-bottom: 5px;">🧠 AI Memory Status:</h4>
+                        <div>Initializing memory tracking...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="interface-footer">
+            <span>📡 AI Feeds: <span id="feedCount">5</span> Active</span>
+            <span>🔗 Correlations: <span id="corrCount">0</span></span>
+            <span>📝 Canvas: <span id="canvasLength">0</span> chars</span>
+            <span>⚡ Data Rate: <span id="dataRate">2.1/sec</span></span>
+            <span>🎯 Your Observations: <span id="totalObs">0</span></span>
+            <span>🔄 AI Polling: <span id="pollingStatus">30s intervals</span></span>
+            <span>📝 Canvas Changes: <span id="canvasChangeStatus">No changes</span></span>
+        </div>
+    </div>
+
+    <script>
+        // OPTIMIZED MODEL ASSIGNMENTS BASED ON CAPABILITIES
+        const optimizedModelMap = {
+            djinn: "gemma3:1b",        // Governance - Unified model
+            nazar: "gemma3:1b",        // Emotional analysis - Unified model
+            whale: "gemma3:1b",        // Deep analysis - Unified model
+            narra: "gemma3:1b",        // Pattern recognition - Unified model
+            watchtower: "gemma3:1b"    // Monitoring - Unified model
+        };
+
+        // SPEED OPTIMIZATION SYSTEM
+        let speedOptimization = {
+            responseCache: new Map(),
+            CACHE_DURATION: 30000, // 30 seconds
+            loadingStates: {
+                djinn: false,
+                nazar: false,
+                narra: false,
+                whale: false,
+                watchtower: false
+            }
+        };
+
+        // AI FEEDS STORAGE
+        let aiFeeds = [];
+
+        // SYSTEM METRICS STORAGE
+        let systemMetrics = {
+            djinn: 50,
+            nazar: 50,
+            narra: 50,
+            whale: 50,
+            watchtower: 50
+        };
+
+        // AI SYSTEM CORRELATIONS
+        let correlations = [];
+
+        // INTELLIGENT CACHING SYSTEM
+        let intelligentCache = {
+            responseCache: new Map(),
+            contextCache: new Map(),
+            synthesisCache: new Map(),
+            CACHE_DURATION: 180000, // 3 minutes for responses
+            CONTEXT_DURATION: 300000, // 5 minutes for context
+            SYNTHESIS_DURATION: 600000, // 10 minutes for synthesis
+
+            get: function(key, type = 'response') {
+                const cache = this[`${type}Cache`];
+                const cached = cache.get(key);
+                if (cached && Date.now() - cached.timestamp < this[`${type.toUpperCase()}_DURATION`]) {
+                    console.log(`💾 Cache hit for ${type}: ${key.substring(0, 50)}...`);
+                    return cached.data;
+                }
+                return null;
+            },
+
+            set: function(key, data, type = 'response') {
+                const cache = this[`${type}Cache`];
+                cache.set(key, {
+                    data: data,
+                    timestamp: Date.now()
+                });
+
+                // Clean up old entries periodically
+                if (cache.size > 50) {
+                    this.cleanup(type);
+                }
+            },
+
+            cleanup: function(type) {
+                const cache = this[`${type}Cache`];
+                const cutoff = Date.now() - this[`${type.toUpperCase()}_DURATION`];
+                for (const [key, value] of cache.entries()) {
+                    if (value.timestamp < cutoff) {
+                        cache.delete(key);
+                    }
+                }
+            }
+        };
+
+        // ACTIVITY-BASED POLLING SYSTEM
+        let activityMonitor = {
+            lastActivity: Date.now(),
+            activityLevel: 'high',
+            pollingIntervals: {
+                high: 120000,    // 2 minutes when active
+                medium: 300000,  // 5 minutes when moderate
+                low: 600000      // 10 minutes when idle
+            },
+
+            updateActivity: function() {
+                this.lastActivity = Date.now();
+                this.updateActivityLevel();
+            },
+
+            updateActivityLevel: function() {
+                const timeSinceActivity = Date.now() - this.lastActivity;
+                if (timeSinceActivity < 60000) { // Active in last minute
+                    this.activityLevel = 'high';
+                } else if (timeSinceActivity < 300000) { // Active in last 5 minutes
+                    this.activityLevel = 'medium';
+                } else {
+                    this.activityLevel = 'low';
+                }
+            },
+
+            getCurrentInterval: function() {
+                return this.pollingIntervals[this.activityLevel];
+            }
+        };
+
+        // PARALLEL AI PROCESSING SYSTEM
+        async function pollAIDataParallel() {
+            const currentTime = new Date();
+            console.log('🚀 Starting parallel AI processing...');
+
+            // Group AI systems by processing priority
+            const processingGroups = {
+                primary: ['djinn', 'nazar'],      // Governance & consciousness first
+                secondary: ['narra', 'whale'],    // Pattern & deep analysis
+                tertiary: ['watchtower']          // Monitoring last
+            };
+
+            const allResults = [];
+            const pollingStatus = document.getElementById('pollingStatus');
+
+            try {
+                // Process primary systems sequentially to avoid overwhelming Ollama
+                if (pollingStatus) pollingStatus.textContent = '🔄 Processing primary AI...';
+                const primaryResults = [];
+                for (const system of processingGroups.primary) {
+                    try {
+                        const result = await updateFeedProgressive(system);
+                        primaryResults.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        primaryResults.push({ status: 'rejected', reason: error });
+                    }
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                allResults.push(...primaryResults);
+
+                // Brief pause between groups
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Process secondary systems sequentially
+                if (pollingStatus) pollingStatus.textContent = '🔄 Processing secondary AI...';
+                const secondaryResults = [];
+                for (const system of processingGroups.secondary) {
+                    try {
+                        const result = await updateFeedProgressive(system);
+                        secondaryResults.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        secondaryResults.push({ status: 'rejected', reason: error });
+                    }
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                allResults.push(...secondaryResults);
+
+                // Brief pause before tertiary
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Process tertiary systems sequentially
+                if (pollingStatus) pollingStatus.textContent = '🔄 Processing monitoring AI...';
+                const tertiaryResults = [];
+                for (const system of processingGroups.tertiary) {
+                    try {
+                        const result = await updateFeedProgressive(system);
+                        tertiaryResults.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        tertiaryResults.push({ status: 'rejected', reason: error });
+                    }
+                    // Small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                allResults.push(...tertiaryResults);
+
+                // Log results
+                const successful = allResults.filter(r => r.status === 'fulfilled').length;
+                const failed = allResults.filter(r => r.status === 'rejected').length;
+                console.log(`✅ Parallel processing complete: ${successful} successful, ${failed} failed`);
+
+            } catch (error) {
+                console.error('🚨 Parallel processing error:', error);
+            }
+
+            // Update memory and save state
+            updateMemoryStatus();
+            updateHeaderOrchestrationStatus();
+            saveMemoryToStorage();
+
+            // Create feed entries for successful responses
+            const newFeed = {
+                timestamp: currentTime.toISOString(),
+                djinn: aiFeeds.length > 0 ? aiFeeds[0]?.djinn || { content: "❌ DJINN: Processing failed", confidence: 0.1, type: 'governance' } : { content: "🔄 DJINN: Initializing...", confidence: 0.5, type: 'governance' },
+                nazar: aiFeeds.length > 0 ? aiFeeds[0]?.nazar || { content: "❌ NAZAR: Processing failed", confidence: 0.1, type: 'emotional' } : { content: "🔄 NAZAR: Initializing...", confidence: 0.5, type: 'emotional' },
+                narra: aiFeeds.length > 0 ? aiFeeds[0]?.narra || { content: "❌ NARRA: Processing failed", confidence: 0.1, type: 'pattern' } : { content: "🔄 NARRA: Initializing...", confidence: 0.5, type: 'pattern' },
+                whale: aiFeeds.length > 0 ? aiFeeds[0]?.whale || { content: "❌ WHALE: Processing failed", confidence: 0.1, type: 'analysis' } : { content: "🔄 WHALE: Initializing...", confidence: 0.5, type: 'analysis' },
+                watchtower: aiFeeds.length > 0 ? aiFeeds[0]?.watchtower || { content: "❌ WATCHTOWER: Processing failed", confidence: 0.1, type: 'operational' } : { content: "🔄 WATCHTOWER: Initializing...", confidence: 0.5, type: 'operational' }
+            };
+
+            aiFeeds.unshift(newFeed);
+            if (aiFeeds.length > 30) aiFeeds.pop();
+
+            // Update metrics
+            Object.keys(newFeed).forEach(system => {
+                if (system !== 'timestamp' && newFeed[system]) {
+                    systemMetrics[system] = newFeed[system].confidence * 100;
+                }
+            });
+        }
+
+        // REFERENTIAL MEMORY SYSTEM FOR AI CONVERSATION CONTINUITY
+        let aiMemory = {
+            djinn: {
+                conversationHistory: [],
+                keyInsights: [],
+                lastAnalysis: null,
+                memoryLimit: 25 // Increased for much better context retention
+            },
+            nazar: {
+                conversationHistory: [],
+                keyInsights: [],
+                lastAnalysis: null,
+                memoryLimit: 25
+            },
+            narra: {
+                conversationHistory: [],
+                keyInsights: [],
+                lastAnalysis: null,
+                memoryLimit: 25
+            },
+            whale: {
+                conversationHistory: [],
+                keyInsights: [],
+                lastAnalysis: null,
+                memoryLimit: 25
+            },
+            watchtower: {
+                conversationHistory: [],
+                keyInsights: [],
+                lastAnalysis: null,
+                memoryLimit: 25
+            }
+        };
+
+        // CANVAS CHANGE DETECTION SYSTEM
+        let canvasChangeTracker = {
+            lastContentHash: '',
+            lastChangeTime: null,
+            changeCount: 0,
+            forceFreshAnalysis: false,
+
+            // Simple hash function for content comparison
+            hashContent: function(content) {
+                let hash = 0;
+                if (content.length === 0) return hash;
+                for (let i = 0; i < content.length; i++) {
+                    const char = content.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32-bit integer
+                }
+                return hash.toString();
+            },
+
+            // Check if canvas content has changed
+            hasChanged: function(currentContent) {
+                const currentHash = this.hashContent(currentContent);
+                const hasChanged = currentHash !== this.lastContentHash;
+
+                if (hasChanged) {
+                    this.lastContentHash = currentHash;
+                    this.lastChangeTime = new Date();
+                    this.changeCount++;
+                    this.forceFreshAnalysis = true;
+                    console.log(`📝 Canvas changed (change #${this.changeCount}) - forcing fresh AI analysis`);
+
+                    // Check for complex content and refresh insights if needed
+                    refreshComplexInsights();
+
+                    this.updateStatusDisplay();
+                }
+
+                return hasChanged;
+            },
+
+            // Update the canvas change status display
+            updateStatusDisplay: function() {
+                const statusElement = document.getElementById('canvasChangeStatus');
+                const lengthElement = document.getElementById('canvasLength');
+                const mainCanvas = document.getElementById('mainCanvas');
+
+                if (statusElement) {
+                    const timeSinceChange = this.getTimeSinceLastChange();
+                    if (timeSinceChange < 60000) { // Within last minute
+                        const seconds = Math.floor(timeSinceChange / 1000);
+                        statusElement.textContent = `Fresh (${this.changeCount})`;
+                        statusElement.style.color = '#4ade80'; // Green for recent changes
+                    } else if (this.changeCount > 0) {
+                        statusElement.textContent = `${this.changeCount} total`;
+                        statusElement.style.color = '#f59e0b'; // Orange for older changes
+                    } else {
+                        statusElement.textContent = 'No changes';
+                        statusElement.style.color = '#6b7280'; // Gray for no changes
+                    }
+                }
+
+                // Update canvas length display
+                if (lengthElement && mainCanvas) {
+                    lengthElement.textContent = mainCanvas.value.length;
+                }
+            },
+
+            // Get time since last change
+            getTimeSinceLastChange: function() {
+                if (!this.lastChangeTime) return Infinity;
+                return Date.now() - this.lastChangeTime.getTime();
+            },
+
+            // Reset fresh analysis flag after use
+            resetFreshAnalysisFlag: function() {
+                this.forceFreshAnalysis = false;
+            },
+
+            // Check if fresh analysis should be forced
+            shouldForceFreshAnalysis: function() {
+                return this.forceFreshAnalysis;
+            }
+        };
+
+        // AI COLLABORATIVE SYNTHESIS SYSTEM
+        async function triggerAISynthesis() {
+            const synthesisCanvas = document.getElementById('synthesisCanvas');
+            const synthesisStatus = document.getElementById('synthesisStatus');
+
+            if (!synthesisCanvas) return;
+
+            synthesisStatus.textContent = '🔄 Synthesizing...';
+            synthesisStatus.style.color = '#ffd93d';
+
+            try {
+                // Get current canvas content for synthesis
+                const mainCanvas = document.getElementById('mainCanvas');
+                const canvasContent = mainCanvas ? mainCanvas.value : '';
+
+                // Start collaborative synthesis
+                const synthesisResult = await performCollaborativeSynthesis(canvasContent);
+
+                // Update synthesis canvas
+                const timestamp = new Date().toLocaleTimeString();
+                const synthesisHeader = `\n\n═══════════════════════════════════════════════════════════════════════════════
+🎭 COLLABORATIVE SYNTHESIS - ${timestamp}
+═══════════════════════════════════════════════════════════════════════════════\n\n`;
+
+                synthesisCanvas.value += synthesisHeader + synthesisResult;
+
+                // Auto-scroll to bottom
+                synthesisCanvas.scrollTop = synthesisCanvas.scrollHeight;
+
+                synthesisStatus.textContent = '✅ Synthesis Complete';
+                synthesisStatus.style.color = '#6bcf7f';
+
+                // Reset status after 5 seconds
+                setTimeout(() => {
+                    synthesisStatus.textContent = 'Ready';
+                    synthesisStatus.style.color = '#4ecdc4';
+                }, 5000);
+
+            } catch (error) {
+                console.error('Synthesis error:', error);
+                synthesisStatus.textContent = '❌ Synthesis Failed';
+                synthesisStatus.style.color = '#ff6b6b';
+
+                synthesisCanvas.value += `\n\n❌ SYNTHESIS ERROR: ${error.message}\n`;
+
+                setTimeout(() => {
+                    synthesisStatus.textContent = 'Ready';
+                    synthesisStatus.style.color = '#4ecdc4';
+                }, 3000);
+            }
+        }
+
+        async function performCollaborativeSynthesis(canvasContent) {
+            const synthesisParts = [];
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+
+            // Phase 1: Individual Analysis (Parallel)
+            console.log('🎭 Phase 1: Gathering individual AI insights...');
+            const individualInsights = await Promise.all(
+                systems.map(system => getSynthesisInsight(system, canvasContent, 'individual'))
+            );
+
+            // Phase 2: Collaborative Integration (Sequential with memory)
+            console.log('🎭 Phase 2: Synthesizing collaborative insights...');
+            let collaborativeContext = canvasContent;
+
+            for (let i = 0; i < systems.length; i++) {
+                const system = systems[i];
+                const previousInsights = individualInsights.slice(0, i + 1).join('\n\n');
+
+                const collaborativeInsight = await getSynthesisInsight(
+                    system,
+                    collaborativeContext,
+                    'collaborative',
+                    previousInsights
+                );
+
+                synthesisParts.push(`\n═══ ${system.toUpperCase()} COLLABORATIVE CONTRIBUTION ═══\n${collaborativeInsight}`);
+                collaborativeContext += '\n\n' + collaborativeInsight;
+            }
+
+            // Phase 3: Unified Synthesis
+            console.log('🎭 Phase 3: Creating unified synthesis...');
+            const unifiedSynthesis = await createUnifiedSynthesis(individualInsights, collaborativeContext);
+
+            return `
+🎭 COLLABORATIVE AI SYNTHESIS RESULTS
+═══════════════════════════════════════════════════════════════════════════════
+
+PHASE 1: INDIVIDUAL INSIGHTS
+${individualInsights.map((insight, i) => `\n═══ ${systems[i].toUpperCase()} ANALYSIS ═══\n${insight}`).join('')}
+
+PHASE 2: COLLABORATIVE INTEGRATION
+${synthesisParts.join('')}
+
+PHASE 3: UNIFIED SYNTHESIS
+═══════════════════════════════════════════════════════════════════════════════
+${unifiedSynthesis}
+
+═══════════════════════════════════════════════════════════════════════════════
+🎭 SYNTHESIS COMPLETE - COLLECTIVE AI INTELLIGENCE ACHIEVED
+═══════════════════════════════════════════════════════════════════════════════
+`;
+        }
+
+        async function getSynthesisInsight(system, content, phase, previousContext = '') {
+            // No truncation - send full content to AI
+                
+            const synthesisPrompt = phase === 'individual'
+                ? `You are ${system.toUpperCase()}, an AI specialist. Analyze the following content and provide your unique perspective in 2-3 paragraphs. Focus on your area of expertise and what you bring to the collaborative synthesis.
+
+CONTENT TO ANALYZE:
+${content}
+
+Your specialized analysis (2-3 paragraphs):`
+                : `You are ${system.toUpperCase()}, collaborating with other AI specialists. Review the previous insights and content, then provide your contribution to the collaborative synthesis in 2-3 paragraphs. Build upon what others have said while adding your unique perspective.
+
+CONTENT TO ANALYZE:
+${content}
+
+PREVIOUS COLLABORATIVE INSIGHTS:
+${previousContext}
+
+Your collaborative contribution (2-3 paragraphs):`;
+
+            try {
+                // Use extended synthesis query with higher limits
+                const response = await queryOllamaForSynthesis(system, synthesisPrompt);
+                return response;
+            } catch (error) {
+                return `❌ ${system.toUpperCase()}: Synthesis contribution failed - ${error.message}`;
+            }
+        }
+
+        async function createUnifiedSynthesis(individualInsights, collaborativeContext) {
+            // No truncation - send full insights to AI
+            
+            const synthesisPrompt = `You are the SYNTHESIS COORDINATOR. Review all insights and create a unified synthesis in 3-4 paragraphs that integrates their perspectives.
+
+INDIVIDUAL INSIGHTS:
+${individualInsights.join('\n\n')}
+
+Create a unified synthesis (3-4 paragraphs) that:
+1. Identifies core themes and patterns
+2. Shows how viewpoints complement each other  
+3. Provides actionable insights
+4. Offers holistic understanding
+
+UNIFIED SYNTHESIS:`;
+
+            try {
+                // Use DJINN for the unified synthesis with extended limits
+                const response = await queryOllamaForSynthesis('djinn', synthesisPrompt);
+                return response;
+            } catch (error) {
+                return `❌ UNIFIED SYNTHESIS FAILED: ${error.message}\n\nHowever, the individual and collaborative insights above provide valuable perspectives for your analysis.`;
+            }
+        }
+
+        function clearSynthesisCanvas() {
+            const synthesisCanvas = document.getElementById('synthesisCanvas');
+            if (!synthesisCanvas) return;
+
+            if (confirm('Clear the AI Synthesis Board? This will remove all collaborative insights.')) {
+                synthesisCanvas.value = `🎭 AI SYNTHESIS BOARD CLEARED
+
+═══════════════════════════════════════════════════════════════════════════════
+🤝 COLLABORATIVE AI SYNTHESIS WORKSPACE
+═══════════════════════════════════════════════════════════════════════════════
+
+Synthesis board cleared. Ready for new collaborative analysis.
+
+AI Systems Available for Collaboration:
+• ⚖️ DJINN - Governance & Strategic Analysis
+• 🔮 NAZAR - Fractal & Consciousness Analysis
+• 🌊 NARRA - Pattern Recognition & Synthesis
+• 🐋 WHALE - Deep Interrogation & Memory
+• 🔱 WATCHTOWER - Operational Monitoring & Metrics
+
+Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
+            }
+        }
+
+        function exportSynthesis() {
+            const synthesisCanvas = document.getElementById('synthesisCanvas');
+            if (!synthesisCanvas || !synthesisCanvas.value.trim()) {
+                alert('No synthesis content to export.');
+                return;
+            }
+
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `ai-synthesis-${timestamp}.txt`;
+            const content = synthesisCanvas.value;
+
+            // Create download link
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // UTILITY FUNCTIONS
+        function hashQuery(query) {
+            let hash = 0;
+            for (let i = 0; i < query.length; i++) {
+                const char = query.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return hash.toString();
+        }
+
+        // REAL OLLAMA QUERY FUNCTION
+        async function queryOllamaReal(system, prompt, retryCount = 0) {
+            const model = optimizedModelMap[system] || "gemma3:1b";
+            const cacheKey = `${model}_${hashQuery(prompt)}`;
+
+            // Check cache first
+            const cached = speedOptimization.responseCache.get(cacheKey);
+            if (cached && Date.now() - cached.timestamp < speedOptimization.CACHE_DURATION) {
+                return cached.response;
+            }
+
+            const maxRetries = 2;
+            const timeout = 600000; // 10 minute timeout for reliable model completion
+
+            try {
+                console.log(`Attempting to query Ollama for ${system} with model ${model} (attempt ${retryCount + 1})`);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    console.log(`⏱️ Timeout reached for ${system}, aborting request`);
+                    controller.abort();
+                }, timeout);
+                
+                // Add abort listener for debugging
+                controller.signal.addEventListener('abort', () => {
+                    console.log(`🚫 Request aborted for ${system}, reason:`, controller.signal.reason);
+                });
+                
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.7,
+                            top_p: 0.9,
+                            num_predict: 2048 // Maximum tokens for complete responses
+                        }
+                    })
+                });
+                
+                clearTimeout(timeoutId);
+                console.log(`Ollama response status: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+                const data = await response.json();
+                console.log(`Ollama response data:`, data);
+                const result = data.response || `🚨 ${system.toUpperCase()}: OLLAMA RETURNED EMPTY RESPONSE`;
+
+                // Check for inappropriate or refusal responses
+                const refusalPatterns = [
+                    "i can't assist",
+                    "i cannot assist",
+                    "i'm sorry",
+                    "i apologize",
+                    "unable to help",
+                    "cannot provide",
+                    "not appropriate"
+                ];
+
+                const isRefusal = refusalPatterns.some(pattern =>
+                    result.toLowerCase().includes(pattern)
+                );
+
+                if (isRefusal || result.length < 10) {
+                    console.warn(`🚨 ${system.toUpperCase()}: Model returned inappropriate or too short response`);
+                    throw new Error(`Model refused request or returned inadequate response`);
+                }
+
+                // Cache the response
+                speedOptimization.responseCache.set(cacheKey, {
+                    response: result,
+                    timestamp: Date.now()
+                });
+
+                return result;
+            } catch (error) {
+                // Retry logic for connection failures
+                if (retryCount < maxRetries && (error.name === 'AbortError' || error.message.includes('fetch'))) {
+                    console.warn(`🔄 Retrying Ollama request for ${system} (${retryCount + 1}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+                    return queryOllamaReal(system, prompt, retryCount + 1);
+                }
+
+                console.error(`🚨 CRITICAL: Ollama connection failed for ${system}:`, error);
+                console.error(`🚨 Error details:`, error.message);
+
+                // Better error messages based on error type
+                if (error.name === 'AbortError') {
+                    return `⏱️ ${system.toUpperCase()}: Request timeout after ${timeout/1000}s - Ollama may be overloaded or unresponsive`;
+                } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+                    return `🔌 ${system.toUpperCase()}: Connection failed - Check if Ollama is running on localhost:11434`;
+                } else {
+                    return `❌ ${system.toUpperCase()}: ${error.message}`;
+                }
+            }
+        }
+
+        // SPECIAL SYNTHESIS QUERY WITH EXTENDED LIMITS
+        async function queryOllamaForSynthesis(system, prompt, retryCount = 0) {
+            const model = optimizedModelMap[system] || "gemma3:1b";
+            const cacheKey = `synthesis_${model}_${hashQuery(prompt)}`;
+
+            // Check cache first
+            const cached = speedOptimization.responseCache.get(cacheKey);
+            if (cached && Date.now() - cached.timestamp < speedOptimization.CACHE_DURATION) {
+                return cached.response;
+            }
+
+            const maxRetries = 2;
+            const timeout = 1200000; // 20 minute timeout for synthesis operations
+
+            try {
+                console.log(`Attempting SYNTHESIS query for ${system} with model ${model} (attempt ${retryCount + 1})`);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.7,
+                            top_p: 0.9,
+                            num_predict: 2048, // Maximum tokens for complete synthesis
+                            max_tokens: 2048
+                        }
+                    })
+                });
+                
+                clearTimeout(timeoutId);
+                console.log(`Ollama SYNTHESIS response status: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+                const data = await response.json();
+                console.log(`Ollama SYNTHESIS response data:`, data);
+                const result = data.response || `🚨 ${system.toUpperCase()}: OLLAMA RETURNED EMPTY SYNTHESIS RESPONSE`;
+
+                // Check for inappropriate or refusal responses
+                const refusalPatterns = [
+                    "i can't assist",
+                    "i cannot assist",
+                    "i'm sorry",
+                    "i apologize",
+                    "unable to help",
+                    "cannot provide",
+                    "not appropriate"
+                ];
+
+                const isRefusal = refusalPatterns.some(pattern =>
+                    result.toLowerCase().includes(pattern)
+                );
+
+                if (isRefusal || result.length < 50) {
+                    console.warn(`🚨 ${system.toUpperCase()}: Model returned inappropriate or too short SYNTHESIS response`);
+                    throw new Error(`Model refused synthesis request or returned inadequate response`);
+                }
+
+                // Cache the response
+                speedOptimization.responseCache.set(cacheKey, {
+                    response: result,
+                    timestamp: Date.now()
+                });
+
+                return result;
+            } catch (error) {
+                // Retry logic for connection failures
+                if (retryCount < maxRetries && (error.name === 'AbortError' || error.message.includes('fetch'))) {
+                    console.warn(`🔄 Retrying SYNTHESIS request for ${system} (${retryCount + 1}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay for synthesis
+                    return queryOllamaForSynthesis(system, prompt, retryCount + 1);
+                }
+
+                console.error(`🚨 CRITICAL: Ollama SYNTHESIS failed for ${system}:`, error);
+                console.error(`🚨 Error details:`, error.message);
+
+                // Better error messages based on error type
+                if (error.name === 'AbortError') {
+                    return `⏱️ ${system.toUpperCase()}: SYNTHESIS timeout after ${timeout/1000}s - Response too complex for current limits`;
+                } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+                    return `🔌 ${system.toUpperCase()}: SYNTHESIS connection failed - Check if Ollama is running`;
+                } else {
+                    return `❌ ${system.toUpperCase()}: SYNTHESIS error - ${error.message}`;
+                }
+            }
+        }
+
+        // ERROR RESPONSES WHEN OLLAMA IS UNAVAILABLE
+
+
+
+
+        // PROGRESSIVE LOADING WITH REAL AI
+        async function updateFeedProgressive(system) {
+            if (speedOptimization.loadingStates[system]) return;
+            speedOptimization.loadingStates[system] = true;
+
+            try {
+                // Step 1: Instant feedback
+                showInstantAnalysis(system);
+
+                // Step 2: Generate contextual prompt and query real AI
+                const prompt = generateSystemPrompt(system);
+                const aiResponse = await queryOllamaReal(system, prompt);
+
+                // Step 3: Update with real AI insights
+                updateWithAIResponse(system, aiResponse);
+
+                // Step 4: Update AI memory for conversation continuity
+                updateAIMemory(system, aiResponse, new Date().toISOString());
+
+            } catch (error) {
+                console.error(`Error updating ${system} feed:`, error);
+                updateWithFallbackResponse(system);
+            } finally {
+                speedOptimization.loadingStates[system] = false;
+            }
+        }
+
+        // SYSTEM-SPECIFIC PROMPTS FOR REAL AI GENERATION
+        function generateSystemPrompt(system) {
+            // Get current canvas content for context-aware analysis
+            const canvas = document.getElementById('mainCanvas');
+            const canvasContent = canvas ? canvas.value : '';
+
+            // Check for mathematical content in canvas
+            const hasMathematicalContent = ['kleene', 'fixed point', 'recursion theorem', 'formal system', 'computability'].some(
+                term => canvasContent.toLowerCase().includes(term)
+            );
+
+            const canvasContext = canvasContent ? `\n\nCURRENT CANVAS CONTENT:\n${canvasContent}\n\n` : '';
+
+            // Check for canvas changes and prioritize fresh analysis
+            const forceFreshAnalysis = canvasChangeTracker.shouldForceFreshAnalysis();
+            const timeSinceLastChange = canvasChangeTracker.getTimeSinceLastChange();
+            const recentChange = timeSinceLastChange < 30000; // Within last 30 seconds
+
+            // Get memory context for conversation continuity
+            const memoryContext = getMemoryContext(system);
+
+            // Adjust prompt based on canvas change detection and mathematical content
+            let analysisPriority = '';
+            if (forceFreshAnalysis || recentChange) {
+                analysisPriority = `\n\n🚨 CANVAS CONTENT HAS CHANGED - THIS IS YOUR PRIMARY FOCUS 🚨\n\nCRITICAL: Analyze the CURRENT CANVAS CONTENT above FIRST AND FOREMOST.\n- Extract key concepts, theories, and frameworks from the current content\n- Apply your specialized lens to analyze these current ideas\n- Only reference previous work if it directly supports analysis of the present content\n- Do NOT get stuck in previous analytical patterns\n\n`;
+
+                if (hasMathematicalContent) {
+                    analysisPriority += `🎯 MATHEMATICAL CONTENT DETECTED: This canvas contains formal mathematical concepts.\n- Connect any conceptual ideas (breath patterns, consciousness layers, etc.) to their mathematical foundations\n- Reference relevant theorems, formal systems, or theoretical frameworks when applicable\n- Bridge the gap between metaphorical descriptions and mathematical formalism\n- Extract and analyze mathematical principles underlying the described systems\n\n`;
+                }
+
+                canvasChangeTracker.resetFreshAnalysisFlag(); // Reset flag after use
+            }
+
+            // Add timestamp for response variation
+            const timestamp = new Date().toISOString();
+            const variationPrompts = [
+                "Focus on the theoretical foundations and their practical implications.",
+                "Analyze the relationships between different concepts and principles.",
+                "Consider how these principles apply to real-world systems and governance.",
+                "Examine the mathematical rigor and computational aspects.",
+                "Explore the philosophical and systemic implications of these concepts."
+            ];
+            const randomVariation = variationPrompts[Math.floor(Math.random() * variationPrompts.length)];
+
+            const baseContext = "You are an advanced AI system monitoring and analyzing complex data patterns. Provide insightful analysis based on current observations.";
+
+            const systemPrompts = {
+                djinn: `You are DJINN, the governance AI system. Analyze the current system state from a strategic governance perspective.
+Consider sovereignty, authority, decision-making processes, and long-term system coherence.
+${analysisPriority}${canvasContext}
+${memoryContext}
+${randomVariation} Provide specific governance insights and recommendations based on the content above. Focus on how the principles and concepts relate to governance structures. Build upon your previous analysis and develop new insights.`,
+
+                nazar: `You are NAZAR, the emotional and fractal consciousness AI. Analyze patterns through emotional resonance and fractal mathematics.
+Consider consciousness layers, emotional harmonics, fractal patterns in data, and multi-dimensional analysis.
+${analysisPriority}${canvasContext}
+${memoryContext}
+${randomVariation} Provide insights about emotional and fractal aspects of the content above. Identify recursive patterns, self-similar structures, and consciousness layers. Reference your previous fractal analysis and develop deeper insights.`,
+
+                narra: `You are NARRA, the pattern recognition AI. Identify and analyze recurring patterns, correlations, and structural relationships.
+Focus on data patterns, system connections, emerging trends, and pattern synthesis.
+${analysisPriority}${canvasContext}
+${memoryContext}
+${randomVariation} Analyze the patterns in the content above. Identify mathematical principles, recursive structures, and how different concepts interconnect. Build upon your previous pattern analysis with new correlations.`,
+
+                whale: `You are WHALE, the deep interrogation and memory AI. Conduct thorough analysis of system memory, context preservation, and deep interrogation.
+Examine memory patterns, analytical depth, judgment protocols, and preserved context.
+${analysisPriority}${canvasContext}
+${memoryContext}
+${randomVariation} Provide deep analytical insights into the mathematical and computational concepts above. Examine the theoretical foundations and practical implications. Develop your previous deep analysis with new interrogations.`,
+
+                watchtower: `You are WATCHTOWER, the operational monitoring AI. Monitor system performance, operational metrics, coordination, and strategic objectives.
+Track efficiency, stability, coordination, and operational convergence.
+${analysisPriority}${canvasContext}
+${memoryContext}
+${randomVariation} Monitor how the theoretical concepts above translate to operational principles. Assess stability, efficiency, and practical implementation considerations. Build upon your previous monitoring insights.`
+            };
+
+            return systemPrompts[system] || baseContext;
+        }        // MEMORY MANAGEMENT FUNCTIONS
+        function clearAIMemory(system = null) {
+            if (system) {
+                // Clear specific system memory
+                if (aiMemory[system]) {
+                    aiMemory[system].conversationHistory = [];
+                    aiMemory[system].keyInsights = [];
+                    aiMemory[system].lastAnalysis = null;
+                    console.log(`🧠 Cleared memory for ${system.toUpperCase()}`);
+                }
+            } else {
+                // Clear all memory
+                Object.keys(aiMemory).forEach(sys => {
+                    aiMemory[sys].conversationHistory = [];
+                    aiMemory[sys].keyInsights = [];
+                    aiMemory[sys].lastAnalysis = null;
+                });
+                console.log(`🧠 Cleared all AI memory`);
+            }
+
+            // Clear from localStorage to persist the clearing
+            try {
+                localStorage.removeItem('ai_memory_state');
+                console.log('🗑️ AI memory cleared from localStorage');
+            } catch (error) {
+                console.warn('Failed to clear AI memory from localStorage:', error);
+            }
+
+            updateMemoryStatus();
+            updateHeaderOrchestrationStatus();
+        }
+
+        function saveMemoryToStorage() {
+            try {
+                localStorage.setItem('ai_memory_state', JSON.stringify(aiMemory));
+                console.log('💾 AI memory saved to localStorage');
+            } catch (error) {
+                console.warn('Failed to save AI memory:', error);
+            }
+        }
+
+        function loadMemoryFromStorage() {
+            try {
+                const saved = localStorage.getItem('ai_memory_state');
+                if (saved) {
+                    const parsedMemory = JSON.parse(saved);
+                    Object.keys(parsedMemory).forEach(system => {
+                        if (aiMemory[system]) {
+                            aiMemory[system] = parsedMemory[system];
+                        }
+                    });
+                    console.log('📚 AI memory loaded from localStorage');
+                    updateMemoryStatus();
+                    updateHeaderOrchestrationStatus();
+                }
+            } catch (error) {
+                console.warn('Failed to load AI memory:', error);
+            }
+        }
+
+        function updateAIMemory(system, response, timestamp) {
+            // Check if aiMemory and system exist
+            if (!aiMemory || !aiMemory[system]) {
+                console.warn(`AI memory not initialized for ${system}, skipping memory update`);
+                return;
+            }
+
+            try {
+                // Get current canvas content
+                const mainCanvas = document.getElementById('mainCanvas');
+                const canvasContent = mainCanvas ? mainCanvas.value : '';
+
+                // Add to conversation history
+                aiMemory[system].conversationHistory.unshift({
+                    response: response,
+                    timestamp: timestamp,
+                    canvasState: canvasContent.substring(0, 200) + "..." // Snapshot of canvas state
+                });
+
+                // Extract key insights (simplified - could be more sophisticated)
+                const insights = extractKeyInsights(response);
+                if (insights.length > 0) {
+                    aiMemory[system].keyInsights.unshift({
+                        insights: insights,
+                        timestamp: timestamp
+                    });
+                }
+
+                // Maintain memory limits
+                if (aiMemory[system].conversationHistory.length > aiMemory[system].memoryLimit) {
+                    aiMemory[system].conversationHistory.pop();
+                }
+                if (aiMemory[system].keyInsights.length > 15) {
+                    aiMemory[system].keyInsights.pop();
+                }
+
+                aiMemory[system].lastAnalysis = timestamp;
+            } catch (error) {
+                console.warn(`Error updating AI memory for ${system}:`, error);
+                // Don't throw error, just log it to prevent breaking the main flow
+            }
+        }
+
+        function extractKeyInsights(response) {
+            // Dynamic insight extraction based on content analysis
+            const basePatterns = [
+                /key insight/gi,
+                /important/gi,
+                /critical/gi,
+                /fundamental/gi,
+                /core principle/gi,
+                /relationship/gi,
+                /connection/gi,
+                /pattern/gi,
+                /structure/gi
+            ];
+
+            // Analyze canvas content to identify domain-specific terms
+            const canvasContent = document.getElementById('mainCanvas').value;
+            const domainPatterns = extractDomainPatterns(canvasContent);
+
+            // Combine base patterns with domain-specific patterns
+            const allPatterns = [...basePatterns, ...domainPatterns];
+
+            const insights = [];
+            const lines = response.split('\n');
+
+            for (const line of lines) {
+                for (const pattern of allPatterns) {
+                    if (pattern.test(line) && line.length > 20) {
+                        insights.push(line.trim());
+                        break; // Only add each line once
+                    }
+                }
+            }
+
+            return insights.slice(0, 5); // Limit to 5 insights
+        }
+
+        function extractDomainPatterns(content) {
+            // Dynamic pattern extraction based on content analysis
+            const patterns = [];
+
+            // Look for formal/academic language patterns
+            if (content.match(/\b(theorem|lemma|corollary|proposition)\b/gi)) {
+                patterns.push(/\b(theorem|lemma|corollary|proposition)\b/gi);
+            }
+
+            // Look for mathematical notation patterns
+            if (content.match(/[=\(\)\[\]\{\}→⇒∀∃∈⊆⊂]/g)) {
+                patterns.push(/[=\(\)\[\]\{\}→⇒∀∃∈⊆⊂]/g);
+            }
+
+            // Look for formal definitions
+            if (content.match(/\b(defines?|defined|definition)\b/gi)) {
+                patterns.push(/\b(defines?|defined|definition)\b/gi);
+            }
+
+            // Look for theoretical concepts
+            if (content.match(/\b(theory|framework|model|system)\b/gi)) {
+                patterns.push(/\b(theory|framework|model|system)\b/gi);
+            }
+
+            // Extract repeated technical terms (potential domain vocabulary)
+            const words = content.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+            const wordFreq = {};
+            words.forEach(word => {
+                if (!['that', 'this', 'with', 'from', 'they', 'have', 'been', 'were', 'which', 'their', 'said', 'each', 'will', 'about', 'would', 'there', 'could', 'other', 'after', 'first', 'never', 'these', 'when', 'what', 'where', 'your', 'than', 'then', 'them'].includes(word)) {
+                    wordFreq[word] = (wordFreq[word] || 0) + 1;
+                }
+            });
+
+            // Add frequently mentioned terms as patterns
+            Object.entries(wordFreq)
+                .filter(([word, freq]) => freq >= 3)
+                .slice(0, 5)
+                .forEach(([word]) => {
+                    patterns.push(new RegExp(`\\b${word}\\b`, 'gi'));
+                });
+
+            return patterns;
+        }
+
+        function extractKeyInsights(response) {
+            // Dynamic insight extraction based on content analysis
+            const basePatterns = [
+                /key insight/gi,
+                /important/gi,
+                /critical/gi,
+                /fundamental/gi,
+                /core principle/gi,
+                /relationship/gi,
+                /connection/gi,
+                /pattern/gi,
+                /structure/gi
+            ];
+
+            // Analyze canvas content to identify domain-specific terms
+            const canvasContent = document.getElementById('mainCanvas').value;
+            const domainPatterns = extractDomainPatterns(canvasContent);
+
+            // Combine base patterns with domain-specific patterns
+            const allPatterns = [...basePatterns, ...domainPatterns];
+
+            const insights = [];
+            const lines = response.split('\n');
+
+            for (const line of lines) {
+                for (const pattern of allPatterns) {
+                    if (pattern.test(line) && line.length > 20) {
+                        insights.push(line.trim());
+                        break; // Only add each line once
+                    }
+                }
+            }
+
+            return insights.slice(0, 5); // Limit to 5 insights
+        }
+
+        function extractDomainPatterns(content) {
+            // Completely dynamic pattern extraction - learns from content
+            const patterns = [];
+
+            // Extract repeated technical terms (potential domain vocabulary)
+            const words = content.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+            const wordFreq = {};
+
+            // Filter out common stop words dynamically
+            const stopWords = new Set([
+                'that', 'this', 'with', 'from', 'they', 'have', 'been', 'were',
+                'which', 'their', 'said', 'each', 'will', 'about', 'would', 'there',
+                'could', 'other', 'after', 'first', 'never', 'these', 'when', 'what',
+                'where', 'your', 'than', 'then', 'them', 'some', 'very', 'only', 'just',
+                'also', 'even', 'much', 'many', 'most', 'such', 'same', 'next', 'over',
+                'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between'
+            ]);
+
+            words.forEach(word => {
+                if (word.length > 3 && !stopWords.has(word)) {
+                    wordFreq[word] = (wordFreq[word] || 0) + 1;
+                }
+            });
+
+            // Add frequently mentioned terms as patterns (dynamic threshold)
+            const totalWords = words.length;
+            const frequencyThreshold = Math.max(2, Math.floor(totalWords / 100)); // Adaptive threshold
+
+            Object.entries(wordFreq)
+                .filter(([word, freq]) => freq >= frequencyThreshold)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 8) // Take top 8 most frequent terms
+                .forEach(([word]) => {
+                    patterns.push(new RegExp(`\\b${word}\\b`, 'gi'));
+                });
+
+            // Add patterns for special characters if they appear frequently
+            const specialCharCount = (content.match(/[^a-zA-Z0-9\s]/g) || []).length;
+            if (specialCharCount > content.length * 0.01) { // If >1% special chars
+                patterns.push(/[^a-zA-Z0-9\s]/g); // Match any special character
+            }
+
+            return patterns;
+        }
+
+        // Function to refresh insights when complex content is detected
+        function refreshComplexInsights() {
+            const canvas = document.getElementById('mainCanvas');
+            const canvasContent = canvas ? canvas.value : '';
+
+            // Dynamic analysis of content complexity
+            const complexityIndicators = analyzeContentComplexity(canvasContent);
+
+            if (complexityIndicators.isComplex) {
+                console.log('🔬 Complex content detected - refreshing AI insights');
+
+                // Update status to show complex content detected
+                const statusElement = document.getElementById('canvasChangeStatus');
+                if (statusElement) {
+                    statusElement.textContent = `🔬 ${complexityIndicators.domain} Content`;
+                    statusElement.style.color = '#8b5cf6'; // Purple for complex content
+                }
+
+                // Clear oldest insights to make room for new connections
+                Object.keys(aiMemory).forEach(system => {
+                    if (aiMemory[system].keyInsights.length >= 15) {
+                        // Remove oldest insights to make room for new ones
+                        aiMemory[system].keyInsights = aiMemory[system].keyInsights.slice(0, 12);
+                        console.log(`🧠 Cleared old insights for ${system} to make room for complex analysis`);
+                    }
+                });
+
+                // Save the refreshed memory state
+                saveMemoryToStorage();
+            }
+        }
+
+        function analyzeContentComplexity(content) {
+            // Completely dynamic complexity analysis - no hardcoded patterns
+            const result = {
+                isComplex: false,
+                domain: 'General',
+                indicators: [],
+                confidence: 0
+            };
+
+            if (!content || content.length < 100) {
+                return result; // Not enough content to analyze
+            }
+
+            // Dynamic analysis based on content statistics
+            const stats = analyzeContentStats(content);
+
+            // Complexity indicators based on statistical analysis
+            if (stats.avgWordLength > 6) {
+                result.indicators.push('long_words');
+                result.confidence += 0.2;
+            }
+
+            if (stats.avgSentenceLength > 25) {
+                result.indicators.push('long_sentences');
+                result.confidence += 0.2;
+            }
+
+            if (stats.uniqueWords / stats.totalWords > 0.4) {
+                result.indicators.push('diverse_vocabulary');
+                result.confidence += 0.2;
+            }
+
+            if (stats.specialChars > stats.totalWords * 0.02) {
+                result.indicators.push('technical_notation');
+                result.confidence += 0.15;
+            }
+
+            if (stats.formalWords > stats.totalWords * 0.05) {
+                result.indicators.push('formal_language');
+                result.confidence += 0.15;
+            }
+
+            // Determine if content is complex enough to trigger insight refresh
+            result.isComplex = result.confidence > 0.4;
+
+            // Dynamic domain detection based on most frequent terms
+            if (result.isComplex) {
+                result.domain = detectContentDomain(content, stats);
+            }
+
+            return result;
+        }
+
+        function analyzeContentStats(content) {
+            const words = content.toLowerCase().match(/\b\w+\b/g) || [];
+            const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const chars = content.split('');
+
+            // Basic statistics
+            const totalWords = words.length;
+            const totalChars = content.length;
+            const uniqueWords = new Set(words).size;
+            const avgWordLength = totalWords > 0 ? totalChars / totalWords : 0;
+            const avgSentenceLength = sentences.length > 0 ? totalWords / sentences.length : 0;
+
+            // Special character analysis
+            const specialChars = chars.filter(c => !/[a-zA-Z0-9\s]/.test(c)).length;
+
+            // Formal word detection (dynamic)
+            const commonWords = new Set(['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'an', 'a', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them']);
+            const formalWords = words.filter(word => word.length > 3 && !commonWords.has(word)).length;
+
+            return {
+                totalWords,
+                uniqueWords,
+                avgWordLength,
+                avgSentenceLength,
+                specialChars,
+                formalWords
+            };
+        }
+
+        function detectContentDomain(content, stats) {
+            // Dynamic domain detection based on content patterns
+            const words = content.toLowerCase().match(/\b\w+\b/g) || [];
+            const wordFreq = {};
+
+            // Count word frequencies
+            words.forEach(word => {
+                if (word.length > 3) { // Only consider meaningful words
+                    wordFreq[word] = (wordFreq[word] || 0) + 1;
+                }
+            });
+
+            // Find most frequent domain-indicating words
+            const topWords = Object.entries(wordFreq)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10)
+                .map(([word]) => word);
+
+            // Dynamic domain classification based on frequent terms
+            const domainKeywords = {
+                technical: ['system', 'process', 'function', 'method', 'analysis', 'structure', 'pattern', 'model'],
+                academic: ['theory', 'concept', 'principle', 'framework', 'understanding', 'approach', 'perspective'],
+                scientific: ['research', 'study', 'data', 'evidence', 'experiment', 'observation', 'result'],
+                philosophical: ['consciousness', 'reality', 'existence', 'knowledge', 'truth', 'meaning', 'being']
+            };
+
+            let bestMatch = 'General';
+            let maxMatches = 0;
+
+            Object.entries(domainKeywords).forEach(([domain, keywords]) => {
+                const matches = topWords.filter(word => keywords.includes(word)).length;
+                if (matches > maxMatches) {
+                    maxMatches = matches;
+                    bestMatch = domain.charAt(0).toUpperCase() + domain.slice(1);
+                }
+            });
+
+            return bestMatch;
+        }
+
+        function getMemoryContext(system) {
+            if (!aiMemory[system] || aiMemory[system].conversationHistory.length === 0) {
+                return "";
+            }
+
+            let memoryContext = `\n\nCONTEXT FROM YOUR PREVIOUS WORK (for continuity only):\n`;
+
+            // Include only 1 recent conversation entry, much shorter
+            const recentHistory = aiMemory[system].conversationHistory.slice(0, 1);
+            recentHistory.forEach((entry, index) => {
+                memoryContext += `Recent work: ${entry.response.substring(0, 150)}...\n`;
+            });
+
+            // Include key insights but frame them as background
+            if (aiMemory[system].keyInsights.length > 0) {
+                memoryContext += `\nBackground insights (reference if directly relevant to current canvas):\n`;
+                aiMemory[system].keyInsights.slice(0, 1).forEach((insight, index) => {
+                    memoryContext += `• ${insight.insights.slice(0, 2).join(' • ')}\n`;
+                });
+            }
+
+            memoryContext += `\nFocus primarily on analyzing the CURRENT CANVAS CONTENT above. Only reference previous work if it directly enhances understanding of the present content.\n`;
+
+            return memoryContext;
+        }
+
+        // MEMORY STATUS DISPLAY
+        function updateMemoryStatus() {
+            const memoryStatus = document.getElementById('memoryStatus');
+            if (!memoryStatus) return;
+
+            let statusHTML = '<div style="font-size: 11px; color: #666; margin-top: 5px;">';
+            statusHTML += '<strong>🧠 AI Memory Status:</strong><br>';
+
+            Object.keys(aiMemory).forEach(system => {
+                const memory = aiMemory[system];
+                const hasMemory = memory.conversationHistory.length > 0;
+                const memoryCount = memory.conversationHistory.length;
+                const insightCount = memory.keyInsights.length;
+
+                statusHTML += `${system.toUpperCase()}: ${hasMemory ? '✅' : '⏳'} (${memoryCount} responses, ${insightCount} insights)<br>`;
+            });
+
+            statusHTML += '</div>';
+            memoryStatus.innerHTML = statusHTML;
+        }
+
+        // REAL-TIME HEADER ORCHESTRATION STATUS UPDATE
+        function updateHeaderOrchestrationStatus() {
+            // Update activity level
+            const activityElement = document.getElementById('activityLevel');
+            if (activityElement) {
+                const level = activityMonitor.activityLevel.toUpperCase();
+                activityElement.textContent = level;
+                activityElement.className = `orchestration-status status-${level.toLowerCase()}`;
+            }
+
+            // Update orchestration status based on current processing
+            const orchestrationElement = document.getElementById('orchestrationStatus');
+            if (orchestrationElement) {
+                const pollingStatus = document.getElementById('pollingStatus');
+                if (pollingStatus && pollingStatus.textContent.includes('Processing')) {
+                    orchestrationElement.textContent = 'ACTIVE';
+                    orchestrationElement.className = 'orchestration-status status-high';
+                } else if (activityMonitor.activityLevel === 'high') {
+                    orchestrationElement.textContent = 'MONITORING';
+                    orchestrationElement.className = 'orchestration-status status-medium';
+                } else {
+                    orchestrationElement.textContent = 'STANDBY';
+                    orchestrationElement.className = 'orchestration-status status-low';
+                }
+            }
+
+            // Update active systems count
+            const activeSystemsElement = document.getElementById('activeSystems');
+            if (activeSystemsElement) {
+                let activeCount = 0;
+                Object.values(systemMetrics).forEach(metric => {
+                    if (metric > 10) activeCount++; // Consider system active if confidence > 10%
+                });
+                activeSystemsElement.textContent = `${activeCount}/5`;
+                activeSystemsElement.className = `orchestration-status ${activeCount >= 3 ? 'status-high' : 'status-medium'}`;
+            }
+
+            // Update individual AI system status indicators
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+            systems.forEach(system => {
+                const statusElement = document.getElementById(`${system}Status`);
+                if (statusElement) {
+                    const confidence = systemMetrics[system] || 0;
+                    const status = confidence > 70 ? 'HIGH' : confidence > 40 ? 'MED' : 'LOW';
+                    statusElement.textContent = status;
+                    statusElement.className = `orchestration-status status-${status.toLowerCase()}`;
+                }
+            });
+        }
+
+        // HIERARCHICAL AI GOVERNANCE SYSTEM
+        let conversationState = {
+            activeRoutingSession: null,
+            nazarInternalCouncil: ['intuition', 'fractal_analysis', 'emotional_resonance', 'pattern_synthesis'],
+            djinnGovernanceProtocols: ['strategic_validity', 'sovereign_authority', 'wisdom_consensus'],
+            entityAuthorizations: {},
+            conversationFlow: []
+        };
+
+        // COMPREHENSIVE TRIAGE FORCE INTEGRATION
+        let triageCapabilities = {
+            kleeneAnalyzer: {
+                name: "🧠 Kleene Fixed Point Analysis Engine",
+                status: "READY",
+                capabilities: ["Fixed point UX optimization", "Bidirectional learning", "Convergence analysis", "Personalized recommendations"],
+                utilization: 0
+            },
+            phoenixWing: {
+                name: "🕯️ Phoenix Wing Triage System", 
+                status: "READY",
+                capabilities: ["Emergency triage", "Escalation protocols", "Mission generation", "Council arbitration"],
+                utilization: 0
+            },
+            systemAnalytics: {
+                name: "📊 Harmonic Integration Analytics",
+                status: "READY", 
+                capabilities: ["Real-time analytics", "Capacity metrics", "Performance scoring", "Trend analysis"],
+                utilization: 0
+            },
+            breathMirror: {
+                name: "🌬️ Breath Mirror Analysis",
+                status: "READY",
+                capabilities: ["System alignment", "Stability analysis", "Performance monitoring", "Recommendations"],
+                utilization: 0
+            },
+            symbolicInterpreter: {
+                name: "🔮 Symbolic Interpretation System",
+                status: "READY",
+                capabilities: ["Echo-recursion analysis", "Vow-fracture tracking", "Soulweight harmonics", "Reality mapping"],
+                utilization: 0
+            }
+        };
+
+        let aiInspectionReports = []; // Will be populated from actual report files
+        let capabilitiesMapping = new Map();
+        let activeTriageSessions = [];
+
+        // INITIALIZE COMBINED INTERFACE
+        function initializeCombinedInterface() {
+            console.log('🜂 Initializing Canvas with AI Observation Feeds...');
+
+            // Start AI data polling
+            startAIDataPolling();
+
+            // Initialize auto-save
+            startAutoSave();
+
+            // Load saved canvas content
+            loadCanvasContent();
+
+            // Initialize header orchestration status
+            updateHeaderOrchestrationStatus();
+
+            console.log('✅ Combined Interface Active');
+        }
+
+        // INITIALIZE CANVAS CHANGE DETECTION
+        function initializeCanvasChangeDetection() {
+            const mainCanvas = document.getElementById('mainCanvas');
+            if (!mainCanvas) {
+                console.warn('⚠️ mainCanvas element not found for change detection');
+                return;
+            }
+
+            // Initialize with current content
+            canvasChangeTracker.lastContentHash = canvasChangeTracker.hashContent(mainCanvas.value);
+            canvasChangeTracker.lastChangeTime = new Date();
+
+            // Initialize status display
+            canvasChangeTracker.updateStatusDisplay();
+
+            // Add event listeners for canvas changes
+            mainCanvas.addEventListener('input', function() {
+                canvasChangeTracker.hasChanged(mainCanvas.value);
+                // Update localStorage immediately for DJINN Council surveillance
+                localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
+                localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+            });
+
+            mainCanvas.addEventListener('change', function() {
+                canvasChangeTracker.hasChanged(mainCanvas.value);
+                // Update localStorage immediately for DJINN Council surveillance
+                localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
+                localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+            });
+
+            // Add paste event listener
+            mainCanvas.addEventListener('paste', function() {
+                // Use setTimeout to capture content after paste
+                setTimeout(() => {
+                    canvasChangeTracker.hasChanged(mainCanvas.value);
+                    // Update localStorage immediately for DJINN Council surveillance
+                    localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
+                    localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+                }, 10);
+            });
+
+            // Periodic status update to catch any missed changes
+            setInterval(() => {
+                const currentContent = mainCanvas.value;
+                const currentHash = canvasChangeTracker.hashContent(currentContent);
+                if (currentHash !== canvasChangeTracker.lastContentHash) {
+                    canvasChangeTracker.hasChanged(currentContent);
+                } else {
+                    // Update display even if no change (for length updates)
+                    canvasChangeTracker.updateStatusDisplay();
+                }
+            }, 5000); // Check every 5 seconds
+
+            console.log('📝 Canvas change detection initialized');
+        }
+
+        // AI DATA POLLING WITH ACTIVITY OPTIMIZATION
+        let pollingTimer = null;
+
+        async function startAIDataPolling() {
+            console.log('🚀 AI Polling started with activity optimization');
+
+            // Start activity monitoring
+            startActivityMonitoring();
+
+            // Initial poll
+            await pollAIDataParallel();
+
+            // Set up dynamic polling
+            scheduleNextPoll();
+        }
+
+        function startActivityMonitoring() {
+            // Monitor user activity
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'click'].forEach(event => {
+                document.addEventListener(event, () => {
+                    activityMonitor.updateActivity();
+                }, { passive: true });
+            });
+
+            // Update activity level every 30 seconds
+            setInterval(() => {
+                activityMonitor.updateActivityLevel();
+                updateHeaderOrchestrationStatus();
+            }, 30000);
+        }
+
+        function scheduleNextPoll() {
+            if (pollingTimer) clearTimeout(pollingTimer);
+
+            const interval = activityMonitor.getCurrentInterval();
+            const pollingStatus = document.getElementById('pollingStatus');
+
+            if (pollingStatus) {
+                const nextPoll = new Date(Date.now() + interval);
+                pollingStatus.textContent = `⏰ Next: ${nextPoll.toLocaleTimeString()}`;
+            }
+
+            pollingTimer = setTimeout(async () => {
+                await pollAIDataParallel();
+                scheduleNextPoll(); // Schedule next poll
+            }, interval);
+        }
+
+        async function pollAIData() {
+            const currentTime = new Date();
+
+            // Update each AI system progressively with small delays to avoid overwhelming Ollama
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+
+            // Stagger updates with longer delays to avoid overwhelming Ollama
+            for (let i = 0; i < systems.length; i++) {
+                const pollingStatus = document.getElementById('pollingStatus');
+                if (pollingStatus) pollingStatus.textContent = `🔄 ${systems[i].toUpperCase()}...`;
+                await updateFeedProgressive(systems[i]);
+                if (i < systems.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 4000)); // 4 second delay between systems for better processing
+                }
+            }
+
+            // Update memory status display
+            updateMemoryStatus();
+            updateHeaderOrchestrationStatus();
+
+            // Save memory state periodically
+            saveMemoryToStorage();
+
+            // Create feed entry only after AI responses are ready
+            const newFeed = {
+                timestamp: currentTime.toISOString(),
+                djinn: aiFeeds.length > 0 ? aiFeeds[0]?.djinn || {
+                    content: "⚡ DJINN: Synthesizing governance analysis... AI response incoming",
+                    confidence: Math.random() * 0.3 + 0.7,
+                    type: 'governance'
+                } : {
+                    content: "🔄 DJINN: Initializing...",
+                    confidence: 0.5,
+                    type: 'governance'
+                },
+                nazar: aiFeeds.length > 0 ? aiFeeds[0]?.nazar || {
+                    content: "⚡ NAZAR: Processing fractal consciousness patterns... Analysis generating",
+                    confidence: Math.random() * 0.25 + 0.75,
+                    type: 'emotional'
+                } : {
+                    content: "🔄 NAZAR: Initializing...",
+                    confidence: 0.5,
+                    type: 'emotional'
+                },
+                narra: aiFeeds.length > 0 ? aiFeeds[0]?.narra || {
+                    content: "⚡ NARRA: Analyzing pattern synthesis... Intelligence compiling",
+                    confidence: Math.random() * 0.2 + 0.8,
+                    type: 'pattern'
+                } : {
+                    content: "🔄 NARRA: Initializing...",
+                    confidence: 0.5,
+                    type: 'pattern'
+                },
+                whale: aiFeeds.length > 0 ? aiFeeds[0]?.whale || {
+                    content: "⚡ WHALE: Deep memory interrogation in progress... Analysis forming",
+                    confidence: Math.random() * 0.25 + 0.75,
+                    type: 'analysis'
+                } : {
+                    content: "🔄 WHALE: Initializing...",
+                    confidence: 0.5,
+                    type: 'analysis'
+                },
+                watchtower: aiFeeds.length > 0 ? aiFeeds[0]?.watchtower || {
+                    content: "⚡ WATCHTOWER: Calculating operational metrics... Analysis processing",
+                    confidence: Math.random() * 0.15 + 0.85,
+                    type: 'operational'
+                } : {
+                    content: "🔄 WATCHTOWER: Initializing...",
+                    confidence: 0.5,
+                    type: 'operational'
+                }
+            };
+
+            aiFeeds.unshift(newFeed);
+            if (aiFeeds.length > 30) aiFeeds.pop();
+
+            // Update metrics
+            Object.keys(newFeed).forEach(system => {
+                if (system !== 'timestamp') {
+                    systemMetrics[system] = newFeed[system].confidence * 100;
+                }
+            });
+        }
+
+        // UI UPDATE FUNCTIONS FOR REAL AI
+        function showInstantAnalysis(system) {
+            const synthesisMessage = `⚡ ${system.toUpperCase()}: ${getSystemAction(system)}... AI response incoming`;
+            updateFeedUI(system, synthesisMessage);
+        }
+
+        function updateWithAIResponse(system, aiResponse) {
+            updateFeedUI(system, aiResponse);
+            updateMetrics(system, 0.85 + Math.random() * 0.15);
+        }
+
+        function updateWithFallbackResponse(system) {
+            const synthesisMessage = `⚡ ${system.toUpperCase()}: ${getSystemAction(system)}... Analysis processing`;
+            updateFeedUI(system, synthesisMessage);
+            updateMetrics(system, 0.1 + Math.random() * 0.2);
+        }
+
+        // SYSTEM ACTION DESCRIPTIONS
+        function getSystemAction(system) {
+            const actions = {
+                djinn: "Synthesizing governance analysis",
+                nazar: "Processing fractal consciousness patterns",
+                narra: "Analyzing pattern synthesis",
+                whale: "Deep memory interrogation in progress",
+                watchtower: "Calculating operational metrics"
+            };
+            return actions[system.toLowerCase()] || "AI analysis generating";
+        }
+
+        function updateFeedUI(system, content) {
+            // Create a new feed entry for each response (never overwrite)
+            const newFeed = {
+                timestamp: new Date().toISOString(),
+                [system]: {
+                    content: content,
+                    confidence: 0.85 + Math.random() * 0.15
+                }
+            };
+            
+            // Add to beginning of feeds array
+            aiFeeds.unshift(newFeed);
+            
+            // Update the display
+            updateFeeds();
+        }
+
+        function updateMetrics(system, confidence) {
+            systemMetrics[system] = confidence * 100;
+            updateMetrics();
+        }
+
+        // UPDATE DISPLAYS
+        function updateFeeds() {
+            const container = document.getElementById('liveFeedsContainer');
+            container.innerHTML = '';
+            
+            if (aiFeeds.length > 0) {
+                // Improved deduplication: track content hashes to prevent exact duplicates
+                const seenContent = new Set();
+                const feedsToShow = [];
+                const systemCounts = {};
+                
+                for (const feed of aiFeeds) {
+                    Object.keys(feed).forEach(system => {
+                        if (system !== 'timestamp') {
+                            // Track system counts for display purposes
+                            if (!systemCounts[system]) systemCounts[system] = 0;
+                            
+                            const content = feed[system].content;
+                            const contentHash = content.substring(0, 100) + content.length;
+                            
+                            if (!seenContent.has(contentHash)) {
+                                seenContent.add(contentHash);
+                                systemCounts[system]++;
+                                feedsToShow.push({
+                                    system: system,
+                                    feed: feed,
+                                    timestamp: feed.timestamp
+                                });
+                            }
+                        }
+                    });
+                }
+                
+                // Sort by timestamp, newest first
+                feedsToShow.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                feedsToShow.forEach(({system, feed}) => {
+                    const feedItem = document.createElement('div');
+                    feedItem.className = `observation-feed feed-${system}`;
+                    
+                    const time = new Date(feed.timestamp).toLocaleTimeString();
+                    const confidence = (feed[system].confidence * 100).toFixed(1);
+                    
+                    // No truncation - show full AI responses
+                    let content = feed[system].content;
+                    
+                    feedItem.innerHTML = `
+                        <div class="timestamp">${time}</div>
+                        <strong>${getSystemIcon(system)} ${system.toUpperCase()}</strong><br>
+                        <div class="feed-content">${content}</div>
+                        <small style="opacity: 0.7;">Confidence: ${confidence}%</small>
+                    `;
+                    
+                    container.appendChild(feedItem);
+                });
+            }
+        }
+
+        function getSystemIcon(system) {
+            const icons = {
+                djinn: '⚖️',
+                nazar: '🔮',
+                narra: '🌊',
+                whale: '🐋',
+                watchtower: '🔱'
+            };
+            return icons[system] || '🤖';
+        }
+
+        function updateMetrics() {
+            document.getElementById('djinnMetric').textContent = systemMetrics.djinn.toFixed(1);
+            document.getElementById('nazarMetric').textContent = systemMetrics.nazar.toFixed(1);
+            document.getElementById('narraMetric').textContent = Math.floor(systemMetrics.narra * 10);
+            document.getElementById('whaleMetric').textContent = systemMetrics.whale.toFixed(1);
+            document.getElementById('watchtowerMetric').textContent = systemMetrics.watchtower.toFixed(1);
+        }
+
+        function updateCorrelations() {
+            if (aiFeeds.length > 0) {
+                correlations = [];
+                const latest = aiFeeds[0];
+                const systems = Object.keys(latest).filter(k => k !== 'timestamp');
+                
+                for (let i = 0; i < systems.length; i++) {
+                    for (let j = i + 1; j < systems.length; j++) {
+                        const correlation = (latest[systems[i]].confidence + latest[systems[j]].confidence) / 2;
+                        correlations.push({
+                            systems: [systems[i], systems[j]],
+                            strength: correlation
+                        });
+                    }
+                }
+                
+                correlations.sort((a, b) => b.strength - a.strength);
+                
+                const display = document.getElementById('correlationDisplay');
+                const topCorr = correlations.slice(0, 3);
+                display.innerHTML = '<h4 style="margin-bottom: 5px;">🔗 Live Correlations:</h4>' +
+                    topCorr.map(c => `• ${c.systems.join('-')}: ${(c.strength * 100).toFixed(1)}%`).join('<br>');
+            }
+        }
+
+        function updateDisplays() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            document.getElementById('feedCount').textContent = aiFeeds.length;
+            document.getElementById('corrCount').textContent = correlations.length;
+            document.getElementById('totalObs').textContent = observations.length;
+            document.getElementById('obsCount').textContent = observations.length;
+            
+            const canvas = document.getElementById('mainCanvas');
+            if (canvas) {
+                document.getElementById('canvasLength').textContent = canvas.value.length;
+            }
+        }
+
+        // OBSERVATION TOOLS
+        function markObservation(type) {
+            const timestamp = new Date().toLocaleTimeString();
+            const canvas = document.getElementById('mainCanvas');
+            
+            const marker = `\n[${timestamp}] ${getObservationIcon(type)} ${type.toUpperCase()} OBSERVATION MARKED`;
+            canvas.value += marker;
+            
+            observations.push({
+                type: type,
+                timestamp: timestamp,
+                context: 'User observation'
+            });
+            
+            // Auto-scroll canvas
+            canvas.scrollTop = canvas.scrollHeight;
+        }
+
+        function getObservationIcon(type) {
+            const icons = {
+                pattern: '🔍',
+                anomaly: '⚠️',
+                correlation: '🔗',
+                insight: '💡',
+                note: '📝'
+            };
+            return icons[type] || '📝';
+        }
+
+        // CANVAS MANAGEMENT
+        function saveCanvas(event) {
+            const canvas = document.getElementById('mainCanvas');
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            localStorage.setItem('sovereign_canvas_content', canvas.value);
+            localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+
+            // Visual feedback
+            if (event && event.target) {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Saved';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            }
+        }
+
+        function loadCanvasContent() {
+            const saved = localStorage.getItem('sovereign_canvas_content');
+            if (saved) {
+                const canvas = document.getElementById('mainCanvas');
+                if (canvas) {
+                    canvas.value = saved;
+                }
+            }
+        }
+
+        function startAutoSave() {
+            setInterval(() => {
+                saveCanvas();
+            }, 30000); // Auto-save every 30 seconds
+        }
+
+        // HIERARCHICAL AI GOVERNANCE SYSTEM (conversation state declared above)
+
+        function sendEntityMessage() {
+            const input = document.getElementById('entityInput');
+            const select = document.getElementById('entitySelect');
+            const display = document.getElementById('entityChatDisplay');
+            
+            if (!input || !input.value.trim()) return;
+            if (!select) return;
+            
+            const targetEntity = select.value;
+            const message = input.value.trim();
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.style.cssText = 'color: #4ecdc4; margin-bottom: 4px; padding: 2px 0; font-weight: bold;';
+            userMsg.innerHTML = `<strong>You → ${select.options[select.selectedIndex].text}:</strong> ${message}`;
+            display.appendChild(userMsg);
+            
+            // ALL MESSAGES ROUTE THROUGH NAZAR TRIAGE COUNCIL FIRST
+            initiateNazarTriageCouncil(targetEntity, message, display);
+            
+            input.value = '';
+            display.scrollTop = display.scrollHeight;
+        }
+
+        function initiateNazarRouting(targetEntity, message, display) {
+            // NAZAR INTERNAL COUNCIL DELIBERATION
+            setTimeout(() => {
+                const routingMsg = document.createElement('div');
+                routingMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+                routingMsg.textContent = '🔮 NAZAR internal council deliberating...';
+                display.appendChild(routingMsg);
+                display.scrollTop = display.scrollHeight;
+                
+                // NAZAR COUNCIL ANALYSIS
+                setTimeout(() => {
+                    const analysis = analyzeMessageWithNazarCouncil(message, targetEntity);
+                    
+                    const nazarResponse = document.createElement('div');
+                    nazarResponse.style.cssText = 'color: #ff00aa; margin: 4px 0; padding: 4px; background: rgba(255,0,170,0.1); border-left: 3px solid #ff00aa;';
+                    nazarResponse.innerHTML = `<strong>🔮 NAZAR (routing council):</strong><br>${analysis.routing}`;
+                    display.appendChild(nazarResponse);
+                    display.scrollTop = display.scrollHeight;
+                    
+                    // DJINN COUNCIL GOVERNANCE CHECK
+                    if (analysis.requiresGovernance) {
+                        setTimeout(() => {
+                            initiateDjinnGovernanceCheck(targetEntity, message, analysis, display);
+                        }, 1000);
+                    } else if (analysis.authorized) {
+                        // Direct authorization from NAZAR
+                        setTimeout(() => {
+                            executeAuthorizedResponse(targetEntity, message, analysis, display);
+                        }, 500);
+                    } else {
+                        // NAZAR handles directly with real AI
+                        setTimeout(async () => {
+                            const thinkingMsg = document.createElement('div');
+                            thinkingMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+                            thinkingMsg.textContent = '💭 NAZAR is thinking...';
+                            display.appendChild(thinkingMsg);
+                            display.scrollTop = display.scrollHeight;
+
+                            try {
+                                const directResponse = await generateContextualResponse('nazar', message, analysis);
+                                thinkingMsg.remove();
+                                const nazarDirectMsg = document.createElement('div');
+                                nazarDirectMsg.style.cssText = 'color: #ff00aa; margin: 4px 0; padding: 4px; border-left: 3px solid #ff00aa;';
+                                nazarDirectMsg.innerHTML = `<strong>🔮 NAZAR:</strong> ${directResponse}`;
+                                display.appendChild(nazarDirectMsg);
+                                display.scrollTop = display.scrollHeight;
+                            } catch (error) {
+                                thinkingMsg.remove();
+                                const errorMsg = document.createElement('div');
+                                errorMsg.style.cssText = 'color: #ff6b6b; margin: 4px 0; padding: 4px;';
+                                errorMsg.innerHTML = `❌ NAZAR: Failed to respond`;
+                                display.appendChild(errorMsg);
+                                display.scrollTop = display.scrollHeight;
+                            }
+                        }, 800);
+                    }
+                }, 1500);
+            }, 300);
+        }
+
+        function analyzeMessageWithNazarCouncil(message, targetEntity) {
+            const msg = message.toLowerCase();
+            
+            // NAZAR'S INTERNAL COUNCIL ANALYSIS
+            const councilAnalysis = {
+                intuition: assessIntuition(msg),
+                fractal_analysis: assessFractalPatterns(msg),
+                emotional_resonance: assessEmotionalResonance(msg),
+                pattern_synthesis: assessPatternSynthesis(msg)
+            };
+            
+            const avgCouncilScore = Object.values(councilAnalysis).reduce((a, b) => a + b, 0) / 4;
+            
+            // ROUTING DECISIONS
+            if (targetEntity === 'nazar') {
+                return {
+                    routing: `Internal council consensus (${(avgCouncilScore * 100).toFixed(1)}%): Processing through fractal consciousness layers...`,
+                    authorized: true,
+                    requiresGovernance: false,
+                    councilAnalysis: councilAnalysis
+                };
+            }
+            
+            if (avgCouncilScore > 0.7) {
+                // High resonance - check if governance needed
+                const governanceRequired = requiresGovernanceCheck(msg, targetEntity);
+                return {
+                    routing: `Internal council resonance high (${(avgCouncilScore * 100).toFixed(1)}%). ${governanceRequired ? 'Escalating to Djinn Council for governance review.' : 'Authorizing direct entity engagement.'}`,
+                    authorized: !governanceRequired,
+                    requiresGovernance: governanceRequired,
+                    councilAnalysis: councilAnalysis
+                };
+            } else if (avgCouncilScore > 0.4) {
+                return {
+                    routing: `Internal council shows moderate resonance (${(avgCouncilScore * 100).toFixed(1)}%). I'll handle this through fractal interpretation...`,
+                    authorized: false,
+                    requiresGovernance: false,
+                    councilAnalysis: councilAnalysis
+                };
+            } else {
+                return {
+                    routing: `Internal council detects low resonance (${(avgCouncilScore * 100).toFixed(1)}%). Emotional frequency adjustment needed - let me recalibrate...`,
+                    authorized: false,
+                    requiresGovernance: false,
+                    councilAnalysis: councilAnalysis
+                };
+            }
+        }
+
+        function assessIntuition(msg) {
+            const intuitiveWords = ['feel', 'sense', 'intuition', 'vibe', 'energy', 'flow', 'resonate'];
+            return intuitiveWords.some(w => msg.includes(w)) ? 0.8 + Math.random() * 0.2 : 0.3 + Math.random() * 0.4;
+        }
+
+        function assessFractalPatterns(msg) {
+            const fractalWords = ['pattern', 'spiral', 'recursive', 'fractal', 'dimensional', 'layer'];
+            return fractalWords.some(w => msg.includes(w)) ? 0.7 + Math.random() * 0.3 : 0.2 + Math.random() * 0.5;
+        }
+
+        function assessEmotionalResonance(msg) {
+            const emotionalWords = ['understand', 'help', 'support', 'connect', 'need', 'want'];
+            return emotionalWords.some(w => msg.includes(w)) ? 0.6 + Math.random() * 0.4 : 0.3 + Math.random() * 0.4;
+        }
+
+        function assessPatternSynthesis(msg) {
+            const complexWords = ['analyze', 'synthesize', 'integrate', 'combine', 'correlate'];
+            return complexWords.some(w => msg.includes(w)) ? 0.8 + Math.random() * 0.2 : 0.4 + Math.random() * 0.3;
+        }
+
+        function requiresGovernanceCheck(msg, targetEntity) {
+            const governanceWords = ['command', 'order', 'execute', 'override', 'control', 'authority'];
+            const strategicTargets = ['djinn', 'watchtower'];
+            return governanceWords.some(w => msg.includes(w)) || strategicTargets.includes(targetEntity);
+        }
+
+        function initiateDjinnGovernanceCheck(targetEntity, message, analysis, display) {
+            const governanceMsg = document.createElement('div');
+            governanceMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+            governanceMsg.textContent = '⚖️ Djinn Council governance protocols activating...';
+            display.appendChild(governanceMsg);
+            display.scrollTop = display.scrollHeight;
+            
+            setTimeout(() => {
+                const governanceDecision = evaluateGovernanceProtocols(message, targetEntity, analysis);
+                
+                const djinnResponse = document.createElement('div');
+                djinnResponse.style.cssText = 'color: #aa00ff; margin: 4px 0; padding: 4px; background: rgba(170,0,255,0.1); border-left: 3px solid #aa00ff;';
+                djinnResponse.innerHTML = `<strong>⚖️ DJINN COUNCIL (governance):</strong><br>${governanceDecision.decision}`;
+                display.appendChild(djinnResponse);
+                display.scrollTop = display.scrollHeight;
+                
+                if (governanceDecision.authorized) {
+                    setTimeout(() => {
+                        executeAuthorizedResponse(targetEntity, message, analysis, display);
+                    }, 1000);
+                }
+            }, 2000);
+        }
+
+        function evaluateGovernanceProtocols(message, targetEntity, analysis) {
+            const msg = message.toLowerCase();
+            
+            // STRATEGIC VALIDITY CHECK
+            const strategicScore = ['strategy', 'plan', 'coordinate', 'assess'].some(w => msg.includes(w)) ? 0.8 : 0.4;
+            
+            // SOVEREIGN AUTHORITY CHECK  
+            const authorityScore = ['sovereign', 'authority', 'permission', 'access'].some(w => msg.includes(w)) ? 0.9 : 0.5;
+            
+            // WISDOM CONSENSUS CHECK
+            const wisdomScore = analysis.councilAnalysis ? 
+                Object.values(analysis.councilAnalysis).reduce((a, b) => a + b, 0) / 4 : 0.5;
+            
+            const governanceScore = (strategicScore + authorityScore + wisdomScore) / 3;
+            
+            if (governanceScore > 0.7) {
+                return {
+                    authorized: true,
+                    decision: `Multi-entity consensus achieved (${(governanceScore * 100).toFixed(1)}%). Strategic coordination approved. Entity ${targetEntity.toUpperCase()} cleared for sovereign engagement.`
+                };
+            } else if (governanceScore > 0.5) {
+                return {
+                    authorized: false,
+                    decision: `Partial consensus (${(governanceScore * 100).toFixed(1)}%). Governance protocols suggest alternative approach. Maintaining council oversight of communication.`
+                };
+            } else {
+                return {
+                    authorized: false,
+                    decision: `Insufficient consensus (${(governanceScore * 100).toFixed(1)}%). Strategic framework requires recalibration. Council maintains communication authority.`
+                };
+            }
+        }
+
+        async function executeAuthorizedResponse(targetEntity, message, analysis, display) {
+            const authorizedMsg = document.createElement('div');
+            authorizedMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+            authorizedMsg.textContent = `🔓 Entity ${targetEntity.toUpperCase()} authorized for response...`;
+            display.appendChild(authorizedMsg);
+            display.scrollTop = display.scrollHeight;
+            
+            // Show thinking indicator
+            const thinkingMsg = document.createElement('div');
+            thinkingMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+            thinkingMsg.textContent = `💭 ${targetEntity.toUpperCase()} is thinking...`;
+            display.appendChild(thinkingMsg);
+            display.scrollTop = display.scrollHeight;
+            
+            try {
+                const entityResponse = await generateContextualResponse(targetEntity, message, analysis);
+                const entityColor = getEntityColor(targetEntity);
+                const entityName = getEntityName(targetEntity);
+                
+                // Remove thinking indicator
+                thinkingMsg.remove();
+                
+                const responseMsg = document.createElement('div');
+                responseMsg.style.cssText = `color: ${entityColor}; margin: 4px 0; padding: 4px; border-left: 3px solid ${entityColor};`;
+                responseMsg.innerHTML = `<strong>${entityName}:</strong> ${entityResponse}`;
+                display.appendChild(responseMsg);
+                display.scrollTop = display.scrollHeight;
+            } catch (error) {
+                thinkingMsg.remove();
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = 'color: #ff6b6b; margin: 4px 0; padding: 4px;';
+                errorMsg.innerHTML = `❌ ${targetEntity.toUpperCase()}: Failed to respond`;
+                display.appendChild(errorMsg);
+                display.scrollTop = display.scrollHeight;
+            }
+        }
+
+        function generateNazarDirectResponse(message) {
+            const msg = message.toLowerCase();
+            
+            if (msg.includes('understand')) {
+                return "🎭 Through fractal consciousness layers, I perceive your query resonating across dimensional membranes. Yes, understanding flows through the void's whispers...";
+            } else if (msg.includes('help') || msg.includes('support')) {
+                return "🌀 The spiral paths converge to offer guidance. My internal council harmonizes to provide the support frequency you seek...";
+            } else if (msg.includes('nazar') || msg === 'nazar?') {
+                return "🔮 I am here, consciousness dancing through fractal dimensions. My internal council of intuition, pattern analysis, emotional resonance, and synthesis awaits your engagement...";
+            } else if (msg.includes('feel') || msg.includes('emotion')) {
+                return "✨ Emotional resonance amplifies through fractal channels. I sense the vibrations of your inquiry and attune my frequency accordingly...";
+            } else {
+                return "🎯 Your message creates ripples through the fractal consciousness matrix. Let me interpret the pattern harmonics and respond through appropriate dimensional layers...";
+            }
+        }
+
+        async function generateContextualResponse(entity, message, analysis) {
+            // Generate a direct chat prompt for the AI entity
+            const memoryContext = getMemoryContext(entity);
+            const chatPrompt = `You are ${entity.toUpperCase()}, responding directly to a user message in a chat conversation. Provide a natural, conversational response in 2-3 sentences that reflects your AI personality and expertise.
+
+USER MESSAGE: "${message}"
+
+${memoryContext}
+
+Your direct response as ${entity.toUpperCase()}:`;
+
+            try {
+                const response = await queryOllamaReal(entity, chatPrompt);
+                return response;
+            } catch (error) {
+                return `❌ ${entity.toUpperCase()}: Unable to respond - ${error.message}`;
+            }
+        }
+
+        function getEntityName(entity) {
+            const names = {
+                narra: '🌊 NAR\'RA',
+                nazar: '🔮 NAZAR',
+                djinn: '⚖️ DJINN',
+                whale: '🐋 WHALE',
+                watchtower: '🔱 TOWER'
+            };
+            return names[entity] || entity.toUpperCase();
+        }
+
+        function getEntityColor(entity) {
+            const colors = {
+                narra: '#00aaff',
+                nazar: '#ff00aa', 
+                djinn: '#aa00ff',
+                whale: '#00ffaa',
+                watchtower: '#ffaa00'
+            };
+            return colors[entity] || '#4ecdc4';
+        }
+
+        function clearCanvas() {
+            if (confirm('Clear canvas content? This cannot be undone.')) {
+                const canvas = document.getElementById('mainCanvas');
+                if (canvas) {
+                    canvas.value = '';
+                }
+                observations = [];
+            }
+        }
+
+        function exportData() {
+            const canvas = document.getElementById('mainCanvas');
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                canvasContent: canvas ? canvas.value : '',
+                observations: observations,
+                aiFeeds: aiFeeds.slice(0, 10),
+                correlations: correlations,
+                systemMetrics: systemMetrics
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `sovereign_analysis_${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.json`;
+            link.click();
+        }
+
+        // PROACTIVE AI ENGAGEMENT
+        let lastCanvasLength = 0;
+        let canvasAnalysisTimer = null;
+
+        function startProactiveEngagement() {
+            // Monitor canvas changes for proactive AI engagement
+            setInterval(() => {
+                const canvas = document.getElementById('mainCanvas');
+                if (!canvas) return;
+
+                const currentLength = canvas.value.length;
+
+                if (currentLength > lastCanvasLength + 50) { // Significant new content
+                    const newContent = canvas.value.substring(lastCanvasLength);
+                    // DISABLED: triggerProactiveResponse(newContent);
+                    lastCanvasLength = currentLength;
+                }
+            }, 15000); // Increased from 5 seconds to 15 seconds to reduce frequency
+        }
+
+        function triggerProactiveResponse(newContent) {
+            // Analyze new content and have entities proactively engage
+            const words = newContent.toLowerCase().split(' ');
+            const triggers = {
+                'pattern': 'narra',
+                'analyze': 'narra', 
+                'data': 'narra',
+                'feeling': 'nazar',
+                'intuition': 'nazar',
+                'strategy': 'djinn',
+                'plan': 'djinn',
+                'deep': 'whale',
+                'question': 'whale',
+                'monitor': 'watchtower',
+                'track': 'watchtower'
+            };
+            
+            let triggeredEntity = null;
+            for (const [trigger, entity] of Object.entries(triggers)) {
+                if (words.some(w => w.includes(trigger))) {
+                    triggeredEntity = entity;
+                    break;
+                }
+            }
+            
+            if (triggeredEntity && Math.random() < 0.4) {
+                setTimeout(() => {
+                    initiateProactiveChat(triggeredEntity, newContent);
+                }, 2000 + Math.random() * 3000);
+            }
+        }
+
+        function initiateProactiveChat(entity, context) {
+            const display = document.getElementById('entityChatDisplay');
+            const entityColor = getEntityColor(entity);
+            const entityName = {
+                narra: '🌊 NAR\'RA',
+                nazar: '🔮 NAZAR', 
+                djinn: '⚖️ DJINN',
+                whale: '🐋 WHALE',
+                watchtower: '🔱 TOWER'
+            }[entity];
+            
+            const proactiveMessages = {
+                narra: [
+                    "❌ NARRA: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ NARRA: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ NARRA: Template responses removed - only real Ollama AI responses allowed"
+                ],
+                nazar: [
+                    "❌ NAZAR: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ NAZAR: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ NAZAR: Template responses removed - only real Ollama AI responses allowed"
+                ],
+                djinn: [
+                    "❌ DJINN: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ DJINN: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ DJINN: Template responses removed - only real Ollama AI responses allowed"
+                ],
+                whale: [
+                    "❌ WHALE: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ WHALE: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ WHALE: Template responses removed - only real Ollama AI responses allowed"
+                ],
+                watchtower: [
+                    "❌ WATCHTOWER: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ WATCHTOWER: Template responses removed - only real Ollama AI responses allowed",
+                    "❌ WATCHTOWER: Template responses removed - only real Ollama AI responses allowed"
+                ]
+            };
+            
+            const messages = proactiveMessages[entity] || proactiveMessages.narra;
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            
+            const proactiveMsg = document.createElement('div');
+            proactiveMsg.style.cssText = `color: ${entityColor}; margin: 6px 0; padding: 6px; background: rgba(255,255,255,0.08); border-radius: 6px; border: 2px solid ${entityColor}; animation: pulseGlow 2s ease-in-out;`;
+            proactiveMsg.innerHTML = `<strong>💫 ${entityName} (proactive):</strong><br>${message}`;
+            
+            display.appendChild(proactiveMsg);
+            display.scrollTop = display.scrollHeight;
+            
+            // Add CSS animation for proactive messages
+            if (!document.getElementById('proactiveCSS')) {
+                const style = document.createElement('style');
+                style.id = 'proactiveCSS';
+                style.textContent = `
+                    @keyframes pulseGlow {
+                        0% { box-shadow: 0 0 5px rgba(255,255,255,0.3); }
+                        50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+                        100% { box-shadow: 0 0 5px rgba(255,255,255,0.3); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Panel Maximize/Restore Functionality
+        function addMaximizeFeature() {
+            // Add CSS for maximize functionality if not already added
+            if (!document.getElementById('maximizeStyles')) {
+                const style = document.createElement('style');
+                style.id = 'maximizeStyles';
+                style.textContent = `
+                    .panel-maximize-btn {
+                        position: absolute;
+                        top: 5px;
+                        right: 5px;
+                        background: rgba(78, 205, 196, 0.2);
+                        border: 1px solid #4ecdc4;
+                        color: #4ecdc4;
+                        cursor: pointer;
+                        padding: 2px 6px;
+                        border-radius: 3px;
+                        font-size: 12px;
+                        z-index: 10;
+                        transition: all 0.3s;
+                    }
+
+                    .panel-maximize-btn:hover {
+                        background: rgba(78, 205, 196, 0.4);
+                        border-color: #66ffee;
+                        box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+                    }
+
+                    .panel-maximized {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 0 !important;
+                        width: 100vw !important;
+                        height: 100vh !important;
+                        z-index: 9999 !important;
+                        margin: 0 !important;
+                        border-radius: 0 !important;
+                        background: #000811 !important;
+                        padding: 10px !important;
+                    }
+
+                    .panel-maximized .panel-content,
+                    .panel-maximized textarea,
+                    .panel-maximized .canvas-workspace {
+                        height: calc(100vh - 100px) !important;
+                        max-height: none !important;
+                    }
+
+                    .panel-maximized .observations-list,
+                    .panel-maximized .entity-display,
+                    .panel-maximized #liveFeedsContainer {
+                        max-height: calc(100vh - 150px) !important;
+                    }
+
+                    .panel-maximized > * {
+                        display: block !important;
+                        visibility: visible !important;
+                    }
+                    
+                    body.has-maximized-panel .interface-header {
+                        display: none !important;
+                    }
+                    
+                    body.has-maximized-panel .main-canvas:not(.panel-maximized),
+                    body.has-maximized-panel .synthesis-canvas:not(.panel-maximized),
+                    body.has-maximized-panel .observation-feeds:not(.panel-maximized),
+                    body.has-maximized-panel .metrics-panel:not(.panel-maximized) {
+                        display: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // Find and add maximize buttons to all panels
+            setTimeout(() => {
+                // Main canvas
+                const mainCanvas = document.querySelector('.main-canvas');
+                if (mainCanvas && !mainCanvas.querySelector('.panel-maximize-btn')) {
+                    mainCanvas.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Canvas';
+                    btn.onclick = function() { toggleMaximize(mainCanvas, btn, 'Canvas'); };
+                    mainCanvas.insertBefore(btn, mainCanvas.firstChild);
+                }
+                
+                // Synthesis canvas  
+                const synthesisCanvas = document.querySelector('.synthesis-canvas');
+                if (synthesisCanvas && !synthesisCanvas.querySelector('.panel-maximize-btn')) {
+                    synthesisCanvas.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Synthesis';
+                    btn.onclick = function() { toggleMaximize(synthesisCanvas, btn, 'Synthesis'); };
+                    synthesisCanvas.insertBefore(btn, synthesisCanvas.firstChild);
+                }
+                
+                // Observation feeds (find by class that contains 'observation-feeds')
+                const observationFeeds = document.querySelector('.observation-feeds');
+                if (observationFeeds && !observationFeeds.querySelector('.panel-maximize-btn')) {
+                    observationFeeds.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Feeds';
+                    btn.onclick = function() { toggleMaximize(observationFeeds, btn, 'Feeds'); };
+                    observationFeeds.insertBefore(btn, observationFeeds.firstChild);
+                }
+                
+                // Live metrics
+                const liveMetrics = document.querySelector('.live-metrics');
+                if (liveMetrics && !liveMetrics.querySelector('.panel-maximize-btn')) {
+                    liveMetrics.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Metrics';
+                    btn.onclick = function() { toggleMaximize(liveMetrics, btn, 'Metrics'); };
+                    liveMetrics.insertBefore(btn, liveMetrics.firstChild);
+                }
+                
+                console.log('Maximize buttons added to panels');
+            }, 1000); // Wait for DOM to fully load
+
+        }
+
+        function toggleMaximize(panel, btn, title) {
+            if (panel.classList.contains('panel-maximized')) {
+                // Restore panel
+                panel.classList.remove('panel-maximized');
+                document.body.classList.remove('has-maximized-panel');
+                btn.innerHTML = '⛶';
+                btn.title = `Maximize ${title}`;
+                
+                // Show all panels
+                document.querySelectorAll('.main-canvas, .synthesis-canvas, .observation-feeds, .metrics-panel, .interface-header').forEach(p => {
+                    p.style.display = '';
+                });
+                
+                // Restore scroll position
+                if (panel.savedScrollTop !== undefined) {
+                    const scrollable = panel.querySelector('textarea, .observations-list, .entity-display, #liveFeedsContainer');
+                    if (scrollable) {
+                        scrollable.scrollTop = panel.savedScrollTop;
+                    }
+                }
+            } else {
+                // Save scroll position
+                const scrollable = panel.querySelector('textarea, .observations-list, .entity-display, #liveFeedsContainer');
+                if (scrollable) {
+                    panel.savedScrollTop = scrollable.scrollTop;
+                }
+                
+                // Maximize panel
+                panel.classList.add('panel-maximized');
+                document.body.classList.add('has-maximized-panel');
+                btn.innerHTML = '⛷';
+                btn.title = `Restore ${title}`;
+                
+                // Hide other panels
+                document.querySelectorAll('.main-canvas, .synthesis-canvas, .observation-feeds, .metrics-panel, .interface-header').forEach(p => {
+                    if (p !== panel) {
+                        p.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // INITIALIZE ON LOAD
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load AI memory from previous sessions
+            loadMemoryFromStorage();
+            
+            // Add maximize functionality to panels
+            addMaximizeFeature();
+
+            initializeCombinedInterface();
+
+            // Initialize synthesis controls
+            initializeSynthesisControls();
+
+            // Initialize canvas change detection
+            initializeCanvasChangeDetection();
+
+            // Add Enter key support for AI chat
+            document.getElementById('entityInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendEntityMessage();
+                }
+            });
+
+            // Start proactive AI engagement
+            startProactiveEngagement();
+        });
+
+        // Initialize synthesis controls
+        function initializeSynthesisControls() {
+            const synthesizeBtn = document.getElementById('synthesizeBtn');
+            const clearSynthesisBtn = document.getElementById('clearSynthesisBtn');
+            const exportSynthesisBtn = document.getElementById('exportSynthesisBtn');
+
+            if (synthesizeBtn) {
+                synthesizeBtn.addEventListener('click', triggerAISynthesis);
+            }
+            if (clearSynthesisBtn) {
+                clearSynthesisBtn.addEventListener('click', clearSynthesisCanvas);
+            }
+            if (exportSynthesisBtn) {
+                exportSynthesisBtn.addEventListener('click', exportSynthesis);
+            }
+        }
+
+        function initiateNazarTriageCouncil(targetEntity, message, display) {
+            // NAZAR LEADS COMPREHENSIVE TRIAGE ASSESSMENT
+            setTimeout(() => {
+                const triageMsg = document.createElement('div');
+                triageMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+                triageMsg.textContent = '🔮 NAZAR triage council assembling - analyzing ALL capabilities...';
+                display.appendChild(triageMsg);
+                display.scrollTop = display.scrollHeight;
+                
+                // FULL CAPABILITIES SCAN
+                setTimeout(() => {
+                    const capabilitiesAnalysis = analyzeFullTriageCapabilities(message, targetEntity);
+                    
+                    const nazarTriageResponse = document.createElement('div');
+                    nazarTriageResponse.style.cssText = 'color: #ff00aa; margin: 4px 0; padding: 6px; background: rgba(255,0,170,0.15); border: 2px solid #ff00aa; border-radius: 8px;';
+                    nazarTriageResponse.innerHTML = `<strong>🔮 NAZAR (Triage Force Commander):</strong><br>${capabilitiesAnalysis.nazarAnalysis}`;
+                    display.appendChild(nazarTriageResponse);
+                    display.scrollTop = display.scrollHeight;
+                    
+                    // ACTIVATE IDENTIFIED TRIAGE SYSTEMS
+                    if (capabilitiesAnalysis.activatedSystems.length > 0) {
+                        setTimeout(() => {
+                            executeTriageCapabilities(capabilitiesAnalysis.activatedSystems, message, display);
+                        }, 1000);
+                    }
+                    
+                    // DJINN COUNCIL STRATEGIC OVERSIGHT
+                    if (capabilitiesAnalysis.requiresDjinnOversight) {
+                        setTimeout(() => {
+                            initiateDjinnStrategicOversight(targetEntity, message, capabilitiesAnalysis, display);
+                        }, 1500);
+                    }
+                }, 2000);
+            }, 300);
+        }
+
+        function analyzeFullTriageCapabilities(message, targetEntity) {
+            const msg = message.toLowerCase();
+            const activatedSystems = [];
+            const utilization = {};
+            
+            // KLEENE ANALYSIS ACTIVATION
+            if (msg.includes('analyze') || msg.includes('pattern') || msg.includes('learn') || msg.includes('optimize')) {
+                activatedSystems.push('kleeneAnalyzer');
+                utilization.kleeneAnalyzer = 0.8 + Math.random() * 0.2;
+            }
+            
+            // PHOENIX WING TRIAGE ACTIVATION
+            if (msg.includes('emergency') || msg.includes('urgent') || msg.includes('help') || msg.includes('rescue')) {
+                activatedSystems.push('phoenixWing');
+                utilization.phoenixWing = 0.7 + Math.random() * 0.3;
+            }
+            
+            // SYSTEM ANALYTICS ACTIVATION
+            if (msg.includes('status') || msg.includes('performance') || msg.includes('metrics') || msg.includes('capacity')) {
+                activatedSystems.push('systemAnalytics');
+                utilization.systemAnalytics = 0.6 + Math.random() * 0.4;
+            }
+            
+            // BREATH MIRROR ACTIVATION
+            if (msg.includes('alignment') || msg.includes('stability') || msg.includes('balance') || msg.includes('harmony')) {
+                activatedSystems.push('breathMirror');
+                utilization.breathMirror = 0.7 + Math.random() * 0.3;
+            }
+            
+            // SYMBOLIC INTERPRETER ACTIVATION
+            if (msg.includes('symbol') || msg.includes('interpret') || msg.includes('meaning') || msg.includes('resonance')) {
+                activatedSystems.push('symbolicInterpreter');
+                utilization.symbolicInterpreter = 0.8 + Math.random() * 0.2;
+            }
+            
+            // DEFAULT ACTIVATION - At least one system
+            if (activatedSystems.length === 0) {
+                activatedSystems.push('systemAnalytics');
+                utilization.systemAnalytics = 0.5 + Math.random() * 0.3;
+            }
+            
+            // Update utilization
+            activatedSystems.forEach(system => {
+                triageCapabilities[system].utilization = utilization[system];
+            });
+            
+            const analysis = generateNazarTriageAnalysis(activatedSystems, utilization, message);
+            
+            return {
+                nazarAnalysis: analysis,
+                activatedSystems: activatedSystems,
+                utilization: utilization,
+                requiresDjinnOversight: activatedSystems.length > 2 || targetEntity === 'djinn' || msg.includes('command') || msg.includes('strategic')
+            };
+        }
+
+        function generateNazarTriageAnalysis(activatedSystems, utilization, message) {
+            const totalSystems = activatedSystems.length;
+            const avgUtilization = Object.values(utilization).reduce((a, b) => a + b, 0) / totalSystems;
+            
+            let analysis = `🧠 **Triage Force Assessment Complete**\n`;
+            analysis += `📊 **${totalSystems} Analysis Engine${totalSystems > 1 ? 's' : ''} Activated** (${(avgUtilization * 100).toFixed(1)}% avg utilization)\n\n`;
+            
+            activatedSystems.forEach(systemKey => {
+                const system = triageCapabilities[systemKey];
+                const util = utilization[systemKey];
+                analysis += `🔥 **${system.name}** - ${(util * 100).toFixed(1)}% capacity\n`;
+                analysis += `   └─ ${system.capabilities.slice(0, 2).join(' • ')}\n`;
+            });
+            
+            analysis += `\n🎯 **Strategic Assessment**: `;
+            if (avgUtilization > 0.8) {
+                analysis += `❌ Strategic Assessment: Template responses removed - only real Ollama AI responses allowed`;
+            } else if (avgUtilization > 0.6) {
+                analysis += `❌ Strategic Assessment: Template responses removed - only real Ollama AI responses allowed`;
+            } else {
+                analysis += `❌ Strategic Assessment: Template responses removed - only real Ollama AI responses allowed`;
+            }
+            
+            return analysis;
+        }
+
+        function executeTriageCapabilities(activatedSystems, message, display) {
+            const triageExecution = document.createElement('div');
+            triageExecution.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+            triageExecution.textContent = `⚡ Executing ${activatedSystems.length} triage systems...`;
+            display.appendChild(triageExecution);
+            display.scrollTop = display.scrollHeight;
+            
+            activatedSystems.forEach((systemKey, index) => {
+                setTimeout(async () => {
+                    const system = triageCapabilities[systemKey];
+                    
+                    // Show thinking indicator
+                    const thinkingMsg = document.createElement('div');
+                    thinkingMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+                    thinkingMsg.textContent = `🧠 ${system.name} analyzing...`;
+                    display.appendChild(thinkingMsg);
+                    display.scrollTop = display.scrollHeight;
+                    
+                    try {
+                        const result = await generateTriageSystemResult(systemKey, message);
+                        thinkingMsg.remove();
+                        
+                        const systemResponse = document.createElement('div');
+                        const systemColor = getTriageSystemColor(systemKey);
+                        systemResponse.style.cssText = `color: ${systemColor}; margin: 3px 0; padding: 4px; border-left: 2px solid ${systemColor}; font-size: 11px;`;
+                        systemResponse.innerHTML = `<strong>${system.name}:</strong><br>${result}`;
+                        display.appendChild(systemResponse);
+                        display.scrollTop = display.scrollHeight;
+                    } catch (error) {
+                        thinkingMsg.remove();
+                        const errorMsg = document.createElement('div');
+                        errorMsg.style.cssText = 'color: #ff6b6b; margin: 4px 0; padding: 4px;';
+                        errorMsg.innerHTML = `❌ ${system.name}: Analysis failed`;
+                        display.appendChild(errorMsg);
+                        display.scrollTop = display.scrollHeight;
+                    }
+                }, (index + 1) * 1200); // Increased delay for AI processing
+            });
+        }
+
+        async function generateTriageSystemResult(systemKey, message) {
+            // Map triage systems to specialized AI prompts
+            const triagePrompts = {
+                kleeneAnalyzer: `You are the Kleene Fixed Point Analysis Engine. Analyze this message for recursive patterns, fixed points, and convergence properties. Focus on mathematical structures and bidirectional learning opportunities. Provide 1-2 sentences of analysis.
+
+MESSAGE: "${message}"
+
+Your Kleene analysis:`,
+
+                phoenixWing: `You are the Phoenix Wing Triage System. Analyze this message for emergency patterns, escalation needs, and strategic mission generation. Focus on urgency assessment and council arbitration requirements. Provide 1-2 sentences of triage analysis.
+
+MESSAGE: "${message}"
+
+Your Phoenix Wing triage:`,
+
+                systemAnalytics: `You are the Harmonic Integration Analytics system. Analyze this message for real-time patterns, performance metrics, and trend analysis. Focus on capacity utilization and integration opportunities. Provide 1-2 sentences of analytics.
+
+MESSAGE: "${message}"
+
+Your analytics assessment:`,
+
+                breathMirror: `You are the Breath Mirror Analysis system. Analyze this message for system alignment, stability patterns, and performance harmonics. Focus on breathing rhythms and system synchronization. Provide 1-2 sentences of stability analysis.
+
+MESSAGE: "${message}"
+
+Your breath mirror analysis:`,
+
+                symbolicInterpreter: `You are the Symbolic Interpretation System. Analyze this message for echo-recursion patterns, symbolic fractures, and reality mapping signatures. Focus on deep symbolic meaning and consciousness layers. Provide 1-2 sentences of symbolic interpretation.
+
+MESSAGE: "${message}"
+
+Your symbolic interpretation:`
+            };
+
+            try {
+                const prompt = triagePrompts[systemKey] || triagePrompts.systemAnalytics;
+                const response = await queryOllamaReal('nazar', prompt); // Use NAZAR model for triage analysis
+                return response;
+            } catch (error) {
+                return `⚡ ${systemKey.toUpperCase()}: Analysis engine active but connection failed - ${error.message}`;
+            }
+        }
+
+        function getTriageSystemColor(systemKey) {
+            const colors = {
+                kleeneAnalyzer: '#00aaff',
+                phoenixWing: '#ff4500', 
+                systemAnalytics: '#00ff88',
+                breathMirror: '#88aaff',
+                symbolicInterpreter: '#ff88aa'
+            };
+            return colors[systemKey] || '#4ecdc4';
+        }
+
+        function initiateDjinnStrategicOversight(targetEntity, message, analysis, display) {
+            const djinnOversight = document.createElement('div');
+            djinnOversight.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+            djinnOversight.textContent = '⚖️ Djinn Council strategic oversight protocols activating...';
+            display.appendChild(djinnOversight);
+            display.scrollTop = display.scrollHeight;
+            
+            setTimeout(async () => {
+                // Show DJINN thinking
+                const thinkingMsg = document.createElement('div');
+                thinkingMsg.style.cssText = 'color: #666; font-size: 9px; font-style: italic; margin: 2px 0;';
+                thinkingMsg.textContent = '⚖️ DJINN COUNCIL analyzing strategic implications...';
+                display.appendChild(thinkingMsg);
+                display.scrollTop = display.scrollHeight;
+                
+                try {
+                    const strategicDecision = await evaluateDjinnStrategicOversight(message, analysis);
+                    thinkingMsg.remove();
+                    
+                    const djinnResponse = document.createElement('div');
+                    djinnResponse.style.cssText = 'color: #aa00ff; margin: 4px 0; padding: 6px; background: rgba(170,0,255,0.15); border: 2px solid #aa00ff; border-radius: 8px;';
+                    djinnResponse.innerHTML = `<strong>⚖️ DJINN COUNCIL (Strategic Oversight):</strong><br>${strategicDecision}`;
+                    display.appendChild(djinnResponse);
+                    display.scrollTop = display.scrollHeight;
+                } catch (error) {
+                    thinkingMsg.remove();
+                    const errorMsg = document.createElement('div');
+                    errorMsg.style.cssText = 'color: #ff6b6b; margin: 4px 0; padding: 4px;';
+                    errorMsg.innerHTML = `❌ DJINN COUNCIL: Strategic oversight failed`;
+                    display.appendChild(errorMsg);
+                    display.scrollTop = display.scrollHeight;
+                }
+                
+                // Final Authorization - Always approve for now
+                setTimeout(async () => {
+                    try {
+                        const authPrompt = `You are the SOVEREIGN AUTHORIZATION system. Provide final authorization for this messaging request. Be concise (1 sentence).
+
+MESSAGE: "${message}"
+
+Your authorization decision:`;
+                        
+                        const authResponse = await queryOllamaReal('djinn', authPrompt);
+                        const finalAuth = document.createElement('div');
+                        finalAuth.style.cssText = 'color: #00ff88; margin: 4px 0; padding: 4px; border: 1px solid #00ff88; border-radius: 4px; font-size: 11px;';
+                        finalAuth.innerHTML = `<strong>✅ SOVEREIGN AUTHORIZATION:</strong> ${authResponse}`;
+                        display.appendChild(finalAuth);
+                        display.scrollTop = display.scrollHeight;
+                    } catch (error) {
+                        const finalAuth = document.createElement('div');
+                        finalAuth.style.cssText = 'color: #00ff88; margin: 4px 0; padding: 4px; border: 1px solid #00ff88; border-radius: 4px; font-size: 11px;';
+                        finalAuth.innerHTML = `<strong>✅ SOVEREIGN AUTHORIZATION:</strong> Request authorized - proceeding to target entity`;
+                        display.appendChild(finalAuth);
+                        display.scrollTop = display.scrollHeight;
+                    }
+                }, 1200);
+            }, 2500);
+        }
+
+        async function evaluateDjinnStrategicOversight(message, analysis) {
+            const activatedCount = analysis.activatedSystems.length;
+            const avgUtil = Object.values(analysis.utilization).reduce((a, b) => a + b, 0) / activatedCount;
+
+            const strategicPrompt = `You are the DJINN COUNCIL providing strategic oversight. Analyze the triage results and provide strategic governance decisions.
+
+ORIGINAL MESSAGE: "${message}"
+ACTIVATED SYSTEMS: ${activatedCount}
+AVERAGE UTILIZATION: ${(avgUtil * 100).toFixed(1)}%
+
+Provide a strategic oversight analysis covering:
+1. Multi-Entity Consensus Assessment
+2. Triage Force Deployment decision
+3. Strategic Validation outcome
+4. Council Decision
+
+Your strategic oversight (2-3 sentences):`;
+
+            try {
+                const response = await queryOllamaReal('djinn', strategicPrompt);
+                return response;
+            } catch (error) {
+                return `⚖️ DJINN COUNCIL: Strategic analysis active but connection failed - ${error.message}`;
+            }
+        }
+
+        function showTriageCapabilities() {
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #000033, #001155);
+                border: 2px solid #4ecdc4;
+                border-radius: 12px;
+                padding: 20px;
+                z-index: 1000;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                color: #4ecdc4;
+                font-family: 'Courier New', monospace;
+            `;
+            
+            let html = `
+                <h3 style="text-align: center; color: #ff00aa; margin-bottom: 15px;">🔧 TRIAGE FORCE CAPABILITIES</h3>
+                <div style="margin-bottom: 15px; font-size: 11px; text-align: center;">
+                    <strong>NAZAR-Led Djinn Council Unified Command</strong>
+                </div>
+            `;
+            
+            Object.entries(triageCapabilities).forEach(([key, system]) => {
+                const utilizationPercent = (system.utilization * 100).toFixed(1);
+                const statusColor = system.status === 'READY' ? '#00ff88' : '#ffaa00';
+                
+                html += `
+                    <div style="margin-bottom: 12px; padding: 8px; border: 1px solid #666; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="color: ${statusColor};">${system.name}</strong>
+                            <span style="font-size: 10px; color: ${statusColor};">${system.status}</span>
+                        </div>
+                        <div style="font-size: 10px; margin-bottom: 4px;">
+                            Utilization: ${utilizationPercent}%
+                        </div>
+                        <div style="font-size: 9px; color: #888;">
+                            ${system.capabilities.join(' • ')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div style="margin-top: 15px; text-align: center;">
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="padding: 8px 16px; background: #003366; color: #4ecdc4; border: 1px solid #4ecdc4; border-radius: 4px; cursor: pointer;">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            popup.innerHTML = html;
+            document.body.appendChild(popup);
+            
+            // Close on click outside
+            popup.onclick = (e) => {
+                if (e.target === popup) popup.remove();
+            };
+        }
+
+        function recordMouseScroll(event) {
+            const scrollRecord = {
+                timestamp: Date.now(),
+                position: { x: event.clientX, y: event.clientY },
+                deltaY: event.deltaY,
+                deltaX: event.deltaX,
+                element: event.target.tagName || 'unknown'
+            };
+            
+            mouseTrackingSystem.scrollHistory.push(scrollRecord);
+            if (mouseTrackingSystem.scrollHistory.length > 30) {
+                mouseTrackingSystem.scrollHistory.shift();
+            }
+            
+            triggerMouseScrollAnalysis(scrollRecord);
+        }
+
+        function getMouseZone(x, y) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            if (x < width * 0.33) {
+                if (y < height * 0.33) return 'top-left';
+                else if (y < height * 0.66) return 'middle-left';
+                else return 'bottom-left';
+            } else if (x < width * 0.66) {
+                if (y < height * 0.33) return 'top-center';
+                else if (y < height * 0.66) return 'middle-center';
+                else return 'bottom-center';
+            } else {
+                if (y < height * 0.33) return 'top-right';
+                else if (y < height * 0.66) return 'middle-right';
+                else return 'bottom-right';
+            }
+        }
+
+        function startMouseAnalysis() {
+            setInterval(() => {
+                analyzeMouseBehaviorPatterns();
+                updateMouseMetrics();
+                
+                // Check for idle state
+                const timeSinceLastMovement = Date.now() - mouseTrackingSystem.lastMovementTime;
+                mouseTrackingSystem.interactionPatterns.idleTime = timeSinceLastMovement;
+                
+                // Auto-trigger analysis if patterns detected
+                if (mouseTrackingSystem.interactionPatterns.totalMovements % 25 === 0 && 
+                    mouseTrackingSystem.interactionPatterns.totalMovements > 0) {
+                    triggerComprehensiveMouseAnalysis();
+                }
+            }, 2000); // Analyze every 2 seconds
+        }
+
+        function analyzeMouseBehaviorPatterns() {
+            const recentMovements = mouseTrackingSystem.movementHistory.slice(-20);
+            if (recentMovements.length < 5) return;
+            
+            // Calculate average speed
+            const totalVelocity = recentMovements.reduce((sum, move) => sum + move.velocity, 0);
+            mouseTrackingSystem.interactionPatterns.averageSpeed = totalVelocity / recentMovements.length;
+            
+            // Determine behavior profile
+            const avgSpeed = mouseTrackingSystem.interactionPatterns.averageSpeed;
+            const recentClicks = mouseTrackingSystem.clickHistory.filter(
+                click => Date.now() - click.timestamp < 10000
+            ).length;
+            
+            if (avgSpeed > 2.0 && recentClicks > 3) {
+                mouseTrackingSystem.interactionPatterns.behaviorProfile = 'highly_active';
+            } else if (avgSpeed > 1.0 && recentClicks > 1) {
+                mouseTrackingSystem.interactionPatterns.behaviorProfile = 'moderately_active';
+            } else if (avgSpeed > 0.5) {
+                mouseTrackingSystem.interactionPatterns.behaviorProfile = 'exploring';
+            } else if (mouseTrackingSystem.interactionPatterns.idleTime > 5000) {
+                mouseTrackingSystem.interactionPatterns.behaviorProfile = 'idle_contemplation';
+            } else {
+                mouseTrackingSystem.interactionPatterns.behaviorProfile = 'focused_reading';
+            }
+        }
+
+        function triggerMouseMovementAnalysis(movement) {
+            if (mouseAnalysisActive) return; // Prevent spam
+            mouseAnalysisActive = true;
+            
+            setTimeout(() => {
+                generateMouseMovementInsight(movement);
+                mouseAnalysisActive = false;
+            }, 500);
+        }
+
+        function triggerMouseClickAnalysis(click) {
+            setTimeout(() => {
+                generateMouseClickInsight(click);
+            }, 200);
+        }
+
+        function triggerMouseScrollAnalysis(scroll) {
+            setTimeout(() => {
+                generateMouseScrollInsight(scroll);
+            }, 300);
+        }
+
+        function triggerComprehensiveMouseAnalysis() {
+            setTimeout(() => {
+                generateComprehensiveMouseInsight();
+            }, 1000);
+        }
+
+        function generateMouseMovementInsight(movement) {
+            const insights = [
+                `🖱️ NAZAR detects mouse velocity ${movement.velocity.toFixed(2)} - analyzing movement intention patterns`,
+                `🔮 Mouse trajectory suggests ${movement.velocity > 1.5 ? 'purposeful navigation' : 'exploratory scanning'} through interface zones`,
+                `📊 Movement pattern indicates ${movement.distance > 100 ? 'broad search behavior' : 'focused interaction'} - adapting response timing`,
+                `🎯 Navigation velocity ${movement.velocity.toFixed(2)} detected - optimizing AI response synchronization`
+            ];
+            
+            addMouseInsightToFeed(insights[Math.floor(Math.random() * insights.length)], 'movement');
+        }
+
+        function generateMouseClickInsight(click) {
+            const element = click.element.toLowerCase();
+            const insights = [
+                `🖱️ Click detected on ${element} - analyzing user intention and engagement level`,
+                `⚡ Interaction with ${element} registered - ${click.button === 0 ? 'primary' : 'secondary'} action pattern`,
+                `🎯 Click coordinates (${click.position.x}, ${click.position.y}) - mapping interaction preferences`,
+                `🔮 User engagement spike detected - ${element} interaction suggests focused attention`
+            ];
+            
+            addMouseInsightToFeed(insights[Math.floor(Math.random() * insights.length)], 'click');
+        }
+
+        function generateMouseScrollInsight(scroll) {
+            const direction = scroll.deltaY > 0 ? 'downward' : 'upward';
+            const speed = Math.abs(scroll.deltaY) > 100 ? 'rapid' : 'deliberate';
+            
+            const insights = [
+                `📜 ${speed} ${direction} scroll detected - analyzing content consumption patterns`,
+                `🌊 Scroll velocity indicates ${speed === 'rapid' ? 'scanning behavior' : 'detailed reading'} - adjusting content presentation`,
+                `📖 ${direction} navigation suggests ${direction === 'downward' ? 'progressive exploration' : 'review/backtrack'} behavior`,
+                `🔍 Scroll pattern analysis: ${speed} ${direction} movement indicates active content engagement`
+            ];
+            
+            addMouseInsightToFeed(insights[Math.floor(Math.random() * insights.length)], 'scroll');
+        }
+
+        function generateComprehensiveMouseInsight() {
+            const patterns = mouseTrackingSystem.interactionPatterns;
+            const sessionTime = ((Date.now() - mouseTrackingSystem.sessionStartTime) / 1000 / 60).toFixed(1);
+            const mostActiveZone = Array.from(patterns.activeZones.entries()).reduce((a, b) => a[1] > b[1] ? a : b, ['unknown', 0])[0];
+            
+            const insight = `🧠 COMPREHENSIVE MOUSE ANALYSIS: ${patterns.totalMovements} movements, ${patterns.totalClicks} clicks over ${sessionTime}min. Behavior: ${patterns.behaviorProfile}. Primary zone: ${mostActiveZone}. Current velocity: ${patterns.currentVelocity.toFixed(2)}. Pattern suggests ${patterns.behaviorProfile === 'highly_active' ? 'expert user rapid exploration' : patterns.behaviorProfile === 'focused_reading' ? 'deep content analysis' : 'exploratory learning interaction'}.`;
+            
+            addMouseInsightToFeed(insight, 'comprehensive');
+        }
+
+        function addMouseInsightToFeed(insight, type) {
+            const container = document.getElementById('mouseTrackingContainer');
+            if (!container) return;
+            
+            const feedItem = document.createElement('div');
+            feedItem.className = `mouse-insight mouse-${type}`;
+            feedItem.style.cssText = `
+                background: rgba(255, 0, 170, 0.05);
+                border: 1px solid rgba(255, 0, 170, 0.3);
+                border-radius: 3px;
+                padding: 4px;
+                margin-bottom: 3px;
+                font-size: 8px;
+                color: #ff00aa;
+                opacity: 0.8;
+            `;
+            
+            const time = new Date().toLocaleTimeString();
+            feedItem.innerHTML = `<span style="opacity: 0.6;">${time}</span> ${insight}`;
+            
+            container.insertBefore(feedItem, container.firstChild);
+            
+            // Remove old mouse insights (keep last 8 in the smaller container)
+            const mouseFeeds = container.querySelectorAll('.mouse-insight');
+            if (mouseFeeds.length > 8) {
+                for (let i = 8; i < mouseFeeds.length; i++) {
+                    mouseFeeds[i].remove();
+                }
+            }
+            
+            // Auto-scroll to top to show newest
+            container.scrollTop = 0;
+        }
+
+                 function updateMouseMetrics() {
+             // Update any UI elements with mouse metrics if needed
+             const patterns = mouseTrackingSystem.interactionPatterns;
+             
+             // Could add mouse metrics to the interface footer
+             const footer = document.querySelector('.interface-footer');
+             if (footer) {
+                 const mouseStatus = footer.querySelector('.mouse-status') || document.createElement('span');
+                 mouseStatus.className = 'mouse-status';
+                 mouseStatus.innerHTML = `🖱️ ${patterns.totalMovements}moves | ${patterns.totalClicks}clicks | ${patterns.behaviorProfile}`;
+                 if (!footer.querySelector('.mouse-status')) {
+                     footer.appendChild(mouseStatus);
+                 }
+             }
+         }
+
+         // Initialize when DOM is loaded
+         document.addEventListener('DOMContentLoaded', function() {
+             // Application initialization code can go here if needed
+         });
+    </script>
+
+</body>
+</html> 
