@@ -31,7 +31,7 @@
                 "surveillance consensus intelligence surveillance-extended"
                 "controls controls controls controls";
             grid-template-columns: 1fr 1fr 1fr 1fr;
-            grid-template-rows: minmax(60px, auto) 1fr 1fr minmax(80px, auto);
+            grid-template-rows: minmax(60px, auto) 1fr 0.4fr minmax(60px, auto);
             height: calc(100vh - 20px);
             gap: clamp(4px, 1vw, 8px);
             padding: clamp(4px, 1vw, 8px);
@@ -384,10 +384,55 @@
             border-radius: 8px;
             padding: clamp(6px, 1.5vw, 10px);
             display: flex;
+            flex-direction: column;
+            gap: clamp(4px, 1vw, 8px);
+            min-height: 200px;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .djinn-controls.minimized {
+            min-height: 60px;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .controls-buttons {
+            display: flex;
             gap: clamp(4px, 1vw, 8px);
             align-items: center;
             flex-wrap: wrap;
-            min-height: 50px;
+            flex-shrink: 0;
+        }
+
+        .controls-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .controls-toggle-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(76, 205, 196, 0.2);
+            border: 1px solid rgba(76, 205, 196, 0.4);
+            border-radius: 4px;
+            color: #4ecdc4;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 4px 8px;
+            z-index: 10;
+        }
+
+        .controls-toggle-btn:hover {
+            background: rgba(76, 205, 196, 0.3);
+            border-color: #4ecdc4;
+        }
+
+        .djinn-controls {
+            position: relative;
         }
 
         .control-btn {
@@ -824,7 +869,7 @@
             }
 
             .council-consensus, .intelligence-report, .predictive-analytics-panel {
-                min-height: clamp(120px, 18vh, 200px);
+                min-height: clamp(80px, 12vh, 120px);
             }
         }
 
@@ -847,7 +892,7 @@
             }
 
             .council-consensus, .intelligence-report, .predictive-analytics-panel {
-                min-height: clamp(140px, 20vh, 220px);
+                min-height: clamp(90px, 15vh, 140px);
             }
         }
 
@@ -872,7 +917,7 @@
             }
 
             .council-consensus, .intelligence-report, .predictive-analytics-panel {
-                min-height: clamp(160px, 22vh, 240px);
+                min-height: clamp(100px, 18vh, 160px);
             }
 
             .djinn-controls {
@@ -897,7 +942,7 @@
             }
 
             .council-consensus, .intelligence-report, .predictive-analytics-panel {
-                min-height: clamp(100px, 15vh, 180px);
+                min-height: clamp(70px, 12vh, 120px);
             }
         }
 
@@ -963,6 +1008,8 @@
             margin-bottom: 8px;
             flex: 1;
             overflow-y: auto;
+            min-height: 200px;
+            height: auto;
         }
 
         .extended-analysis-header {
@@ -979,6 +1026,8 @@
             color: #cc88cc;
             line-height: 1.4;
             white-space: pre-line;
+            height: 100%;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -989,7 +1038,7 @@
     <div class="djinn-container">
         <!-- Header -->
         <div class="djinn-header">
-            <div class="header-title" data-tooltip="DJINN Council - Shadow Governance Surveillance: Advanced AI intelligence system with five specialized council members featuring collaborative analysis, persistent memories, and real-time canvas monitoring for comprehensive governance oversight and pattern recognition.">🧞‍♂️ DJINN COUNCIL - SHADOW GOVERNANCE SURVEILLANCE</div>
+            <div class="header-title" data-tooltip="DJINN Council - Document Surveillance Analysis: Advanced intelligence system with five specialized council members featuring collaborative analysis, persistent memories, and real-time document surveillance for comprehensive understanding and pattern recognition.">🧞‍♂️ DJINN COUNCIL - DOCUMENT SURVEILLANCE ANALYSIS</div>
             <div class="surveillance-status">
                 <div class="status-item status-active" data-tooltip="Real-time canvas monitoring status. ACTIVE indicates continuous surveillance of canvas content changes with full cross-window synchronization.">
                     <span class="indicator indicator-active"></span>
@@ -1058,37 +1107,73 @@
                 </div>
             </div>
 
-            <!-- Evolution Insights Panel -->
-            <div id="evolutionInsightsPanel" style="margin-top: 8px; padding: 8px; background: rgba(102, 102, 255, 0.05); border: 1px solid rgba(102, 102, 255, 0.2); border-radius: 4px;">
-                <div style="color: #6666ff; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🔬 EVOLUTION INSIGHTS</div>
-                <div id="evolutionInsights" style="font-size: 10px; line-height: 1.4; color: #cc88cc; white-space: pre-line;">
-                    Analyzing canvas evolution patterns...
+            <!-- DJINN Council Status Section -->
+            <div style="margin-top: 8px; padding: 8px; background: rgba(204, 136, 204, 0.05); border: 1px solid rgba(204, 136, 204, 0.2); border-radius: 4px;">
+                <div style="color: #cc88cc; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🔬 DJINN COUNCIL STATUS</div>
+                <div class="metrics-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
+                    <div class="metric-item" style="font-size: 9px; padding: 4px;">
+                        <div class="metric-label">Council State</div>
+                        <div class="metric-value" id="councilState">STANDBY</div>
+                    </div>
+                    <div class="metric-item" style="font-size: 9px; padding: 4px;">
+                        <div class="metric-label">Active Members</div>
+                        <div class="metric-value" id="activeMembers">0/5</div>
+                    </div>
+                    <div class="metric-item" style="font-size: 9px; padding: 4px;">
+                        <div class="metric-label">Analysis Stage</div>
+                        <div class="metric-value" id="analysisStage">IDLE</div>
+                    </div>
+                    <div class="metric-item" style="font-size: 9px; padding: 4px;">
+                        <div class="metric-label">Reports Generated</div>
+                        <div class="metric-value" id="reportsGenerated">0</div>
+                    </div>
+                    <div class="metric-item" style="font-size: 9px; padding: 4px;">
+                        <div class="metric-label">Cross-Pollination</div>
+                        <div class="metric-value" id="crossPollination">INACTIVE</div>
+                    </div>
+                    <div class="metric-item" style="font-size: 9px; padding: 4px;">
+                        <div class="metric-label">Memory Depth</div>
+                        <div class="metric-value" id="memoryDepth">0 reports</div>
+                    </div>
+                </div>
+
+                <!-- Memory Statistical Readout -->
+                <div style="margin-top: 4px; padding: 4px; background: rgba(255, 170, 0, 0.05); border: 1px solid rgba(255, 170, 0, 0.2); border-radius: 3px; font-size: 9px; line-height: 1.3;">
+                    <div style="color: #ffaa00; font-weight: bold;">🧠 Memory: <span id="memorySummary">Loading...</span></div>
                 </div>
             </div>
 
-            <!-- Cross-System Correlation Panel -->
-            <div id="correlationPanel" style="margin-top: 8px; padding: 8px; background: rgba(0, 204, 255, 0.05); border: 1px solid rgba(0, 204, 255, 0.2); border-radius: 4px;">
-                <div style="color: #00ccff; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🔗 SYSTEM CORRELATION</div>
-                <div id="correlationInsights" style="font-size: 10px; line-height: 1.4; color: #66ccff;">
-                    Analyzing inter-system relationships...
+            <!-- DJINN Council Event Log -->
+            <div id="djinnEventLogPanel" style="margin-top: 8px; padding: 8px; background: rgba(78, 205, 196, 0.05); border: 1px solid rgba(78, 205, 196, 0.3); border-radius: 4px;">
+                <div style="color: #4ecdc4; font-weight: bold; font-size: 11px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    📋 DJINN COUNCIL EVENT LOG
+                    <button onclick="clearEventLog()" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; font-size: 8px; padding: 2px 6px; border-radius: 2px; cursor: pointer;">Clear</button>
+                </div>
+                <div id="djinnEventLog" style="font-size: 9px; line-height: 1.3; color: #66ccaa; max-height: 200px; overflow-y: auto; white-space: pre-line;">
+                    [System Initialized] DJINN Council Document Surveillance Analysis ready
                 </div>
             </div>
 
-            <!-- Memory Optimization Status -->
-            <div id="memoryOptimizationPanel" style="margin-top: 8px; padding: 8px; background: rgba(255, 136, 255, 0.05); border: 1px solid rgba(255, 136, 255, 0.2); border-radius: 4px;">
-                <div style="color: #ff88ff; font-weight: bold; font-size: 11px; margin-bottom: 4px;">🧠 MEMORY OPTIMIZATION</div>
-                <div id="memoryOptimizationMetrics" style="font-size: 10px; line-height: 1.4; color: #cc88cc;">
-                    Analyzing memory efficiency...
+            <!-- Council Activity Monitor -->
+            <div id="councilActivityPanel" style="margin-top: 8px; padding: 8px; background: rgba(255, 193, 7, 0.05); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 4px;">
+                <div style="color: #ffc107; font-weight: bold; font-size: 11px; margin-bottom: 4px;">⚡ COUNCIL ACTIVITY</div>
+                <div id="councilActivityStatus" style="font-size: 10px; line-height: 1.4; color: #ccaa55;">
+                    <div>Active Members: <span id="activeMemberCount">0</span>/5</div>
+                    <div>Analysis Queue: <span id="analysisQueueCount">0</span></div>
+                    <div>Last Consensus: <span id="lastConsensusTime">Never</span></div>
                 </div>
             </div>
 
-            <!-- Compact Memory Status -->
-            <div id="compactMemoryStatus" style="margin-top: 4px; padding: 4px; background: rgba(255, 170, 0, 0.05); border: 1px solid rgba(255, 170, 0, 0.2); border-radius: 3px; font-size: 9px; line-height: 1.3; cursor: pointer;" onclick="toggleMemoryDetails()" title="Click to toggle memory details">
-                <div style="color: #ffaa00; font-weight: bold;">🧠 Memory: <span id="memorySummary">Loading...</span></div>
-                <div id="memoryDetails" style="display: none; margin-top: 3px; color: #666;">
-                    <div id="fullMemoryStatus">Loading full memory status...</div>
+            <!-- Document Analysis Status -->
+            <div id="documentAnalysisPanel" style="margin-top: 8px; padding: 8px; background: rgba(220, 53, 69, 0.05); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 4px;">
+                <div style="color: #dc3545; font-weight: bold; font-size: 11px; margin-bottom: 4px;">📊 DOCUMENT ANALYSIS</div>
+                <div id="documentAnalysisMetrics" style="font-size: 10px; line-height: 1.4; color: #cc6666;">
+                    <div>Document Evolution Rate: <span id="docEvolutionRate">0%</span></div>
+                    <div>AI Collaboration Impact: <span id="aiCollabImpact">Measuring...</span></div>
+                    <div>Analysis Rounds: <span id="analysisRounds">0</span></div>
                 </div>
             </div>
+
 
             <!-- Enhanced Data Feed -->
             <div class="data-feed surveillance-feed" id="surveillanceFeed">
@@ -1249,22 +1334,15 @@
                     Advanced correlation analysis and system insights will appear here as synthesis reports are generated and processed by the DJINN council.
                 </div>
             </div>
-                    Analyzing memory efficiency...
-                </div>
-            </div>
 
-            <!-- Compact Memory Status -->
-            <div id="compactMemoryStatus" style="margin-top: 4px; padding: 4px; background: rgba(255, 170, 0, 0.05); border: 1px solid rgba(255, 170, 0, 0.2); border-radius: 3px; font-size: 9px; line-height: 1.3; cursor: pointer;" onclick="toggleMemoryDetails()" title="Click to toggle memory details">
-                <div style="color: #ffaa00; font-weight: bold;">🧠 Memory: <span id="memorySummary">Loading...</span></div>
-                <div id="memoryDetails" style="display: none; margin-top: 3px; color: #666;">
-                    <div id="fullMemoryStatus">Loading full memory status...</div>
-                </div>
-            </div>
         </div>
 
         <!-- Controls -->
-        <div class="djinn-controls">
-            <button class="control-btn" onclick="triggerCouncilAnalysis()" data-tooltip="Initiate comprehensive 3-stage collaborative analysis with all five council members. Features foundation analysis, cross-pollination, and memory-enhanced synthesis.">🔍 Analyze Now</button>
+        <div class="djinn-controls minimized" id="djinnControls">
+            <button class="controls-toggle-btn" onclick="toggleControls()" id="controlsToggleBtn">Show Controls</button>
+            <!-- Control Buttons Section -->
+            <div class="controls-buttons">
+                <button class="control-btn" onclick="triggerCouncilAnalysis()" data-tooltip="Initiate comprehensive 3-stage collaborative analysis with all five council members. Features foundation analysis, cross-pollination, and memory-enhanced synthesis.">🔍 Analyze Now</button>
             <button class="control-btn" onclick="generateIntelReport()" data-tooltip="Generate AI-powered intelligence report with structured risk evaluation, correlation analysis, actionable recommendations, and strategic implications synthesis.">📊 Generate Report</button>
             <button class="control-btn" onclick="clearIntelligence()" data-tooltip="Clear intelligence reports and consensus data only. Preserves all council member memories and analysis history for continuity.">🗑️ Clear Intel</button>
             <button class="control-btn" onclick="clearCouncilMemory()" data-tooltip="Reset DJINN Council memory system - clears all stored reports, analysis history, and starts fresh session. Preserves canvas AI data but resets council learning state.">� Reset Memory</button>
@@ -1274,8 +1352,30 @@
                 <span data-tooltip="Surveillance polling mode: AUTO (continuous cross-window monitoring with real-time updates) or MANUAL (analysis triggered only on-demand)">Polling: <span id="pollingStatus">AUTO</span></span> |
                 <span data-tooltip="Current analysis queue depth showing pending collaborative analysis requests awaiting processing by council members">Queue: <span id="queueStatus">0</span></span> |
                 <span data-tooltip="Operational security mode: STEALTH (quiet background surveillance with minimal notifications) or ACTIVE (verbose reporting with detailed status updates)">Mode: <span id="modeStatus">STEALTH</span></span>
-            </span>
+                </span>
+            </div>
+            <!-- Expanded Chat Section -->
+            <div class="controls-chat" id="controlsChat">
+                <div class="intelligence-chat-header" style="margin-bottom: 10px; display: flex; align-items: center; color: #4ecdc4; font-size: 14px; font-weight: bold; flex-shrink: 0;">
+                    🤖 Intelligence Agent
+                    <span style="margin-left: 10px; font-size: 12px; color: #888;">Full system database access • Ask anything about canvas, AI systems, memories, and data</span>
+                    <button onclick="clearIntelligenceChat()" style="margin-left: auto; padding: 4px 8px; background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 4px; color: #ff6b6b; font-size: 10px; cursor: pointer;">Clear Chat</button>
+                </div>
+
+                <div class="intelligence-chat-history" id="intelligenceChatHistory" style="flex: 1; overflow-y: auto; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 10px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4; min-height: 0;">
+                    <div style="color: #4ecdc4; margin-bottom: 10px;">
+                        <strong>🤖 Intelligence Agent initialized</strong><br>
+                        <span style="color: #888; font-size: 11px;">Ready to answer questions about canvas content, AI systems, council analysis, synthesis reports, memories, and all stored data.</span>
+                    </div>
+                </div>
+
+                <div class="intelligence-input-container" style="display: flex; gap: 10px; flex-shrink: 0;">
+                    <input type="text" id="intelligenceInput" placeholder="Ask about canvas content, AI systems, council analysis, memories..." style="flex: 1; padding: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; color: #fff; font-size: 12px;" onkeypress="if(event.key==='Enter') askIntelligenceAgent()">
+                    <button onclick="askIntelligenceAgent()" style="padding: 8px 15px; background: rgba(76, 205, 196, 0.2); border: 1px solid rgba(76, 205, 196, 0.4); border-radius: 4px; color: #4ecdc4; cursor: pointer; font-size: 12px; white-space: nowrap;">Ask Agent</button>
+                </div>
+            </div>
         </div>
+
     </div>
 
     <script>
@@ -3100,11 +3200,11 @@
                         });
                     }
 
-                    if (evolution.stability.stability > 80) {
+                    if (evolution.stabilityMetrics && evolution.stabilityMetrics.overall > 80) {
                         insights.push({
                             type: 'canvas_stability',
                             priority: 'medium',
-                            description: `Canvas evolution highly stable (${evolution.stability.stability.toFixed(1)}% stability)`,
+                            description: `Canvas evolution highly stable (${evolution.stabilityMetrics.overall}% stability)`,
                             implications: 'Predictable patterns - optimize for consistency analysis'
                         });
                     }
@@ -3311,6 +3411,12 @@
 
         // Trigger correlative analysis with synthesis data
         function triggerCorrelativeAnalysis(canvasContent, aiMemory, synthesisContent, aiFeeds) {
+            logDjinnEvent('analysis', 'Correlative analysis triggered', {
+                canvasLength: canvasContent?.length || 0,
+                synthesisLength: synthesisContent?.length || 0,
+                feedCount: aiFeeds?.length || 0
+            });
+
             console.log('🔬 TRIGGERING CORRELATIVE ANALYSIS:', {
                 canvasContentLength: canvasContent?.length || 0,
                 aiMemoryLength: aiMemory?.length || 0,
@@ -3407,6 +3513,10 @@
 
         // Store member report with full context
         function storeCouncilMemberReport(memberName, reportData) {
+            logDjinnEvent('member', `${memberName.replace('_', ' & ')} analysis complete - report stored`, {
+                reportLength: reportData.analysis?.length || 0
+            });
+
             const member = djinnCouncilMemory.members[memberName];
 
             // Add new report
@@ -3471,56 +3581,23 @@
         function generateReferentialAnalysis(memberName, currentCanvasData) {
             const member = djinnCouncilMemory.members[memberName];
             const allReports = member.reports;
-            const canvasAIPerformance = djinnCouncilMemory.canvasAISystems;
-            const canvasEvolution = djinnCouncilMemory.canvasEvolution;
             const canvasStats = calculateCanvasStats(currentCanvasData);
 
-            // Get ALL actual localStorage data for analysis
-            const aiMemoryData = localStorage.getItem('ai_memory_state') || '{}';
-            const aiFeeds = localStorage.getItem('ai_feeds') || '[]';
-            const synthesisContent = localStorage.getItem('synthesis_canvas_content') || '';
-            const councilMemory = localStorage.getItem('djinn_council_complete_memory') || '{}';
-            const intelligenceReports = localStorage.getItem('djinn_intelligence') || '[]';
-
-            let parsedMemory = {}, parsedFeeds = [], parsedCouncilMemory = {}, parsedIntelligence = [];
-            try {
-                parsedMemory = JSON.parse(aiMemoryData);
-                parsedFeeds = JSON.parse(aiFeeds);
-                parsedCouncilMemory = JSON.parse(councilMemory);
-                parsedIntelligence = JSON.parse(intelligenceReports);
-            } catch (e) {
-                console.warn('Failed to parse localStorage data for analysis:', e);
-            }
-
-            // GET REAL DATA - NO FABRICATION ALLOWED
+            // Only use actual canvas content and basic statistics - NO FABRICATION
             const realCanvasContent = localStorage.getItem('sovereign_canvas_content') || '';
-            const realAIMemory = JSON.parse(localStorage.getItem('ai_memory_state') || '{}');
-            const realAIFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
-
-            // Calculate actual metrics from real data
-            const realMetrics = {
-                canvasWordCount: realCanvasContent.split(/\s+/).length,
-                totalAISystems: Object.keys(realAIMemory).length,
-                activeSystems: Object.keys(realAIMemory).filter(system => {
-                    const systemData = realAIMemory[system];
-                    return systemData && systemData.conversationHistory && systemData.conversationHistory.length > 0;
-                }).length,
-                totalConversations: Object.values(realAIMemory).reduce((sum, system) => {
-                    return sum + (system?.conversationHistory?.length || 0);
-                }, 0),
-                totalInsights: Object.values(realAIMemory).reduce((sum, system) => {
-                    return sum + (system?.keyInsights?.length || 0);
-                }, 0),
-                feedCount: realAIFeeds.length,
-                memoryDensity: Object.keys(realAIMemory).length > 0 ?
-                    (Object.values(realAIMemory).reduce((sum, system) => sum + (system?.conversationHistory?.length || 0), 0) / Object.keys(realAIMemory).length) : 0
-            };
+            const canvasLength = realCanvasContent.length;
+            const wordCount = realCanvasContent.trim() ? realCanvasContent.trim().split(/\s+/).length : 0;
+            const lineCount = realCanvasContent.split('\n').length;
 
             const analysisPrompt = `
-DJINN COUNCIL MEMBER: ${memberName.toUpperCase().replace('_', ' & ')}
-SPECIALIZATION: ${member.specialization}
-SESSION: ${djinnCouncilMemory.sessionId}
-REPORT #${allReports.length + 1} of max ${djinnCouncilMemory.maxMemories}
+ENHANCED ACCURACY INSTRUCTIONS:
+- You are ${memberName.replace('_', ' & ')}, specializing in ${member.specialization}
+- Maintain your sophisticated analytical capabilities while grounding analysis in real data
+- When referencing AI systems, ONLY use data from the localStorage sections provided below
+- For metrics and percentages, base calculations on actual data provided, not estimates
+- If specific performance data is not available, clearly state "Performance data not available" rather than creating placeholder numbers
+- Use your expertise to provide deep insights, but anchor all claims to the provided data sources
+- Maintain the full analytical framework while ensuring factual accuracy
 
 === CURRENT CANVAS STATISTICS ===
 - Content Length: ${canvasStats.length} characters
@@ -3531,91 +3608,65 @@ REPORT #${allReports.length + 1} of max ${djinnCouncilMemory.maxMemories}
 - Average Word Length: ${canvasStats.avgWordLength} characters
 - Content Density: ${canvasStats.density}%
 
-=== YOUR COMPLETE MEMORY BANK (${allReports.length} reports) ===
-${allReports.map((report, i) => `
+=== ACTUAL SYSTEM DATA (localStorage) ===
+AI Memory State: ${localStorage.getItem('ai_memory_state') ? 'Available' : 'Not Available'}
+AI Feeds Data: ${localStorage.getItem('ai_feeds') ? 'Available' : 'Not Available'}
+Synthesis Reports: ${localStorage.getItem('synthesis_report') ? 'Available' : 'Not Available'}
+Intelligence Reports: ${localStorage.getItem('intelligence_reports') ? 'Available' : 'Not Available'}
+
+=== COUNCIL MEMBER MEMORY BANK ===
+Your Previous Reports: ${allReports.length} total
+${allReports.slice(-3).map((report, i) => `
 [REPORT ${report.reportId}] ${report.timestamp}
-Building on: ${report.buildingOn}
-Key Insights: ${report.analysis.substring(0, 300)}...
-Critical Metrics: ${JSON.stringify(report.metrics)}
+Key Insights: ${report.analysis.substring(0, 200)}...
 `).join('\n')}
 
-=== ALL COUNCIL MEMBERS' MEMORY BANKS (Cross-Reference Available) ===
-${Object.entries(djinnCouncilMemory.members).map(([councilMember, memberData]) => `
-${councilMember.toUpperCase().replace('_', ' & ')} (${memberData.reports.length} reports):
-Specialization: ${memberData.specialization}
-Recent Reports: ${memberData.reports.slice(-3).map(r => `
-  [${r.reportId}] ${r.timestamp}: ${r.analysis.substring(0, 200)}...`).join('')}
-`).join('\n')}
+=== CURRENT CANVAS CONTENT TO ANALYZE ===
+${realCanvasContent || 'No canvas content available for analysis'}
 
-=== COUNCIL CONSENSUS HISTORY ===
-${djinnCouncilMemory.consensusHistory?.slice(-5).map(consensus => `
-[${new Date(consensus.timestamp).toLocaleTimeString()}] Confidence: ${(consensus.confidence * 100).toFixed(1)}%
-Theme: ${consensus.theme}
-Summary: ${consensus.summary?.substring(0, 200)}...
-Cross-Member Patterns: ${consensus.crossMemberPatterns || 'None identified'}
-`).join('\n') || 'No consensus history available'}
+=== DOCUMENT SURVEILLANCE ANALYSIS FRAMEWORK ===
+You are ${memberName.replace('_', ' & ')}, a document analysis specialist focusing on ${member.specialization}.
 
-=== REAL CALCULATED METRICS (Use these exact numbers) ===
-- Canvas Word Count: ${realMetrics.canvasWordCount}
-- Total AI Systems: ${realMetrics.totalAISystems}
-- Active AI Systems: ${realMetrics.activeSystems}
-- Total Conversations: ${realMetrics.totalConversations}
-- Total Insights: ${realMetrics.totalInsights}
-- Feed Count: ${realMetrics.feedCount}
-- Memory Density: ${realMetrics.memoryDensity.toFixed(1)}
+Apply your expertise using this three-layer surveillance framework:
 
-=== ACTUAL AI SYSTEM MEMORY DATA (localStorage 'ai_memory_state') ===
-${Object.entries(parsedMemory).map(([systemName, systemData]) => {
-    const conversations = systemData?.conversationHistory || [];
-    const insights = systemData?.keyInsights || [];
-    const lastAnalysis = systemData?.lastAnalysis || null;
+LAYER 1 - AI COLLABORATIVE INTELLIGENCE: Analyze how the 5-AI system (DJINN-NAZAR-NARRA-WHALE-WATCHTOWER) influences document evolution
+LAYER 2 - DOCUMENT CONTENT: Deep analysis of the document structure, themes, and patterns
+LAYER 3 - EVOLUTION TRACKING: How AI collaborative intelligence transforms and evolves the document over time
 
-    return `${systemName.toUpperCase()} SYSTEM MEMORY:
-- Conversation History: ${conversations.length} entries
-- Key Insights: ${insights.length} stored insights
-- Last Analysis: ${lastAnalysis ? new Date(lastAnalysis.timestamp).toLocaleTimeString() : 'None'}
-- Memory Data: ${JSON.stringify(systemData).length} characters
-- Recent Conversations: ${conversations.slice(-3).map(c => `"${c.content?.substring(0, 100)}..."`).join('; ')}
-- Recent Insights: ${insights.slice(-3).map(i => `"${i.insight?.substring(0, 100)}..."`).join('; ')}`;
-}).join('\n')}
+REQUIRED RESPONSE FORMAT:
+**SUMMARY**
+[Provide sophisticated analysis combining your expertise with the actual data available]
 
-=== ACTUAL AI FEEDS DATA (localStorage 'ai_feeds') ===
-Total Feed Entries: ${parsedFeeds.length}
-Recent Feed Activity: ${parsedFeeds.slice(-5).map(feed => `[${new Date(feed.timestamp).toLocaleTimeString()}] ${feed.system}: ${feed.content?.substring(0, 100)}...`).join('\n')}
+**ANALYSIS**
+[Deep analytical approach explaining your methodology and insights from the provided data]
 
-=== ACTUAL CANVAS CONTENT ===
-Current Canvas: ${currentCanvasData.length} characters
-Synthesis Content: ${synthesisContent.length} characters
-Canvas Preview: "${currentCanvasData.substring(0, 300)}..."
+**FINDINGS**
+- **AI Collaborative Intelligence Impact:** [How the 5-AI system shapes document evolution - based on actual localStorage data]
+- **Document Content Analysis:** [Analysis of content patterns and structural evolution based on your memory bank]
+- **Document Transformation Patterns:** [How AI collaborative intelligence transforms the document over time]
+- **Evolution Assessment:** [Document development trends and transformation quality evaluation]
 
-=== PREVIOUS COUNCIL INTELLIGENCE REPORTS ===
-Total Intelligence Reports: ${parsedIntelligence.length}
-Recent Reports: ${parsedIntelligence.slice(-3).map(report => `[${new Date(report.timestamp).toLocaleTimeString()}] ${report.type}: ${report.summary?.substring(0, 100)}...`).join('\n')}
+**METRICS**
+[Provide specific numerical values based on actual analysis - avoid placeholder percentages]
+- AI System Coherence: [Calculate from available data or state "Data insufficient"]
+- Content Evolution Rate: [Base on actual content analysis]
+- AI-Content Interaction Density: [Calculate from available interactions]
+- System Memory Utilization: [From actual localStorage data]
+- Content Stability Index: [Calculate from content analysis]
 
-=== CANVAS AI SYSTEMS PERFORMANCE TRACKING ===
-${Object.entries(canvasAIPerformance).map(([system, data]) => `
-${system.toUpperCase()} SYSTEM:
-- Total Tracked Interactions: ${data.interactions.length}
-- Performance Status: ${data.interactions.length > 0 ? 'ACTIVE' : 'MONITORING'}
-- Last Activity: ${data.interactions.length > 0 ? data.interactions[data.interactions.length - 1].timestamp : 'Awaiting first interaction'}
-- Recent Activity: ${data.interactions.slice(-3).map(i => `[${new Date(i.timestamp).toLocaleTimeString()}] ${String(i.interaction || '').substring(0, 80)}...`).join(' | ')}
-- Performance Metrics: ${data.interactions.length > 0 && data.interactions[data.interactions.length - 1].performance ?
-    JSON.stringify(data.interactions[data.interactions.length - 1].performance.performanceMetrics) : 'Metrics will be calculated after first interaction'}
-`).join('\n')}
+**CONCLUSIONS**
+[Synthesize your expert analysis while clearly indicating data limitations]
 
-=== CANVAS EVOLUTION TIMELINE (${canvasEvolution.length} snapshots) ===
-${canvasEvolution.slice(-10).map((snap, i) => `
-[${new Date(snap.timestamp).toLocaleTimeString()}] Complexity: ${snap.complexity}/100 | Content: "${snap.content.substring(0, 150)}..." | AI Memory Size: ${JSON.stringify(snap.aiMemoryState).length} chars
-`).join('\n')}
+**ACTIONS**
+1. [Specific recommendation based on your analytical findings]
+2. [Strategic recommendation for system optimization]
+3. [Actionable insight for content or system improvement]
 
-=== CURRENT CANVAS DATA TO ANALYZE ===
-${currentCanvasData}
-
-=== ANALYSIS REQUIREMENTS ===
-You are ${memberName.replace('_', ' & ')}, an expert AI analyst specializing in ${member.specialization}.
-
-ANALYZE THE ACTUAL LOCALSTORAGE DATA PROVIDED ABOVE - this is real, stored data from the live system:
-- Actual AI memory states with conversation histories and insights
+ENHANCED CONSTRAINTS:
+- Maximum 500 words total
+- Use sophisticated analysis while stating data limitations clearly
+- Base metrics on actual calculations, not estimates
+- Maintain your expertise depth while ensuring factual grounding
 - Real AI feed entries with timestamps and content
 - Actual canvas content and synthesis data
 - Previous intelligence reports and council findings
@@ -3677,7 +3728,14 @@ Write your complete analysis report following this exact structure:
 2. [Specific recommendation for content evolution (Layer 3) processes]
 3. [Specific recommendation for AI-content interaction (Layer 1 + Layer 2) improvement]
 
-Keep response concise (under 800 words). Be specific and avoid repetition. Start directly with **SUMMARY**.
+RESPONSE CONSTRAINTS:
+- Maximum 500 words total
+- No repetitive phrases or concepts
+- Each section must be distinct and non-redundant
+- Use bullet points for clarity, not paragraphs
+- Start directly with **SUMMARY**
+- Avoid saying "The data shows" or "The data reveals" repeatedly
+- Focus on unique insights, not rehashing the same points
 `;
 
             return analysisPrompt;
@@ -4016,6 +4074,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         }
 
         function triggerRealTimeAnalysis() {
+            logDjinnEvent('analysis', 'Real-time analysis triggered - significant document changes detected');
             // Auto-trigger council analysis for significant canvas changes
             console.log('🚨 Significant canvas change detected - triggering council analysis');
 
@@ -4029,6 +4088,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
         // Robust error handling for AI failures
         function handleAnalysisError(memberName, error) {
+            logDjinnEvent('error', `${memberName.replace('_', ' & ')} analysis failed: ${error.message}`);
             console.error(`Council Member ${memberName} Analysis Failed:`, error);
 
             // Store error in memory
@@ -4088,7 +4148,6 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
             // Update UI dashboard
             // updateStatusDashboard(healthCheck); // Removed - using compact display
-            updateCompactMemoryStatus();
 
             return healthCheck;
         }
@@ -4107,10 +4166,14 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
         // Clear corrupted memory
         function clearCouncilMemory() {
+            logDjinnEvent('system', 'Council memory cleared - fresh session initiated');
             // Clear localStorage
             localStorage.removeItem('djinn_council_complete_memory');
             localStorage.removeItem('djinn_intelligence');
             localStorage.removeItem('djinn_intelligence_backup');
+
+            // Reset surveillance state including rounds completed
+            localStorage.removeItem('djinn_surveillance_state');
 
             // Reset in-memory objects
             currentAIMemory = '{}';
@@ -4139,13 +4202,16 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             });
 
             // Update memory display
-            updateCompactMemoryStatus();
+
+            // Update surveillance metrics to reflect reset
+            updateAllSurveillanceMetrics();
 
             console.log('✅ DJINN Council memory completely reset - fresh session started');
         }
 
         // Enhanced intelligence reporting
         function generateIntelligencePackage() {
+            logDjinnEvent('council', 'Intelligence package generated - comprehensive analysis compiled');
             const intelligence = {
                 sessionMetadata: {
                     sessionId: djinnCouncilMemory.sessionId,
@@ -4312,7 +4378,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             setupCrossWindowSurveillance();
 
             // Update status every 30 seconds
-            setInterval(() => systemHealthMonitor(), 30000);
+            // Auto-monitoring removed - event-driven only
             systemHealthMonitor(); // Initial update
 
             console.log(`DJINN Council Memory Initialized - Session: ${djinnCouncilMemory.sessionId}`);
@@ -4369,87 +4435,16 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         //     systemHealthMonitor(); // Initial update
         // }
 
-        // Compact memory status toggle
-        function toggleMemoryDetails() {
-            const details = document.getElementById('memoryDetails');
-            if (details) {
-                details.style.display = details.style.display === 'none' ? 'block' : 'none';
-            }
-        }
-
-        // Update compact memory status
+        // Update memory statistical readout
         function updateCompactMemoryStatus() {
             const summaryEl = document.getElementById('memorySummary');
-            const fullEl = document.getElementById('fullMemoryStatus');
-
-            if (!summaryEl || !fullEl) return;
+            if (!summaryEl) return;
 
             const totalReports = Object.values(djinnCouncilMemory.members).reduce((sum, m) => sum + m.reports.length, 0);
-            const sessionId = djinnCouncilMemory.sessionId.split('_')[1];
             const sessionDuration = Math.round((Date.now() - new Date(djinnCouncilMemory.sessionStart).getTime()) / 1000 / 60);
 
-            // Summary line
+            // Summary line for statistical readout
             summaryEl.textContent = `${totalReports} reports, ${sessionDuration}m active`;
-
-            // Full details (hidden by default)
-            const memberCounts = Object.entries(djinnCouncilMemory.members).map(([name, data]) =>
-                `${name.charAt(0).toUpperCase()}: ${data.reports.length}`
-            ).join(' ');
-
-            const aiSystems = Object.entries(djinnCouncilMemory.canvasAISystems).map(([name, data]) =>
-                `${name.toUpperCase()}: ${data.interactions.length}`
-            ).join(', ');
-
-            // Add AI Memory Status details using same data as council prompts
-            let aiMemoryDetails = '';
-            try {
-                const aiMemoryData = localStorage.getItem('ai_memory_state') || '{}';
-                const parsedMemory = JSON.parse(aiMemoryData);
-                if (parsedMemory && typeof parsedMemory === 'object') {
-                    aiMemoryDetails = '<div style="margin-bottom: 8px;"><strong>🧠 Canvas AI Memory Status:</strong><br><small style="color: #888;">Live memory data from canvas AI systems</small><br>';
-                    Object.keys(parsedMemory).forEach(system => {
-                        const memory = parsedMemory[system];
-                        const hasMemory = memory && memory.conversationHistory && memory.conversationHistory.length > 0;
-                        const memoryCount = memory && memory.conversationHistory ? memory.conversationHistory.length : 0;
-                        const insightCount = memory && memory.keyInsights ? memory.keyInsights.length : 0;
-
-                        // Use same logic as generateReferentialAnalysis
-                        let status, processingLevel;
-                        if (hasMemory) {
-                            status = '✅ Active';
-                            processingLevel = memoryCount > 10 ? 'High' : memoryCount > 5 ? 'Moderate' : 'Low';
-                        } else {
-                            status = '⏳ Monitoring';
-                            processingLevel = 'Ready';
-                        }
-
-                        aiMemoryDetails += `${system.toUpperCase()}: ${status} (${memoryCount} conversation responses, ${insightCount} key insights)<br>`;
-                    });
-                    aiMemoryDetails += '</div>';
-                }
-            } catch (e) {
-                aiMemoryDetails = '<div style="margin-bottom: 8px;"><strong>🧠 Canvas AI Memory Status:</strong><br><small style="color: #888;">Unable to read canvas AI memory data</small></div>';
-            }
-
-            fullEl.innerHTML = `
-                <div style="margin-bottom: 8px;"><strong>📊 Session Summary:</strong><br>
-                <small style="color: #888;">Total council analysis reports: ${totalReports} | Session active for ${sessionDuration} minutes</small></div>
-
-                <div style="margin-bottom: 8px;"><strong>👥 Council Members:</strong><br>
-                <small style="color: #888;">Pattern & Witness: ${djinnCouncilMemory.members.pattern.reports.length} reports | Recursive Wisdom: ${djinnCouncilMemory.members.wisdom.reports.length} reports | Creative Paradox: ${djinnCouncilMemory.members.paradox.reports.length} reports<br>
-                Sovereign Boundaries: ${djinnCouncilMemory.members.boundaries.reports.length} reports | Echo & Memory: ${djinnCouncilMemory.members.memory.reports.length} reports</small></div>
-
-                <div style="margin-bottom: 8px;"><strong>🤖 Canvas AI Systems:</strong><br>
-                <small style="color: #888;">Tracked interactions with canvas AI systems (NARRA, NAZAR, WHALE, DJINN, WATCHTOWER)</small></div>
-
-                ${aiMemoryDetails}
-
-                <div style="margin-bottom: 8px;"><strong>⏰ Session Started:</strong><br>
-                <small style="color: #888;">${new Date(djinnCouncilMemory.sessionStart).toLocaleString()}</small></div>
-
-                <div><strong>💚 System Health:</strong><br>
-                <small style="color: #888;">Memory integrity: OK | Error count: ${djinnCouncilMemory.errors?.length || 0}</small></div>
-            `;
         }
 
         // Add memory controls to UI
@@ -4557,6 +4552,18 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     intelligence.insertBefore(btn, intelligence.firstChild);
                 }
 
+                // Canvas Surveillance Extended
+                const surveillanceExtended = document.querySelector('.canvas-surveillance-extended');
+                if (surveillanceExtended && !surveillanceExtended.querySelector('.panel-maximize-btn')) {
+                    surveillanceExtended.style.position = 'relative';
+                    const btn = document.createElement('button');
+                    btn.className = 'panel-maximize-btn';
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Surveillance Extended';
+                    btn.onclick = function() { toggleMaximize(surveillanceExtended, btn, 'Surveillance Extended'); };
+                    surveillanceExtended.insertBefore(btn, surveillanceExtended.firstChild);
+                }
+
                 // Add to each council member
                 document.querySelectorAll('.council-member').forEach((member, index) => {
                     if (!member.querySelector('.panel-maximize-btn')) {
@@ -4588,7 +4595,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 panel.style.zIndex = '';
                 
                 // Show all panels
-                document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .djinn-header, .djinn-controls').forEach(p => {
+                document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .canvas-surveillance-extended, .djinn-header, .djinn-controls').forEach(p => {
                     p.style.display = '';
                     p.style.position = '';
                     p.style.zIndex = '';
@@ -4663,7 +4670,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     }
                     
                     // Hide other panels but keep parent container
-                    document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .djinn-header, .djinn-controls').forEach(p => {
+                    document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .canvas-surveillance-extended, .djinn-header, .djinn-controls').forEach(p => {
                         p.style.display = 'none';
                     });
                     
@@ -4685,7 +4692,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     });
                 } else {
                     // Normal panel maximize behavior
-                    document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .djinn-header, .djinn-controls').forEach(p => {
+                    document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .canvas-surveillance-extended, .djinn-header, .djinn-controls').forEach(p => {
                         if (p !== panel) {
                             p.style.display = 'none';
                         }
@@ -4985,12 +4992,46 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     if (element) element.textContent = value;
                 });
 
-                // Update metrics grid elements with evolution data
+                // Calculate additional verified metrics from real data
+                const aiMemoryObj = JSON.parse(aiMemory);
+                const totalMemoryItems = Object.values(aiMemoryObj).reduce((total, system) => {
+                    return total + (system?.conversationHistory?.length || 0) + (system?.keyInsights?.length || 0);
+                }, 0);
+
+                // Calculate activity level based on actual content
+                const activityLevel = canvasContent.length > 0 ? (words.length > 50 ? 'HIGH' : 'MEDIUM') : 'LOW';
+
+                // Calculate confidence average from actual AI feeds data
+                let confidenceAvg = '--%';
+                if (aiFeeds.length > 0) {
+                    const recentFeeds = aiFeeds.slice(-5); // Use last 5 feeds for average
+                    let totalConfidence = 0;
+                    let confidenceCount = 0;
+
+                    recentFeeds.forEach(feed => {
+                        Object.keys(feed).forEach(key => {
+                            if (key !== 'timestamp' && feed[key] && typeof feed[key] === 'object' && feed[key].confidence) {
+                                totalConfidence += feed[key].confidence;
+                                confidenceCount++;
+                            }
+                        });
+                    });
+
+                    if (confidenceCount > 0) {
+                        confidenceAvg = `${Math.round((totalConfidence / confidenceCount) * 100)}%`;
+                    }
+                }
+
+                // Update metrics grid elements with all verified data
                 const metricsElements = {
                     'canvasSize': `${canvasContent.length} chars`,
+                    'memoryCount': `${totalMemoryItems} items`,
+                    'feedCount': aiFeeds.length,
+                    'confidenceAvg': confidenceAvg,
                     'canvasWords': words.length,
                     'canvasLines': lines.length,
                     'canvasModified': modified,
+                    'activityLevel': activityLevel,
                     'evolutionTrend': evolutionMetrics.trend.toUpperCase(),
                     'changeVelocity': `${evolutionMetrics.avgChangeVelocity.toFixed(1)} chars/min`,
                     'historyDepth': `${evolutionMetrics.historyDepth} snapshots`,
@@ -4999,8 +5040,17 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
                 Object.entries(metricsElements).forEach(([id, value]) => {
                     const element = document.getElementById(id);
-                    if (element) element.textContent = value;
+                    if (element) {
+                        element.textContent = value;
+                    } else {
+                        console.warn(`📊 Surveillance element not found: ${id}`);
+                    }
                 });
+
+                console.log(`📊 Updated ${Object.keys(metricsElements).length} surveillance metrics`);
+
+                // Update memory statistical readout
+                updateCompactMemoryStatus();
 
                 // Update canvas monitor last modified timestamp
                 const monitorModifiedElement = document.getElementById('canvasMonitorModified');
@@ -5099,8 +5149,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 currentAIMemory = aiMemory;
 
                 // Update compact memory status with new AI memory data
-                updateCompactMemoryStatus();
-
+    
                 // Update synthesis monitoring with actual synthesis content
                 updateSynthesisMonitor(synthesisContent);
 
@@ -5116,6 +5165,10 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         // Update synthesis monitor with actual synthesis content data
         function updateSynthesisMonitor(synthesisContent) {
             try {
+                // Always fetch fresh synthesis content from localStorage to prevent caching issues
+                const freshSynthesisContent = localStorage.getItem('synthesis_canvas_content') || '';
+                const contentToUse = freshSynthesisContent || synthesisContent || '';
+
                 // Update existing synthesis UI elements with content data
                 const synthesisRoundEl = document.getElementById('synthesisRound');
                 const autoSynthesisEl = document.getElementById('autoSynthesisStatus');
@@ -5123,12 +5176,12 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 const roundsCompletedEl = document.getElementById('roundsCompleted');
                 const extendedAnalysisEl = document.getElementById('extendedAnalysisContent');
 
-                if (synthesisContent && synthesisContent.length > 0) {
+                if (contentToUse && contentToUse.length > 0) {
                     // Update synthesis status to show content is available
                     if (autoSynthesisEl) {
                         autoSynthesisEl.textContent = 'Content Available';
                         autoSynthesisEl.style.color = '#00ff88';
-                        autoSynthesisEl.title = `Synthesis content: ${synthesisContent.length} characters`;
+                        autoSynthesisEl.title = `Synthesis content: ${contentToUse.length} characters`;
                     }
 
                     // Update synthesis round to show content status
@@ -5140,10 +5193,12 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     // Update extended analysis content with synthesis insights
                     if (extendedAnalysisEl) {
                         const timestamp = new Date().toLocaleTimeString();
-                        extendedAnalysisEl.innerHTML = `<strong>📊 Latest Synthesis Analysis (${timestamp})</strong>\n\n${synthesisContent.substring(0, 500)}${synthesisContent.length > 500 ? '...' : ''}\n\n<strong>🔗 Cross-System Correlations:</strong>\n• AI agent responses integrated\n• Memory patterns analyzed\n• Evolution trends detected\n• Pattern recognition active`;
+                        extendedAnalysisEl.innerHTML = `<strong>📊 Latest Synthesis Analysis (${timestamp})</strong>\n\n${contentToUse}\n\n<strong>🔗 Cross-System Correlations:</strong>\n• AI agent responses integrated\n• Memory patterns analyzed\n• Evolution trends detected\n• Pattern recognition active`;
+
+                        logDjinnEvent('document', `Advanced Analysis updated - ${contentToUse.length} chars of synthesis content`);
                     }
 
-                    console.log(`🔍 Synthesis monitor updated: ${synthesisContent.length} characters of synthesis content available`);
+                    console.log(`🔍 Synthesis monitor updated: ${contentToUse.length} characters of synthesis content available`);
                 } else {
                     // No synthesis content - show waiting status
                     if (autoSynthesisEl) {
@@ -5165,11 +5220,11 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     console.log(`🔍 Synthesis monitor: No synthesis content available`);
                 }
 
-                // Update rounds completed from evolution history
-                const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
-                if (roundsCompletedEl) {
-                    roundsCompletedEl.textContent = evolutionHistory.length;
-                }
+                // Rounds completed is handled by updateAllSurveillanceMetrics() - avoid conflicts
+                // const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                // if (roundsCompletedEl) {
+                //     roundsCompletedEl.textContent = evolutionHistory.length;
+                // }
 
             } catch (error) {
                 console.error('Error updating synthesis monitor:', error);
@@ -5272,13 +5327,17 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
         function initializeSurveillance() {
             console.log('🧞‍♂️ DJINN Council Shadow Governance initializing...');
-            
-            // Start monitoring canvas
+
+            // Initialize persistent surveillance state
+            initializePersistentSurveillance();
+
+            // Canvas monitoring disabled - event-driven only
+            // Initialize canvas surveillance
             startCanvasMonitoring();
-            
+
             // Initialize UI
             updateTimestamp();
-            
+
             // Start polling
             startPolling();
 
@@ -5317,9 +5376,9 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 // Read canvas synthesis status communication
                 const synthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
 
-                // Update synthesis metrics
-                const roundsCompleted = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').length;
-                document.getElementById('roundsCompleted').textContent = roundsCompleted;
+                // Rounds completed is handled by updateAllSurveillanceMetrics() - avoid conflicts
+                // const roundsCompleted = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').length;
+                // document.getElementById('roundsCompleted').textContent = roundsCompleted;
 
                 // Update current round status from canvas communication
                 const synthesisRoundEl = document.getElementById('synthesisRound');
@@ -5405,6 +5464,9 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
 
                 // Update canvas monitor with ALL data sources
                 updateCanvasMonitor();
+
+                // Ensure Advanced Analysis panel updates with latest synthesis content
+                updateSynthesisMonitor(synthesisContent);
 
                 // Calculate hashes for change detection
                 const canvasHash = hashContent(canvasContent);
@@ -5531,7 +5593,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     if (sizeDiff > DJINN_CONFIG.ANALYSIS_THRESHOLD) {
                         changesDetected = true;
                         logSurveillance('📝 Canvas content changed significantly', 'change');
-                        queueAnalysis('canvas_change', { content: canvasContent, type: 'content' });
+                        // Auto-analysis disabled - event-driven only
                     }
                     surveillanceState.lastCanvasHash = canvasHash;
                     surveillanceState.lastCanvasContent = canvasContent;
@@ -5540,7 +5602,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                 if (memoryHash !== surveillanceState.lastMemoryHash) {
                     changesDetected = true;
                     logSurveillance('🧠 AI memory updated', 'memory');
-                    queueAnalysis('memory_update', { memory: aiMemory, type: 'memory' });
+                    // Auto-analysis disabled - event-driven only
                     surveillanceState.lastMemoryHash = memoryHash;
                 }
                 
@@ -5548,7 +5610,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     changesDetected = true;
                     const newFeeds = aiFeeds.slice(0, feedCount - surveillanceState.lastFeedCount);
                     logSurveillance(`📡 ${newFeeds.length} new AI feeds detected`, 'feed');
-                    queueAnalysis('new_feeds', { feeds: newFeeds, type: 'feeds' });
+                    // Auto-analysis disabled - event-driven only
                     surveillanceState.lastFeedCount = feedCount;
                 }
                 
@@ -5556,9 +5618,8 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     surveillanceState.changeCount++;
                     document.getElementById('changeCount').textContent = surveillanceState.changeCount;
                     document.getElementById('canvasStatus').textContent = 'CHANGES DETECTED';
-                    
-                    // Process analysis queue
-                    processAnalysisQueue();
+
+                    // Auto-analysis disabled - event-driven only
                 }
                 
             } catch (error) {
@@ -5590,6 +5651,7 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
         // ========================================
 
         function queueAnalysis(eventType, data) {
+            logDjinnEvent('analysis', `Analysis queued: ${eventType}`, { queueLength: surveillanceState.analysisQueue.length + 1 });
             surveillanceState.analysisQueue.push({
                 id: Date.now(),
                 type: eventType,
@@ -5604,6 +5666,8 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             if (surveillanceState.isAnalyzing || surveillanceState.analysisQueue.length === 0) {
                 return;
             }
+
+            logDjinnEvent('analysis', 'Processing analysis queue - council members starting work');
             
             surveillanceState.isAnalyzing = true;
             updateCouncilStatus('ANALYZING');
@@ -5879,20 +5943,24 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     }
                 }
                 
-                // Query Ollama for AI analysis
-                console.log(`🔍 Querying ${member.model} for ${memberKey} analysis...`);
-                const response = await queryOllama(member.model, prompt);
+                // Query Ollama with AI validation layer
+                console.log(`🔍 Querying ${member.model} for ${memberKey} analysis with AI validation...`);
+                const validationResult = await queryCouncilMemberWithValidation(memberKey, prompt, analysisContext);
+
+                const response = validationResult.response;
                 if (response && typeof response === 'string') {
-                    console.log(`✅ ${memberKey} response received:`, response.substring(0, 200) + '...');
+                    console.log(`✅ ${memberKey} response received${validationResult.corrected ? ' and corrected' : ''}:`, response.substring(0, 200) + '...');
                 } else {
                     console.error(`❌ ${memberKey} received invalid response:`, response);
                     return;
                 }
                 
-                // Cache response
+                // Cache response with validation metadata
                 responseCache.set(cacheKey, {
                     response: response,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    validated: validationResult.validated,
+                    corrected: validationResult.corrected
                 });
                 
                 // Display the actual AI response instead of generic [METRICS] template
@@ -5903,7 +5971,16 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
                     // Process markdown-style formatting for better display
                     const formattedResponse = formatMarkdownResponse(response, memberKey);
                     const timestamp = new Date().toLocaleTimeString();
-                    const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp} <span class="new-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">NEW</span></div>`;
+
+                    // Add validation indicators
+                    let validationIndicator = '';
+                    if (validationResult.validated && validationResult.corrected) {
+                        validationIndicator = ' <span class="corrected-indicator" style="color: #ffaa00; font-weight: bold; margin-left: 8px;">AI-CORRECTED</span>';
+                    } else if (validationResult.validated) {
+                        validationIndicator = ' <span class="validated-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">AI-VALIDATED</span>';
+                    }
+
+                    const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp} <span class="new-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">NEW</span>${validationIndicator}</div>`;
                     memberElement.innerHTML = timestampHeader + formattedResponse;
                 } else {
                     // Fall back to formatted response only if AI response is empty/invalid
@@ -6273,6 +6350,124 @@ Keep response concise (under 800 words). Be specific and avoid repetition. Start
             } catch (error) {
                 // No fallback - re-throw the error to be handled upstream
                 console.error('Ollama query failed:', error.message);
+                throw error;
+            }
+        }
+
+        // ========================================
+        // AI-POWERED VALIDATION LAYER
+        // ========================================
+
+        async function validateWithAI(originalResponse, canvasContent, memberName) {
+            const canvasLength = canvasContent ? canvasContent.length : 0;
+            const canvasWordCount = canvasContent ? canvasContent.split(/\s+/).length : 0;
+            const canvasLineCount = canvasContent ? canvasContent.split('\n').length : 0;
+
+            const validationPrompt = `
+VALIDATION TASK: You are a fact-checker AI. Verify the analysis below against the actual data provided.
+
+=== ACTUAL CANVAS DATA ===
+Content Length: ${canvasLength} characters
+Word Count: ${canvasWordCount} words
+Line Count: ${canvasLineCount} lines
+Canvas Content: "${canvasContent.substring(0, 500)}${canvasContent.length > 500 ? '...' : ''}"
+
+=== ANALYSIS TO VALIDATE ===
+${originalResponse}
+
+=== YOUR VALIDATION JOB ===
+Check if the analysis makes claims about:
+1. AI systems (NARRA, NAZAR, WHALE, DJINN, WATCHTOWER) without actual data
+2. Specific performance percentages without basis
+3. System metrics that aren't calculable from the provided data
+4. Memory states or interactions not present in the canvas content
+
+OUTPUT FORMAT:
+**VALIDATION RESULT:** [VALID/NEEDS_CORRECTION]
+
+**CORRECTED ANALYSIS:**
+[If NEEDS_CORRECTION: Provide the corrected version with "Data not available" replacing fabricated claims]
+[If VALID: Return "Analysis is factually grounded"]
+
+**VALIDATION NOTES:**
+- [List any corrections made or confirm data accuracy]
+
+CRITICAL: Only approve claims that can be verified from the actual canvas content and data provided above.
+`;
+
+            try {
+                const validationResponse = await queryOllama('gemma3:1b', validationPrompt);
+                console.log(`🔍 AI validation completed for ${memberName}`);
+
+                // Parse validation response
+                if (validationResponse.includes('NEEDS_CORRECTION')) {
+                    console.warn(`⚠️ ${memberName} response corrected by AI validator`);
+
+                    // Extract corrected analysis
+                    const correctedMatch = validationResponse.match(/\*\*CORRECTED ANALYSIS:\*\*\s*([\s\S]*?)(?=\*\*VALIDATION NOTES|$)/);
+                    if (correctedMatch && correctedMatch[1].trim() !== 'Analysis is factually grounded') {
+                        return {
+                            validated: true,
+                            corrected: true,
+                            response: correctedMatch[1].trim(),
+                            notes: validationResponse
+                        };
+                    }
+                }
+
+                console.log(`✅ ${memberName} response validated as factually grounded`);
+                return {
+                    validated: true,
+                    corrected: false,
+                    response: originalResponse,
+                    notes: validationResponse
+                };
+
+            } catch (error) {
+                console.error('AI validation failed, using original response:', error);
+                return {
+                    validated: false,
+                    corrected: false,
+                    response: originalResponse,
+                    notes: 'Validation failed'
+                };
+            }
+        }
+
+        // Enhanced council member query with AI validation
+        async function queryCouncilMemberWithValidation(memberKey, prompt, analysis) {
+            try {
+                const member = councilMembers[memberKey];
+                const canvasContent = analysis?.data?.content || '';
+
+                if (!member) {
+                    throw new Error(`Council member ${memberKey} not found`);
+                }
+
+                console.log(`🔍 Querying ${member.model} for ${memberKey} analysis...`);
+                const originalResponse = await queryOllama(member.model, prompt);
+
+                console.log(`🔍 AI-validating ${memberKey} response...`);
+                const validationResult = await validateWithAI(originalResponse, canvasContent, memberKey);
+
+                // Store validation metadata
+                const response = validationResult.response;
+                const metadata = {
+                    member: memberKey,
+                    response: response,
+                    validated: validationResult.validated,
+                    corrected: validationResult.corrected,
+                    validationNotes: validationResult.notes
+                };
+
+                if (validationResult.corrected) {
+                    console.log(`🔧 ${memberKey} response was corrected by AI validator`);
+                }
+
+                return metadata;
+
+            } catch (error) {
+                console.error(`Council member ${memberKey} analysis failed:`, error);
                 throw error;
             }
         }
@@ -7215,12 +7410,15 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                     const memberName = councilMembers[r.member].name;
                     const response = r.response;
 
-                    // Parse metrics more intelligently
-                    let formattedMetrics = 'No metrics available';
-                    let formattedAnalysis = 'No analysis available';
+                    // Parse metrics more intelligently with better fallbacks
+                    let formattedMetrics = '';
+                    let formattedAnalysis = '';
 
-                    // Extract metrics section
-                    const metricsMatch = response.match(/\*\*METRICS\*\*(.*?)(?=\*\*ANALYSIS\*\*|\*\*CONCLUSIONS\*\*|\*\*ACTIONS\*\*|$)/s);
+                    // Try multiple patterns to extract metrics
+                    let metricsMatch = response.match(/\*\*METRICS\*\*(.*?)(?=\*\*ANALYSIS\*\*|\*\*CONCLUSIONS\*\*|\*\*ACTIONS\*\*|$)/s) ||
+                                     response.match(/\*METRICS\*(.*?)(?=\*ANALYSIS\*|\*CONCLUSIONS\*|\*ACTIONS\*|$)/s) ||
+                                     response.match(/METRICS:(.*?)(?=ANALYSIS:|CONCLUSIONS:|ACTIONS:|$)/s);
+
                     if (metricsMatch) {
                         const metricsText = metricsMatch[1].trim();
                         const metricLines = metricsText.split('\n').filter(line => line.trim() && !line.includes('**') && !line.includes('['));
@@ -7251,23 +7449,42 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                             return line.trim();
                         }).filter(metric => metric.length > 0);
 
-                        formattedMetrics = parsedMetrics.join('') || 'No metrics available';
+                        formattedMetrics = parsedMetrics.join('<br>') || `Processing ${memberName} data...`;
+                    } else {
+                        // Extract any numerical patterns as fallback metrics
+                        const numberMatches = response.match(/\d+\.?\d*%|\d+\/\d+|\d+\s*(systems?|items?|reports?)/gi);
+                        if (numberMatches) {
+                            formattedMetrics = numberMatches.slice(0, 3).join(' • ');
+                        } else {
+                            formattedMetrics = `${memberName} analysis in progress`;
+                        }
                     }
 
-                    // Extract analysis section (clean version without frameworks)
-                    const analysisMatch = response.match(/\*\*ANALYSIS\*\*(.*?)(?=\*\*FINDINGS\*\*|\*\*CONCLUSIONS\*\*|\*\*ACTIONS\*\*|$)/s);
+                    // Extract analysis section with multiple fallback patterns
+                    let analysisMatch = response.match(/\*\*ANALYSIS\*\*(.*?)(?=\*\*FINDINGS\*\*|\*\*CONCLUSIONS\*\*|\*\*ACTIONS\*\*|$)/s) ||
+                                      response.match(/\*ANALYSIS\*(.*?)(?=\*FINDINGS\*|\*CONCLUSIONS\*|\*ACTIONS\*|$)/s) ||
+                                      response.match(/ANALYSIS:(.*?)(?=FINDINGS:|CONCLUSIONS:|ACTIONS:|$)/s);
+
                     if (analysisMatch) {
                         let analysisText = analysisMatch[1].trim();
                         // Clean up the analysis text more thoroughly
                         analysisText = analysisText
-                            .replace(/\*\*CONCLUSIONS\*\*.*/s, '') // Remove conclusions section
-                            .replace(/\*\*ACTIONS\*\*.*/s, '') // Remove actions section
-                            .replace(/^\s*[-•*]\s*/gm, '') // Remove bullet points
-                            .replace(/\s+/g, ' ') // Normalize whitespace
-                            .replace(/\*\*.*?\*\*/g, '') // Remove any remaining bold markers
+                            .replace(/\*\*CONCLUSIONS\*\*.*/s, '')
+                            .replace(/\*\*ACTIONS\*\*.*/s, '')
+                            .replace(/^\s*[-•*]\s*/gm, '')
+                            .replace(/\s+/g, ' ')
+                            .replace(/\*\*.*?\*\*/g, '')
                             .trim();
 
-                        formattedAnalysis = analysisText || 'Analysis not available';
+                        formattedAnalysis = analysisText || `${memberName} synthesis complete`;
+                    } else {
+                        // Use first meaningful paragraph as fallback
+                        const paragraphs = response.split('\n').filter(p => p.trim().length > 50);
+                        if (paragraphs.length > 0) {
+                            formattedAnalysis = paragraphs[0].trim().substring(0, 200) + '...';
+                        } else {
+                            formattedAnalysis = `${memberName} specialized analysis complete`;
+                        }
                     }
 
                     return `<div style="margin: 6px 0; padding: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
@@ -7417,48 +7634,56 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                     const allResponses = consensus.responses || [];
                     const responseTexts = allResponses.map(r => `${councilMembers[r.member].name}: ${r.response}`).join('\n\n');
 
-                    const intelPrompt = `COMPREHENSIVE CANVAS INTELLIGENCE SYNTHESIS
+                    // Get full intelligence package data
+                    const intelligencePackage = generateIntelligencePackage();
 
-You are analyzing the complete ecosystem: document evolution, dashboard state, memory banks, and insights.
+                    const intelPrompt = `INTELLIGENCE SYNTHESIS
 
-DJINN COUNCIL COMPREHENSIVE ANALYSIS:
-${responseTexts.substring(0, 2000)}
+CANVAS EVOLUTION:
+${JSON.stringify(intelligencePackage.systemPerformance.canvasEvolution)}
 
-COMPLETE SYSTEM STATE:
-Summary: ${consensus.summary || 'Comprehensive analysis completed'}
-Confidence Level: ${(consensus.confidence * 100).toFixed(1)}%
-Primary Theme: ${consensus.theme || 'Ecosystem analysis'}
+CONTENT CHANGES:
+${analysis.data.documentEvolution ? JSON.stringify(analysis.data.documentEvolution).substring(0, 1500) : 'No changes tracked'}
 
-MEMORY BANK STATUS:
-- Council Memory Reports: ${Object.values(djinnCouncilMemory.members).reduce((sum, m) => sum + m.reports.length, 0)} total reports across all members
-- AI System Memory: ${Object.keys(JSON.parse(localStorage.getItem('ai_memory_state') || '{}')).length} systems with stored memories
-- Canvas Content: ${JSON.stringify(analysis.data).length} characters
-- Dashboard Metrics: Active surveillance and monitoring
+SYNTHESIS REPORT:
+${analysis.data.synthesisReport ? JSON.stringify(analysis.data.synthesisReport).substring(0, 1000) : 'No synthesis data'}
 
-ANALYSIS SCOPE: Document evolution + Complete memory analysis + Dashboard monitoring + All insights synthesis
+AI CONTRIBUTIONS:
+${analysis.data.canvasOutputs ? analysis.data.canvasOutputs.map(output => `${output.system}: ${output.content}`).join('\n').substring(0, 1000) : 'No outputs'}
 
-[INTELLIGENCE ASSESSMENT]
-What patterns emerge from the complete ecosystem analysis? Consider: canvas content evolution, memory bank trends across all 25 reports per agent, dashboard metrics, stored insights, and cross-system correlations. What does the comprehensive data reveal?
+MEMORY STREAM:
+${analysis.data.canvasMemories ? analysis.data.canvasMemories.map(memory => `${memory.timestamp}: ${memory.content}`).join('\n').substring(0, 800) : 'No memories'}
+
+COUNCIL ANALYSIS:
+${responseTexts.substring(0, 1200)}
+
+EMERGENT THEMES:
+${JSON.stringify(intelligencePackage.systemPerformance.emergentThemes)}
+
+SESSION DATA:
+Duration: ${Math.round(intelligencePackage.sessionMetadata.duration / 60000)} minutes
+Reports: ${intelligencePackage.sessionMetadata.totalReports}
+
+[ANALYSIS]
+What patterns emerge from the canvas evolution, content changes, AI contributions, and memory streams? How is the content developing?
 
 [RISK EVALUATION]
-What risks exist across the entire ecosystem? Analyze: content development trajectory, memory fragmentation across agents, insight accumulation patterns, dashboard anomalies, and system coherence issues.
+What risks exist in the content development trajectory? Are there consistency issues or conflicting contributions?
 
-[ACTIONABLE RECOMMENDATIONS]
-• [Document/content development action based on comprehensive analysis]
-• [Memory management or insight synthesis improvement]
-• [Dashboard monitoring or metric optimization strategy]
+[RECOMMENDATIONS]
+• [Content development action]
+• [AI contribution optimization]
+• [Evolution tracking improvement]
 
-[STRATEGIC IMPLICATIONS]
-How should the complete canvas ecosystem evolve? What does the analysis of all memories, insights, dashboard state, and content patterns suggest for strategic development?
-
-REQUIREMENTS: Synthesize insights from ALL data sources - document content, memory banks, dashboard metrics, and stored insights. Focus on comprehensive ecosystem intelligence.`;
+[IMPLICATIONS]
+How should development continue? What patterns suggest the optimal path forward?`;
                     const intelligenceResponse = await queryOllama('gemma3:1b', intelPrompt);
 
                     // Parse the structured response
-                    const correlations = intelligenceResponse.match(/\[INTELLIGENCE ASSESSMENT\](.*?)(?=\[RISK EVALUATION\]|$)/s)?.[1]?.trim() || 'No correlations identified';
-                    const riskAssessment = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[ACTIONABLE RECOMMENDATIONS\]|$)/s)?.[1]?.trim() || 'Risk assessment unavailable';
-                    const recommendations = intelligenceResponse.match(/\[ACTIONABLE RECOMMENDATIONS\](.*?)(?=\[STRATEGIC IMPLICATIONS\]|$)/s)?.[1]?.trim() || 'No recommendations available';
-                    const strategic = intelligenceResponse.match(/\[STRATEGIC IMPLICATIONS\](.*)$/s)?.[1]?.trim() || 'Strategic analysis pending';
+                    const correlations = intelligenceResponse.match(/\[ANALYSIS\](.*?)(?=\[RISK EVALUATION\]|$)/s)?.[1]?.trim() || 'No analysis available';
+                    const riskAssessment = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[RECOMMENDATIONS\]|$)/s)?.[1]?.trim() || 'Risk assessment unavailable';
+                    const recommendations = intelligenceResponse.match(/\[RECOMMENDATIONS\](.*?)(?=\[IMPLICATIONS\]|$)/s)?.[1]?.trim() || 'No recommendations available';
+                    const strategic = intelligenceResponse.match(/\[IMPLICATIONS\](.*)$/s)?.[1]?.trim() || 'Implications pending';
 
                     // Format recommendations as array
                     const actionableItems = recommendations.split('\n')
@@ -7918,6 +8143,7 @@ Synthesize intelligence (max 400 words):
         // ========================================
 
         async function triggerCouncilAnalysis() {
+            logDjinnEvent('council', 'Manual council analysis triggered - 3-stage collaborative process initiated');
             console.log('Manual analysis triggered');
             
             // Force a fresh analysis
@@ -7991,27 +8217,270 @@ Synthesize intelligence (max 400 words):
 
 
         function exportIntelligence() {
-            const intelligence = generateIntelligencePackage();
+            // Show export selection popup instead of immediate export
+            showExportSelectionModal();
+        }
+
+        function showExportSelectionModal() {
+            const modal = document.getElementById('exportSelectionModal');
+            const reportsList = document.getElementById('exportReportsList');
+
+            // Populate reports list
+            reportsList.innerHTML = generateReportsListHTML();
+
+            // Show modal
+            modal.style.display = 'block';
+        }
+
+        function generateReportsListHTML() {
+            let html = '';
+
+            // Consensus Reports
+            if (djinnCouncilMemory.consensusHistory && djinnCouncilMemory.consensusHistory.length > 0) {
+                html += '<div style="margin-bottom: 15px;"><strong style="color: #4ecdc4;">📋 Consensus Reports (' + djinnCouncilMemory.consensusHistory.length + '):</strong></div>';
+
+                djinnCouncilMemory.consensusHistory.forEach((consensus, index) => {
+                    const timestamp = new Date(consensus.timestamp).toLocaleString();
+                    const memberCount = Object.keys(consensus.memberAnalyses || {}).length;
+                    html += `
+                        <div style="margin-bottom: 10px; padding: 8px; background: rgba(78, 205, 196, 0.05); border-left: 3px solid #4ecdc4;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" class="export-checkbox" data-type="consensus" data-index="${index}" style="margin-right: 8px;" checked>
+                                <div>
+                                    <strong>Round ${consensus.round || (index + 1)}</strong> - ${timestamp}
+                                    <div style="font-size: 11px; color: #aaa;">${memberCount} members • ${consensus.synthesis ? consensus.synthesis.substring(0, 100) + '...' : 'No synthesis'}</div>
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                });
+            }
+
+            // Intelligence Reports
+            if (djinnCouncilMemory.intelligenceReports && djinnCouncilMemory.intelligenceReports.length > 0) {
+                html += '<div style="margin-bottom: 15px; margin-top: 20px;"><strong style="color: #4ecdc4;">🧠 Intelligence Reports (' + djinnCouncilMemory.intelligenceReports.length + '):</strong></div>';
+
+                djinnCouncilMemory.intelligenceReports.forEach((report, index) => {
+                    const timestamp = new Date(report.timestamp).toLocaleString();
+                    html += `
+                        <div style="margin-bottom: 10px; padding: 8px; background: rgba(78, 205, 196, 0.05); border-left: 3px solid #4ecdc4;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" class="export-checkbox" data-type="intelligence" data-index="${index}" style="margin-right: 8px;" checked>
+                                <div>
+                                    <strong>Intelligence Package ${index + 1}</strong> - ${timestamp}
+                                    <div style="font-size: 11px; color: #aaa;">Session: ${report.sessionMetadata?.sessionId || 'Unknown'} • ${report.memberAnalytics?.length || 0} member analytics</div>
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                });
+            }
+
+            // Individual Member Reports
+            let totalMemberReports = 0;
+            Object.keys(djinnCouncilMemory.members || {}).forEach(memberName => {
+                const member = djinnCouncilMemory.members[memberName];
+                totalMemberReports += member.reports?.length || 0;
+            });
+
+            if (totalMemberReports > 0) {
+                html += '<div style="margin-bottom: 15px; margin-top: 20px;"><strong style="color: #4ecdc4;">👥 Individual Member Reports (' + totalMemberReports + '):</strong></div>';
+
+                Object.keys(djinnCouncilMemory.members || {}).forEach(memberName => {
+                    const member = djinnCouncilMemory.members[memberName];
+                    if (member.reports && member.reports.length > 0) {
+                        html += `
+                            <div style="margin-bottom: 10px; padding: 8px; background: rgba(78, 205, 196, 0.05); border-left: 3px solid #4ecdc4;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" class="export-checkbox" data-type="member" data-member="${memberName}" style="margin-right: 8px;" checked>
+                                    <div>
+                                        <strong>${member.name || memberName}</strong> (${member.reports.length} reports)
+                                        <div style="font-size: 11px; color: #aaa;">${member.specialization || 'No specialization'}</div>
+                                    </div>
+                                </label>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            if (html === '') {
+                html = '<div style="text-align: center; color: #666; padding: 20px;">No reports available for export</div>';
+            }
+
+            return html;
+        }
+
+        function selectAllReports() {
+            const checkboxes = document.querySelectorAll('.export-checkbox');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        function deselectAllReports() {
+            const checkboxes = document.querySelectorAll('.export-checkbox');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportSelectionModal').style.display = 'none';
+        }
+
+        function performExport() {
+            const selectedReports = getSelectedReports();
+
+            if (Object.keys(selectedReports).length === 0) {
+                alert('Please select at least one report to export.');
+                return;
+            }
+
             const data = {
                 timestamp: new Date().toISOString(),
-                system: 'DJINN_COUNCIL_SHADOW_GOVERNANCE',
-                intelligence: intelligence,
-                rawMemory: djinnCouncilMemory
+                system: 'DJINN_COUNCIL_DOCUMENT_SURVEILLANCE',
+                exportSelection: selectedReports,
+                fullMemory: djinnCouncilMemory
             };
 
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `djinn_intelligence_${new Date().toISOString().replace(/:/g, '-')}.json`;
+            a.download = `djinn_selected_reports_${new Date().toISOString().replace(/:/g, '-')}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+
+            closeExportModal();
         }
+
+        function getSelectedReports() {
+            const selected = {
+                consensusReports: [],
+                intelligenceReports: [],
+                memberReports: {}
+            };
+
+            const checkboxes = document.querySelectorAll('.export-checkbox:checked');
+
+            checkboxes.forEach(cb => {
+                const type = cb.dataset.type;
+                const index = cb.dataset.index;
+                const member = cb.dataset.member;
+
+                if (type === 'consensus' && djinnCouncilMemory.consensusHistory) {
+                    selected.consensusReports.push(djinnCouncilMemory.consensusHistory[parseInt(index)]);
+                } else if (type === 'intelligence' && djinnCouncilMemory.intelligenceReports) {
+                    selected.intelligenceReports.push(djinnCouncilMemory.intelligenceReports[parseInt(index)]);
+                } else if (type === 'member' && djinnCouncilMemory.members[member]) {
+                    selected.memberReports[member] = djinnCouncilMemory.members[member];
+                }
+            });
+
+            return selected;
+        }
+
+        // DJINN Council Event Logging System
+        let djinnEventHistory = [];
+        const MAX_EVENT_HISTORY = 100;
+
+        function logDjinnEvent(type, message, data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const event = {
+                timestamp: timestamp,
+                type: type,
+                message: message,
+                data: data
+            };
+
+            djinnEventHistory.unshift(event); // Add to beginning
+            if (djinnEventHistory.length > MAX_EVENT_HISTORY) {
+                djinnEventHistory = djinnEventHistory.slice(0, MAX_EVENT_HISTORY);
+            }
+
+            updateEventLogDisplay();
+            updateActivityPanels();
+        }
+
+        function updateEventLogDisplay() {
+            const logElement = document.getElementById('djinnEventLog');
+            if (!logElement) return;
+
+            const displayEvents = djinnEventHistory.slice(0, 20); // Show last 20 events
+            const logHTML = displayEvents.map(event => {
+                const typeIcon = getEventTypeIcon(event.type);
+                return `[${event.timestamp}] ${typeIcon} ${event.message}`;
+            }).join('\n');
+
+            logElement.textContent = logHTML || '[System Initialized] DJINN Council Document Surveillance Analysis ready';
+            logElement.scrollTop = 0; // Scroll to top to show newest events
+        }
+
+        function getEventTypeIcon(type) {
+            const icons = {
+                'council': '🧞‍♂️',
+                'analysis': '🔍',
+                'consensus': '🤝',
+                'member': '👤',
+                'document': '📄',
+                'export': '💾',
+                'error': '❌',
+                'warning': '⚠️',
+                'success': '✅',
+                'system': '⚙️'
+            };
+            return icons[type] || '📋';
+        }
+
+        function updateActivityPanels() {
+            // Update Council Activity Panel
+            const activeMemberCount = Object.keys(djinnCouncilMemory.members || {}).filter(memberName => {
+                const member = djinnCouncilMemory.members[memberName];
+                return member.reports && member.reports.length > 0;
+            }).length;
+
+            const analysisQueueCount = surveillanceState.analysisQueue ? surveillanceState.analysisQueue.length : 0;
+
+            const lastConsensus = djinnCouncilMemory.consensusHistory && djinnCouncilMemory.consensusHistory.length > 0
+                ? new Date(djinnCouncilMemory.consensusHistory[djinnCouncilMemory.consensusHistory.length - 1].timestamp).toLocaleTimeString()
+                : 'Never';
+
+            const activeMemberEl = document.getElementById('activeMemberCount');
+            const queueEl = document.getElementById('analysisQueueCount');
+            const consensusEl = document.getElementById('lastConsensusTime');
+
+            if (activeMemberEl) activeMemberEl.textContent = activeMemberCount;
+            if (queueEl) queueEl.textContent = analysisQueueCount;
+            if (consensusEl) consensusEl.textContent = lastConsensus;
+
+            // Update Document Analysis Panel
+            const totalRounds = djinnCouncilMemory.consensusHistory ? djinnCouncilMemory.consensusHistory.length : 0;
+            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            const evolutionRate = canvasContent.length > 0 ? Math.min(100, (canvasContent.length / 1000) * 10) : 0;
+
+            const docEvolutionEl = document.getElementById('docEvolutionRate');
+            const aiCollabEl = document.getElementById('aiCollabImpact');
+            const analysisRoundsEl = document.getElementById('analysisRounds');
+
+            if (docEvolutionEl) docEvolutionEl.textContent = evolutionRate.toFixed(1) + '%';
+            if (aiCollabEl) aiCollabEl.textContent = activeMemberCount > 0 ? 'Active' : 'Idle';
+            if (analysisRoundsEl) analysisRoundsEl.textContent = totalRounds;
+        }
+
+        function clearEventLog() {
+            djinnEventHistory = [];
+            updateEventLogDisplay();
+            logDjinnEvent('system', 'Event log cleared by user');
+        }
+
+        // Initialize event logging
+        setTimeout(() => {
+            logDjinnEvent('system', 'DJINN Council surveillance system initialized');
+            updateActivityPanels();
+        }, 1000);
 
         async function emergencyAnalysis() {
             try {
+                logDjinnEvent('council', 'Emergency analysis initiated - all members activating');
                 console.log('🚨 Emergency analysis initiated');
                 
                 // Clear queue and force immediate analysis
@@ -8087,10 +8556,10 @@ Synthesize intelligence (max 400 words):
             responseCache.clear();
             console.log('Cache cleared - improved analysis prompts enabled');
 
-            // Force immediate fresh analysis of current canvas content
-            setTimeout(() => {
-                triggerCouncilAnalysis();
-            }, 2000);
+            // Auto-analysis disabled - event-driven only
+            // setTimeout(() => {
+            //     triggerCouncilAnalysis();
+            // }, 2000);
             
             loadStoredIntelligence();
             initializeSurveillance();
@@ -8696,13 +9165,446 @@ Synthesize intelligence (max 400 words):
             `;
         }
 
-        // Auto-update predictive analytics every 30 seconds
-        setInterval(updatePredictiveAnalytics, 30000);
+        // Event-driven synthesis report listener - DJINN Council activation
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'SYNTHESIS_REPORT_COMPLETE') {
+                console.log('🏛️ DJINN Council activated by synthesis report');
+                initiateCouncilDeliberation(event.data.synthesisReport, event.data.canvasData);
+            }
+        });
+
+        // Monitor localStorage changes for real-time surveillance updates
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'canvas_synthesis_status' || event.key === 'synthesis_progress' || event.key === 'synthesis_report_generated') {
+                updateSynthesisStatusFromLocalStorage();
+                updateSynthesisProgressStatus();
+                console.log('📊 Surveillance panel updated from localStorage change');
+
+                // TRIGGER ACTUAL DJINN COUNCIL ANALYSIS when synthesis report is generated
+                if (event.key === 'synthesis_report_generated') {
+                    setTimeout(() => {
+                        const synthesisReport = localStorage.getItem('synthesis_report');
+                        const canvasData = {
+                            aiOutputs: [],
+                            memories: JSON.parse(localStorage.getItem('ai_memory_state') || '{}'),
+                            documentChanges: [],
+                            canvasContent: localStorage.getItem('sovereign_canvas_content') || ''
+                        };
+
+                        if (synthesisReport) {
+                            console.log('🏛️ DJINN Council activated by synthesis report generation');
+                            initiateCouncilDeliberation({ content: synthesisReport, timestamp: new Date().toISOString() }, canvasData);
+                        }
+                    }, 1000);
+                }
+            }
+        });
+
+        // Poll localStorage for surveillance updates (fallback for same-window updates)
+        setInterval(function() {
+            // Update synthesis status first, then surveillance metrics
+            updateSynthesisStatusFromLocalStorage();
+            updateSynthesisProgressStatus();
+            updateAllSurveillanceMetrics();
+        }, 2000);
+
+        // Update ALL surveillance metrics with real data and persist state
+        function updateAllSurveillanceMetrics() {
+            try {
+                // Load persistent surveillance state
+                const persistentState = JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}');
+
+                // Get canvas content and calculate velocity
+                const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+                const previousContent = persistentState.lastCanvasContent || surveillanceState.lastCanvasContent || '';
+                const contentDiff = Math.abs(canvasContent.length - previousContent.length);
+                const timeElapsed = 2; // 2 second polling interval
+                const velocity = (contentDiff / timeElapsed * 60).toFixed(1); // chars per minute
+
+                // Track velocity history for better calculations
+                if (!persistentState.velocityHistory) persistentState.velocityHistory = [];
+                if (velocity > 0) {
+                    persistentState.velocityHistory.push({
+                        velocity: parseFloat(velocity),
+                        timestamp: Date.now()
+                    });
+                    // Keep last 10 velocity measurements
+                    if (persistentState.velocityHistory.length > 10) {
+                        persistentState.velocityHistory.shift();
+                    }
+                }
+
+                // Calculate rolling average velocity
+                const avgVelocity = persistentState.velocityHistory.length > 0
+                    ? (persistentState.velocityHistory.reduce((sum, v) => sum + v.velocity, 0) / persistentState.velocityHistory.length).toFixed(1)
+                    : velocity;
+
+                // Update Evolution Trend
+                const evolutionTrendEl = document.getElementById('evolutionTrend');
+                if (evolutionTrendEl) {
+                    const trend = contentDiff > 50 ? 'EXPANDING' : contentDiff > 10 ? 'EVOLVING' : 'STABLE';
+                    evolutionTrendEl.textContent = trend;
+                    evolutionTrendEl.style.color = trend === 'EXPANDING' ? '#00ff88' : trend === 'EVOLVING' ? '#ffaa00' : '#4ecdc4';
+                }
+
+                // Update Change Velocity with rolling average
+                const changeVelocityEl = document.getElementById('changeVelocity');
+                if (changeVelocityEl) {
+                    changeVelocityEl.textContent = `${avgVelocity} chars/min`;
+                    changeVelocityEl.style.color = avgVelocity > 10 ? '#ff6b6b' : avgVelocity > 1 ? '#ffaa00' : '#4ecdc4';
+                }
+
+                // Update History Depth
+                const historyDepthEl = document.getElementById('historyDepth');
+                if (historyDepthEl) {
+                    const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                    historyDepthEl.textContent = `${evolutionHistory.length} snapshots`;
+                }
+
+                // Update Patterns
+                const patternsEl = document.getElementById('patternsDetected');
+                if (patternsEl) {
+                    const patterns = contentDiff > 100 ? 'burst_activity' : contentDiff > 20 ? 'steady_growth' : 'stable_growth';
+                    patternsEl.textContent = patterns;
+                }
+
+                // Update Rounds Completed using same data source as Agents Complete
+                const roundsCompletedEl = document.getElementById('roundsCompleted');
+                if (roundsCompletedEl) {
+                    // Get the same synthesis status data that Agents Complete uses
+                    const canvasSynthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
+                    const synthesisGenerated = localStorage.getItem('synthesis_report_generated');
+
+                    // Ensure persistent fields exist (but don't reset them)
+                    if (typeof persistentState.roundsCompleted === 'undefined') {
+                        persistentState.roundsCompleted = 0;
+                    }
+                    if (typeof persistentState.lastSynthesisTime === 'undefined') {
+                        persistentState.lastSynthesisTime = 0;
+                    }
+
+                    const currentSynthesisTime = synthesisGenerated ? parseInt(synthesisGenerated) : 0;
+
+                    // Check if this is a genuinely new synthesis completion using same logic as Agents Complete
+                    if (currentSynthesisTime > persistentState.lastSynthesisTime + 5000 && // At least 5 second gap
+                        canvasSynthesisStatus.synthesisTriggered &&
+                        canvasSynthesisStatus.allComplete &&
+                        currentSynthesisTime > 0) {
+
+                        persistentState.roundsCompleted++;
+                        persistentState.lastSynthesisTime = currentSynthesisTime;
+                        console.log(`🎯 New synthesis round completed! Total: ${persistentState.roundsCompleted} (Round: ${canvasSynthesisStatus.currentRound})`);
+                    }
+
+                    // Always display current count - synchronized with same data source as Agents Complete
+                    roundsCompletedEl.textContent = persistentState.roundsCompleted;
+                }
+
+                // Update Extended Analysis with fresh synthesis data only
+                const extendedAnalysisEl = document.getElementById('extendedAnalysisContent');
+                if (extendedAnalysisEl) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    const synthesisGenerated = localStorage.getItem('synthesis_report_generated');
+                    const canvasSynthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
+
+                    // Only show synthesis if it's recent (within last 10 minutes)
+                    const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+                    const synthesisTime = synthesisGenerated ? parseInt(synthesisGenerated) : 0;
+
+                    if (synthesisTime > tenMinutesAgo && canvasSynthesisStatus.synthesisTriggered) {
+                        const lastSynthesis = localStorage.getItem('synthesis_report') || '';
+                        if (lastSynthesis && lastSynthesis.length > 100) {
+                            // Show recent synthesis with timestamp
+                            const synthesisAge = Math.floor((Date.now() - synthesisTime) / 60000);
+                            extendedAnalysisEl.innerHTML = `📊 Latest Synthesis Analysis (${timestamp}) - ${synthesisAge} min ago<br><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 0; max-height: 300px; overflow-y: auto;">${lastSynthesis}</pre>`;
+                        } else {
+                            extendedAnalysisEl.innerHTML = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Synthesis in progress...`;
+                        }
+                    } else {
+                        // No recent synthesis data
+                        const agentsComplete = canvasSynthesisStatus.completedSystems || 0;
+                        extendedAnalysisEl.innerHTML = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Waiting for synthesis completion...<br>Current progress: ${agentsComplete}/5 systems complete`;
+                    }
+                }
+
+                // Store current content for next comparison
+                surveillanceState.lastCanvasContent = canvasContent;
+                persistentState.lastCanvasContent = canvasContent;
+                persistentState.lastUpdate = Date.now();
+
+                // Persist the state to localStorage
+                try {
+                    localStorage.setItem('djinn_surveillance_state', JSON.stringify(persistentState));
+                } catch (storageError) {
+                    console.warn('Failed to persist surveillance state:', storageError);
+                }
+
+            } catch (error) {
+                console.error('Error updating surveillance metrics:', error);
+            }
+        }
+
+        // Initialize persistent surveillance state on load
+        function initializePersistentSurveillance() {
+            try {
+                const persistentState = JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}');
+
+                // Initialize missing fields - start fresh to avoid conflicting sources
+                if (!persistentState.velocityHistory) persistentState.velocityHistory = [];
+                if (typeof persistentState.roundsCompleted === 'undefined') {
+                    // Start from 0 to avoid conflicts with old cached values
+                    persistentState.roundsCompleted = 0;
+                    console.log('📊 Initializing rounds counter from 0 (ignoring cached values)');
+                }
+                if (!persistentState.sessionStartTime) persistentState.sessionStartTime = Date.now();
+                if (!persistentState.lastSynthesisTime) persistentState.lastSynthesisTime = 0;
+
+                // Update surveillance state from persistent data
+                if (persistentState.lastCanvasContent) {
+                    surveillanceState.lastCanvasContent = persistentState.lastCanvasContent;
+                }
+
+                localStorage.setItem('djinn_surveillance_state', JSON.stringify(persistentState));
+                console.log('📊 Persistent surveillance state initialized');
+            } catch (error) {
+                console.error('Failed to initialize persistent surveillance:', error);
+            }
+        }
+
+        // Main DJINN Council Deliberation Function - full advanced analysis
+        async function initiateCouncilDeliberation(synthesisReport, canvasData) {
+            console.log('🎯 Starting DJINN Council deliberation session with full advanced analysis');
+
+            // Prepare comprehensive analysis data with all synthesis and canvas data
+            const analysisData = {
+                type: 'synthesis_report_analysis',
+                data: {
+                    content: canvasData?.canvasContent || localStorage.getItem('sovereign_canvas_content') || '',
+                    synthesisReport: synthesisReport,
+                    canvasOutputs: canvasData?.aiOutputs || [],
+                    canvasMemories: canvasData?.memories || {},
+                    documentEvolution: canvasData?.documentChanges || [],
+                    aiMemoryState: JSON.parse(localStorage.getItem('ai_memory_state') || '{}'),
+                    timestamp: new Date().toISOString()
+                },
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('🧠 Initiating advanced 3-stage analysis with cross-pollination and memory integration');
+
+            // Use existing analyze function which includes:
+            // - 3-stage collaborative analysis (Stage 1: Pattern & Wisdom, Stage 2: Cross-pollinated Paradox & Boundaries, Stage 3: Memory synthesis)
+            // - Advanced memory integration with referential analysis
+            // - Cross-pollination between council members
+            // - Consensus generation with collaborative insights
+            // - Intelligence report generation with correlative analysis
+            await triggerCouncilAnalysis();
+
+            console.log('✅ DJINN Council deliberation complete with full advanced analysis');
+        }
 
         // Initialize correlative analysis framework
         if (typeof correlativeAnalysisFramework !== 'undefined') {
             correlativeAnalysisFramework.initialize();
             console.log('🔍 Correlative Analysis Framework initialized and ready for synthesis report integration');
+        }
+
+        // ========================================
+        // INTELLIGENCE AGENT CHAT SYSTEM
+        // ========================================
+
+        async function askIntelligenceAgent() {
+            const input = document.getElementById('intelligenceInput');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const chatHistory = document.getElementById('intelligenceChatHistory');
+            const timestamp = new Date().toLocaleTimeString();
+
+            // Add user question to chat
+            addToChatHistory(`<div style="color: #fff; margin-bottom: 10px;"><strong>👤 You (${timestamp}):</strong> ${question}</div>`);
+
+            // Clear input
+            input.value = '';
+
+            // Show thinking indicator
+            addToChatHistory(`<div id="thinking" style="color: #ffaa00; margin-bottom: 10px;"><strong>🤖 Intelligence Agent:</strong> <span style="animation: pulse 1s infinite;">Analyzing comprehensive database...</span></div>`);
+
+            try {
+                // Gather ALL available data
+                const comprehensiveData = await gatherComprehensiveIntelligenceData();
+
+                // Build comprehensive prompt for AI
+                const prompt = buildIntelligenceAgentPrompt(question, comprehensiveData);
+
+                // Query Ollama with comprehensive context
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'gemma3:1b',
+                        prompt: prompt,
+                        stream: false
+                    })
+                });
+
+                const result = await response.json();
+
+                // Remove thinking indicator
+                document.getElementById('thinking')?.remove();
+
+                // Add AI response to chat
+                addToChatHistory(`<div style="color: #4ecdc4; margin-bottom: 15px;"><strong>🤖 Intelligence Agent (${timestamp}):</strong><br><div style="margin-top: 5px; padding-left: 10px; border-left: 2px solid #4ecdc4; white-space: pre-wrap;">${result.response}</div></div>`);
+
+            } catch (error) {
+                document.getElementById('thinking')?.remove();
+                addToChatHistory(`<div style="color: #ff6b6b; margin-bottom: 10px;"><strong>❌ Error:</strong> Failed to connect to AI system. ${error.message}</div>`);
+            }
+        }
+
+        function addToChatHistory(html) {
+            const chatHistory = document.getElementById('intelligenceChatHistory');
+            chatHistory.innerHTML += html;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        async function gatherComprehensiveIntelligenceData() {
+            const data = {
+                // Canvas data
+                canvasContent: localStorage.getItem('sovereign_canvas_content') || '',
+                canvasTimestamp: localStorage.getItem('sovereign_canvas_timestamp') || '',
+
+                // Synthesis data
+                synthesisReport: localStorage.getItem('synthesis_report') || '',
+                synthesisCanvas: localStorage.getItem('synthesis_canvas_content') || '',
+                synthesisGenerated: localStorage.getItem('synthesis_report_generated') || '',
+
+                // AI Memory data - comprehensive
+                aiMemoryState: JSON.parse(localStorage.getItem('ai_memory_state') || '{}'),
+                aiFeeds: JSON.parse(localStorage.getItem('ai_feeds') || '[]'),
+                aiEvolutionHistory: JSON.parse(localStorage.getItem('ai_evolution_history') || '[]'),
+
+                // DJINN Council data - complete
+                councilMemory: djinnCouncilMemory,
+                intelligenceReports: JSON.parse(localStorage.getItem('djinn_intelligence') || '[]'),
+                councilCompleteMemory: JSON.parse(localStorage.getItem('djinn_council_complete_memory') || '{}'),
+
+                // Canvas synthesis status - detailed
+                canvasSynthesisStatus: JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}'),
+                synthesisProgress: localStorage.getItem('synthesis_progress') || '',
+                synthesisReportGenerated: localStorage.getItem('synthesis_report_generated') || '',
+
+                // Surveillance data - comprehensive
+                surveillanceState: JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}'),
+
+                // Correlative analysis
+                correlativeAnalysis: JSON.parse(localStorage.getItem('correlative_analysis_results') || '{}'),
+
+                // System performance metrics
+                systemMetrics: {
+                    totalMemoryItems: Object.values(JSON.parse(localStorage.getItem('ai_memory_state') || '{}')).reduce((total, system) => {
+                        return total + (system.conversationHistory ? system.conversationHistory.length : 0);
+                    }, 0),
+                    evolutionSnapshots: JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').length,
+                    activeCouncilMembers: Object.keys(djinnCouncilMemory.members || {}).length,
+                    roundsCompleted: (JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}')).roundsCompleted || 0
+                },
+
+                // System stats - enhanced
+                systemStats: {
+                    timestamp: new Date().toISOString(),
+                    sessionDuration: Math.floor((Date.now() - (djinnCouncilMemory.sessionStart ? new Date(djinnCouncilMemory.sessionStart).getTime() : Date.now())) / 60000),
+                    totalCouncilReports: Object.values(djinnCouncilMemory.members || {}).reduce((sum, member) => sum + (member.reports ? member.reports.length : 0), 0),
+                    canvasSize: (localStorage.getItem('sovereign_canvas_content') || '').length,
+                    wordCount: (localStorage.getItem('sovereign_canvas_content') || '').trim() ? (localStorage.getItem('sovereign_canvas_content') || '').trim().split(/\s+/).length : 0,
+                    lastSynthesis: localStorage.getItem('synthesis_report_generated') ? new Date(parseInt(localStorage.getItem('synthesis_report_generated'))).toLocaleString() : 'Never'
+                }
+            };
+
+            return data;
+        }
+
+        function buildIntelligenceAgentPrompt(question, data) {
+            return `You are an expert Intelligence Agent with access to the Canvas AI Orchestration System and DJINN Council databases. Answer questions directly using ONLY the data provided below. DO NOT make up numbers, invent details, or speculate beyond what is shown in the data.
+
+CRITICAL INSTRUCTIONS:
+- Use ONLY the specific data provided below
+- Reference actual numbers from the system metrics
+- If data is not available, say "data not available" rather than guessing
+- Focus on facts from the localStorage and system state
+
+QUESTION: ${question}
+
+REAL SYSTEM DATA:
+
+CANVAS SYSTEM:
+Content: ${data.canvasContent.substring(0, 1200)}${data.canvasContent.length > 1200 ? '...' : ''}
+Size: ${data.systemStats.canvasSize} characters (${data.systemStats.wordCount} words)
+Last Updated: ${data.canvasTimestamp}
+
+SYNTHESIS REPORTS:
+Latest Report: ${data.synthesisReport.substring(0, 600)}${data.synthesisReport.length > 600 ? '...' : ''}
+Last Generated: ${data.systemStats.lastSynthesis}
+Status: ${data.canvasSynthesisStatus.synthesisTriggered ? 'ACTIVE' : 'READY'} | All Complete: ${data.canvasSynthesisStatus.allComplete ? 'YES' : 'NO'}
+Progress: ${data.synthesisProgress}
+
+AI MEMORY SYSTEMS (${data.systemMetrics.totalMemoryItems} total items):
+${Object.entries(data.aiMemoryState).map(([system, memory]) => {
+    const reports = memory.conversationHistory ? memory.conversationHistory.length : 0;
+    const insights = memory.keyInsights ? memory.keyInsights.length : 0;
+    const lastActivity = memory.lastActivity ? new Date(memory.lastActivity).toLocaleTimeString() : 'Never';
+    return `• ${system.toUpperCase()}: ${reports} conversations, ${insights} insights, last: ${lastActivity}`;
+}).join('\n')}
+
+DJINN COUNCIL (Session: ${data.systemStats.sessionDuration} minutes):
+Active Members: ${data.systemMetrics.activeCouncilMembers}/5
+Total Reports: ${data.systemStats.totalCouncilReports}
+Rounds Completed: ${data.systemMetrics.roundsCompleted}
+Member Performance: ${Object.entries(data.councilMemory.members || {}).map(([name, member]) =>
+    `${name}: ${member.reports ? member.reports.length : 0} reports`).join(', ')}
+
+SYSTEM PERFORMANCE:
+Evolution Snapshots: ${data.systemMetrics.evolutionSnapshots}
+Memory Items: ${data.systemMetrics.totalMemoryItems}
+Intelligence Reports: ${data.intelligenceReports.length}
+Surveillance Data: ${Object.keys(data.surveillanceState).length} metrics tracked
+
+RESPONSE REQUIREMENTS:
+- Answer conversationally but stick to the data above
+- Use exact numbers from the system metrics provided
+- When referencing council members, use the actual report counts shown
+- When discussing AI systems, use the specific conversation and insight counts provided
+- Do NOT invent or estimate any data not explicitly shown above
+- Keep responses under 300 words and focused on the actual data
+
+Answer the question now using ONLY the data provided:`;
+        }
+
+        function clearIntelligenceChat() {
+            document.getElementById('intelligenceChatHistory').innerHTML = `
+                <div style="color: #4ecdc4; margin-bottom: 10px;">
+                    <strong>🤖 Intelligence Agent initialized</strong><br>
+                    <span style="color: #888; font-size: 11px;">Ready to answer questions about canvas content, AI systems, council analysis, synthesis reports, memories, and all stored data.</span>
+                </div>
+            `;
+        }
+
+        function toggleControls() {
+            const controlsContainer = document.getElementById('djinnControls');
+            const toggleBtn = document.getElementById('controlsToggleBtn');
+            const djinnContainer = document.querySelector('.djinn-container');
+
+            if (controlsContainer.classList.contains('minimized')) {
+                controlsContainer.classList.remove('minimized');
+                toggleBtn.textContent = 'Hide Controls';
+                // Expand controls area
+                djinnContainer.style.gridTemplateRows = 'minmax(60px, auto) 1fr 1fr minmax(200px, 30vh)';
+            } else {
+                controlsContainer.classList.add('minimized');
+                toggleBtn.textContent = 'Show Controls';
+                // Minimize controls area, let panels expand
+                djinnContainer.style.gridTemplateRows = 'minmax(60px, auto) 1fr 1fr minmax(60px, auto)';
+            }
         }
 
         window.addEventListener('beforeunload', function() {
@@ -8711,5 +9613,29 @@ Synthesize intelligence (max 400 words):
             }
         });
     </script>
+
+    <!-- Export Selection Popup -->
+    <div id="exportSelectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; font-family: 'Courier New', monospace;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 2px solid #4ecdc4; border-radius: 8px; padding: 20px; max-width: 80%; max-height: 80%; overflow-y: auto; color: #ffffff;">
+            <h3 style="color: #4ecdc4; margin-top: 0; text-align: center;">📊 DJINN Council Data Export Selection</h3>
+
+            <div style="margin-bottom: 20px; padding: 10px; background: rgba(78, 205, 196, 0.1); border-radius: 4px;">
+                <strong>Available Reports for Export:</strong>
+                <div style="font-size: 12px; color: #aaa; margin-top: 5px;">Select the reports you want to include in your export package</div>
+            </div>
+
+            <div id="exportReportsList" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Reports will be populated here -->
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="selectAllReports()" style="padding: 8px 16px; background: #4ecdc4; color: #000; border: none; border-radius: 4px; cursor: pointer;">Select All</button>
+                <button onclick="deselectAllReports()" style="padding: 8px 16px; background: #666; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Deselect All</button>
+                <button onclick="performExport()" style="padding: 8px 16px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Export Selected</button>
+                <button onclick="closeExportModal()" style="padding: 8px 16px; background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

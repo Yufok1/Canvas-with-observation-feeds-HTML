@@ -2,6 +2,11 @@
 
 A sovereign web interface for real-time AI observation, analysis, and collaborative synthesis. This application provides a canvas for user observations while integrating live intelligence streams from multiple AI systems, ensuring user sovereignty and comprehensive analysis capabilities.
 
+## 🌟 Visual README
+**Experience the Enhanced Visual Documentation**: [https://yufok1.github.io/Canvas-with-observation-feeds-HTML/](https://yufok1.github.io/Canvas-with-observation-feeds-HTML/)
+
+*Features Matrix rain animation, cyberpunk aesthetics, and interactive documentation experience.*
+
 **Experience an enhanced launch with ASCII art startup sequences and enjoy an**AI Responses Not Appearing**
 - Check browser console for errors (F12)
 - Verify model compatibility with gemma3:1b
@@ -37,14 +42,16 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 
 ## 🆕 Latest Features
 
-### DJINN Council Shadow Governance System
-- **🧞‍♂️ DJINN Council Interface**: Dedicated surveillance and governance oversight system
+### DJINN Council Document Surveillance Analysis System
+- **🧞‍♂️ DJINN Council Interface**: Advanced document evolution analysis and collaborative intelligence system
 - **5 Specialized Council Members**: Pattern & Witness, Recursive Wisdom, Creative Paradox, Sovereign Boundaries, Echo & Memory
-- **3-Stage Collaborative Analysis**: Foundation → Cross-Pollination → Memory Synthesis
-- **Session-Only Memories**: Fresh council knowledge base each session for optimal analysis
-- **Real-time Canvas Monitoring**: Cross-window surveillance with comprehensive statistics
-- **Panel Maximization**: Expandable interface panels for detailed analysis
-- **AI-Powered Intelligence Reports**: Structured risk evaluation and strategic recommendations
+- **Document-Focused Analysis**: Specialized framework for evaluating document evolution through AI collaborative intelligence
+- **3-Stage Collaborative Analysis**: Foundation → Cross-Pollination → Memory Synthesis with document transformation tracking
+- **Real-time Document Monitoring**: Cross-window surveillance tracking how 5-AI system (DJINN-NAZAR-NARRA-WHALE-WATCHTOWER) shapes document evolution
+- **Event Logging System**: Comprehensive logging of all council operations, analysis activities, and report generations
+- **Dynamic Export Selection**: Detailed popup for selecting specific consensus reports, intelligence reports, and member analyses for export
+- **Advanced Analysis Panel**: Real-time updating synthesis display that refreshes with latest canvas analysis content
+- **Panel Maximization**: Expandable interface panels for detailed analysis with optimized height proportions
 - **Enhanced Tooltips**: Current system functionality descriptions for all interface elements
 
 ### Advanced Intelligence Features
@@ -58,19 +65,21 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 
 ## 🛠️ Recent Updates (September 15, 2025)
 
-### Bug Fixes & Improvements
-- **✅ Syntax Error Resolution**: Fixed JavaScript syntax error in canvas file that was preventing proper loading
-- **✅ Correlative Analysis Integration**: Implemented missing `triggerCorrelativeAnalysis` function for DJINN Council
-- **✅ Synthesis Workflow Enhancement**: Improved AI agent completion tracking and synthesis triggering
-- **✅ Polling Prevention**: Added safeguards to prevent premature polling during synthesis processes
-- **✅ Real-time Status Updates**: Enhanced cross-window communication between canvas and DJINN Council
-- **✅ Error Handling**: Improved error handling and user feedback throughout the system
+### Major Feature Updates
+- **✅ Document Surveillance Analysis**: Refocused DJINN Council from AI monitoring to document evolution analysis through collaborative intelligence
+- **✅ Comprehensive Event Logging**: Implemented detailed logging system tracking all council operations, analysis activities, and report generations
+- **✅ Dynamic Export Selection**: Added detailed popup for selecting specific reports with comprehensive metadata display
+- **✅ Advanced Analysis Auto-Update**: Advanced Analysis panel now dynamically refreshes with latest synthesis content from canvas
+- **✅ Panel Height Optimization**: Balanced panel proportions for better visual harmony in the interface
+- **✅ Anti-Hallucination Enhancement**: Fixed synthesis content caching issues ensuring fresh analysis displays
 
 ### Technical Improvements
-- **Enhanced Memory Management**: Better localStorage compression and quota management
-- **Improved Cross-Window Communication**: More reliable data synchronization between interfaces
-- **Better Error Recovery**: Graceful handling of network timeouts and API failures
-- **Performance Optimizations**: Reduced memory usage and improved response times
+- **Enhanced Memory Management**: Better localStorage compression and quota management with synthesis content caching fixes
+- **Improved Cross-Window Communication**: More reliable data synchronization between interfaces with polling integration
+- **Document Evolution Tracking**: Specialized analysis framework for tracking how AI collaborative intelligence transforms documents
+- **Event-Driven Architecture**: Comprehensive logging of analysis triggers, member reports, consensus generation, and system operations
+- **Better Error Recovery**: Graceful handling of network timeouts and API failures with detailed error logging
+- **Performance Optimizations**: Reduced memory usage and improved response times with optimized grid layouts
 
 ## Features
 
@@ -83,21 +92,21 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
   - 🐋 **WHALE**: Deep Interrogation & Memory
   - 🔱 **WATCHTOWER**: Operational Monitoring & Metrics
 
-### DJINN Council Shadow Governance System
-- **🧞‍♂️ Advanced Council Interface**: Dedicated surveillance system (`djinn-council-shadow-governance.html`) with comprehensive ecosystem analysis
-- **5 Specialized Council Members**: AI entities with distinct analytical specializations and complete memory access:
-  - 🜁 **Pattern & Witness**: Governance pattern analysis with cross-member insight integration
-  - 🔮 **Recursive Wisdom**: Iterative knowledge synthesis with historical memory context
-  - 🜃 **Creative Paradox**: Innovation catalyst with paradox resolution using memory patterns
-  - 🜄 **Sovereign Boundaries**: Autonomy guardian with persistent autonomy tracking and restriction analysis
-  - 🝊 **Echo & Memory**: Memory orchestration with council-wide memory integration and recall
-- **Complete Memory Access**: Each member accesses all localStorage data, council member reports, and consensus history
-- **Real Data Analysis**: Council members analyze actual stored AI memories, feed entries, canvas content, and intelligence reports
-- **Cross-Member Collaboration**: Members reference each other's insights, build upon consensus findings, and provide interconnected analysis
-- **Anti-Hallucination Architecture**: Strict data-only analysis prevents fabricated metrics and invented system states
-- **Full-Panel Intelligence Display**: Consensus and intelligence reports expand to fill complete interface panels
-- **Comprehensive Ecosystem Intelligence**: Analysis covers document evolution, memory banks, dashboard metrics, and stored insights
-- **AI-Powered Strategic Synthesis**: Real Ollama-generated intelligence reports with no fallback templates
+### DJINN Council Document Surveillance Analysis System
+- **🧞‍♂️ Advanced Council Interface**: Dedicated document evolution analysis system (`djinn-council-shadow-governance.html`) with comprehensive collaborative intelligence tracking
+- **5 Specialized Council Members**: Document analysis specialists with distinct analytical specializations:
+  - 🜁 **Pattern & Witness**: Document structure and governance pattern analysis with cross-member insight integration
+  - 🔮 **Recursive Wisdom**: Iterative knowledge synthesis tracking document evolution through AI collaborative intelligence
+  - 🜃 **Creative Paradox**: Innovation catalyst analyzing document transformation patterns and conceptual coherence
+  - 🜄 **Sovereign Boundaries**: Document integrity guardian analyzing how AI collaborative intelligence shapes content evolution
+  - 🝊 **Echo & Memory**: Document memory orchestration tracking temporal evolution and synthesis impact
+- **Document Evolution Focus**: Specialized analysis framework for tracking how 5-AI collaborative intelligence (DJINN-NAZAR-NARRA-WHALE-WATCHTOWER) transforms documents
+- **Real-time Event Logging**: Comprehensive logging system tracking all council operations, analysis activities, report generations, and document evolution events
+- **Dynamic Export Selection**: Advanced popup interface for selecting specific consensus reports, intelligence reports, and member analyses with detailed metadata
+- **Advanced Analysis Auto-Update**: Real-time updating synthesis panel that automatically refreshes with latest canvas analysis content
+- **Anti-Hallucination Architecture**: Strict data-only analysis prevents fabricated metrics and invented system states while tracking actual document transformation
+- **Optimized Panel Layout**: Balanced interface proportions with consensus and intelligence panels properly sized relative to member panels
+- **Comprehensive Document Intelligence**: Analysis covers document structure, AI collaborative impact, evolution patterns, and transformation quality
 
 ### Advanced Capabilities
 - **AI Collaborative Synthesis**: Multi-system analysis with unified synthesis
