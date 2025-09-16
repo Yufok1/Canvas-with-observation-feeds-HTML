@@ -384,6 +384,7 @@
         <div class="main-canvas">
             <div class="panel-title">📝 Your Sovereign Canvas</div>
             <div class="canvas-controls">
+                <button id="startAnalysisBtn" class="canvas-btn" onclick="startInitialAnalysis()" title="Start the first analysis cycle when in council integration mode" style="display: none; background: rgba(78, 205, 196, 0.3); border-color: #4ecdc4; font-weight: bold;">🚀 START ANALYSIS</button>
                 <button class="canvas-btn" onclick="saveCanvas()">💾 Save</button>
                 <button class="canvas-btn" onclick="exportData()">📊 Export</button>
                 <button class="canvas-btn" onclick="clearCanvas()">🗑️ Clear</button>
@@ -908,6 +909,12 @@ Ready for your first collaborative synthesis! 🚀</textarea>
         };
 
         async function pollAIDataParallel() {
+            // Check if polling is disabled in council integration mode
+            if (window.canvasPollingDisabled) {
+                console.log('🛑 AI Data Polling blocked - waiting for council intelligence completion');
+                return;
+            }
+
             const currentTime = new Date();
 
             // Check if synthesis is still in progress
@@ -2347,6 +2354,12 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         let pollingTimer = null;
 
         async function startAIDataPolling() {
+            // Check if polling is disabled in council integration mode
+            if (window.canvasPollingDisabled) {
+                console.log('🛑 AI Polling blocked - waiting for council intelligence completion');
+                return;
+            }
+
             console.log('🚀 AI Polling started with activity optimization');
 
             // Start activity monitoring
@@ -2375,6 +2388,16 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         }
 
         function scheduleNextPoll() {
+            // Check if polling is disabled
+            if (window.canvasPollingDisabled) {
+                console.log('🛑 Poll scheduling blocked - council integration mode active');
+                const pollingStatus = document.getElementById('pollingStatus');
+                if (pollingStatus) {
+                    pollingStatus.textContent = '⏸️ WAITING';
+                }
+                return;
+            }
+
             if (pollingTimer) clearTimeout(pollingTimer);
 
             const interval = activityMonitor.getCurrentInterval();
@@ -3125,6 +3148,11 @@ Your direct response as ${entity.toUpperCase()}:`;
         function startProactiveEngagement() {
             // Monitor canvas changes for proactive AI engagement
             setInterval(() => {
+                // Skip proactive engagement if polling is disabled
+                if (window.canvasPollingDisabled) {
+                    return;
+                }
+
                 const canvas = document.getElementById('mainCanvas');
                 if (!canvas) return;
 
@@ -3407,10 +3435,149 @@ Your direct response as ${entity.toUpperCase()}:`;
         }
 
         // INITIALIZE ON LOAD
+        // Canvas Orchestration Mode Detection and Coordination
+        const urlParams = new URLSearchParams(window.location.search);
+        const canvasMode = urlParams.get('mode') || 'standalone';
+        let isCouncilIntegrated = canvasMode === 'council_integrated';
+
+        console.log(`🎯 Canvas launching in ${canvasMode} mode`);
+
+        function setupCouncilIntegration() {
+            console.log('🔗 Setting up council-integrated mode');
+
+            // COMPLETELY DISABLE all automatic polling and AI processing
+            window.canvasPollingDisabled = true;
+            console.log('🛑 ALL Canvas polling and AI processing DISABLED - waiting for complete intelligence reports');
+
+            // Show the Start Analysis button for initial ignition
+            const startBtn = document.getElementById('startAnalysisBtn');
+            if (startBtn) {
+                startBtn.style.display = 'inline-block';
+                console.log('🚀 Start Analysis button enabled for initial cycle ignition');
+            }
+
+            // Listen for council intelligence completion events
+            window.addEventListener('message', function(event) {
+                if (event.data.type === 'council_intelligence_complete') {
+                    console.log('📊 Council intelligence complete - triggering next canvas cycle');
+                    triggerCanvasCycle();
+                }
+            });
+
+            // Also listen for storage events from council window
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'djinn_intelligence_trigger') {
+                    console.log('🔄 Council intelligence stored - processing canvas cycle');
+                    triggerCanvasCycle();
+                    // Clear the trigger
+                    localStorage.removeItem('djinn_intelligence_trigger');
+                }
+            });
+
+            // Override any existing polling intervals in council mode
+            if (typeof window.aiPollingInterval !== 'undefined') {
+                clearInterval(window.aiPollingInterval);
+                console.log('🛑 Cleared existing AI polling interval');
+            }
+        }
+
+        function setupStandaloneMode() {
+            console.log('🚀 Setting up standalone mode with automatic polling');
+
+            // Ensure polling is not disabled for standalone mode
+            window.canvasPollingDisabled = false;
+
+            // Hide the Start Analysis button (not needed in standalone mode)
+            const startBtn = document.getElementById('startAnalysisBtn');
+            if (startBtn) {
+                startBtn.style.display = 'none';
+            }
+
+            // Start automatic polling and AI processing
+            console.log('⚡ Enabling automatic AI polling and processing');
+            startAIDataPolling();
+
+            // Start auto-save functionality
+            startAutoSave();
+
+            // Update status to show active polling
+            const pollingStatus = document.getElementById('pollingStatus');
+            if (pollingStatus) {
+                pollingStatus.textContent = 'AUTO-ACTIVE';
+                pollingStatus.style.color = '#00ff41';
+            }
+
+            const orchestrationStatus = document.getElementById('orchestrationStatus');
+            if (orchestrationStatus) {
+                orchestrationStatus.textContent = 'AUTONOMOUS';
+                orchestrationStatus.style.color = '#00ff41';
+            }
+
+            console.log('✅ Standalone mode fully initialized with continuous AI processing');
+        }
+
+        // Function to start the initial analysis cycle when in council integration mode
+        function startInitialAnalysis() {
+            console.log('🚀 INITIATING ANALYSIS CYCLE - Manual trigger activated');
+
+            // Hide the start button after first use
+            const startBtn = document.getElementById('startAnalysisBtn');
+            if (startBtn) {
+                startBtn.style.display = 'none';
+                startBtn.disabled = true;
+            }
+
+            // Update status to show analysis has started
+            const pollingStatus = document.getElementById('pollingStatus');
+            if (pollingStatus) {
+                pollingStatus.textContent = '🚀 STARTING';
+                pollingStatus.style.color = '#4ecdc4';
+            }
+
+            const orchestrationStatus = document.getElementById('orchestrationStatus');
+            if (orchestrationStatus) {
+                orchestrationStatus.textContent = 'IGNITION';
+                orchestrationStatus.style.color = '#4ecdc4';
+            }
+
+            // Trigger the first canvas cycle
+            triggerCanvasCycle();
+        }
+
+        function triggerCanvasCycle() {
+            console.log('🎯 Triggered canvas cycle from council intelligence completion');
+
+            // Temporarily re-enable polling for this cycle
+            console.log('🔓 Temporarily enabling canvas polling for intelligence-driven cycle');
+            window.canvasPollingDisabled = false;
+
+            // Process one complete AI cycle
+            pollAIDataParallel().then(() => {
+                // Re-disable polling after completion
+                if (isCouncilIntegrated) {
+                    console.log('🔒 Re-disabling canvas polling - waiting for next intelligence report');
+                    window.canvasPollingDisabled = true;
+                }
+            }).catch(error => {
+                console.error('Canvas cycle failed:', error);
+                // Re-disable polling even on error
+                if (isCouncilIntegrated) {
+                    window.canvasPollingDisabled = true;
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize canvas mode
+            if (isCouncilIntegrated) {
+                setupCouncilIntegration();
+            } else {
+                setupStandaloneMode();
+            }
+
             // Load AI memory from previous sessions
             loadMemoryFromStorage();
-            
+
             // Add maximize functionality to panels
             addMaximizeFeature();
 

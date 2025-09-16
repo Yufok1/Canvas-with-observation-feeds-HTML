@@ -1418,6 +1418,89 @@
             MEMORY_LIMIT: 50 // Max intelligence reports to keep
         };
 
+        // Validation Specialist Memory System
+        const validationSpecialist = {
+            sessionId: `validation_${Date.now()}`,
+            memory: {
+                validationHistory: [], // Track all validations performed
+                patternRecognition: {}, // Common issues discovered
+                synthesisExpertise: [], // Intelligence reports crafted
+                councilInsights: {}, // What it's learned about each council member
+                qualityMetrics: {} // Performance tracking
+            },
+
+            // Load existing memory
+            loadMemory() {
+                try {
+                    const stored = localStorage.getItem('validation_specialist_memory');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.memory = { ...this.memory, ...data };
+                        console.log(`🔍 Validation Specialist loaded ${this.memory.validationHistory.length} validation memories`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load validation specialist memory:', error);
+                }
+            },
+
+            // Save memory to localStorage
+            saveMemory() {
+                try {
+                    localStorage.setItem('validation_specialist_memory', JSON.stringify(this.memory));
+                } catch (error) {
+                    console.error('Failed to save validation specialist memory:', error);
+                }
+            },
+
+            // Add validation experience to memory
+            recordValidation(memberKey, originalResponse, validationResult, iteration) {
+                const validation = {
+                    timestamp: new Date().toISOString(),
+                    member: memberKey,
+                    originalResponse: originalResponse.substring(0, 500),
+                    result: validationResult,
+                    iteration: iteration,
+                    issues: this.extractIssues(validationResult.notes),
+                    outcome: validationResult.corrected ? 'corrected' : 'validated'
+                };
+
+                this.memory.validationHistory.unshift(validation);
+
+                // Update council member insights
+                if (!this.memory.councilInsights[memberKey]) {
+                    this.memory.councilInsights[memberKey] = {
+                        commonIssues: [],
+                        improvementPatterns: [],
+                        validationRate: 0
+                    };
+                }
+
+                const insights = this.memory.councilInsights[memberKey];
+                insights.improvementPatterns.push({
+                    iterations: iteration,
+                    successful: !validationResult.corrected,
+                    timestamp: validation.timestamp
+                });
+
+                // Limit memory size
+                if (this.memory.validationHistory.length > 100) {
+                    this.memory.validationHistory = this.memory.validationHistory.slice(0, 100);
+                }
+
+                this.saveMemory();
+            },
+
+            // Extract common validation issues
+            extractIssues(notes) {
+                const issues = [];
+                if (notes.includes('fabricated') || notes.includes('invented')) issues.push('data_fabrication');
+                if (notes.includes('speculation') || notes.includes('assumption')) issues.push('speculation');
+                if (notes.includes('unsupported') || notes.includes('no evidence')) issues.push('unsupported_claims');
+                if (notes.includes('generic') || notes.includes('vague')) issues.push('lack_specificity');
+                return issues;
+            }
+        };
+
         // Council Members Configuration
         const councilMembers = {
             pattern: {
@@ -5519,11 +5602,19 @@ RESPONSE CONSTRAINTS:
 
         // Aggressive throttling for synthesis progress status to prevent scroll resets
         let lastSynthesisUpdate = 0;
-        const SYNTHESIS_UPDATE_THROTTLE = 3000; // Only allow updates every 3 seconds
+        const SYNTHESIS_UPDATE_THROTTLE = 10000; // Only allow updates every 10 seconds
+        let userScrolling = false;
+        let scrollTimeout;
 
 
         // Function to update synthesis progress status
         function updateSynthesisProgressStatus() {
+            // Skip updates if user is actively scrolling
+            if (userScrolling) {
+                console.log('🤐 Skipping analysis update - user scrolling');
+                return;
+            }
+
             // Aggressive throttle to prevent constant scroll resets
             const now = Date.now();
             if (now - lastSynthesisUpdate < SYNTHESIS_UPDATE_THROTTLE) {
@@ -5562,10 +5653,9 @@ RESPONSE CONSTRAINTS:
                     !allSystemsComplete // Systems are still working
                 );
 
-                // Check for actual synthesis process
-                isActuallySynthesizing = (synthesisTriggered && isActive && !allSystemsComplete) ||
-                                       (progressStatus.includes('SYNTHESIZING') || progressStatus.includes('Synthesizing')) ||
-                                       isCanvasActive;
+                // Check for actual synthesis process - only synthesizing if explicitly triggered AND all systems complete
+                isActuallySynthesizing = (synthesisTriggered && isActive && allSystemsComplete) ||
+                                       (progressStatus.includes('SYNTHESIZING') || progressStatus.includes('Synthesizing'));
 
                 if (progressEl) {
                     // Be REACTIVE to actual state, not cached/stale data
@@ -6124,12 +6214,24 @@ RESPONSE CONSTRAINTS:
                     const formattedResponse = formatMarkdownResponse(response, memberKey);
                     const timestamp = new Date().toLocaleTimeString();
 
-                    // Add validation indicators
+                    // Add validation indicators with iteration info and emergency status
                     let validationIndicator = '';
-                    if (validationResult.validated && validationResult.corrected) {
-                        validationIndicator = ' <span class="corrected-indicator" style="color: #ffaa00; font-weight: bold; margin-left: 8px;">AI-CORRECTED</span>';
-                    } else if (validationResult.validated) {
-                        validationIndicator = ' <span class="validated-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">AI-VALIDATED</span>';
+                    const iterations = validationResult.iterations || 1;
+
+                    if (validationResult.critical_failure) {
+                        validationIndicator = ' <span class="critical-failure-indicator" style="color: #ff0000; font-weight: bold; margin-left: 8px;">💥 CRITICAL FAILURE</span>';
+                    } else if (validationResult.emergency_recovery) {
+                        const recoveryStatus = validationResult.validated ? 'RECOVERED' : 'EMERGENCY';
+                        const recoveryColor = validationResult.validated ? '#ff8800' : '#ff4444';
+                        validationIndicator = ` <span class="recovery-indicator" style="color: ${recoveryColor}; font-weight: bold; margin-left: 8px;">🚨 ${recoveryStatus}</span>`;
+                    } else if (validationResult.validated && !validationResult.corrected && iterations === 1) {
+                        validationIndicator = ' <span class="validated-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">✅ VALIDATED</span>';
+                    } else if (validationResult.validated && !validationResult.corrected && iterations > 1) {
+                        validationIndicator = ` <span class="validated-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">✅ REFINED (${iterations}x)</span>`;
+                    } else if (validationResult.validated && validationResult.corrected) {
+                        validationIndicator = ` <span class="corrected-indicator" style="color: #ffaa00; font-weight: bold; margin-left: 8px;">⚠️ AI-CORRECTED (${iterations}x)</span>`;
+                    } else {
+                        validationIndicator = ' <span class="unvalidated-indicator" style="color: #ff6b6b; font-weight: bold; margin-left: 8px;">⚠️ UNVALIDATED</span>';
                     }
 
                     const timestampHeader = `<div class="intel-timestamp" style="color: #888; font-size: 11px; margin-bottom: 8px;">${timestamp} <span class="new-indicator" style="color: #00ff88; font-weight: bold; margin-left: 8px;">NEW</span>${validationIndicator}</div>`;
@@ -6586,42 +6688,209 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
             }
         }
 
-        // Enhanced council member query with AI validation
+        // Enhanced council member query with AI validation and feedback loop
         async function queryCouncilMemberWithValidation(memberKey, prompt, analysis) {
+            const startTime = Date.now(); // Performance tracking
+
             try {
                 const member = councilMembers[memberKey];
                 const canvasContent = analysis?.data?.content || '';
+                const maxIterations = 3; // Limit feedback loops to prevent endless iterations
+                let iteration = 1;
+                let currentPrompt = prompt;
+                let finalResponse = null;
+                let validationHistory = [];
 
                 if (!member) {
                     throw new Error(`Council member ${memberKey} not found`);
                 }
 
-                console.log(`🔍 Querying ${member.model} for ${memberKey} analysis...`);
-                const originalResponse = await queryOllama(member.model, prompt);
+                while (iteration <= maxIterations) {
+                    console.log(`🔍 Querying ${member.model} for ${memberKey} analysis (attempt ${iteration}/${maxIterations})...`);
+                    const response = await queryOllama(member.model, currentPrompt);
 
-                console.log(`🔍 AI-validating ${memberKey} response...`);
-                const validationResult = await validateWithAI(originalResponse, canvasContent, memberKey);
+                    // PATTERN RECOGNITION: Analyze report before validation
+                    let patternAnalysis = null;
+                    if (iteration === 1) { // Only on first attempt to avoid overhead
+                        patternAnalysis = await patternRecognitionEngine.prescreenAndRoute(memberKey, response);
+                        console.log(`🎯 Pattern prediction for ${memberKey}: ${patternAnalysis.failureProbability}/10 failure risk`);
+                    }
 
-                // Store validation metadata
-                const response = validationResult.response;
-                const metadata = {
-                    member: memberKey,
-                    response: response,
-                    validated: validationResult.validated,
-                    corrected: validationResult.corrected,
-                    validationNotes: validationResult.notes
-                };
+                    console.log(`🔍 AI-validating ${memberKey} response (iteration ${iteration})...`);
+                    const validationResult = await validateWithAI(response, canvasContent, memberKey);
 
-                if (validationResult.corrected) {
-                    console.log(`🔧 ${memberKey} response was corrected by AI validator`);
+                    validationHistory.push({
+                        iteration: iteration,
+                        response: response,
+                        validation: validationResult
+                    });
+
+                    // Record validation in specialist memory
+                    validationSpecialist.recordValidation(memberKey, response, validationResult, iteration);
+
+                    // TRIANGULATED VALIDATION: Get refinement specialist coaching
+                    const coachingAnalysis = await refinementSpecialist.analyzeValidationInteraction(
+                        memberKey, response, validationResult.notes, iteration
+                    );
+
+                    // If validation passed without correction, we have a good report
+                    if (validationResult.validated && !validationResult.corrected) {
+                        console.log(`✅ ${memberKey} produced validated report on iteration ${iteration}`);
+
+                        // Update pattern recognition accuracy if we had a prediction
+                        if (patternAnalysis) {
+                            patternRecognitionEngine.updatePatternAccuracy(memberKey, patternAnalysis.failureProbability, validationResult);
+                        }
+
+                        finalResponse = {
+                            member: memberKey,
+                            response: response,
+                            validated: true,
+                            corrected: false,
+                            validationNotes: validationResult.notes,
+                            iterations: iteration,
+                            history: validationHistory
+                        };
+                        break;
+                    }
+
+                    // If this is the last iteration, escalate to Recovery Agent
+                    if (iteration === maxIterations) {
+                        console.log(`🚨 ${memberKey} CRITICAL: Triangulated validation failed - escalating to Recovery Agent`);
+
+                        try {
+                            // Emergency intervention by Recovery Agent
+                            const recoveryAnalysis = await recoveryAgent.performEmergencyIntervention(
+                                memberKey, validationHistory, coachingAnalysis ? 1 : 0
+                            );
+
+                            console.log(`🆘 Recovery Agent diagnosis: ${recoveryAnalysis.systemFailureType}`);
+
+                            // Attempt emergency recovery
+                            const emergencyResponse = await recoveryAgent.applyEmergencyRecovery(
+                                memberKey, recoveryAnalysis, prompt, canvasContent
+                            );
+
+                            // Validate the emergency response
+                            const emergencyValidation = await validateWithAI(emergencyResponse, canvasContent, memberKey);
+
+                            // Record recovery outcome
+                            const recoveryOutcome = emergencyValidation.validated ? 'successful' : 'failed';
+                            recoveryAgent.recordRecoveryAttempt(memberKey, recoveryAnalysis, emergencyResponse, recoveryOutcome);
+
+                            finalResponse = {
+                                member: memberKey,
+                                response: emergencyResponse,
+                                validated: emergencyValidation.validated,
+                                corrected: emergencyValidation.corrected,
+                                validationNotes: emergencyValidation.notes,
+                                iterations: iteration,
+                                history: validationHistory,
+                                emergency_recovery: true,
+                                recovery_analysis: recoveryAnalysis
+                            };
+
+                            console.log(`🚨 Recovery Agent ${recoveryOutcome}: ${memberKey} emergency intervention complete`);
+
+                        } catch (error) {
+                            console.error(`💥 Recovery Agent failed for ${memberKey}:`, error);
+
+                            finalResponse = {
+                                member: memberKey,
+                                response: recoveryAgent.generateFinalFailsafe(memberKey),
+                                validated: false,
+                                corrected: false,
+                                validationNotes: 'Critical system failure - manual intervention required',
+                                iterations: iteration,
+                                history: validationHistory,
+                                critical_failure: true
+                            };
+                        }
+                        break;
+                    }
+
+                    // Create enhanced feedback prompt with triangulated coaching
+                    console.log(`🔄 ${memberKey} needs improvement, applying triangulated coaching for iteration ${iteration + 1}`);
+                    currentPrompt = createTriangulatedFeedbackPrompt(prompt, response, validationResult, coachingAnalysis, canvasContent, memberKey, iteration);
+                    iteration++;
+
+                    // Brief delay between iterations
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
-                return metadata;
+                // Record performance metrics for efficiency optimization
+                const endTime = Date.now();
+                efficiencyOptimizer.recordPerformanceMetrics(memberKey, startTime, endTime, iteration, finalResponse);
+
+                // Track validator performance for QA monitoring
+                qualityAssuranceMonitor.trackValidatorPerformance(memberKey, finalResponse, endTime - startTime);
+
+                return finalResponse;
 
             } catch (error) {
                 console.error(`Council member ${memberKey} analysis failed:`, error);
+                // Record failed performance metrics
+                const endTime = Date.now();
+                efficiencyOptimizer.recordPerformanceMetrics(memberKey, startTime, endTime, iteration, { validated: false });
                 throw error;
             }
+        }
+
+        // Create triangulated feedback prompt with refinement specialist coaching
+        function createTriangulatedFeedbackPrompt(originalPrompt, previousResponse, validationResult, coachingAnalysis, canvasContent, memberKey, iteration) {
+            const member = councilMembers[memberKey];
+            const memberName = member.name;
+
+            return `${originalPrompt}
+
+========== TRIANGULATED VALIDATION COACHING (Iteration ${iteration}) ==========
+
+Your response has been analyzed by both our Primary Validator and Refinement Specialist for comprehensive improvement guidance.
+
+PREVIOUS RESPONSE:
+${previousResponse.substring(0, 600)}${previousResponse.length > 600 ? '...[truncated]' : ''}
+
+=== PRIMARY VALIDATOR FEEDBACK ===
+${validationResult.notes}
+
+=== REFINEMENT SPECIALIST COACHING ===
+
+COMMUNICATION ISSUE IDENTIFIED:
+${coachingAnalysis.communicationGap}
+
+SPECIFIC GUIDANCE FOR YOU:
+${coachingAnalysis.memberCoaching}
+
+RECOMMENDED INTERVENTION STRATEGY:
+${coachingAnalysis.interventionStrategy}
+
+PATTERN ANALYSIS:
+${coachingAnalysis.patternRecognition}
+
+=== TRIANGULATED IMPROVEMENT APPROACH ===
+
+1. **Address Core Validation Issues**: ${validationResult.corrected ? 'Focus on factual accuracy over speculation' : 'Maintain current quality while enhancing depth'}
+
+2. **Apply Specialist Coaching**: Follow the specific guidance above to improve your analytical approach
+
+3. **Canvas Data Foundation**:
+   - Content Length: ${canvasContent.length} characters
+   - Word Count: ${canvasContent.split(/\s+/).length} words
+   - Line Count: ${canvasContent.split('\n').length} lines
+
+As ${memberName}, use this triangulated feedback to craft a response that satisfies both validation requirements and demonstrates improvement based on the refinement specialist's insights.
+
+CRITICAL: This iteration includes expert coaching analysis. Apply the specific recommendations to pass validation.`;
+        }
+
+        // Legacy feedback function (fallback)
+        function createFeedbackPrompt(originalPrompt, previousResponse, validationResult, canvasContent, memberKey, iteration) {
+            return createTriangulatedFeedbackPrompt(originalPrompt, previousResponse, validationResult, {
+                communicationGap: 'Standard validation feedback',
+                memberCoaching: 'Focus on factual accuracy and specific evidence',
+                interventionStrategy: 'Apply standard validation requirements',
+                patternRecognition: 'Standard iterative improvement process'
+            }, canvasContent, memberKey, iteration);
         }
 
         // ========================================
@@ -7777,330 +8046,1376 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
         }
 
         async function generateUnifiedIntelligence(analysis, consensus) {
-            // Determine if we have council consensus data or need standalone analysis
+            // Use the validation specialist to synthesize intelligence reports
+            return await validationSpecialist.synthesizeIntelligenceReport(analysis, consensus);
+        }
+
+        // Add intelligence synthesis capability to validation specialist
+        validationSpecialist.synthesizeIntelligenceReport = async function(analysis, consensus) {
             const hasConsensus = consensus && consensus.responses && consensus.responses.length > 0;
 
             if (hasConsensus) {
                 try {
-                    // Use council-based intelligence synthesis
                     const allResponses = consensus.responses || [];
                     const responseTexts = allResponses.map(r => `${councilMembers[r.member].name}: ${r.response}`).join('\n\n');
 
-                    // Get full intelligence package data
+                    // Get intelligence package data
                     const intelligencePackage = generateIntelligencePackage();
 
-                    const intelPrompt = `INTELLIGENCE SYNTHESIS
+                    // Build validation specialist context from memory
+                    const validationContext = this.buildValidationContext();
 
-CANVAS EVOLUTION:
-${JSON.stringify(intelligencePackage.systemPerformance.canvasEvolution)}
+                    const specialistPrompt = `INTELLIGENCE SYNTHESIS - VALIDATION SPECIALIST ANALYSIS
 
-CONTENT CHANGES:
-${analysis.data.documentEvolution ? JSON.stringify(analysis.data.documentEvolution).substring(0, 1500) : 'No changes tracked'}
+You are the DJINN Council's Chief Validation Specialist with deep expertise in critiquing and synthesizing intelligence. Your role is to craft masterful intelligence documents from council deliberations.
 
-SYNTHESIS REPORT:
-${analysis.data.synthesisReport ? JSON.stringify(analysis.data.synthesisReport).substring(0, 1000) : 'No synthesis data'}
+=== YOUR ACCUMULATED EXPERTISE ===
+Validations Performed: ${this.memory.validationHistory.length}
+Council Sessions Analyzed: ${Object.keys(this.memory.councilInsights).length}
+${validationContext}
 
-AI CONTRIBUTIONS:
-${analysis.data.canvasOutputs ? analysis.data.canvasOutputs.map(output => `${output.system}: ${output.content}`).join('\n').substring(0, 1000) : 'No outputs'}
+=== CURRENT SESSION ANALYSIS ===
 
-MEMORY STREAM:
-${analysis.data.canvasMemories ? analysis.data.canvasMemories.map(memory => `${memory.timestamp}: ${memory.content}`).join('\n').substring(0, 800) : 'No memories'}
+COUNCIL DELIBERATIONS:
+${responseTexts}
 
-COUNCIL ANALYSIS:
-${responseTexts.substring(0, 1200)}
+FACTUAL DATA FOUNDATION:
+• Content Length: ${analysis.data?.content?.length || 0} characters
+• Session Duration: ${Math.round(intelligencePackage.sessionMetadata.duration / 60000)} minutes
+• Council Reports Generated: ${intelligencePackage.sessionMetadata.totalReports}
 
-EMERGENT THEMES:
-${JSON.stringify(intelligencePackage.systemPerformance.emergentThemes)}
+DOCUMENT EVOLUTION:
+${analysis.data.documentEvolution ? JSON.stringify(analysis.data.documentEvolution).substring(0, 600) : 'Static analysis - no recent content changes'}
 
-SESSION DATA:
-Duration: ${Math.round(intelligencePackage.sessionMetadata.duration / 60000)} minutes
-Reports: ${intelligencePackage.sessionMetadata.totalReports}
+=== INTELLIGENCE SYNTHESIS DIRECTIVE ===
 
-[ANALYSIS]
-What patterns emerge from the canvas evolution, content changes, AI contributions, and memory streams? How is the content developing?
+As the validation specialist, synthesize this council session into a structured intelligence document. Apply your critical analysis expertise to ensure factual accuracy and actionable insights.
 
-[RISK EVALUATION]
-What risks exist in the content development trajectory? Are there consistency issues or conflicting contributions?
+Provide structured analysis in these exact sections:
 
-[RECOMMENDATIONS]
-• [Content development action]
-• [AI contribution optimization]
-• [Evolution tracking improvement]
+[EXECUTIVE_SUMMARY]
+Single paragraph distilling core intelligence findings
 
-[IMPLICATIONS]
-How should development continue? What patterns suggest the optimal path forward?`;
-                    const intelligenceResponse = await queryOllama('gemma3:1b', intelPrompt);
+[FACTUAL_ASSESSMENT]
+Concrete observations from council analysis, verified against source data
 
-                    // Parse the structured response
-                    const correlations = intelligenceResponse.match(/\[ANALYSIS\](.*?)(?=\[RISK EVALUATION\]|$)/s)?.[1]?.trim() || 'No analysis available';
-                    const riskAssessment = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[RECOMMENDATIONS\]|$)/s)?.[1]?.trim() || 'Risk assessment unavailable';
-                    const recommendations = intelligenceResponse.match(/\[RECOMMENDATIONS\](.*?)(?=\[IMPLICATIONS\]|$)/s)?.[1]?.trim() || 'No recommendations available';
-                    const strategic = intelligenceResponse.match(/\[IMPLICATIONS\](.*)$/s)?.[1]?.trim() || 'Implications pending';
+[STRATEGIC_CORRELATIONS]
+Cross-council insights showing analytical convergence/divergence
 
-                    // Format recommendations as array
-                    const actionableItems = recommendations.split('\n')
+[RISK_EVALUATION]
+Specific risks with severity assessment (Critical/High/Medium/Low)
+
+[ACTIONABLE_INTELLIGENCE]
+• Immediate actions (24-48 hours)
+• Strategic initiatives (1-2 weeks)
+• Long-term considerations (1+ months)
+
+[VALIDATION_CONFIDENCE]
+Your assessment of analytical certainty and data limitations
+
+CRITICAL: Apply your validation expertise - reject speculation, demand factual grounding, ensure actionability. This intelligence document must meet your quality standards.`;
+
+                    // Query validation specialist AI for intelligence synthesis
+                    const intelligenceResponse = await queryOllama('gemma3:1b', specialistPrompt);
+
+                    // Parse structured response using validation specialist expertise
+                    const sections = {
+                        executive: this.extractSection(intelligenceResponse, 'EXECUTIVE_SUMMARY'),
+                        factual: this.extractSection(intelligenceResponse, 'FACTUAL_ASSESSMENT'),
+                        correlations: this.extractSection(intelligenceResponse, 'STRATEGIC_CORRELATIONS'),
+                        risks: this.extractSection(intelligenceResponse, 'RISK_EVALUATION'),
+                        actionable: this.extractSection(intelligenceResponse, 'ACTIONABLE_INTELLIGENCE'),
+                        confidence: this.extractSection(intelligenceResponse, 'VALIDATION_CONFIDENCE')
+                    };
+
+                    // Record this synthesis in memory for learning
+                    this.recordIntelligenceSynthesis(analysis, consensus, sections);
+
+                    // Format actionable items
+                    const actionableItems = sections.actionable.split('\n')
                         .filter(line => line.trim().startsWith('•'))
                         .map(line => line.trim().substring(1).trim())
                         .filter(item => item.length > 0);
 
                     return {
-                        actionable: actionableItems.length > 0 ? actionableItems : ['Conduct further analysis', 'Monitor system behavior', 'Review council consensus'],
-                        correlations: correlations,
-                        recommendations: recommendations,
-                        risk_assessment: riskAssessment,
-                        strategic_implications: strategic
+                        actionable: actionableItems.length > 0 ? actionableItems : ['Conduct follow-up analysis', 'Monitor system behavior', 'Review validation findings'],
+                        correlations: sections.correlations,
+                        recommendations: sections.actionable,
+                        risk_assessment: sections.risks,
+                        strategic_implications: `${sections.executive}\n\nConfidence Assessment: ${sections.confidence}`,
+                        synthesis_quality: 'validation_specialist_crafted'
                     };
 
                 } catch (error) {
-                    console.error('Council-based intelligence synthesis failed:', error);
-                    // Fall back to standalone analysis
+                    console.error('Validation specialist intelligence synthesis failed:', error);
+                    return this.generateFailsafeIntelligence(error);
                 }
+            } else {
+                // Standalone analysis without council consensus
+                return this.generateStandaloneIntelligence(analysis);
+            }
+        };
+
+        // Add context building method to validation specialist
+        validationSpecialist.buildValidationContext = function() {
+            if (this.memory.validationHistory.length === 0) {
+                return "Fresh validation specialist - building expertise from this session";
             }
 
-            // Standalone intelligence analysis (fallback or when no consensus available)
-            const canvasContent = analysis.data?.content || localStorage.getItem('sovereign_canvas_content') || '';
+            const recentValidations = this.memory.validationHistory.slice(0, 10);
+            const commonIssues = {};
 
-            const standalonePrompt = `INTELLIGENCE ANALYSIS
+            recentValidations.forEach(v => {
+                v.issues.forEach(issue => {
+                    commonIssues[issue] = (commonIssues[issue] || 0) + 1;
+                });
+            });
 
-REAL AI SYSTEMS STATUS (ONLY THESE SYSTEMS EXIST):
-${Object.entries(djinnCouncilMemory.canvasAISystems).map(([systemName, systemData]) => {
-    const interactionCount = systemData.interactions ? systemData.interactions.length : 0;
-    return `${systemName.toUpperCase()}: ${interactionCount} tracked interactions`;
-}).join('\n')}
+            const topIssues = Object.entries(commonIssues)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 3)
+                .map(([issue, count]) => `${issue} (${count}x)`);
 
-CANVAS CONTENT:
-${canvasContent.substring(0, 1500)}${canvasContent.length > 1500 ? '\n[Content truncated]' : ''}
+            return `
+Recent Validation Patterns:
+• Common Quality Issues: ${topIssues.join(', ')}
+• Council Members Analyzed: ${Object.keys(this.memory.councilInsights).join(', ')}
+• Expertise Level: ${this.memory.validationHistory.length < 20 ? 'Building' : this.memory.validationHistory.length < 50 ? 'Experienced' : 'Expert'}`;
+        };
 
-THREE-LAYER FRAMEWORK:
-- LAYER 1: AI SYSTEMS (ONLY narra, nazar, whale, djinn, watchtower systems)
-- LAYER 2: CANVAS CONTENT (data being analyzed)
-- LAYER 3: EVOLUTION (content changes over time)
+        // Add section extraction method
+        validationSpecialist.extractSection = function(text, sectionName) {
+            const regex = new RegExp(`\\[${sectionName}\\](.*?)(?=\\[|$)`, 's');
+            const match = text.match(regex);
+            return match ? match[1].trim() : `${sectionName.replace('_', ' ').toLowerCase()} analysis pending`;
+        };
 
-CRITICAL: Only analyze the 5 real AI systems listed above. Do NOT invent or reference any other systems.
+        // Record intelligence synthesis for learning
+        validationSpecialist.recordIntelligenceSynthesis = function(analysis, consensus, sections) {
+            const synthesis = {
+                timestamp: new Date().toISOString(),
+                analysisType: analysis.type,
+                councilMembers: consensus.responses ? consensus.responses.map(r => r.member) : [],
+                qualityMetrics: {
+                    sectionsCompleted: Object.values(sections).filter(s => s.length > 50).length,
+                    confidenceLevel: sections.confidence.length > 20 ? 'high' : 'low'
+                }
+            };
 
-Provide concise intelligence analysis (max 500 words):
+            this.memory.synthesisExpertise.unshift(synthesis);
 
-[INTELLIGENCE ASSESSMENT]
-[Analysis of the 5 real AI systems and their interaction with canvas content]
+            // Limit synthesis memory
+            if (this.memory.synthesisExpertise.length > 50) {
+                this.memory.synthesisExpertise = this.memory.synthesisExpertise.slice(0, 50);
+            }
 
-[RISK EVALUATION]
-[Risks in the 5 AI systems operations vs. content processes]
+            this.saveMemory();
+        };
 
-[ACTIONABLE RECOMMENDATIONS]
-• [Recommendation for the real AI systems]
-• [Content evolution recommendation]
-• [Interaction optimization for real systems]
+        // Failsafe intelligence generation
+        validationSpecialist.generateFailsafeIntelligence = function(error) {
+            return {
+                actionable: ['Intelligence synthesis failed - manual analysis required', 'Review system logs for errors', 'Validate council member responses manually'],
+                correlations: `Validation specialist encountered synthesis error: ${error.message}`,
+                recommendations: 'System requires manual intelligence assessment due to AI synthesis failure',
+                risk_assessment: 'Unable to assess risks automatically - manual validation needed',
+                strategic_implications: 'Strategic analysis unavailable due to synthesis system error',
+                synthesis_quality: 'failsafe_generated'
+            };
+        };
 
-[STRATEGIC IMPLICATIONS]
-[Broader implications for all layers]`;
+        // Standalone analysis for cases without council consensus
+        validationSpecialist.generateStandaloneIntelligence = function(analysis) {
+            return {
+                actionable: ['Generate council consensus before intelligence synthesis', 'Trigger full council analysis', 'Ensure adequate data for synthesis'],
+                correlations: 'No council consensus available for correlation analysis',
+                recommendations: 'Council deliberation required before intelligence document generation',
+                risk_assessment: 'Risk assessment requires council member analysis',
+                strategic_implications: 'Strategic implications pending council consensus',
+                synthesis_quality: 'standalone_limited'
+            };
+        };
 
-            try {
-                const intelligenceResponse = await queryOllama('gemma3:1b', standalonePrompt);
+        // Refinement Specialist AI Agent - Triangulated Validation Partner
+        const refinementSpecialist = {
+            sessionId: `refinement_${Date.now()}`,
+            memory: {
+                coachingHistory: [],      // All coaching sessions performed
+                communicationPatterns: {}, // What works for each validator-member pair
+                interventionTechniques: [], // Successful coaching methods
+                difficultyAnalysis: {},    // Analysis of why reports fail
+                triangulationResults: []   // Outcomes of 3-way validation
+            },
 
-                // Parse the structured response
-                const assessmentMatch = intelligenceResponse.match(/\[INTELLIGENCE ASSESSMENT\](.*?)(?=\[RISK EVALUATION\]|$)/s);
-                const riskMatch = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[ACTIONABLE RECOMMENDATIONS\]|$)/s);
-                const recommendationsMatch = intelligenceResponse.match(/\[ACTIONABLE RECOMMENDATIONS\](.*?)(?=\[STRATEGIC IMPLICATIONS\]|$)/s);
-                const strategicMatch = intelligenceResponse.match(/\[STRATEGIC IMPLICATIONS\](.*)$/s);
+            // Load existing memory
+            loadMemory() {
+                try {
+                    const stored = localStorage.getItem('refinement_specialist_memory');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.memory = { ...this.memory, ...data };
+                        console.log(`🔧 Refinement Specialist loaded ${this.memory.coachingHistory.length} coaching memories`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load refinement specialist memory:', error);
+                }
+            },
 
-                const assessment = assessmentMatch ? assessmentMatch[1].trim() : 'Intelligence assessment completed';
-                const riskAssessment = riskMatch ? riskMatch[1].trim() : 'Risk evaluation completed';
-                const recommendations = recommendationsMatch ? recommendationsMatch[1].trim() : 'Recommendations provided';
-                const strategic = strategicMatch ? strategicMatch[1].trim() : 'Strategic analysis completed';
+            // Save memory to localStorage
+            saveMemory() {
+                try {
+                    localStorage.setItem('refinement_specialist_memory', JSON.stringify(this.memory));
+                } catch (error) {
+                    console.error('Failed to save refinement specialist memory:', error);
+                }
+            },
 
-                // Format recommendations as array
-                const actionableItems = recommendations.split('\n')
-                    .filter(line => line.trim().startsWith('•'))
-                    .map(line => line.trim().substring(1).trim())
-                    .filter(item => item.length > 0);
+            // Analyze validation interaction for coaching opportunities
+            async analyzeValidationInteraction(memberKey, originalResponse, validationFeedback, attempt) {
+                const analysisPrompt = `REFINEMENT COACHING ANALYSIS
+
+You are a Refinement Specialist AI - an expert in improving AI-to-AI communication and report quality. Your role is to analyze validation interactions and provide coaching to both the validator and council member.
+
+=== YOUR EXPERTISE ===
+Coaching Sessions: ${this.memory.coachingHistory.length}
+Communication Patterns Known: ${Object.keys(this.memory.communicationPatterns).length}
+Successful Interventions: ${this.memory.interventionTechniques.length}
+
+=== CURRENT SITUATION ===
+Council Member: ${councilMembers[memberKey].name}
+Attempt Number: ${attempt}
+Original Response Length: ${originalResponse.length} characters
+
+COUNCIL MEMBER RESPONSE:
+${originalResponse.substring(0, 800)}
+
+VALIDATOR FEEDBACK:
+${validationFeedback}
+
+=== COACHING ANALYSIS NEEDED ===
+
+[COMMUNICATION_GAP_ANALYSIS]
+What specific communication disconnect exists between validator and council member?
+
+[VALIDATOR_COACHING]
+How can the validator better guide this specific council member? What approach would be more effective?
+
+[MEMBER_COACHING]
+What does this council member need to understand about the validation requirements? What's the core issue?
+
+[INTERVENTION_STRATEGY]
+What specific coaching intervention would resolve this validation failure?
+
+[PATTERN_RECOGNITION]
+Is this a recurring pattern? What similar cases have you seen?
+
+Provide detailed coaching analysis to improve both parties' performance.`;
+
+                try {
+                    const coachingAnalysis = await queryOllama('gemma3:1b', analysisPrompt);
+
+                    // Record this coaching session
+                    this.recordCoachingSession(memberKey, originalResponse, validationFeedback, coachingAnalysis, attempt);
+
+                    return this.parseCoachingAnalysis(coachingAnalysis);
+                } catch (error) {
+                    console.error('Refinement specialist analysis failed:', error);
+                    return this.generateFallbackCoaching(memberKey, validationFeedback);
+                }
+            },
+
+            // Record coaching session for learning
+            recordCoachingSession(memberKey, originalResponse, validationFeedback, coachingAnalysis, attempt) {
+                const session = {
+                    timestamp: new Date().toISOString(),
+                    member: memberKey,
+                    attempt: attempt,
+                    originalLength: originalResponse.length,
+                    validationIssues: this.extractValidationIssues(validationFeedback),
+                    coachingProvided: coachingAnalysis.substring(0, 500),
+                    sessionType: 'triangulated_validation'
+                };
+
+                this.memory.coachingHistory.unshift(session);
+
+                // Update communication patterns
+                if (!this.memory.communicationPatterns[memberKey]) {
+                    this.memory.communicationPatterns[memberKey] = {
+                        commonIssues: [],
+                        effectiveApproaches: [],
+                        difficultyLevel: 'unknown'
+                    };
+                }
+
+                // Limit memory size
+                if (this.memory.coachingHistory.length > 100) {
+                    this.memory.coachingHistory = this.memory.coachingHistory.slice(0, 100);
+                }
+
+                this.saveMemory();
+            },
+
+            // Parse coaching analysis into actionable guidance
+            parseCoachingAnalysis(analysis) {
+                return {
+                    communicationGap: this.extractSection(analysis, 'COMMUNICATION_GAP_ANALYSIS'),
+                    validatorCoaching: this.extractSection(analysis, 'VALIDATOR_COACHING'),
+                    memberCoaching: this.extractSection(analysis, 'MEMBER_COACHING'),
+                    interventionStrategy: this.extractSection(analysis, 'INTERVENTION_STRATEGY'),
+                    patternRecognition: this.extractSection(analysis, 'PATTERN_RECOGNITION')
+                };
+            },
+
+            // Extract sections from coaching analysis
+            extractSection(text, sectionName) {
+                const regex = new RegExp(`\\[${sectionName}\\](.*?)(?=\\[|$)`, 's');
+                const match = text.match(regex);
+                return match ? match[1].trim() : `${sectionName} analysis pending`;
+            },
+
+            // Extract validation issues for pattern tracking
+            extractValidationIssues(feedback) {
+                const issues = [];
+                if (feedback.includes('fabricated') || feedback.includes('invented')) issues.push('data_fabrication');
+                if (feedback.includes('speculation') || feedback.includes('assumption')) issues.push('speculation');
+                if (feedback.includes('unsupported') || feedback.includes('no evidence')) issues.push('unsupported_claims');
+                if (feedback.includes('generic') || feedback.includes('vague')) issues.push('lack_specificity');
+                if (feedback.includes('format') || feedback.includes('structure')) issues.push('formatting_issues');
+                return issues;
+            },
+
+            // Generate fallback coaching if AI analysis fails
+            generateFallbackCoaching(memberKey, validationFeedback) {
+                return {
+                    communicationGap: 'Analysis temporarily unavailable - using pattern-based coaching',
+                    validatorCoaching: 'Provide more specific, actionable feedback with concrete examples',
+                    memberCoaching: 'Focus on factual accuracy and specific evidence from provided data',
+                    interventionStrategy: 'Simplify requirements and provide step-by-step guidance',
+                    patternRecognition: 'Fallback coaching applied due to analysis system unavailability'
+                };
+            }
+        };
+
+        // Recovery Agent - Emergency Validation Response System
+        const recoveryAgent = {
+            sessionId: `recovery_${Date.now()}`,
+            memory: {
+                extremeCases: [],           // Most difficult validation failures
+                interventionTechniques: {}, // Emergency procedures that worked
+                systemicFailures: [],       // Patterns indicating deeper issues
+                emergencyProtocols: {},     // Step-by-step recovery procedures
+                modelLimitations: [],       // Cases where AI model was the issue
+                successfulRecoveries: []    // Documentation of extreme case resolutions
+            },
+
+            // Load recovery agent memory
+            loadMemory() {
+                try {
+                    const stored = localStorage.getItem('recovery_agent_memory');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.memory = { ...this.memory, ...data };
+                        console.log(`🚨 Recovery Agent loaded ${this.memory.extremeCases.length} extreme case memories`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load recovery agent memory:', error);
+                }
+            },
+
+            // Save recovery agent memory
+            saveMemory() {
+                try {
+                    localStorage.setItem('recovery_agent_memory', JSON.stringify(this.memory));
+                } catch (error) {
+                    console.error('Failed to save recovery agent memory:', error);
+                }
+            },
+
+            // Emergency intervention for extreme validation failures
+            async performEmergencyIntervention(memberKey, validationHistory, refinementAttempts) {
+                const diagnosisPrompt = `EMERGENCY VALIDATION RECOVERY ANALYSIS
+
+You are the Recovery Agent - the trauma surgeon of the validation system. You handle extreme cases where normal validation and refinement have failed completely.
+
+=== YOUR EMERGENCY EXPERTISE ===
+Extreme Cases Handled: ${this.memory.extremeCases.length}
+Successful Recoveries: ${this.memory.successfulRecoveries.length}
+Emergency Protocols Available: ${Object.keys(this.memory.emergencyProtocols).length}
+
+=== CRISIS SITUATION ===
+Council Member: ${councilMembers[memberKey].name}
+Validation Attempts: ${validationHistory.length}
+Refinement Coaching Attempts: ${refinementAttempts || 0}
+Status: CRITICAL - Multiple system failure
+
+VALIDATION HISTORY:
+${validationHistory.map((h, i) => `
+Attempt ${i+1}:
+- Response Length: ${h.response.length} chars
+- Issues: ${h.validation.corrected ? 'Required AI correction' : 'Failed validation'}
+- Notes: ${h.validation.notes.substring(0, 200)}...
+`).join('\n')}
+
+=== EMERGENCY DIAGNOSIS REQUIRED ===
+
+[ROOT_CAUSE_ANALYSIS]
+What is the fundamental issue preventing this council member from producing valid reports?
+
+[SYSTEM_FAILURE_TYPE]
+Is this: Model limitation, Prompt engineering failure, Data quality issue, Communication breakdown, or Systemic AI behavior?
+
+[EMERGENCY_PROTOCOL]
+What emergency intervention is needed? Prompt surgery, Context injection, Method override, or Model switch?
+
+[RECOVERY_STRATEGY]
+Step-by-step emergency procedure to resolve this extreme case.
+
+[PROGNOSIS]
+Can this case be recovered, or does it indicate a fundamental system limitation?
+
+Provide comprehensive emergency analysis for immediate intervention.`;
+
+                try {
+                    const emergencyAnalysis = await queryOllama('gemma3:1b', diagnosisPrompt);
+
+                    // Record this extreme case
+                    this.recordExtremeCase(memberKey, validationHistory, emergencyAnalysis);
+
+                    return this.parseEmergencyAnalysis(emergencyAnalysis);
+                } catch (error) {
+                    console.error('Recovery agent emergency analysis failed:', error);
+                    return this.generateCriticalFailsafe(memberKey, validationHistory);
+                }
+            },
+
+            // Apply emergency recovery procedure
+            async applyEmergencyRecovery(memberKey, recoveryStrategy, originalPrompt, canvasContent) {
+                const emergencyPrompt = `EMERGENCY RECOVERY PROCEDURE
+
+${recoveryStrategy.protocol}
+
+=== EMERGENCY CONTEXT INJECTION ===
+Council Member: ${councilMembers[memberKey].name}
+Recovery Strategy: ${recoveryStrategy.strategy}
+Root Cause: ${recoveryStrategy.rootCause}
+
+=== ORIGINAL TASK (SIMPLIFIED) ===
+${originalPrompt.substring(0, 500)}...
+
+=== EMERGENCY GUIDANCE ===
+${recoveryStrategy.emergencyGuidance}
+
+=== CANVAS DATA (FACTUAL BASIS) ===
+Length: ${canvasContent.length} characters
+Word Count: ${canvasContent.split(/\s+/).length} words
+
+CRITICAL RECOVERY INSTRUCTION:
+This is an emergency recovery attempt. Focus ONLY on:
+1. Basic factual observations from the canvas data
+2. Simple, measurable metrics
+3. No speculation or creative interpretation
+4. Direct, concrete statements only
+
+Provide the most basic, factual analysis possible to pass validation.`;
+
+                try {
+                    const recoveryResponse = await queryOllama('gemma3:1b', emergencyPrompt);
+
+                    // Record successful recovery attempt
+                    this.recordRecoveryAttempt(memberKey, recoveryStrategy, recoveryResponse, 'attempted');
+
+                    return recoveryResponse;
+                } catch (error) {
+                    console.error('Emergency recovery procedure failed:', error);
+                    return this.generateFinalFailsafe(memberKey);
+                }
+            },
+
+            // Record extreme case for learning
+            recordExtremeCase(memberKey, validationHistory, emergencyAnalysis) {
+                const extremeCase = {
+                    timestamp: new Date().toISOString(),
+                    member: memberKey,
+                    attemptCount: validationHistory.length,
+                    failurePattern: this.analyzeFailurePattern(validationHistory),
+                    emergencyDiagnosis: emergencyAnalysis.substring(0, 1000),
+                    caseType: 'validation_system_failure'
+                };
+
+                this.memory.extremeCases.unshift(extremeCase);
+
+                // Limit extreme case memory
+                if (this.memory.extremeCases.length > 50) {
+                    this.memory.extremeCases = this.memory.extremeCases.slice(0, 50);
+                }
+
+                this.saveMemory();
+            },
+
+            // Record recovery attempt outcome
+            recordRecoveryAttempt(memberKey, strategy, response, outcome) {
+                const recovery = {
+                    timestamp: new Date().toISOString(),
+                    member: memberKey,
+                    strategy: strategy.strategy,
+                    rootCause: strategy.rootCause,
+                    responseLength: response.length,
+                    outcome: outcome,
+                    technique: strategy.protocol
+                };
+
+                if (outcome === 'successful') {
+                    this.memory.successfulRecoveries.unshift(recovery);
+                }
+
+                // Update emergency protocols with what works
+                const protocolKey = `${memberKey}_${strategy.rootCause}`;
+                if (!this.memory.emergencyProtocols[protocolKey]) {
+                    this.memory.emergencyProtocols[protocolKey] = [];
+                }
+                this.memory.emergencyProtocols[protocolKey].push(recovery);
+
+                this.saveMemory();
+            },
+
+            // Parse emergency analysis
+            parseEmergencyAnalysis(analysis) {
+                return {
+                    rootCause: this.extractSection(analysis, 'ROOT_CAUSE_ANALYSIS'),
+                    systemFailureType: this.extractSection(analysis, 'SYSTEM_FAILURE_TYPE'),
+                    protocol: this.extractSection(analysis, 'EMERGENCY_PROTOCOL'),
+                    strategy: this.extractSection(analysis, 'RECOVERY_STRATEGY'),
+                    prognosis: this.extractSection(analysis, 'PROGNOSIS'),
+                    emergencyGuidance: 'Emergency simplification protocol activated'
+                };
+            },
+
+            // Extract sections from analysis
+            extractSection(text, sectionName) {
+                const regex = new RegExp(`\\[${sectionName}\\](.*?)(?=\\[|$)`, 's');
+                const match = text.match(regex);
+                return match ? match[1].trim() : `${sectionName} analysis pending`;
+            },
+
+            // Analyze failure patterns
+            analyzeFailurePattern(validationHistory) {
+                const issues = [];
+                validationHistory.forEach(h => {
+                    if (h.validation.notes.includes('fabricated')) issues.push('fabrication');
+                    if (h.validation.notes.includes('speculation')) issues.push('speculation');
+                    if (h.validation.notes.includes('generic')) issues.push('generic_responses');
+                    if (h.validation.corrected) issues.push('ai_correction_required');
+                });
+                return issues;
+            },
+
+            // Critical failsafe when even recovery analysis fails
+            generateCriticalFailsafe(memberKey, validationHistory) {
+                return {
+                    rootCause: 'Recovery system unavailable - critical system failure',
+                    systemFailureType: 'Multiple system cascade failure',
+                    protocol: 'Manual intervention required',
+                    strategy: 'Escalate to system administrator',
+                    prognosis: 'System requires manual diagnosis',
+                    emergencyGuidance: 'Use most basic factual statements only'
+                };
+            },
+
+            // Final failsafe response when all else fails
+            generateFinalFailsafe(memberKey) {
+                return `Emergency analysis mode activated.
+
+Basic observation: Content analysis attempted but validation systems experienced cascading failures.
+
+Factual status: ${councilMembers[memberKey].name} analysis requires manual system intervention.
+
+Data metrics: Analysis system unavailable due to technical limitations.
+
+Recommendation: System administrator review required for this council member configuration.`;
+            }
+        };
+
+        // Pattern Recognition Engine - Predictive Validation Intelligence
+        const patternRecognitionEngine = {
+            sessionId: `pattern_${Date.now()}`,
+            memory: {
+                validationPatterns: {},      // Success/failure patterns by member
+                routingDecisions: [],        // Optimal validator routing history
+                predictiveModels: {},        // Learned prediction models
+                earlyWarningSignals: [],     // Indicators of likely failure
+                optimalPathways: {}          // Most efficient validation routes
+            },
+
+            // Load pattern recognition memory
+            loadMemory() {
+                try {
+                    const stored = localStorage.getItem('pattern_recognition_memory');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.memory = { ...this.memory, ...data };
+                        console.log(`🔍 Pattern Engine loaded ${Object.keys(this.memory.validationPatterns).length} member patterns`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load pattern recognition memory:', error);
+                }
+            },
+
+            // Save pattern recognition memory
+            saveMemory() {
+                try {
+                    localStorage.setItem('pattern_recognition_memory', JSON.stringify(this.memory));
+                } catch (error) {
+                    console.error('Failed to save pattern recognition memory:', error);
+                }
+            },
+
+            // Analyze report for early warning signals
+            async analyzeReportPatterns(memberKey, reportContent) {
+                const patternPrompt = `PATTERN RECOGNITION ANALYSIS
+
+You are a Pattern Recognition Engine that predicts validation outcomes before they happen. Analyze this report for early warning signals.
+
+=== PATTERN EXPERTISE ===
+Member Patterns Learned: ${Object.keys(this.memory.validationPatterns).length}
+Routing Decisions Made: ${this.memory.routingDecisions.length}
+Early Warning Signals Known: ${this.memory.earlyWarningSignals.length}
+
+=== REPORT ANALYSIS ===
+Council Member: ${councilMembers[memberKey].name}
+Report Length: ${reportContent.length} characters
+Content Preview: ${reportContent.substring(0, 400)}...
+
+=== PATTERN RECOGNITION TASKS ===
+
+[EARLY_WARNING_SIGNALS]
+What patterns in this report suggest potential validation issues?
+
+[FAILURE_PROBABILITY]
+Rate the likelihood of validation failure (1-10 scale) based on content patterns.
+
+[OPTIMAL_VALIDATOR_ROUTE]
+Which validation approach would be most effective for this specific report?
+
+[PREDICTED_ISSUES]
+What specific validation problems are most likely to occur?
+
+[PREVENTION_STRATEGY]
+How can potential issues be prevented before validation begins?
+
+Provide detailed pattern analysis for predictive optimization.`;
+
+                try {
+                    const patternAnalysis = await queryOllama('gemma3:1b', patternPrompt);
+
+                    // Record pattern analysis
+                    this.recordPatternAnalysis(memberKey, reportContent, patternAnalysis);
+
+                    return this.parsePatternAnalysis(patternAnalysis);
+                } catch (error) {
+                    console.error('Pattern recognition failed:', error);
+                    return this.generateFallbackPattern(memberKey, reportContent);
+                }
+            },
+
+            // Pre-screen report and route to optimal validation path
+            async prescreenAndRoute(memberKey, reportContent) {
+                const patterns = await this.analyzeReportPatterns(memberKey, reportContent);
+
+                const routingRecommendation = {
+                    memberKey: memberKey,
+                    failureProbability: patterns.failureProbability,
+                    recommendedPath: patterns.optimalRoute,
+                    earlyWarnings: patterns.earlyWarnings,
+                    preventionStrategy: patterns.preventionStrategy,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Record routing decision
+                this.memory.routingDecisions.unshift(routingRecommendation);
+
+                // Limit routing history
+                if (this.memory.routingDecisions.length > 100) {
+                    this.memory.routingDecisions = this.memory.routingDecisions.slice(0, 100);
+                }
+
+                this.saveMemory();
+                return routingRecommendation;
+            },
+
+            // Record pattern analysis for learning
+            recordPatternAnalysis(memberKey, reportContent, analysis) {
+                if (!this.memory.validationPatterns[memberKey]) {
+                    this.memory.validationPatterns[memberKey] = {
+                        reports: [],
+                        successPatterns: [],
+                        failurePatterns: [],
+                        predictiveAccuracy: 0
+                    };
+                }
+
+                const pattern = {
+                    timestamp: new Date().toISOString(),
+                    contentLength: reportContent.length,
+                    wordCount: reportContent.split(/\s+/).length,
+                    analysisResult: analysis.substring(0, 500),
+                    earlyWarnings: this.extractWarnings(analysis)
+                };
+
+                this.memory.validationPatterns[memberKey].reports.unshift(pattern);
+
+                // Limit pattern history per member
+                if (this.memory.validationPatterns[memberKey].reports.length > 20) {
+                    this.memory.validationPatterns[memberKey].reports = this.memory.validationPatterns[memberKey].reports.slice(0, 20);
+                }
+
+                this.saveMemory();
+            },
+
+            // Update pattern accuracy based on actual validation outcome
+            updatePatternAccuracy(memberKey, predictedProbability, actualOutcome) {
+                if (this.memory.validationPatterns[memberKey]) {
+                    const wasCorrect = (predictedProbability > 5 && !actualOutcome.validated) ||
+                                     (predictedProbability <= 5 && actualOutcome.validated);
+
+                    const currentAccuracy = this.memory.validationPatterns[memberKey].predictiveAccuracy || 0;
+                    const newAccuracy = wasCorrect ?
+                        Math.min(currentAccuracy + 0.1, 1.0) :
+                        Math.max(currentAccuracy - 0.05, 0.0);
+
+                    this.memory.validationPatterns[memberKey].predictiveAccuracy = newAccuracy;
+
+                    console.log(`🎯 Pattern accuracy for ${memberKey}: ${(newAccuracy * 100).toFixed(1)}%`);
+                    this.saveMemory();
+                }
+            },
+
+            // Parse pattern analysis
+            parsePatternAnalysis(analysis) {
+                return {
+                    earlyWarnings: this.extractSection(analysis, 'EARLY_WARNING_SIGNALS'),
+                    failureProbability: this.extractFailureProbability(analysis),
+                    optimalRoute: this.extractSection(analysis, 'OPTIMAL_VALIDATOR_ROUTE'),
+                    predictedIssues: this.extractSection(analysis, 'PREDICTED_ISSUES'),
+                    preventionStrategy: this.extractSection(analysis, 'PREVENTION_STRATEGY')
+                };
+            },
+
+            // Extract failure probability score
+            extractFailureProbability(analysis) {
+                const match = analysis.match(/\[FAILURE_PROBABILITY\].*?(\d+)/s);
+                return match ? parseInt(match[1]) : 5; // Default to medium risk
+            },
+
+            // Extract early warning signals
+            extractWarnings(analysis) {
+                const warnings = [];
+                if (analysis.includes('speculation') || analysis.includes('speculative')) warnings.push('speculation_risk');
+                if (analysis.includes('generic') || analysis.includes('vague')) warnings.push('specificity_risk');
+                if (analysis.includes('fabrication') || analysis.includes('invention')) warnings.push('accuracy_risk');
+                if (analysis.includes('formatting') || analysis.includes('structure')) warnings.push('format_risk');
+                return warnings;
+            },
+
+            // Extract sections from analysis
+            extractSection(text, sectionName) {
+                const regex = new RegExp(`\\[${sectionName}\\](.*?)(?=\\[|$)`, 's');
+                const match = text.match(regex);
+                return match ? match[1].trim() : `${sectionName} analysis pending`;
+            },
+
+            // Generate fallback pattern when AI analysis fails
+            generateFallbackPattern(memberKey, reportContent) {
+                const contentLength = reportContent.length;
+                const wordCount = reportContent.split(/\s+/).length;
+
+                // Simple heuristic-based pattern
+                const failureProbability = contentLength < 100 ? 8 : contentLength > 1000 ? 3 : 5;
 
                 return {
-                    actionable: actionableItems.length > 0 ? actionableItems : ['Conduct further analysis', 'Monitor system behavior', 'Review AI system performance'],
-                    correlations: assessment,
-                    recommendations: recommendations,
-                    risk_assessment: riskAssessment,
-                    strategic_implications: strategic
+                    earlyWarnings: contentLength < 100 ? 'Report may be too brief' : 'Standard length analysis',
+                    failureProbability: failureProbability,
+                    optimalRoute: 'Standard triangulated validation recommended',
+                    predictedIssues: contentLength < 100 ? 'Potential lack of detail' : 'Standard validation expected',
+                    preventionStrategy: 'Apply standard validation protocols'
                 };
+            }
+        };
+
+        // Efficiency Optimizer - Validation Workload and Performance Management
+        const efficiencyOptimizer = {
+            sessionId: `efficiency_${Date.now()}`,
+            memory: {
+                performanceMetrics: {},         // Processing times and resource usage
+                bottleneckAnalysis: [],         // Identified system bottlenecks
+                workloadDistribution: {},       // Optimal workload patterns
+                resourceUtilization: [],        // Memory and processing efficiency
+                optimizationHistory: []         // Successful optimization strategies
+            },
+
+            // Load efficiency optimizer memory
+            loadMemory() {
+                try {
+                    const stored = localStorage.getItem('efficiency_optimizer_memory');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.memory = { ...this.memory, ...data };
+                        console.log(`⚡ Efficiency Optimizer loaded ${this.memory.optimizationHistory.length} optimization records`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load efficiency optimizer memory:', error);
+                }
+            },
+
+            // Save efficiency optimizer memory
+            saveMemory() {
+                try {
+                    localStorage.setItem('efficiency_optimizer_memory', JSON.stringify(this.memory));
+                } catch (error) {
+                    console.error('Failed to save efficiency optimizer memory:', error);
+                }
+            },
+
+            // Monitor and optimize validation workload
+            async optimizeValidationWorkload(activeValidations) {
+                const optimizationPrompt = `EFFICIENCY OPTIMIZATION ANALYSIS
+
+You are an Efficiency Optimizer managing validation system workload and performance. Your role is to prevent bottlenecks and optimize resource utilization.
+
+=== PERFORMANCE EXPERTISE ===
+Optimization Records: ${this.memory.optimizationHistory.length}
+Bottlenecks Resolved: ${this.memory.bottleneckAnalysis.length}
+Performance Metrics Available: ${Object.keys(this.memory.performanceMetrics).length}
+
+=== CURRENT WORKLOAD STATUS ===
+Active Validations: ${activeValidations.length}
+System Load: ${this.calculateSystemLoad()}
+Memory Usage: ${this.estimateMemoryUsage()}%
+
+VALIDATION QUEUE:
+${activeValidations.map(v => `- ${v.memberKey}: ${v.status} (${v.timeElapsed}ms)`).join('\n')}
+
+=== OPTIMIZATION ANALYSIS ===
+
+[BOTTLENECK_IDENTIFICATION]
+What are the current system bottlenecks and resource constraints?
+
+[WORKLOAD_PRIORITIZATION]
+How should validation tasks be prioritized for optimal throughput?
+
+[RESOURCE_OPTIMIZATION]
+What optimizations would improve system efficiency?
+
+[PERFORMANCE_PREDICTION]
+What performance issues are likely to develop if current patterns continue?
+
+[OPTIMIZATION_STRATEGY]
+What specific steps should be taken to optimize validation efficiency?
+
+Provide comprehensive efficiency analysis for workload optimization.`;
+
+                try {
+                    const optimizationAnalysis = await queryOllama('gemma3:1b', optimizationPrompt);
+
+                    // Record optimization analysis
+                    this.recordOptimization(activeValidations, optimizationAnalysis);
+
+                    return this.parseOptimizationAnalysis(optimizationAnalysis);
+                } catch (error) {
+                    console.error('Efficiency optimization failed:', error);
+                    return this.generateFallbackOptimization(activeValidations);
+                }
+            },
+
+            // Smart batching for validation efficiency
+            optimizeBatchProcessing(pendingValidations) {
+                const batchSize = this.calculateOptimalBatchSize(pendingValidations.length);
+                const priorityBatches = [];
+
+                // Group by priority and member patterns
+                const highPriority = pendingValidations.filter(v => v.failureProbability > 7);
+                const mediumPriority = pendingValidations.filter(v => v.failureProbability >= 4 && v.failureProbability <= 7);
+                const lowPriority = pendingValidations.filter(v => v.failureProbability < 4);
+
+                // Create optimized batches
+                if (highPriority.length > 0) {
+                    priorityBatches.push({
+                        priority: 'high',
+                        validations: highPriority.slice(0, Math.max(1, Math.floor(batchSize * 0.6))),
+                        processingOrder: 1
+                    });
+                }
+
+                if (mediumPriority.length > 0) {
+                    priorityBatches.push({
+                        priority: 'medium',
+                        validations: mediumPriority.slice(0, Math.max(1, Math.floor(batchSize * 0.3))),
+                        processingOrder: 2
+                    });
+                }
+
+                if (lowPriority.length > 0) {
+                    priorityBatches.push({
+                        priority: 'low',
+                        validations: lowPriority.slice(0, Math.max(1, Math.floor(batchSize * 0.1))),
+                        processingOrder: 3
+                    });
+                }
+
+                return priorityBatches;
+            },
+
+            // Calculate optimal batch size based on system performance
+            calculateOptimalBatchSize(queueLength) {
+                const baseSize = 3; // DJINN_CONFIG.MAX_CONCURRENT_OLLAMA
+                const systemLoad = this.calculateSystemLoad();
+
+                if (systemLoad > 80) return Math.max(1, baseSize - 1); // Reduce load
+                if (systemLoad < 30) return Math.min(queueLength, baseSize + 1); // Increase throughput
+                return Math.min(queueLength, baseSize);
+            },
+
+            // Monitor system performance metrics
+            recordPerformanceMetrics(memberKey, startTime, endTime, iterations, outcome) {
+                const processingTime = endTime - startTime;
+                const efficiency = iterations > 1 ? (1 / iterations) : 1;
+
+                if (!this.memory.performanceMetrics[memberKey]) {
+                    this.memory.performanceMetrics[memberKey] = {
+                        averageTime: 0,
+                        totalProcessed: 0,
+                        averageIterations: 0,
+                        successRate: 0,
+                        efficiency: 0
+                    };
+                }
+
+                const metrics = this.memory.performanceMetrics[memberKey];
+                const total = metrics.totalProcessed;
+
+                // Update rolling averages
+                metrics.averageTime = ((metrics.averageTime * total) + processingTime) / (total + 1);
+                metrics.averageIterations = ((metrics.averageIterations * total) + iterations) / (total + 1);
+                metrics.efficiency = ((metrics.efficiency * total) + efficiency) / (total + 1);
+                metrics.totalProcessed += 1;
+
+                // Update success rate
+                const wasSuccessful = outcome.validated ? 1 : 0;
+                metrics.successRate = ((metrics.successRate * total) + wasSuccessful) / (total + 1);
+
+                this.saveMemory();
+            },
+
+            // Estimate current memory usage
+            estimateMemoryUsage() {
+                try {
+                    const memoryKeys = [
+                        'validation_specialist_memory',
+                        'refinement_specialist_memory',
+                        'recovery_agent_memory',
+                        'pattern_recognition_memory',
+                        'efficiency_optimizer_memory'
+                    ];
+
+                    let totalSize = 0;
+                    memoryKeys.forEach(key => {
+                        const stored = localStorage.getItem(key);
+                        if (stored) totalSize += stored.length;
+                    });
+
+                    // Estimate as percentage of 5MB localStorage limit
+                    return Math.min(100, (totalSize / (5 * 1024 * 1024)) * 100);
+                } catch (error) {
+                    return 50; // Conservative estimate if calculation fails
+                }
+            },
+
+            // Calculate current system load
+            calculateSystemLoad() {
+                const activeProcesses = Object.keys(this.memory.performanceMetrics).length;
+                const recentBottlenecks = this.memory.bottleneckAnalysis.filter(b =>
+                    Date.now() - new Date(b.timestamp).getTime() < 300000 // Last 5 minutes
+                ).length;
+
+                return Math.min(100, (activeProcesses * 10) + (recentBottlenecks * 20));
+            },
+
+            // Record optimization attempt
+            recordOptimization(validations, analysis) {
+                const optimization = {
+                    timestamp: new Date().toISOString(),
+                    activeValidations: validations.length,
+                    systemLoad: this.calculateSystemLoad(),
+                    memoryUsage: this.estimateMemoryUsage(),
+                    optimizationApplied: analysis.substring(0, 500),
+                    outcome: 'applied'
+                };
+
+                this.memory.optimizationHistory.unshift(optimization);
+
+                // Limit optimization history
+                if (this.memory.optimizationHistory.length > 50) {
+                    this.memory.optimizationHistory = this.memory.optimizationHistory.slice(0, 50);
+                }
+
+                this.saveMemory();
+            },
+
+            // Parse optimization analysis
+            parseOptimizationAnalysis(analysis) {
+                return {
+                    bottlenecks: this.extractSection(analysis, 'BOTTLENECK_IDENTIFICATION'),
+                    prioritization: this.extractSection(analysis, 'WORKLOAD_PRIORITIZATION'),
+                    resourceOptimization: this.extractSection(analysis, 'RESOURCE_OPTIMIZATION'),
+                    performancePrediction: this.extractSection(analysis, 'PERFORMANCE_PREDICTION'),
+                    strategy: this.extractSection(analysis, 'OPTIMIZATION_STRATEGY')
+                };
+            },
+
+            // Extract sections from analysis
+            extractSection(text, sectionName) {
+                const regex = new RegExp(`\\[${sectionName}\\](.*?)(?=\\[|$)`, 's');
+                const match = text.match(regex);
+                return match ? match[1].trim() : `${sectionName} analysis pending`;
+            },
+
+            // Generate fallback optimization when AI analysis fails
+            generateFallbackOptimization(validations) {
+                const load = this.calculateSystemLoad();
+
+                return {
+                    bottlenecks: load > 70 ? 'High system load detected' : 'System load within normal parameters',
+                    prioritization: 'Process high-risk validations first, then medium, then low risk',
+                    resourceOptimization: load > 70 ? 'Reduce concurrent validations' : 'Maintain current processing levels',
+                    performancePrediction: 'Performance tracking available for optimization',
+                    strategy: 'Apply standard workload management protocols'
+                };
+            }
+        };
+
+        // Quality Assurance Monitor - Meta-Validation System
+        const qualityAssuranceMonitor = {
+            sessionId: `qa_${Date.now()}`,
+            memory: {
+                validatorPerformance: {},       // How well validators are performing
+                systemHealthMetrics: [],        // Overall system health tracking
+                qualityTrends: {},             // Quality improvement/degradation patterns
+                alertHistory: [],              // Quality alerts and responses
+                benchmarkStandards: {}         // Quality benchmarks for comparison
+            },
+
+            // Load QA monitor memory
+            loadMemory() {
+                try {
+                    const stored = localStorage.getItem('qa_monitor_memory');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        this.memory = { ...this.memory, ...data };
+                        console.log(`📊 QA Monitor loaded ${this.memory.alertHistory.length} quality alerts`);
+                    }
+                } catch (error) {
+                    console.error('Failed to load QA monitor memory:', error);
+                }
+            },
+
+            // Save QA monitor memory
+            saveMemory() {
+                try {
+                    localStorage.setItem('qa_monitor_memory', JSON.stringify(this.memory));
+                } catch (error) {
+                    console.error('Failed to save QA monitor memory:', error);
+                }
+            },
+
+            // Meta-validation: Monitor the validation system itself
+            async performMetaValidation(validationOutcomes) {
+                const metaPrompt = `QUALITY ASSURANCE META-ANALYSIS
+
+You are a Quality Assurance Monitor that watches the validation system itself. Your role is to ensure the validators are maintaining high standards and identify system-wide quality issues.
+
+=== QA EXPERTISE ===
+System Health Metrics: ${this.memory.systemHealthMetrics.length}
+Quality Alerts Issued: ${this.memory.alertHistory.length}
+Validator Performance Records: ${Object.keys(this.memory.validatorPerformance).length}
+
+=== VALIDATION SYSTEM ANALYSIS ===
+Recent Validation Outcomes: ${validationOutcomes.length} sessions
+
+VALIDATION PERFORMANCE DATA:
+${validationOutcomes.map(v => `
+Member: ${v.member}
+Validated: ${v.validated}
+Corrected: ${v.corrected}
+Iterations: ${v.iterations}
+Emergency Recovery: ${v.emergency_recovery || false}
+`).join('')}
+
+=== META-VALIDATION ANALYSIS ===
+
+[VALIDATOR_QUALITY_ASSESSMENT]
+How effectively are the validators performing their quality control function?
+
+[SYSTEM_RELIABILITY]
+Are there patterns indicating systemic issues in the validation process?
+
+[QUALITY_CONSISTENCY]
+Is validation quality consistent across different council members and scenarios?
+
+[IMPROVEMENT_OPPORTUNITIES]
+What specific improvements would enhance overall validation system quality?
+
+[ALERT_RECOMMENDATIONS]
+What quality alerts or system adjustments should be implemented?
+
+Provide comprehensive meta-analysis of validation system quality.`;
+
+                try {
+                    const metaAnalysis = await queryOllama('gemma3:1b', metaPrompt);
+
+                    // Record meta-validation analysis
+                    this.recordMetaValidation(validationOutcomes, metaAnalysis);
+
+                    return this.parseMetaAnalysis(metaAnalysis);
+                } catch (error) {
+                    console.error('Meta-validation failed:', error);
+                    return this.generateFallbackMetaAnalysis(validationOutcomes);
+                }
+            },
+
+            // Monitor validator performance trends
+            trackValidatorPerformance(memberKey, validationResult, processingTime) {
+                if (!this.memory.validatorPerformance[memberKey]) {
+                    this.memory.validatorPerformance[memberKey] = {
+                        totalValidations: 0,
+                        successRate: 0,
+                        averageIterations: 0,
+                        emergencyEscalations: 0,
+                        averageTime: 0,
+                        qualityTrend: 'stable'
+                    };
+                }
+
+                const perf = this.memory.validatorPerformance[memberKey];
+                const total = perf.totalValidations;
+
+                // Update performance metrics
+                perf.totalValidations += 1;
+                perf.successRate = ((perf.successRate * total) + (validationResult.validated ? 1 : 0)) / (total + 1);
+                perf.averageIterations = ((perf.averageIterations * total) + validationResult.iterations) / (total + 1);
+                perf.averageTime = ((perf.averageTime * total) + processingTime) / (total + 1);
+
+                if (validationResult.emergency_recovery) {
+                    perf.emergencyEscalations += 1;
+                }
+
+                // Determine quality trend
+                if (perf.successRate > 0.85 && perf.averageIterations < 2) {
+                    perf.qualityTrend = 'improving';
+                } else if (perf.successRate < 0.6 || perf.emergencyEscalations > (total * 0.1)) {
+                    perf.qualityTrend = 'degrading';
+                } else {
+                    perf.qualityTrend = 'stable';
+                }
+
+                this.saveMemory();
+            },
+
+            // Generate system health report
+            generateSystemHealthReport() {
+                const members = Object.keys(this.memory.validatorPerformance);
+                const overallHealth = {
+                    timestamp: new Date().toISOString(),
+                    totalValidators: members.length,
+                    averageSuccessRate: 0,
+                    emergencyEscalations: 0,
+                    systemStatus: 'healthy',
+                    alerts: []
+                };
+
+                if (members.length === 0) {
+                    overallHealth.systemStatus = 'no_data';
+                    return overallHealth;
+                }
+
+                // Calculate system-wide metrics
+                let totalSuccessRate = 0;
+                let totalEscalations = 0;
+                let degradingValidators = 0;
+
+                members.forEach(memberKey => {
+                    const perf = this.memory.validatorPerformance[memberKey];
+                    totalSuccessRate += perf.successRate;
+                    totalEscalations += perf.emergencyEscalations;
+
+                    if (perf.qualityTrend === 'degrading') {
+                        degradingValidators++;
+                        overallHealth.alerts.push(`${memberKey}: Quality degrading (${(perf.successRate * 100).toFixed(1)}% success rate)`);
+                    }
+                });
+
+                overallHealth.averageSuccessRate = totalSuccessRate / members.length;
+                overallHealth.emergencyEscalations = totalEscalations;
+
+                // Determine overall system status
+                if (overallHealth.averageSuccessRate < 0.7 || degradingValidators > (members.length * 0.3)) {
+                    overallHealth.systemStatus = 'degraded';
+                } else if (overallHealth.averageSuccessRate > 0.9 && degradingValidators === 0) {
+                    overallHealth.systemStatus = 'excellent';
+                } else {
+                    overallHealth.systemStatus = 'healthy';
+                }
+
+                // Record health metrics
+                this.memory.systemHealthMetrics.unshift(overallHealth);
+
+                // Limit health history
+                if (this.memory.systemHealthMetrics.length > 100) {
+                    this.memory.systemHealthMetrics = this.memory.systemHealthMetrics.slice(0, 100);
+                }
+
+                this.saveMemory();
+                return overallHealth;
+            },
+
+            // Issue quality alerts
+            issueQualityAlert(alertType, message, severity = 'medium') {
+                const alert = {
+                    timestamp: new Date().toISOString(),
+                    type: alertType,
+                    message: message,
+                    severity: severity,
+                    status: 'active'
+                };
+
+                this.memory.alertHistory.unshift(alert);
+
+                console.log(`🚨 QA Alert [${severity.toUpperCase()}]: ${message}`);
+
+                // Limit alert history
+                if (this.memory.alertHistory.length > 50) {
+                    this.memory.alertHistory = this.memory.alertHistory.slice(0, 50);
+                }
+
+                this.saveMemory();
+                return alert;
+            },
+
+            // Record meta-validation analysis
+            recordMetaValidation(outcomes, analysis) {
+                const metaRecord = {
+                    timestamp: new Date().toISOString(),
+                    outcomesAnalyzed: outcomes.length,
+                    systemAssessment: analysis.substring(0, 500),
+                    qualityScore: this.calculateQualityScore(outcomes)
+                };
+
+                // Store in quality trends
+                const dateKey = new Date().toISOString().split('T')[0];
+                this.memory.qualityTrends[dateKey] = metaRecord;
+
+                this.saveMemory();
+            },
+
+            // Calculate overall system quality score
+            calculateQualityScore(outcomes) {
+                if (outcomes.length === 0) return 50;
+
+                let score = 0;
+                outcomes.forEach(outcome => {
+                    if (outcome.validated && !outcome.corrected && outcome.iterations === 1) {
+                        score += 100; // Perfect validation
+                    } else if (outcome.validated && !outcome.corrected) {
+                        score += 80; // Good after refinement
+                    } else if (outcome.validated && outcome.corrected) {
+                        score += 60; // Required correction
+                    } else if (outcome.emergency_recovery && outcome.validated) {
+                        score += 40; // Emergency recovery successful
+                    } else {
+                        score += 10; // Failed validation
+                    }
+                });
+
+                return Math.round(score / outcomes.length);
+            },
+
+            // Parse meta-analysis
+            parseMetaAnalysis(analysis) {
+                return {
+                    validatorQuality: this.extractSection(analysis, 'VALIDATOR_QUALITY_ASSESSMENT'),
+                    systemReliability: this.extractSection(analysis, 'SYSTEM_RELIABILITY'),
+                    qualityConsistency: this.extractSection(analysis, 'QUALITY_CONSISTENCY'),
+                    improvements: this.extractSection(analysis, 'IMPROVEMENT_OPPORTUNITIES'),
+                    alerts: this.extractSection(analysis, 'ALERT_RECOMMENDATIONS')
+                };
+            },
+
+            // Extract sections from analysis
+            extractSection(text, sectionName) {
+                const regex = new RegExp(`\\[${sectionName}\\](.*?)(?=\\[|$)`, 's');
+                const match = text.match(regex);
+                return match ? match[1].trim() : `${sectionName} analysis pending`;
+            },
+
+            // Generate fallback meta-analysis
+            generateFallbackMetaAnalysis(outcomes) {
+                const score = this.calculateQualityScore(outcomes);
+
+                return {
+                    validatorQuality: score > 80 ? 'Validators performing well' : score > 60 ? 'Validators need improvement' : 'Validators require attention',
+                    systemReliability: 'Meta-analysis system available for quality monitoring',
+                    qualityConsistency: `Quality score: ${score}/100 across ${outcomes.length} validations`,
+                    improvements: 'Continue monitoring validation patterns for optimization opportunities',
+                    alerts: score < 70 ? 'Consider system review due to low quality scores' : 'System operating within acceptable quality parameters'
+                };
+            }
+        };
+
+        // Initialize validation specialist memory when system starts
+        document.addEventListener('DOMContentLoaded', function() {
+            validationSpecialist.loadMemory();
+            refinementSpecialist.loadMemory();
+            recoveryAgent.loadMemory();
+            patternRecognitionEngine.loadMemory();
+            efficiencyOptimizer.loadMemory();
+            qualityAssuranceMonitor.loadMemory();
+            console.log('🔍 Validation Specialist initialized with memory system');
+            console.log('🔧 Refinement Specialist initialized with coaching expertise');
+            console.log('🚨 Recovery Agent initialized with emergency response protocols');
+            console.log('🎯 Pattern Recognition Engine initialized with predictive intelligence');
+            console.log('⚡ Efficiency Optimizer initialized with performance management');
+            console.log('📊 Quality Assurance Monitor initialized with meta-validation system');
+        });
+
+        // Canvas Integration - Trigger canvas cycle after intelligence completion
+        function triggerCanvasUpdate() {
+            try {
+                // Method 1: Try postMessage to canvas window if available
+                const canvasWindows = [];
+                // Look for canvas window references
+                if (window.canvasWindow && !window.canvasWindow.closed) {
+                    canvasWindows.push(window.canvasWindow);
+                }
+
+                // Method 2: Use localStorage trigger for cross-window communication
+                localStorage.setItem('djinn_intelligence_trigger', Date.now().toString());
+                console.log('🔗 Triggered canvas update via localStorage');
+
+                // Method 3: Try postMessage to parent/opener if available
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({
+                        type: 'council_intelligence_complete',
+                        timestamp: Date.now()
+                    }, '*');
+                    console.log('🔗 Triggered canvas update via opener postMessage');
+                }
 
             } catch (error) {
-                console.error('Standalone intelligence generation failed:', error);
-                // Fallback analysis
-                return {
-                    actionable: [
-                        'AI intelligence synthesis failed - using basic analysis',
-                        'Manual review of AI systems recommended',
-                        'Monitor canvas content for emerging patterns'
-                    ],
-                    correlations: 'Basic intelligence assessment due to synthesis failure',
-                    recommendations: 'Manual intelligence analysis required',
-                    risk_assessment: 'Unable to assess risks automatically - manual review needed',
-                    strategic_implications: 'Strategic intelligence analysis unavailable'
-                };
+                console.log('📡 Canvas trigger attempted (standalone mode or no canvas connection)');
             }
         }
 
-        async function generateStandaloneIntelligence(analysis) {
-            // Get current AI memory and canvas data for standalone analysis
-            const canvasContent = analysis.data?.content || localStorage.getItem('sovereign_canvas_content') || '';
-            const aiMemoryData = analysis.data?.memory || localStorage.getItem('ai_memory_state') || '{}';
-
-            let parsedMemory = {};
-            try {
-                parsedMemory = JSON.parse(aiMemoryData);
-            } catch (e) {
-                console.warn('Failed to parse AI memory for intelligence:', e);
-            }
-
-            const standalonePrompt = `INTELLIGENCE ANALYSIS
-
-AI SYSTEMS STATUS:
-${Object.entries(parsedMemory).map(([systemName, systemData]) => {
-    const memoryCount = systemData?.conversationHistory?.length || 0;
-    const insightCount = systemData?.keyInsights?.length || 0;
-    return `${systemName.toUpperCase()}: ${memoryCount} interactions, ${insightCount} insights`;
-}).join('\n')}
-
-CANVAS CONTENT:
-${canvasContent.substring(0, 1500)}${canvasContent.length > 1500 ? '\n[Content truncated]' : ''}
-
-THREE-LAYER FRAMEWORK:
-- LAYER 1: AI SYSTEMS (performance, memory)
-- LAYER 2: CANVAS CONTENT (data being analyzed)
-- LAYER 3: EVOLUTION (content changes over time)
-
-Provide concise intelligence analysis (max 500 words):
-
-[INTELLIGENCE ASSESSMENT]
-[Analysis differentiating AI systems from content evolution]
-
-[RISK EVALUATION] 
-[Risks in AI operations vs. content processes]
-
-[ACTIONABLE RECOMMENDATIONS]
-• [AI system recommendation]
-• [Content evolution recommendation]
-• [Interaction optimization]
-
-[STRATEGIC IMPLICATIONS]
-[Broader implications for all layers]
-
-Keep under 500 words.`;
-
-            try {
-                // Use gemma3:1b for standalone intelligence analysis
-                const intelligenceResponse = await queryOllama('gemma3:1b', standalonePrompt);
-
-                // Parse the structured response
-                const assessmentMatch = intelligenceResponse.match(/\[INTELLIGENCE ASSESSMENT\](.*?)(?=\[RISK EVALUATION\]|$)/s);
-                const riskMatch = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[ACTIONABLE RECOMMENDATIONS\]|$)/s);
-                const recommendationsMatch = intelligenceResponse.match(/\[ACTIONABLE RECOMMENDATIONS\](.*?)(?=\[STRATEGIC IMPLICATIONS\]|$)/s);
-                const strategicMatch = intelligenceResponse.match(/\[STRATEGIC IMPLICATIONS\](.*)$/s);
-
-                const assessment = assessmentMatch ? assessmentMatch[1].trim() : 'Intelligence assessment completed';
-                const riskAssessment = riskMatch ? riskMatch[1].trim() : 'Risk evaluation completed';
-                const recommendations = recommendationsMatch ? recommendationsMatch[1].trim() : 'Recommendations provided';
-                const strategic = strategicMatch ? strategicMatch[1].trim() : 'Strategic analysis completed';
-
-                // Format recommendations as array
-                const actionableItems = recommendations.split('\n')
-                    .filter(line => line.trim().startsWith('•'))
-                    .map(line => line.trim().substring(1).trim())
-                    .filter(item => item.length > 0);
-
-                return {
-                    actionable: actionableItems.length > 0 ? actionableItems : ['Conduct further analysis', 'Monitor system behavior', 'Review AI system performance'],
-                    correlations: assessment,
-                    recommendations: recommendations,
-                    risk_assessment: riskAssessment,
-                    strategic_implications: strategic
-                };
-
-            } catch (error) {
-                console.error('Standalone intelligence generation failed:', error);
-                // Fallback analysis
-                return {
-                    actionable: [
-                        'AI intelligence synthesis failed - using basic analysis',
-                        'Manual review of AI systems recommended',
-                        'Monitor canvas content for emerging patterns'
-                    ],
-                    correlations: 'Basic intelligence assessment due to synthesis failure',
-                    recommendations: 'Manual intelligence analysis required',
-                    risk_assessment: 'Unable to assess risks automatically - manual review needed',
-                    strategic_implications: 'Strategic intelligence analysis unavailable'
-                };
-            }
-        }
-
-        async function generateAIPoweredIntel(analysis, consensus) {
-            // Compile all council member responses and analysis data
-            const allResponses = consensus.responses || [];
-            const responseTexts = allResponses.map(r => `${councilMembers[r.member].name}: ${r.response}`).join('\n\n');
-
-            const intelPrompt = `INTELLIGENCE SYNTHESIS
-
-COUNCIL ANALYSES:
-${responseTexts.substring(0, 2000)}${responseTexts.length > 2000 ? '\n[Analyses truncated]' : ''}
-
-SYSTEM DATA:
-Content: ${JSON.stringify(analysis.data).length} chars
-Confidence: ${(consensus.confidence * 100).toFixed(1)}%
-
-Synthesize intelligence (max 400 words):
-
-[INTELLIGENCE ASSESSMENT]
-[Key correlations and patterns]
-
-[RISK EVALUATION]
-[Risk assessment]
-
-[ACTIONABLE RECOMMENDATIONS]
-• [Specific actionable item 1]
-• [Specific actionable item 2]
-• [Specific actionable item 3]
-
-[STRATEGIC IMPLICATIONS]
-[Strategic analysis]`;
-
-            try {
-                // Use gemma3:1b for intelligence synthesis
-                const intelligenceResponse = await queryOllama('gemma3:1b', intelPrompt);
-
-                // Parse the structured response
-                const correlations = intelligenceResponse.match(/\[INTELLIGENCE ASSESSMENT\](.*?)(?=\[RISK EVALUATION\]|$)/s)?.[1]?.trim() || 'No correlations identified';
-                const riskAssessment = intelligenceResponse.match(/\[RISK EVALUATION\](.*?)(?=\[ACTIONABLE RECOMMENDATIONS\]|$)/s)?.[1]?.trim() || 'Risk assessment unavailable';
-                const recommendations = intelligenceResponse.match(/\[ACTIONABLE RECOMMENDATIONS\](.*?)(?=\[STRATEGIC IMPLICATIONS\]|$)/s)?.[1]?.trim() || 'No recommendations available';
-                const strategic = intelligenceResponse.match(/\[STRATEGIC IMPLICATIONS\](.*)$/s)?.[1]?.trim() || 'Strategic analysis pending';
-
-                // Format recommendations as array
-                const actionableItems = recommendations.split('\n')
-                    .filter(line => line.trim().startsWith('•'))
-                    .map(line => line.trim().substring(1).trim())
-                    .filter(item => item.length > 0);
-
-                return {
-                    actionable: actionableItems.length > 0 ? actionableItems : ['Conduct further analysis', 'Monitor system behavior', 'Review council consensus'],
-                    correlations: correlations,
-                    recommendations: recommendations,
-                    risk_assessment: riskAssessment,
-                    strategic_implications: strategic
-                };
-
-            } catch (error) {
-                console.error('Intelligence synthesis failed:', error);
-                // Fallback to basic analysis
-                return {
-                    actionable: [
-                        'System analysis completed with limited AI synthesis',
-                        'Manual review of council responses recommended',
-                        'Monitor for recurring patterns in future analyses'
-                    ],
-                    correlations: 'Basic correlation analysis due to synthesis failure',
-                    recommendations: 'Manual intelligence assessment required',
-                    risk_assessment: 'Unable to assess risks automatically'
-                };
-            }
-        }
+        // ========================================
+        // INTELLIGENCE REPORTING FUNCTIONS
+        // ========================================
 
         function storeIntelligence(report) {
             surveillanceState.intelligenceReports.unshift(report);
@@ -8338,6 +9653,9 @@ Synthesize intelligence (max 400 words):
 
                 // Display the AI-generated intelligence report
                 displayIntelligence(intelligenceEntry);
+
+                // Trigger canvas cycle if in council-integrated mode
+                triggerCanvasUpdate();
 
                 // Show success message
                 alert(`AI-Powered Intelligence Report Generated!\n\n` +
@@ -8715,9 +10033,23 @@ Synthesize intelligence (max 400 words):
             
             loadStoredIntelligence();
             initializeSurveillance();
-            
+
             // Add maximize functionality
             addMaximizeFeature();
+
+            // Set up scroll detection for advanced analysis panel
+            const extendedAnalysisEl = document.getElementById('extendedAnalysisContent');
+            if (extendedAnalysisEl) {
+                extendedAnalysisEl.addEventListener('scroll', function() {
+                    userScrolling = true;
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        userScrolling = false;
+                        console.log('✋ User finished scrolling - updates resumed');
+                    }, 2000); // Resume updates 2 seconds after scrolling stops
+                });
+                console.log('📜 Scroll protection enabled for advanced analysis panel');
+            }
             
             // Reset member statuses
             Object.values(councilMembers).forEach(member => {
@@ -9358,7 +10690,7 @@ Synthesize intelligence (max 400 words):
             updateSynthesisStatusFromLocalStorage();
             updateSynthesisProgressStatus();
             updateAllSurveillanceMetrics();
-        }, 2000);
+        }, 5000); // Reduced frequency from 2s to 5s to prevent excessive updates
 
         // Throttle updates to prevent excessive duplicate calls
         let lastMetricsUpdate = 0;
@@ -9461,7 +10793,6 @@ Synthesize intelligence (max 400 words):
                 // Update Extended Analysis with fresh synthesis data only
                 const extendedAnalysisEl = document.getElementById('extendedAnalysisContent');
                 if (extendedAnalysisEl) {
-                    const timestamp = new Date().toLocaleTimeString();
                     const synthesisGenerated = localStorage.getItem('synthesis_report_generated');
                     const canvasSynthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
 
@@ -9473,23 +10804,26 @@ Synthesize intelligence (max 400 words):
                     if (synthesisTime > tenMinutesAgo && canvasSynthesisStatus.synthesisTriggered) {
                         const lastSynthesis = localStorage.getItem('synthesis_report') || '';
                         if (lastSynthesis && lastSynthesis.length > 100) {
-                            // Show recent synthesis with timestamp
-                            const synthesisAge = Math.floor((Date.now() - synthesisTime) / 60000);
-                            newContent = `📊 Latest Synthesis Analysis (${timestamp}) - ${synthesisAge} min ago<br><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 0; height: 100%; overflow-y: auto;">${lastSynthesis}</pre>`;
+                            // Show recent synthesis - static content to prevent constant updates
+                            const staticTimestamp = new Date(synthesisTime).toLocaleTimeString();
+                            newContent = `📊 Latest Synthesis Analysis (${staticTimestamp})<br><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 0; height: 100%; overflow-y: auto;">${lastSynthesis}</pre>`;
                         } else {
-                            newContent = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Synthesis in progress...`;
+                            newContent = `📊 Latest Synthesis Analysis<br><br>Synthesis in progress...`;
                         }
                     } else {
-                        // No recent synthesis data
+                        // No recent synthesis data - only update if progress actually changes
                         const agentsComplete = canvasSynthesisStatus.completedSystems || 0;
-                        newContent = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Waiting for synthesis completion...<br>Current progress: ${agentsComplete}/5 systems complete`;
+                        newContent = `📊 Latest Synthesis Analysis<br><br>Waiting for synthesis completion...<br>Current progress: ${agentsComplete}/5 systems complete`;
                     }
 
-                    // Update with scroll preservation
+                    // Only update if content actually changed (prevents scroll interruption)
                     if (extendedAnalysisEl.innerHTML !== newContent) {
                         const scrollTop = extendedAnalysisEl.scrollTop;
                         extendedAnalysisEl.innerHTML = newContent;
-                        extendedAnalysisEl.scrollTop = scrollTop;
+                        // Restore scroll position after DOM update
+                        setTimeout(() => {
+                            extendedAnalysisEl.scrollTop = scrollTop;
+                        }, 0);
                     }
                 }
 

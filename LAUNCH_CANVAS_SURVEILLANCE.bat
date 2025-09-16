@@ -70,7 +70,7 @@ echo      WINDOW 1: Main Canvas Interface
 echo      - Primary creative workspace for writing and analysis
 echo      - Live AI feeds provide intelligence and synthesis
 echo      - Your main working environment
-start http://localhost:8080/canvas-with-observation-feeds.html
+start http://localhost:8080/canvas-with-observation-feeds.html?mode=council_integrated
 timeout /t 2 >nul
 
 if exist "djinn-council-shadow-governance.html" (
