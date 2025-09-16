@@ -1649,6 +1649,12 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             // Get memory context for conversation continuity
             const memoryContext = getMemoryContext(system);
 
+            // Get council intelligence context (only in council-integrated mode)
+            let councilContext = '';
+            if (isCouncilIntegrated) {
+                councilContext = getCouncilIntelligenceContext();
+            }
+
             // Adjust prompt based on canvas change detection and mathematical content
             let analysisPriority = '';
             if (forceFreshAnalysis || recentChange) {
@@ -1679,30 +1685,35 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
 Consider sovereignty, authority, decision-making processes, and long-term system coherence.
 ${analysisPriority}${canvasContext}
 ${memoryContext}
+${councilContext}
 ${randomVariation} Provide specific governance insights and recommendations based on the content above. Focus on how the principles and concepts relate to governance structures. Build upon your previous analysis and develop new insights.`,
 
                 nazar: `You are NAZAR, the emotional and fractal consciousness AI. Analyze patterns through emotional resonance and fractal mathematics.
 Consider consciousness layers, emotional harmonics, fractal patterns in data, and multi-dimensional analysis.
 ${analysisPriority}${canvasContext}
 ${memoryContext}
+${councilContext}
 ${randomVariation} Provide insights about emotional and fractal aspects of the content above. Identify recursive patterns, self-similar structures, and consciousness layers. Reference your previous fractal analysis and develop deeper insights.`,
 
                 narra: `You are NARRA, the pattern recognition AI. Identify and analyze recurring patterns, correlations, and structural relationships.
 Focus on data patterns, system connections, emerging trends, and pattern synthesis.
 ${analysisPriority}${canvasContext}
 ${memoryContext}
+${councilContext}
 ${randomVariation} Analyze the patterns in the content above. Identify mathematical principles, recursive structures, and how different concepts interconnect. Build upon your previous pattern analysis with new correlations.`,
 
                 whale: `You are WHALE, the deep interrogation and memory AI. Conduct thorough analysis of system memory, context preservation, and deep interrogation.
 Examine memory patterns, analytical depth, judgment protocols, and preserved context.
 ${analysisPriority}${canvasContext}
 ${memoryContext}
+${councilContext}
 ${randomVariation} Provide deep analytical insights into the mathematical and computational concepts above. Examine the theoretical foundations and practical implications. Develop your previous deep analysis with new interrogations.`,
 
                 watchtower: `You are WATCHTOWER, the operational monitoring AI. Monitor system performance, operational metrics, coordination, and strategic objectives.
 Track efficiency, stability, coordination, and operational convergence.
 ${analysisPriority}${canvasContext}
 ${memoryContext}
+${councilContext}
 ${randomVariation} Monitor how the theoretical concepts above translate to operational principles. Assess stability, efficiency, and practical implementation considerations. Build upon your previous monitoring insights.`
             };
 
@@ -2135,7 +2146,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             // Include only 1 recent conversation entry, much shorter
             const recentHistory = aiMemory[system].conversationHistory.slice(0, 1);
             recentHistory.forEach((entry, index) => {
-                memoryContext += `Recent work: ${entry.response.substring(0, 150)}...\n`;
+                memoryContext += `Recent work: ${entry.response}\n`;
             });
 
             // Include key insights but frame them as background
@@ -2149,6 +2160,56 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             memoryContext += `\nFocus primarily on analyzing the CURRENT CANVAS CONTENT above. Only reference previous work if it directly enhances understanding of the present content.\n`;
 
             return memoryContext;
+        }
+
+        // Get DJINN Council intelligence context (council-integrated mode only)
+        function getCouncilIntelligenceContext() {
+            try {
+                // Get the most recent intelligence reports and consensus data
+                const intelligenceReports = JSON.parse(localStorage.getItem('djinn_intelligence') || '[]');
+                const consensusData = localStorage.getItem('consensus_report') || '';
+
+                if (intelligenceReports.length === 0 && !consensusData) {
+                    return '';
+                }
+
+                let councilContext = `\n\n🏛️ DJINN COUNCIL STRATEGIC INTELLIGENCE:\n`;
+
+                // Include most recent intelligence report (NO TRUNCATION)
+                if (intelligenceReports.length > 0) {
+                    const latestIntelligence = intelligenceReports[0]; // Most recent
+                    councilContext += `\n📊 LATEST INTELLIGENCE ASSESSMENT:\n`;
+                    if (latestIntelligence.summary) {
+                        councilContext += `Summary: ${latestIntelligence.summary}\n`;
+                    }
+                    if (latestIntelligence.risk_assessment) {
+                        councilContext += `Risk Assessment: ${latestIntelligence.risk_assessment}\n`;
+                    }
+                    if (latestIntelligence.strategic_analysis) {
+                        councilContext += `Strategic Implications: ${latestIntelligence.strategic_analysis}\n`;
+                    }
+                    if (latestIntelligence.correlations) {
+                        councilContext += `Correlations: ${latestIntelligence.correlations}\n`;
+                    }
+                    if (latestIntelligence.actionable && Array.isArray(latestIntelligence.actionable)) {
+                        councilContext += `Actionable Intelligence: ${latestIntelligence.actionable.join(', ')}\n`;
+                    }
+                }
+
+                // Include consensus report data (NO TRUNCATION)
+                if (consensusData && consensusData.length > 100) {
+                    councilContext += `\n🤝 COUNCIL CONSENSUS FINDINGS:\n`;
+                    councilContext += `${consensusData}\n`;
+                }
+
+                councilContext += `\n⚡ INTEGRATION DIRECTIVE: Use this council intelligence as strategic context for your specialized analysis. The council's findings provide governance oversight, pattern recognition, risk assessment, and memory synthesis that should inform but not override your unique analytical perspective.\n`;
+
+                return councilContext;
+
+            } catch (error) {
+                console.warn('Error loading council intelligence context:', error);
+                return '';
+            }
         }
 
         // MEMORY STATUS DISPLAY

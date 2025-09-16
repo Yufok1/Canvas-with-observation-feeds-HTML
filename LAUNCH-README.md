@@ -1,35 +1,42 @@
-# 🚀 Canvas Launch Scripts
+# 🚀 Canvas Launch Scripts - Enhanced Intelligence Integration
 
 ## Overview
-This project includes two comprehensive Windows batch scripts for launching the Canvas with Live AI Observation Feeds system with different configurations:
+This project includes two comprehensive Windows batch scripts for launching the Canvas with Live AI Observation Feeds system with different intelligence integration modes:
 
-- **`launch-canvas.bat`**: Single canvas interface on port 8000
-- **`LAUNCH_CANVAS_SURVEILLANCE.bat`**: Dual-interface surveillance system on port 8080
+- **`launch-canvas.bat`**: Standalone canvas mode with continuous auto-polling
+- **`LAUNCH_CANVAS_SURVEILLANCE.bat`**: Council-integrated intelligence mode with event-driven architecture
 
-## Launch Options
+## Launch Modes
 
-### Option 1: Canvas Only (`launch-canvas.bat`)
-**Port**: 8000  
-**Interface**: Single canvas workspace  
-**Purpose**: Primary AI orchestration workspace
+### Option 1: Standalone Canvas Mode (`launch-canvas.bat`)
+**Port**: 8000
+**Mode**: Independent operation
+**Purpose**: Pure canvas experience with 5-AI orchestration
+- Solo AI operation without external council oversight
+- Continuous auto-polling for real-time analysis
+- Direct AI-to-canvas interaction with memory continuity
 
-### Option 2: Full Surveillance System (`LAUNCH_CANVAS_SURVEILLANCE.bat`)
-**Port**: 8080  
-**Interface**: Dual interface system  
-**Purpose**: Complete monitoring and governance system
-- Launches both canvas and DJINN Council simultaneously
-- Enables cross-window surveillance and communication
-- Provides full governance oversight capabilities
+### Option 2: Council-Integrated Intelligence Mode (`LAUNCH_CANVAS_SURVEILLANCE.bat`)
+**Port**: 8080
+**Mode**: Enhanced intelligence ecosystem
+**Purpose**: Canvas + Council strategic intelligence integration
+- Canvas AI agents receive DJINN Council intelligence reports
+- Event-driven coordination (council responds only to synthesis events)
+- Zero truncation policy for complete data access
+- Dual-window operation with cross-system communication
+- 8-agent validation network with specialized roles
 
 ## Features (Both Scripts)
 - 🎨 **Clean Interface**: Professional design showcasing the AI orchestration matrix
 - 🤖 **System Architecture Display**: Detailed information about all AI systems and their roles
-- 🧞‍♂️ **Enhanced DJINN Council Access**: Direct launch to advanced governance surveillance interface with complete memory access, anti-hallucination safeguards, and comprehensive localStorage analysis
+- 🧞‍♂️ **Enhanced Intelligence Integration**: Canvas AI agents receive council strategic intelligence in integrated mode
 - ⚡ **Automated Setup**: One-click server startup and browser launch
 - 📋 **Status Monitoring**: Real-time initialization progress
 - 🛡️ **Requirements Check**: Clear system requirements display
-- 🧠 **Complete Memory Integration**: Council members access all stored AI memories, conversation histories, and cross-member insights
-- 🔧 **Recent Fixes**: Includes latest bug fixes and performance improvements (September 15, 2025)
+- 🔄 **Event-Driven Architecture**: Council responds only to synthesis events (no continuous polling)
+- 🚫 **Zero Truncation Policy**: Complete data access without truncation limits
+- 🎯 **Mode Detection**: Automatic detection of standalone vs council-integrated operation
+- 🔧 **Latest Enhancements**: Advanced Analysis scroll fix, intelligence integration, architectural improvements (September 16, 2025)
 
 ## Usage
 
