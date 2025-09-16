@@ -7,7 +7,9 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 
 *Features Matrix rain animation, cyberpunk aesthetics, and interactive documentation experience.*
 
-**Experience an enhanced launch with ASCII art startup sequences and enjoy an**AI Responses Not Appearing**
+## 🛠️ Troubleshooting
+
+### AI Responses Not Appearing
 - Check browser console for errors (F12)
 - Verify model compatibility with gemma3:1b
 - Ensure sufficient system resources (4GB+ RAM)
@@ -15,30 +17,38 @@ A sovereign web interface for real-time AI observation, analysis, and collaborat
 - For council interface, check individual member status indicators
 - **Recent Fix**: Check for JavaScript syntax errors that may prevent page loading
 
-**Interface Layout Issues**
+### Interface Layout Issues
 - Use CTRL+mousewheel to resize panels
 - Refresh the page if layout appears broken
 - Clear browser cache if CSS doesn't load properly
 - Ensure modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
 - **Recent Fix**: Layout issues from JavaScript errors have been resolved
+- **Latest Fix**: Advanced Analysis panel now maintains full size during synthesis updates
 
-**Correlative Analysis Errors**
+### Correlative Analysis Errors
 - **Recent Fix**: ReferenceError for `triggerCorrelativeAnalysis` has been resolved
 - Ensure both canvas and DJINN Council interfaces are loaded
 - Check localStorage for proper data synchronization
 - Verify cross-window communication is functioning
 
-**Synthesis Workflow Issues**
+### Synthesis Workflow Issues
 - **Recent Fix**: AI agents now properly trigger synthesis after completion
 - Check that all 5 AI systems have completed their rounds
 - Verify polling is prevented during synthesis processes
 - Monitor real-time status updates in the header
+- **Latest Fix**: Synthesis Status now properly reflects when canvas is actively working
 
-**Memory Issues**
+### Advanced Analysis Panel Issues
+- **Latest Fix**: Panel content now fills entire allocated space instead of being limited to small window
+- **Latest Fix**: Synthesis report content properly scales within panel boundaries
+- **Latest Fix**: Panel no longer resizes/minimizes during synthesis status updates
+- The panel maintains 400px minimum height and uses full available width
+
+### Memory Issues
 - Clear AI memory via the "🧠 Clear Memory" button
 - Reset localStorage if problems persist
 - Monitor RAM usage - close other applications if needed
-- **Recent Fix**: Improved memory compression prevents quota exceeded errorsng square grid layout, real-time orchestration status, dynamic resizing, and professional user experience.**
+- **Recent Fix**: Improved memory compression prevents quota exceeded errors
 
 ## 🆕 Latest Features
 

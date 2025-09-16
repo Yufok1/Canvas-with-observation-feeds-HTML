@@ -153,6 +153,19 @@
             justify-content: space-between;
             font-size: 9px;
             flex-wrap: wrap;
+            gap: 4px;
+            min-height: 24px;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        .interface-footer span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+            display: inline-block;
         }
 
         .panel-title {
@@ -920,7 +933,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
 
             try {
                 // Process primary systems sequentially to avoid overwhelming Ollama
-                if (pollingStatus) pollingStatus.textContent = '🔄 Processing primary AI...';
+                if (pollingStatus) pollingStatus.textContent = '🔄 1° AI...';
                 const primaryResults = [];
                 for (const system of processingGroups.primary) {
                     try {
@@ -940,7 +953,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
                 // Process secondary systems sequentially
-                if (pollingStatus) pollingStatus.textContent = '🔄 Processing secondary AI...';
+                if (pollingStatus) pollingStatus.textContent = '🔄 2° AI...';
                 const secondaryResults = [];
                 for (const system of processingGroups.secondary) {
                     try {
@@ -960,7 +973,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
                 // Process tertiary systems sequentially
-                if (pollingStatus) pollingStatus.textContent = '🔄 Processing monitoring AI...';
+                if (pollingStatus) pollingStatus.textContent = '🔄 MON...';
                 const tertiaryResults = [];
                 for (const system of processingGroups.tertiary) {
                     try {
@@ -984,14 +997,14 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 const failed = allResults.filter(r => r.status === 'rejected').length;
                 console.log(`✅ Parallel processing complete: ${successful} successful, ${failed} failed`);
 
-                // Update status to show round completion
+                // Update status to show round completion (compact format)
                 if (pollingStatus) {
                     const roundStatus = automatedSynthesisTracker.getRoundStatus();
                     if (roundStatus.allComplete) {
-                        pollingStatus.textContent = `🎯 Round ${roundStatus.roundId.split('_')[1]} Complete - Auto Synthesis Triggered`;
+                        pollingStatus.textContent = `✅ R${roundStatus.roundId.split('_')[1]} Complete`;
                         pollingStatus.style.color = '#00ff88';
                     } else {
-                        pollingStatus.textContent = `⚠️ Round ${roundStatus.roundId.split('_')[1]} Partial (${roundStatus.completedCount}/5)`;
+                        pollingStatus.textContent = `⏳ R${roundStatus.roundId.split('_')[1]} ${roundStatus.completedCount}/5`;
                         pollingStatus.style.color = '#ffaa00';
                     }
                 }
@@ -2369,7 +2382,8 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
             if (pollingStatus) {
                 const nextPoll = new Date(Date.now() + interval);
-                pollingStatus.textContent = `⏰ Next: ${nextPoll.toLocaleTimeString()}`;
+                const shortTime = nextPoll.toLocaleTimeString().slice(0, 5); // HH:MM format
+                pollingStatus.textContent = `⏰ ${shortTime}`;
             }
 
             pollingTimer = setTimeout(async () => {
@@ -2387,7 +2401,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             // Stagger updates with longer delays to avoid overwhelming Ollama
             for (let i = 0; i < systems.length; i++) {
                 const pollingStatus = document.getElementById('pollingStatus');
-                if (pollingStatus) pollingStatus.textContent = `🔄 ${systems[i].toUpperCase()}...`;
+                if (pollingStatus) pollingStatus.textContent = `🔄 ${systems[i].substring(0,3).toUpperCase()}...`;
                 await updateFeedProgressive(systems[i]);
                 if (i < systems.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, 4000)); // 4 second delay between systems for better processing
@@ -2464,6 +2478,17 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
         // UI UPDATE FUNCTIONS FOR REAL AI
         function showInstantAnalysis(system) {
+            // Clear any previous loading states AND failed messages for this system to prevent accumulation
+            aiFeeds = aiFeeds.filter(feed => {
+                if (feed[system] && (
+                    feed[system].content.includes('AI response incoming') ||
+                    feed[system].content.includes('Processing failed')
+                )) {
+                    return false; // Remove old loading messages and failed processing messages for this system
+                }
+                return true;
+            });
+
             const synthesisMessage = `⚡ ${system.toUpperCase()}: ${getSystemAction(system)}... AI response incoming`;
             updateFeedUI(system, synthesisMessage);
         }
@@ -2506,18 +2531,41 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         }
 
         function updateFeedUI(system, content) {
-            // Create a new feed entry for each response (never overwrite)
+            // Check if this is a loading message replacement
+            const isLoadingMessage = content.includes('AI response incoming');
+            const isFailedMessage = content.includes('Processing failed');
+            const isActualResponse = !isLoadingMessage && !isFailedMessage && content.length > 50;
+
+            if (isActualResponse) {
+                // Remove any existing loading messages AND failed processing messages for this system
+                aiFeeds = aiFeeds.filter(feed => {
+                    if (feed[system] && (
+                        feed[system].content.includes('AI response incoming') ||
+                        feed[system].content.includes('Processing failed')
+                    )) {
+                        return false; // Remove loading messages and failed processing messages
+                    }
+                    return true; // Keep everything else
+                });
+            }
+
+            // Create a new feed entry
             const newFeed = {
                 timestamp: new Date().toISOString(),
                 [system]: {
                     content: content,
-                    confidence: 0.85 + Math.random() * 0.15
+                    confidence: isActualResponse ? (0.85 + Math.random() * 0.15) : 0.75
                 }
             };
-            
+
             // Add to beginning of feeds array
             aiFeeds.unshift(newFeed);
-            
+
+            // Limit feed history to prevent spam accumulation
+            if (aiFeeds.length > 20) {
+                aiFeeds = aiFeeds.slice(0, 20);
+            }
+
             // Update the display
             updateFeeds();
         }
@@ -2531,22 +2579,25 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         function updateFeeds() {
             const container = document.getElementById('liveFeedsContainer');
             container.innerHTML = '';
-            
+
             if (aiFeeds.length > 0) {
+                // Show only the most recent polling cycle - limit to last 10 entries for cleaner display
+                const recentFeeds = aiFeeds.slice(0, 10);
+
                 // Improved deduplication: track content hashes to prevent exact duplicates
                 const seenContent = new Set();
                 const feedsToShow = [];
                 const systemCounts = {};
-                
-                for (const feed of aiFeeds) {
+
+                for (const feed of recentFeeds) {
                     Object.keys(feed).forEach(system => {
                         if (system !== 'timestamp') {
                             // Track system counts for display purposes
                             if (!systemCounts[system]) systemCounts[system] = 0;
-                            
+
                             const content = feed[system].content;
                             const contentHash = content.substring(0, 100) + content.length;
-                            
+
                             if (!seenContent.has(contentHash)) {
                                 seenContent.add(contentHash);
                                 systemCounts[system]++;

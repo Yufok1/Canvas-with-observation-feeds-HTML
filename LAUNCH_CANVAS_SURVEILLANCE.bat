@@ -1,64 +1,108 @@
 @echo off
-title CANVAS SURVEILLANCE SYSTEM
+title LAUNCHER WINDOW - Canvas Surveillance System Startup
 color 0A
 cd /d "%~dp0"
 
 echo.
-echo ========================================
-echo    CANVAS SURVEILLANCE SYSTEM
-echo ========================================
+echo   ####  #    # #####  #    # ###### # #      #        ##   #    #  ####  ######
+echo  #      #    # #    # #    # #      # #      #       #  #  ##   # #    # #
+echo   ####  #    # #####  #    # #####  # #      #      #    # # #  # #      #####
+echo       # #    # #   #   #  #  #      # #      #      ###### #  # # #      #
+echo  #    # #    # #    #   ##   #      # #      #      #    # #   ## #    # #
+echo   ####   ####  #    #   ##   ###### # ###### ###### #    # #    #  ####  ######
+echo.
+echo                    DJINN COUNCIL DOCUMENT SURVEILLANCE
+echo                        Advanced Collaborative Intelligence
+echo.
+echo  =============================================================================
+echo  THIS WINDOW: System startup and server management
+echo  - Starts Python HTTP server to serve the web interfaces
+echo  - Launches browser windows for canvas and surveillance
+echo  - Keep this window open to maintain server connection
+echo  =============================================================================
 echo.
 
+REM Check Python
+echo [1/4] Checking Python...
 python --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ERROR: Python not installed!
-    echo Please install Python from python.org
+if errorlevel 1 (
+    echo ERROR: Python not found! Install Python from python.org
     pause
     exit
 )
+echo      Python found - OK
 
-echo [OK] Python found
-echo [..] Starting server on port 8080
-
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8080') do (
-    taskkill /F /PID %%a >nul 2>&1
+REM Kill existing server if running
+echo [2/4] Checking for existing server...
+netstat -an | find ":8080" >nul
+if not errorlevel 1 (
+    echo      Port 8080 in use - stopping existing server
+    taskkill /f /im python.exe >nul 2>&1
+    timeout /t 2 >nul
+) else (
+    echo      Port 8080 available - OK
 )
 
-start /B cmd /c "cd /d %~dp0 && python -m http.server 8080"
-timeout /t 3 /nobreak >nul
-
-echo [OK] Server started
+REM Start server
+echo [3/4] Starting HTTP server...
 echo.
-echo ========================================
-echo    OPENING SYSTEMS
-echo ========================================
+echo      PYTHON HTTP SERVER WINDOW:
+echo      - Serves web files to your browser
+echo      - Runs in background (minimized)
+echo      - DO NOT CLOSE - needed for system to work
 echo.
+start /min python -m http.server 8080
+timeout /t 3 >nul
 
-echo [1] Opening CANVAS...
+REM Verify server started
+netstat -an | find ":8080" >nul
+if errorlevel 1 (
+    echo ERROR: Server failed to start
+    pause
+    exit
+)
+echo      HTTP server started - OK
+
+REM Launch browsers
+echo [4/4] Opening browser windows...
+echo.
+echo      WINDOW 1: Main Canvas Interface
+echo      - Primary creative workspace for writing and analysis
+echo      - Live AI feeds provide intelligence and synthesis
+echo      - Your main working environment
 start http://localhost:8080/canvas-with-observation-feeds.html
-timeout /t 2 /nobreak >nul
+timeout /t 2 >nul
 
-if exist "%~dp0djinn-council-shadow-governance.html" (
-    echo [2] Opening DJINN COUNCIL...
+if exist "djinn-council-shadow-governance.html" (
+    echo.
+    echo      WINDOW 2: DJINN Council Surveillance Interface
+    echo      - Advanced intelligence analysis and monitoring
+    echo      - Cross-references all canvas activity and AI responses
+    echo      - Chat with intelligence agent about system data
     start http://localhost:8080/djinn-council-shadow-governance.html
+    echo.
+    echo      Both interfaces launched - OK
+) else (
+    echo      Canvas interface launched - OK
 )
 
 echo.
-echo ========================================
-echo    SYSTEM ACTIVE
-echo ========================================
+echo  =============================================================================
+echo  SURVEILLANCE SYSTEMS ACTIVE
+echo  =============================================================================
 echo.
-echo Surveillance running at: http://localhost:8080
+echo  Canvas Interface:     http://localhost:8080/canvas-with-observation-feeds.html
+echo  DJINN Council:        http://localhost:8080/djinn-council-shadow-governance.html
+echo  Server Status:        Running on port 8080
 echo.
-echo KEEP THIS WINDOW OPEN
-echo Press any key to stop...
-echo.
+echo  =============================================================================
+echo  KEEP THIS WINDOW OPEN - Press any key to shutdown...
+echo  =============================================================================
 
 pause >nul
 
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8080') do (
-    taskkill /F /PID %%a >nul 2>&1
-)
-
-echo [OK] System stopped
-timeout /t 2 /nobreak >nul
+echo.
+echo Shutting down server...
+taskkill /f /im python.exe >nul 2>&1
+echo Server stopped.
+timeout /t 2 >nul

@@ -1,38 +1,35 @@
 @echo off
 cls
+color 0A
 
 echo.
-echo   CANVAS - AI ORCHESTRATION MATRIX
-echo   Sovereign Canvas with Live Intelligence
+echo   #####   #####  #    # #    # #####   ####
+echo  #       #    # ##   # #    # #    # #
+echo  #       #####  # #  # #    # #####   ####
+echo  #       #   #  #  # #  #  #  #   #       #
+echo   #####  #    # #   ##   ##   #    # ####
 echo.
-echo  ============================================
-echo  ACTIVE AI SYSTEMS
-echo  ============================================
+echo             SOVEREIGN CANVAS INTERFACE
+echo               Live AI Observation System
 echo.
-echo  DJINN      - Governance and Strategic Analysis
-echo  NAZAR      - Consciousness and Fractal Analysis
-echo  NARRA      - Pattern Recognition and Synthesis
-echo  WHALE      - Deep Interrogation and Memory
-echo  WATCHTOWER - Operational Monitoring and Metrics
+echo  ===========================================================
+echo    AI SYSTEMS ONLINE                    STATUS
+echo  ===========================================================
+echo    DJINN      - Governance Analysis         [READY]
+echo    NAZAR      - Consciousness Analysis      [READY]
+echo    NARRA      - Pattern Recognition         [READY]
+echo    WHALE      - Deep Memory Analysis        [READY]
+echo    WATCHTOWER - System Monitoring           [READY]
+echo  ===========================================================
 echo.
-echo  ============================================
-echo  SYSTEM ARCHITECTURE
-echo  ============================================
+echo  ###########################################################
+echo  #                SYSTEM INITIALIZATION                   #
+echo  ###########################################################
 echo.
-echo  Sovereign Canvas - User-controlled workspace
-echo  Live AI Feeds    - Real-time intelligence streams
-echo  Metrics Dashboard- System performance monitoring
-echo  Synthesis Engine - Collaborative AI analysis
-echo  Memory Continuity- Persistent conversation history
-echo.
-echo  ============================================
-echo  INITIALIZING SYSTEMS
-echo  ============================================
-echo.
-echo  [1/4] Establishing local server connection...
-echo  [2/4] Loading AI orchestration matrix...
-echo  [3/4] Initializing sovereign canvas...
-echo  [4/4] Activating live intelligence feeds...
+echo  [##########] Server Connection
+echo  [##########] AI Matrix Loading
+echo  [##########] Canvas Initialization
+echo  [##########] Intelligence Feeds
 echo.
 echo  ============================================
 echo  STARTING PYTHON HTTP SERVER

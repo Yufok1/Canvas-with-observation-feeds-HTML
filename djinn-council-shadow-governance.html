@@ -977,6 +977,7 @@
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 8px;
             margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
         .extended-metric-item {
@@ -1006,10 +1007,11 @@
             border-radius: 6px;
             padding: 8px;
             margin-bottom: 8px;
-            flex: 1;
-            overflow-y: auto;
-            min-height: 200px;
-            height: auto;
+            flex: 2;
+            overflow: hidden;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
         }
 
         .extended-analysis-header {
@@ -1026,8 +1028,28 @@
             color: #cc88cc;
             line-height: 1.4;
             white-space: pre-line;
-            height: 100%;
-            overflow-y: auto;
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-height: 400px !important;
+            max-height: none !important;
+            height: 100% !important;
+            width: 100% !important;
+            position: relative !important;
+            display: block !important;
+        }
+
+        /* Hyper-aggressive enforcement for Extended Analysis by ID */
+        #extendedAnalysisContent {
+            flex: 1 !important;
+            min-height: 400px !important;
+            max-height: none !important;
+            height: 100% !important;
+            width: 100% !important;
+            overflow-y: auto !important;
+            display: block !important;
         }
     </style>
 </head>
@@ -1339,7 +1361,13 @@
 
         <!-- Controls -->
         <div class="djinn-controls minimized" id="djinnControls">
-            <button class="controls-toggle-btn" onclick="toggleControls()" id="controlsToggleBtn">Show Controls</button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="controls-toggle-btn" onclick="toggleControls()" id="controlsToggleBtn">Open Intelligence Agent Chat</button>
+                <span style="color: #4ecdc4; font-size: 12px; font-weight: bold;">
+                    🤖 Intelligence Agent
+                    <span style="margin-left: 8px; font-size: 10px; color: #888; font-weight: normal;">Full system database access • Ask anything</span>
+                </span>
+            </div>
             <!-- Control Buttons Section -->
             <div class="controls-buttons">
                 <button class="control-btn" onclick="triggerCouncilAnalysis()" data-tooltip="Initiate comprehensive 3-stage collaborative analysis with all five council members. Features foundation analysis, cross-pollination, and memory-enhanced synthesis.">🔍 Analyze Now</button>
@@ -1348,7 +1376,7 @@
             <button class="control-btn" onclick="clearCouncilMemory()" data-tooltip="Reset DJINN Council memory system - clears all stored reports, analysis history, and starts fresh session. Preserves canvas AI data but resets council learning state.">� Reset Memory</button>
             <button class="control-btn" onclick="exportIntelligence()" data-tooltip="Export comprehensive intelligence package including all reports, council memories, analysis history, and surveillance metrics for external analysis.">💾 Export Data</button>
             <button class="control-btn emergency" onclick="emergencyAnalysis()" data-tooltip="Activate emergency analysis protocol with maximum priority processing. All five council members analyze simultaneously with accelerated memory recall.">🚨 Emergency Analysis</button>
-            <span style="margin-left: auto; font-size: 10px; color: #666;">
+            <span style="font-size: 10px; color: #666; margin-right: 60px; flex-shrink: 0;">
                 <span data-tooltip="Surveillance polling mode: AUTO (continuous cross-window monitoring with real-time updates) or MANUAL (analysis triggered only on-demand)">Polling: <span id="pollingStatus">AUTO</span></span> |
                 <span data-tooltip="Current analysis queue depth showing pending collaborative analysis requests awaiting processing by council members">Queue: <span id="queueStatus">0</span></span> |
                 <span data-tooltip="Operational security mode: STEALTH (quiet background surveillance with minimal notifications) or ACTIVE (verbose reporting with detailed status updates)">Mode: <span id="modeStatus">STEALTH</span></span>
@@ -1356,10 +1384,8 @@
             </div>
             <!-- Expanded Chat Section -->
             <div class="controls-chat" id="controlsChat">
-                <div class="intelligence-chat-header" style="margin-bottom: 10px; display: flex; align-items: center; color: #4ecdc4; font-size: 14px; font-weight: bold; flex-shrink: 0;">
-                    🤖 Intelligence Agent
-                    <span style="margin-left: 10px; font-size: 12px; color: #888;">Full system database access • Ask anything about canvas, AI systems, memories, and data</span>
-                    <button onclick="clearIntelligenceChat()" style="margin-left: auto; padding: 4px 8px; background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 4px; color: #ff6b6b; font-size: 10px; cursor: pointer;">Clear Chat</button>
+                <div class="intelligence-chat-header" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; min-height: 32px;">
+                    <button onclick="clearIntelligenceChat()" style="padding: 4px 8px; background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 4px; color: #ff6b6b; font-size: 10px; cursor: pointer;">Clear Chat</button>
                 </div>
 
                 <div class="intelligence-chat-history" id="intelligenceChatHistory" style="flex: 1; overflow-y: auto; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 10px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4; min-height: 0;">
@@ -1385,7 +1411,7 @@
 
         // System Configuration
         const DJINN_CONFIG = {
-            POLLING_INTERVAL: 2000, // Check every 2 seconds for real-time monitoring
+            POLLING_INTERVAL: 10000, // Check every 10 seconds to reduce spam
             MAX_CONCURRENT_OLLAMA: 3, // Max parallel AI requests
             CACHE_DURATION: 60000, // Cache AI responses for 1 minute
             ANALYSIS_THRESHOLD: 100, // Min chars change to trigger analysis
@@ -4593,6 +4619,16 @@ RESPONSE CONSTRAINTS:
                 panel.style.display = '';
                 panel.style.position = '';
                 panel.style.zIndex = '';
+
+                // PRESERVE EXTENDED ANALYSIS SIZING - DO NOT RESET
+                const extendedAnalysisEl = document.getElementById('extendedAnalysisContent');
+                if (extendedAnalysisEl) {
+                    extendedAnalysisEl.style.setProperty('flex', '1', 'important');
+                    extendedAnalysisEl.style.setProperty('min-height', '400px', 'important');
+                    extendedAnalysisEl.style.setProperty('max-height', 'none', 'important');
+                    extendedAnalysisEl.style.setProperty('height', '100%', 'important');
+                    extendedAnalysisEl.style.setProperty('width', '100%', 'important');
+                }
                 
                 // Show all panels
                 document.querySelectorAll('.canvas-surveillance, .council-consensus, .intelligence-report, .canvas-surveillance-extended, .djinn-header, .djinn-controls').forEach(p => {
@@ -5041,7 +5077,10 @@ RESPONSE CONSTRAINTS:
                 Object.entries(metricsElements).forEach(([id, value]) => {
                     const element = document.getElementById(id);
                     if (element) {
-                        element.textContent = value;
+                        // Only update if the value has actually changed to prevent duplicate displays
+                        if (element.textContent !== value) {
+                            element.textContent = value;
+                        }
                     } else {
                         console.warn(`📊 Surveillance element not found: ${id}`);
                     }
@@ -5162,12 +5201,21 @@ RESPONSE CONSTRAINTS:
             }
         }
 
+        // Track last synthesis content to prevent spam updates
+        let lastSynthesisContent = '';
+
         // Update synthesis monitor with actual synthesis content data
         function updateSynthesisMonitor(synthesisContent) {
             try {
                 // Always fetch fresh synthesis content from localStorage to prevent caching issues
                 const freshSynthesisContent = localStorage.getItem('synthesis_canvas_content') || '';
                 const contentToUse = freshSynthesisContent || synthesisContent || '';
+
+                // Prevent spam updates - only update if content actually changed
+                if (contentToUse === lastSynthesisContent) {
+                    return; // No change, skip update
+                }
+                lastSynthesisContent = contentToUse;
 
                 // Update existing synthesis UI elements with content data
                 const synthesisRoundEl = document.getElementById('synthesisRound');
@@ -5190,10 +5238,24 @@ RESPONSE CONSTRAINTS:
                         synthesisRoundEl.style.color = '#00ff88';
                     }
 
-                    // Update extended analysis content with synthesis insights
+                    // Update extended analysis content with synthesis insights (preserve scroll position)
                     if (extendedAnalysisEl) {
                         const timestamp = new Date().toLocaleTimeString();
-                        extendedAnalysisEl.innerHTML = `<strong>📊 Latest Synthesis Analysis (${timestamp})</strong>\n\n${contentToUse}\n\n<strong>🔗 Cross-System Correlations:</strong>\n• AI agent responses integrated\n• Memory patterns analyzed\n• Evolution trends detected\n• Pattern recognition active`;
+                        const newContent = `<strong>📊 Latest Synthesis Analysis (${timestamp})</strong>\n\n${contentToUse}\n\n<strong>🔗 Cross-System Correlations:</strong>\n• AI agent responses integrated\n• Memory patterns analyzed\n• Evolution trends detected\n• Pattern recognition active`;
+
+                        // Only update if content actually changed to prevent scroll reset
+                        if (extendedAnalysisEl.innerHTML !== newContent) {
+                            const scrollTop = extendedAnalysisEl.scrollTop;
+                            extendedAnalysisEl.innerHTML = newContent;
+                            // Restore scroll position after update
+                            extendedAnalysisEl.scrollTop = scrollTop;
+                            // Force maintain sizing after content update - use !important values
+                            extendedAnalysisEl.style.setProperty('flex', '1', 'important');
+                            extendedAnalysisEl.style.setProperty('min-height', '400px', 'important');
+                            extendedAnalysisEl.style.setProperty('max-height', 'none', 'important');
+                            extendedAnalysisEl.style.setProperty('height', '100%', 'important');
+                            extendedAnalysisEl.style.setProperty('width', '100%', 'important');
+                        }
 
                         logDjinnEvent('document', `Advanced Analysis updated - ${contentToUse.length} chars of synthesis content`);
                     }
@@ -5212,9 +5274,21 @@ RESPONSE CONSTRAINTS:
                         synthesisRoundEl.style.color = '#4ecdc4';
                     }
 
-                    // Update extended analysis content with waiting message
+                    // Update extended analysis content with waiting message (preserve scroll position)
                     if (extendedAnalysisEl) {
-                        extendedAnalysisEl.innerHTML = 'Advanced correlation analysis and system insights will appear here as synthesis reports are generated and processed by the DJINN council.\n\nWaiting for AI agents to complete their analysis rounds...';
+                        const newContent = 'Advanced correlation analysis and system insights will appear here as synthesis reports are generated and processed by the DJINN council.\n\nWaiting for AI agents to complete their analysis rounds...';
+
+                        if (extendedAnalysisEl.innerHTML !== newContent) {
+                            const scrollTop = extendedAnalysisEl.scrollTop;
+                            extendedAnalysisEl.innerHTML = newContent;
+                            extendedAnalysisEl.scrollTop = scrollTop;
+                            // Force maintain sizing after content update - use !important values
+                            extendedAnalysisEl.style.setProperty('flex', '1', 'important');
+                            extendedAnalysisEl.style.setProperty('min-height', '400px', 'important');
+                            extendedAnalysisEl.style.setProperty('max-height', 'none', 'important');
+                            extendedAnalysisEl.style.setProperty('height', '100%', 'important');
+                            extendedAnalysisEl.style.setProperty('width', '100%', 'important');
+                        }
                     }
 
                     console.log(`🔍 Synthesis monitor: No synthesis content available`);
@@ -5373,7 +5447,8 @@ RESPONSE CONSTRAINTS:
         // Function to update synthesis status from localStorage immediately
         function updateSynthesisStatusFromLocalStorage() {
             try {
-                // Read canvas synthesis status communication
+                // Read LIVE synthesis status directly from synthesis board, not cached status
+                const synthesisProgress = localStorage.getItem('synthesis_progress') || 'Ready';
                 const synthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
 
                 // Rounds completed is handled by updateAllSurveillanceMetrics() - avoid conflicts
@@ -5385,26 +5460,54 @@ RESPONSE CONSTRAINTS:
                 const agentsCompleteEl = document.getElementById('agentsComplete');
                 const autoSynthesisEl = document.getElementById('autoSynthesisStatus');
 
+                // Update status based on LIVE synthesis progress, not cached status
+                if (autoSynthesisEl) {
+                    if (synthesisProgress === 'Synthesizing' || synthesisProgress === 'Processing') {
+                        autoSynthesisEl.textContent = 'Synthesizing';
+                        autoSynthesisEl.style.color = '#ffaa00';
+                    } else if (synthesisProgress === 'Complete' || synthesisProgress === 'Ready') {
+                        autoSynthesisEl.textContent = 'Ready';
+                        autoSynthesisEl.style.color = '#4ecdc4';
+                    } else {
+                        autoSynthesisEl.textContent = 'Waiting';
+                        autoSynthesisEl.style.color = '#666666';
+                    }
+                }
+
+                // Update round and agents from actual status
                 if (synthesisStatus.currentRound) {
-                    const roundNum = synthesisStatus.currentRound.split('_')[1];
-                    if (synthesisRoundEl) synthesisRoundEl.textContent = `Round ${roundNum}`;
-                    if (agentsCompleteEl) agentsCompleteEl.textContent = `${synthesisStatus.completedSystems || 0}/5`;
-                    if (autoSynthesisEl) {
-                        if (synthesisStatus.allComplete && synthesisStatus.synthesisTriggered) {
-                            autoSynthesisEl.textContent = 'Complete';
-                            autoSynthesisEl.style.color = '#00ff88';
-                        } else if (synthesisStatus.allComplete) {
-                            autoSynthesisEl.textContent = 'Triggered';
-                            autoSynthesisEl.style.color = '#ffaa00';
+                    // Extract round number properly - handle corrupted timestamp formats
+                    let roundNum;
+                    const currentRoundStr = String(synthesisStatus.currentRound);
+
+                    if (currentRoundStr.includes('_')) {
+                        const parts = currentRoundStr.split('_');
+                        roundNum = parts[parts.length - 1]; // Take the last part
+                    } else {
+                        roundNum = currentRoundStr;
+                    }
+
+                    // Fix corrupted timestamp data - if more than 4 digits, it's corrupted
+                    if (roundNum && roundNum.length > 4) {
+                        // Use a simple counter based on completed systems as fallback
+                        const completedSystems = synthesisStatus.completedSystems || 0;
+                        if (completedSystems > 0) {
+                            roundNum = Math.ceil(completedSystems / 5) || 1; // Estimate round based on completed systems
                         } else {
-                            autoSynthesisEl.textContent = 'Waiting';
-                            autoSynthesisEl.style.color = '#4ecdc4';
+                            roundNum = 1; // Default to round 1 for corrupted data
                         }
                     }
+
+                    // Ensure roundNum is a reasonable number
+                    if (isNaN(roundNum) || roundNum < 1) {
+                        roundNum = 1;
+                    }
+
+                    if (synthesisRoundEl) synthesisRoundEl.textContent = `Round ${roundNum}`;
+                    if (agentsCompleteEl) agentsCompleteEl.textContent = `${synthesisStatus.completedSystems || 0}/5`;
                 } else {
                     if (synthesisRoundEl) synthesisRoundEl.textContent = 'Ready';
                     if (agentsCompleteEl) agentsCompleteEl.textContent = '0/5';
-                    if (autoSynthesisEl) autoSynthesisEl.textContent = 'Waiting';
                 }
 
                 console.log(`📊 Synthesis status updated: ${synthesisStatus.completedSystems || 0}/5 systems complete`);
@@ -5414,33 +5517,83 @@ RESPONSE CONSTRAINTS:
             }
         }
 
+        // Aggressive throttling for synthesis progress status to prevent scroll resets
+        let lastSynthesisUpdate = 0;
+        const SYNTHESIS_UPDATE_THROTTLE = 3000; // Only allow updates every 3 seconds
+
+
         // Function to update synthesis progress status
         function updateSynthesisProgressStatus() {
+            // Aggressive throttle to prevent constant scroll resets
+            const now = Date.now();
+            if (now - lastSynthesisUpdate < SYNTHESIS_UPDATE_THROTTLE) {
+                return; // Skip update if called too recently
+            }
+            lastSynthesisUpdate = now;
+
             try {
+                // Read the actual synthesis status from localStorage - be reactive, not anticipatory
+                const canvasSynthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
                 const progressStatus = localStorage.getItem('synthesis_progress') || 'Ready';
                 const progressEl = document.getElementById('synthesisProgress');
 
-                if (progressEl) {
-                    progressEl.textContent = progressStatus;
+                // Check if synthesis is actually running based on REAL state
+                let isActuallySynthesizing = false;
+                let isCanvasActive = false;
 
-                    // Add visual styling based on status
-                    if (progressStatus === 'SYNTHESIZING...') {
+                // Check various indicators of canvas activity
+                const synthesisTriggered = canvasSynthesisStatus.synthesisTriggered === true;
+                const isActive = canvasSynthesisStatus.isActive === true;
+                const completedSystems = canvasSynthesisStatus.completedSystems || 0;
+                const allSystemsComplete = completedSystems >= 5;
+
+                // Check for active canvas work by looking at recent localStorage activity
+                const recentCanvasActivity = localStorage.getItem('canvas_content');
+                const lastActivity = localStorage.getItem('last_canvas_activity');
+                const aiEvolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                const recentEvolution = aiEvolutionHistory.length > 0 &&
+                    (Date.now() - new Date(aiEvolutionHistory[aiEvolutionHistory.length - 1].timestamp).getTime()) < 30000; // 30 seconds
+
+                // Canvas is considered active if:
+                isCanvasActive = recentCanvasActivity && recentCanvasActivity.length > 50 && (
+                    recentEvolution || // Recent AI evolution activity
+                    progressStatus.includes('SYNTHESIZING') || progressStatus.includes('Synthesizing') ||
+                    synthesisTriggered || // Synthesis was triggered
+                    !allSystemsComplete // Systems are still working
+                );
+
+                // Check for actual synthesis process
+                isActuallySynthesizing = (synthesisTriggered && isActive && !allSystemsComplete) ||
+                                       (progressStatus.includes('SYNTHESIZING') || progressStatus.includes('Synthesizing')) ||
+                                       isCanvasActive;
+
+                if (progressEl) {
+                    // Be REACTIVE to actual state, not cached/stale data
+                    if (isActuallySynthesizing) {
+                        progressEl.textContent = '🔄 SYNTHESIZING...';
                         progressEl.style.color = '#ffd93d';
                         progressEl.style.animation = 'pulse 1s infinite';
-                    } else if (progressStatus === 'COMPLETE') {
-                        progressEl.style.color = '#00ff88';
-                        progressEl.style.animation = 'none';
-                    } else if (progressStatus === 'ERROR') {
+                    } else if (progressStatus.includes('ERROR') || progressStatus.includes('Error')) {
+                        progressEl.textContent = '❌ ERROR';
                         progressEl.style.color = '#ff6b6b';
                         progressEl.style.animation = 'none';
                     } else {
-                        progressEl.style.color = '#cc88cc';
+                        // Default to READY when not actively synthesizing
+                        progressEl.textContent = '✅ READY';
+                        progressEl.style.color = '#00ff88';
                         progressEl.style.animation = 'none';
                     }
                 }
 
             } catch (error) {
                 console.error('Error updating synthesis progress status:', error);
+                // Fallback to safe state
+                const progressEl = document.getElementById('synthesisProgress');
+                if (progressEl) {
+                    progressEl.textContent = '✅ READY';
+                    progressEl.style.color = '#00ff88';
+                    progressEl.style.animation = 'none';
+                }
             }
         }
 
@@ -5465,8 +5618,7 @@ RESPONSE CONSTRAINTS:
                 // Update canvas monitor with ALL data sources
                 updateCanvasMonitor();
 
-                // Ensure Advanced Analysis panel updates with latest synthesis content
-                updateSynthesisMonitor(synthesisContent);
+                // Note: updateSynthesisMonitor is already called within updateCanvasMonitor - no duplicate call needed
 
                 // Calculate hashes for change detection
                 const canvasHash = hashContent(canvasContent);
@@ -9208,8 +9360,19 @@ Synthesize intelligence (max 400 words):
             updateAllSurveillanceMetrics();
         }, 2000);
 
+        // Throttle updates to prevent excessive duplicate calls
+        let lastMetricsUpdate = 0;
+        const METRICS_UPDATE_THROTTLE = 1000; // Only allow updates every 1 second
+
         // Update ALL surveillance metrics with real data and persist state
         function updateAllSurveillanceMetrics() {
+            // Throttle updates to prevent duplicate data source issues
+            const now = Date.now();
+            if (now - lastMetricsUpdate < METRICS_UPDATE_THROTTLE) {
+                return; // Skip update if called too recently
+            }
+            lastMetricsUpdate = now;
+
             try {
                 // Load persistent surveillance state
                 const persistentState = JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}');
@@ -9254,12 +9417,7 @@ Synthesize intelligence (max 400 words):
                     changeVelocityEl.style.color = avgVelocity > 10 ? '#ff6b6b' : avgVelocity > 1 ? '#ffaa00' : '#4ecdc4';
                 }
 
-                // Update History Depth
-                const historyDepthEl = document.getElementById('historyDepth');
-                if (historyDepthEl) {
-                    const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
-                    historyDepthEl.textContent = `${evolutionHistory.length} snapshots`;
-                }
+                // History Depth is now handled by the unified metrics system above - avoid duplicate updates
 
                 // Update Patterns
                 const patternsEl = document.getElementById('patternsDetected');
@@ -9311,19 +9469,27 @@ Synthesize intelligence (max 400 words):
                     const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
                     const synthesisTime = synthesisGenerated ? parseInt(synthesisGenerated) : 0;
 
+                    let newContent;
                     if (synthesisTime > tenMinutesAgo && canvasSynthesisStatus.synthesisTriggered) {
                         const lastSynthesis = localStorage.getItem('synthesis_report') || '';
                         if (lastSynthesis && lastSynthesis.length > 100) {
                             // Show recent synthesis with timestamp
                             const synthesisAge = Math.floor((Date.now() - synthesisTime) / 60000);
-                            extendedAnalysisEl.innerHTML = `📊 Latest Synthesis Analysis (${timestamp}) - ${synthesisAge} min ago<br><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 0; max-height: 300px; overflow-y: auto;">${lastSynthesis}</pre>`;
+                            newContent = `📊 Latest Synthesis Analysis (${timestamp}) - ${synthesisAge} min ago<br><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 0; height: 100%; overflow-y: auto;">${lastSynthesis}</pre>`;
                         } else {
-                            extendedAnalysisEl.innerHTML = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Synthesis in progress...`;
+                            newContent = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Synthesis in progress...`;
                         }
                     } else {
                         // No recent synthesis data
                         const agentsComplete = canvasSynthesisStatus.completedSystems || 0;
-                        extendedAnalysisEl.innerHTML = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Waiting for synthesis completion...<br>Current progress: ${agentsComplete}/5 systems complete`;
+                        newContent = `📊 Latest Synthesis Analysis (${timestamp})<br><br>Waiting for synthesis completion...<br>Current progress: ${agentsComplete}/5 systems complete`;
+                    }
+
+                    // Update with scroll preservation
+                    if (extendedAnalysisEl.innerHTML !== newContent) {
+                        const scrollTop = extendedAnalysisEl.scrollTop;
+                        extendedAnalysisEl.innerHTML = newContent;
+                        extendedAnalysisEl.scrollTop = scrollTop;
                     }
                 }
 
@@ -9596,12 +9762,12 @@ Answer the question now using ONLY the data provided:`;
 
             if (controlsContainer.classList.contains('minimized')) {
                 controlsContainer.classList.remove('minimized');
-                toggleBtn.textContent = 'Hide Controls';
+                toggleBtn.textContent = 'Close Intelligence Agent Chat';
                 // Expand controls area
                 djinnContainer.style.gridTemplateRows = 'minmax(60px, auto) 1fr 1fr minmax(200px, 30vh)';
             } else {
                 controlsContainer.classList.add('minimized');
-                toggleBtn.textContent = 'Show Controls';
+                toggleBtn.textContent = 'Open Intelligence Agent Chat';
                 // Minimize controls area, let panels expand
                 djinnContainer.style.gridTemplateRows = 'minmax(60px, auto) 1fr 1fr minmax(60px, auto)';
             }
