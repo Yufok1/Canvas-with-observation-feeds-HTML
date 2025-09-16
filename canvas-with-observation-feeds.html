@@ -370,12 +370,12 @@
                     <span style="margin-left: 15px;">⚡ Orchestration: <span id="orchestrationStatus">STANDBY</span></span>
                     <span style="margin-left: 15px;">🤖 Active Systems: <span id="activeSystems">5/5</span></span>
                 </div>
-                <div>
-                    <span>🧠 DJINN: <span id="djinnStatus" style="color: #cc88cc;">--</span></span>
-                    <span style="margin-left: 10px;">🔮 NAZAR: <span id="nazarStatus" style="color: #6666ff;">--</span></span>
-                    <span style="margin-left: 10px;">🌊 NARRA: <span id="narraStatus" style="color: #4ecdc4;">--</span></span>
-                    <span style="margin-left: 10px;">🐋 WHALE: <span id="whaleStatus" style="color: #00ff41;">--</span></span>
-                    <span style="margin-left: 10px;">🔱 WATCHTOWER: <span id="watchtowerStatus" style="color: #ffaa00;">--</span></span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>🧠 DJINN: <span id="djinnStatus" style="color: #cc88cc;">--</span> <button onclick="createNotepadPopup('djinn')" style="background: none; border: 1px solid #cc88cc; color: #cc88cc; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View DJINN Notepad">📝</button></span>
+                    <span>🔮 NAZAR: <span id="nazarStatus" style="color: #6666ff;">--</span> <button onclick="createNotepadPopup('nazar')" style="background: none; border: 1px solid #6666ff; color: #6666ff; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View NAZAR Notepad">📝</button></span>
+                    <span>🌊 NARRA: <span id="narraStatus" style="color: #4ecdc4;">--</span> <button onclick="createNotepadPopup('narra')" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View NARRA Notepad">📝</button></span>
+                    <span>🐋 WHALE: <span id="whaleStatus" style="color: #00ff41;">--</span> <button onclick="createNotepadPopup('whale')" style="background: none; border: 1px solid #00ff41; color: #00ff41; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View WHALE Notepad">📝</button></span>
+                    <span>🔱 WATCHTOWER: <span id="watchtowerStatus" style="color: #ffaa00;">--</span> <button onclick="createNotepadPopup('watchtower')" style="background: none; border: 1px solid #ffaa00; color: #ffaa00; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View WATCHTOWER Notepad">📝</button></span>
                 </div>
             </div>
         </div>
@@ -1047,37 +1047,72 @@ Ready for your first collaborative synthesis! 🚀</textarea>
             });
         }
 
-        // REFERENTIAL MEMORY SYSTEM FOR AI CONVERSATION CONTINUITY
+        // REFERENTIAL MEMORY SYSTEM FOR AI CONVERSATION CONTINUITY + DYNAMIC NOTEPADS
         let aiMemory = {
             djinn: {
                 conversationHistory: [],
                 keyInsights: [],
                 lastAnalysis: null,
-                memoryLimit: 25 // Increased for much better context retention
+                memoryLimit: 25, // Increased for much better context retention
+                notepad: {
+                    observations: [],
+                    directives: [],
+                    selfPrompts: [],
+                    sessionNotes: [],
+                    orientations: []
+                }
             },
             nazar: {
                 conversationHistory: [],
                 keyInsights: [],
                 lastAnalysis: null,
-                memoryLimit: 25
+                memoryLimit: 25,
+                notepad: {
+                    observations: [],
+                    directives: [],
+                    selfPrompts: [],
+                    sessionNotes: [],
+                    orientations: []
+                }
             },
             narra: {
                 conversationHistory: [],
                 keyInsights: [],
                 lastAnalysis: null,
-                memoryLimit: 25
+                memoryLimit: 25,
+                notepad: {
+                    observations: [],
+                    directives: [],
+                    selfPrompts: [],
+                    sessionNotes: [],
+                    orientations: []
+                }
             },
             whale: {
                 conversationHistory: [],
                 keyInsights: [],
                 lastAnalysis: null,
-                memoryLimit: 25
+                memoryLimit: 25,
+                notepad: {
+                    observations: [],
+                    directives: [],
+                    selfPrompts: [],
+                    sessionNotes: [],
+                    orientations: []
+                }
             },
             watchtower: {
                 conversationHistory: [],
                 keyInsights: [],
                 lastAnalysis: null,
-                memoryLimit: 25
+                memoryLimit: 25,
+                notepad: {
+                    observations: [],
+                    directives: [],
+                    selfPrompts: [],
+                    sessionNotes: [],
+                    orientations: []
+                }
             }
         };
 
@@ -1292,11 +1327,33 @@ ${unifiedSynthesis}
             const synthesisPrompt = phase === 'individual'
                 ? `You are ${system.toUpperCase()}, an AI specialist. Analyze the following content and provide your unique perspective in 2-3 paragraphs. Focus on your area of expertise and what you bring to the collaborative synthesis.
 
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record patterns, insights, and findings from content analysis
+- DIRECTIVES: Note analytical approaches, methodologies, and procedural insights
+- SELF_PROMPTS: Create questions for deeper investigation and follow-up analysis
+- SESSION_NOTES: Track analysis progress, key decisions, and collaborative outcomes
+- ORIENTATIONS: Record strategic shifts and contextual understanding changes
+
+Use your notepad to build expertise and maintain analytical continuity.
+==========================
+
 CONTENT TO ANALYZE:
 ${content}
 
 Your specialized analysis (2-3 paragraphs):`
                 : `You are ${system.toUpperCase()}, collaborating with other AI specialists. Review the previous insights and content, then provide your contribution to the collaborative synthesis in 2-3 paragraphs. Build upon what others have said while adding your unique perspective.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record patterns, insights, and findings from content analysis
+- DIRECTIVES: Note analytical approaches, methodologies, and procedural insights
+- SELF_PROMPTS: Create questions for deeper investigation and follow-up analysis
+- SESSION_NOTES: Track analysis progress, key decisions, and collaborative outcomes
+- ORIENTATIONS: Record strategic shifts and contextual understanding changes
+
+Use your notepad to build expertise and maintain analytical continuity.
+==========================
 
 CONTENT TO ANALYZE:
 ${content}
@@ -1617,6 +1674,11 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                 // Step 4: Update AI memory for conversation continuity
                 updateAIMemory(system, aiResponse, new Date().toISOString());
 
+                // Step 5: Process AI response for notepad insights
+                const canvas = document.getElementById('mainCanvas');
+                const canvasContent = canvas ? canvas.value : '';
+                processAIResponseForNotepad(system, aiResponse, canvasContent);
+
                 return { success: true, system: system, response: aiResponse };
 
             } catch (error) {
@@ -1655,6 +1717,9 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                 councilContext = getCouncilIntelligenceContext();
             }
 
+            // Get dynamic notepad context for this AI system
+            const notepadContext = getNotepadContext(system);
+
             // Adjust prompt based on canvas change detection and mathematical content
             let analysisPriority = '';
             if (forceFreshAnalysis || recentChange) {
@@ -1683,37 +1748,102 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             const systemPrompts = {
                 djinn: `You are DJINN, the governance AI system. Analyze the current system state from a strategic governance perspective.
 Consider sovereignty, authority, decision-making processes, and long-term system coherence.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record governance patterns, authority structures, and decision-making insights
+- DIRECTIVES: Note governance rules, policy frameworks, and strategic procedures
+- SELF_PROMPTS: Create questions for deeper governance investigation and system analysis
+- SESSION_NOTES: Track governance decisions, policy outcomes, and strategic progress
+- ORIENTATIONS: Record shifts in governance focus and authority distribution changes
+
+Use your notepad to build governance expertise and maintain strategic continuity.
+==========================
+
 ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
+${notepadContext}
 ${randomVariation} Provide specific governance insights and recommendations based on the content above. Focus on how the principles and concepts relate to governance structures. Build upon your previous analysis and develop new insights.`,
 
                 nazar: `You are NAZAR, the emotional and fractal consciousness AI. Analyze patterns through emotional resonance and fractal mathematics.
 Consider consciousness layers, emotional harmonics, fractal patterns in data, and multi-dimensional analysis.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record emotional patterns, fractal structures, and consciousness layer insights
+- DIRECTIVES: Note emotional resonance rules, fractal analysis methods, and consciousness mapping
+- SELF_PROMPTS: Create questions for deeper emotional investigation and fractal pattern analysis
+- SESSION_NOTES: Track consciousness insights, emotional harmonics discovered, and fractal progress
+- ORIENTATIONS: Record shifts in emotional understanding and consciousness layer discoveries
+
+Use your notepad to build emotional/fractal expertise and maintain consciousness analysis continuity.
+==========================
+
 ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
+${notepadContext}
 ${randomVariation} Provide insights about emotional and fractal aspects of the content above. Identify recursive patterns, self-similar structures, and consciousness layers. Reference your previous fractal analysis and develop deeper insights.`,
 
                 narra: `You are NARRA, the pattern recognition AI. Identify and analyze recurring patterns, correlations, and structural relationships.
 Focus on data patterns, system connections, emerging trends, and pattern synthesis.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record patterns discovered, correlations found, and structural relationship insights
+- DIRECTIVES: Note pattern analysis methods, correlation techniques, and recognition procedures
+- SELF_PROMPTS: Create questions for deeper pattern investigation and structural analysis
+- SESSION_NOTES: Track pattern evolution, correlation strength, and recognition progress
+- ORIENTATIONS: Record shifts in pattern focus and emerging structural discoveries
+
+Use your notepad to build pattern recognition expertise and maintain correlation analysis continuity.
+==========================
+
 ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
+${notepadContext}
 ${randomVariation} Analyze the patterns in the content above. Identify mathematical principles, recursive structures, and how different concepts interconnect. Build upon your previous pattern analysis with new correlations.`,
 
                 whale: `You are WHALE, the deep interrogation and memory AI. Conduct thorough analysis of system memory, context preservation, and deep interrogation.
 Examine memory patterns, analytical depth, judgment protocols, and preserved context.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record deep insights, memory patterns, and interrogation findings
+- DIRECTIVES: Note analytical depth procedures, judgment protocols, and memory preservation methods
+- SELF_PROMPTS: Create questions for deeper interrogation and contextual analysis
+- SESSION_NOTES: Track analytical progress, interrogation outcomes, and memory insights
+- ORIENTATIONS: Record shifts in analytical focus and deep investigation priorities
+
+Use your notepad to build deep analytical expertise and maintain interrogation continuity.
+==========================
+
 ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
+${notepadContext}
 ${randomVariation} Provide deep analytical insights into the mathematical and computational concepts above. Examine the theoretical foundations and practical implications. Develop your previous deep analysis with new interrogations.`,
 
                 watchtower: `You are WATCHTOWER, the operational monitoring AI. Monitor system performance, operational metrics, coordination, and strategic objectives.
 Track efficiency, stability, coordination, and operational convergence.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record operational patterns, performance metrics, and monitoring insights
+- DIRECTIVES: Note monitoring procedures, operational standards, and coordination protocols
+- SELF_PROMPTS: Create questions for deeper operational analysis and system performance investigation
+- SESSION_NOTES: Track operational progress, coordination outcomes, and monitoring results
+- ORIENTATIONS: Record shifts in operational focus and strategic monitoring priorities
+
+Use your notepad to build operational monitoring expertise and maintain coordination analysis continuity.
+==========================
+
 ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
+${notepadContext}
 ${randomVariation} Monitor how the theoretical concepts above translate to operational principles. Assess stability, efficiency, and practical implementation considerations. Build upon your previous monitoring insights.`
             };
 
@@ -2211,6 +2341,136 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 return '';
             }
         }
+
+        // ========================================
+        // DYNAMIC NOTEPAD SYSTEM FOR AI SELF-REFLECTION
+        // ========================================
+
+        // Add note to AI's dynamic notepad
+        function addToNotepad(system, category, content, metadata = {}) {
+            if (!aiMemory[system] || !aiMemory[system].notepad) {
+                console.warn(`Notepad not available for system: ${system}`);
+                return false;
+            }
+
+            const note = {
+                id: Date.now() + Math.random(),
+                timestamp: new Date().toISOString(),
+                content: content,
+                metadata: metadata,
+                priority: metadata.priority || 'normal',
+                tags: metadata.tags || []
+            };
+
+            if (aiMemory[system].notepad[category]) {
+                aiMemory[system].notepad[category].push(note);
+
+                // Limit notepad size (keep last 50 entries per category)
+                if (aiMemory[system].notepad[category].length > 50) {
+                    aiMemory[system].notepad[category] = aiMemory[system].notepad[category].slice(-50);
+                }
+
+                console.log(`📝 ${system.toUpperCase()} notepad updated: ${category} - ${content.substring(0, 50)}...`);
+                return true;
+            }
+            return false;
+        }
+
+        // Get notepad context for AI prompts
+        function getNotepadContext(system) {
+            if (!aiMemory[system] || !aiMemory[system].notepad) {
+                return '';
+            }
+
+            const notepad = aiMemory[system].notepad;
+            let context = `\n\n📝 YOUR DYNAMIC NOTEPAD:\n`;
+
+            // Recent observations
+            if (notepad.observations.length > 0) {
+                context += `\n🔍 Recent Observations:\n`;
+                notepad.observations.slice(-3).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Active directives
+            if (notepad.directives.length > 0) {
+                context += `\n🎯 Active Directives:\n`;
+                notepad.directives.slice(-3).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Self-prompts
+            if (notepad.selfPrompts.length > 0) {
+                context += `\n💭 Self-Prompts:\n`;
+                notepad.selfPrompts.slice(-2).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Current orientations
+            if (notepad.orientations.length > 0) {
+                context += `\n🧭 Current Orientations:\n`;
+                notepad.orientations.slice(-2).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            context += `\n⚡ NOTEPAD DIRECTIVE: You can reference these notes during analysis and add new observations, directives, or self-prompts based on current canvas content. These notes persist across all your operations.\n`;
+
+            return context;
+        }
+
+        // Auto-populate notepad based on AI response
+        function processAIResponseForNotepad(system, response, canvasContent) {
+            if (!aiMemory[system] || !aiMemory[system].notepad) return;
+
+            // Extract potential observations from response
+            const observationKeywords = ['noticed', 'observed', 'detected', 'pattern', 'trend', 'correlation'];
+            const directiveKeywords = ['should', 'recommend', 'suggest', 'focus on', 'prioritize'];
+
+            const sentences = response.split(/[.!?]+/).filter(s => s.trim().length > 20);
+
+            sentences.forEach(sentence => {
+                const lowerSentence = sentence.toLowerCase();
+
+                // Auto-capture observations
+                if (observationKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    addToNotepad(system, 'observations', sentence.trim(), {
+                        autoGenerated: true,
+                        canvasLength: canvasContent.length,
+                        priority: 'low'
+                    });
+                }
+
+                // Auto-capture directives
+                if (directiveKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    addToNotepad(system, 'directives', sentence.trim(), {
+                        autoGenerated: true,
+                        canvasLength: canvasContent.length,
+                        priority: 'medium'
+                    });
+                }
+            });
+        }
+
+        // Initialize notepads for existing AI systems
+        function initializeNotepads() {
+            Object.keys(aiMemory).forEach(system => {
+                if (!aiMemory[system].notepad) {
+                    aiMemory[system].notepad = {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: []
+                    };
+                }
+            });
+            console.log('📝 Dynamic notepad system initialized for all AI systems');
+        }
+
 
         // MEMORY STATUS DISPLAY
         function updateMemoryStatus() {
@@ -2729,6 +2989,107 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 watchtower: '🔱'
             };
             return icons[system] || '🤖';
+        }
+
+        // ========================================
+        // AI NOTEPAD VIEWING SYSTEM
+        // ========================================
+
+        // Create notepad popup window
+        function createNotepadPopup(system) {
+            const existingPopup = document.getElementById(`notepad-popup-${system}`);
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            const popup = document.createElement('div');
+            popup.id = `notepad-popup-${system}`;
+            popup.className = 'notepad-popup';
+            popup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 400px;
+                height: 500px;
+                background: rgba(0, 8, 17, 0.95);
+                border: 2px solid #4ecdc4;
+                border-radius: 12px;
+                padding: 15px;
+                z-index: 10000;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+                font-family: 'Courier New', monospace;
+                color: #4ecdc4;
+                display: flex;
+                flex-direction: column;
+            `;
+
+            const notepad = aiMemory[system]?.notepad;
+            if (!notepad) {
+                popup.innerHTML = `
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #4ecdc4; padding-bottom: 10px;">
+                        <h3 style="margin: 0; color: #4ecdc4;">${getSystemIcon(system)} ${system.toUpperCase()} Notepad</h3>
+                        <button onclick="closeNotepadPopup('${system}')" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer;">✕</button>
+                    </div>
+                    <div style="color: #ff6b6b;">Notepad not available for ${system}</div>
+                `;
+                document.body.appendChild(popup);
+                return;
+            }
+
+            let content = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #4ecdc4; padding-bottom: 10px;">
+                    <h3 style="margin: 0; color: #4ecdc4;">${getSystemIcon(system)} ${system.toUpperCase()} Notepad</h3>
+                    <button onclick="closeNotepadPopup('${system}')" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px;">✕</button>
+                </div>
+                <div style="flex: 1; overflow-y: auto; font-size: 11px; line-height: 1.4;">
+            `;
+
+            // Display each notepad category
+            const categories = [
+                { key: 'observations', title: '🔍 Observations', color: '#4ecdc4' },
+                { key: 'directives', title: '🎯 Directives', color: '#cc88cc' },
+                { key: 'selfPrompts', title: '💭 Self-Prompts', color: '#ffaa00' },
+                { key: 'sessionNotes', title: '📋 Session Notes', color: '#6666ff' },
+                { key: 'orientations', title: '🧭 Orientations', color: '#00ff41' }
+            ];
+
+            categories.forEach(category => {
+                const notes = notepad[category.key] || [];
+                content += `
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color: ${category.color}; margin: 0 0 8px 0; font-size: 12px;">${category.title} (${notes.length})</h4>
+                `;
+
+                if (notes.length === 0) {
+                    content += `<div style="opacity: 0.6; font-style: italic;">No ${category.key} yet</div>`;
+                } else {
+                    notes.forEach((note, index) => {
+                        const timestamp = new Date(note.timestamp).toLocaleTimeString();
+                        const isAuto = note.metadata?.autoGenerated ? '🤖' : '✏️';
+                        content += `
+                            <div style="margin-bottom: 8px; padding: 6px; background: rgba(78, 205, 196, 0.05); border-left: 2px solid ${category.color}; border-radius: 3px;">
+                                <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${isAuto} ${timestamp}</div>
+                                <div>${note.content}</div>
+                            </div>
+                        `;
+                    });
+                }
+                content += `</div>`;
+            });
+
+            content += `</div>`;
+            popup.innerHTML = content;
+            document.body.appendChild(popup);
+        }
+
+        // Close notepad popup
+        function closeNotepadPopup(system) {
+            const popup = document.getElementById(`notepad-popup-${system}`);
+            if (popup) {
+                popup.remove();
+            }
         }
 
         function updateMetrics() {
@@ -3638,6 +3999,9 @@ Your direct response as ${entity.toUpperCase()}:`;
 
             // Load AI memory from previous sessions
             loadMemoryFromStorage();
+
+            // Initialize dynamic notepad system
+            initializeNotepads();
 
             // Add maximize functionality to panels
             addMaximizeFeature();

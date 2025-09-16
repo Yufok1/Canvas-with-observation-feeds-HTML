@@ -1051,6 +1051,103 @@
             overflow-y: auto !important;
             display: block !important;
         }
+        /* ========================================
+           AGENT INTERACTION COORDINATION ANIMATIONS
+           ======================================== */
+
+        /* Pulsing animation for active agent interactions */
+        @keyframes agentInteractionPulse {
+            0% {
+                box-shadow: 0 0 20px var(--interaction-color, #4ecdc4)40, inset 0 0 20px var(--interaction-color, #4ecdc4)20;
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 30px var(--interaction-color, #4ecdc4)60, inset 0 0 30px var(--interaction-color, #4ecdc4)30;
+                transform: scale(1.02);
+            }
+            100% {
+                box-shadow: 0 0 20px var(--interaction-color, #4ecdc4)40, inset 0 0 20px var(--interaction-color, #4ecdc4)20;
+                transform: scale(1);
+            }
+        }
+
+        /* Active interaction styling */
+        .agent-interaction-active {
+            animation: agentInteractionPulse 2s ease-in-out infinite;
+            transition: all 0.3s ease !important;
+        }
+
+        /* Status indicator pulsing for active interactions */
+        @keyframes indicatorInteractionPulse {
+            0% {
+                box-shadow: 0 0 5px currentColor;
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 15px currentColor;
+                transform: scale(1.1);
+            }
+            100% {
+                box-shadow: 0 0 5px currentColor;
+                transform: scale(1);
+            }
+        }
+
+        .indicator-active-interaction {
+            animation: indicatorInteractionPulse 1.5s ease-in-out infinite;
+        }
+
+        /* Enhanced border effects for validation interactions */
+        .agent-interaction-active[data-interaction-type="validation"] {
+            border: 2px solid #ff4444 !important;
+        }
+
+        .agent-interaction-active[data-interaction-type="recovery"] {
+            border: 2px solid #ff6b6b !important;
+        }
+
+        .agent-interaction-active[data-interaction-type="pattern"] {
+            border: 2px solid #cc88cc !important;
+        }
+
+        .agent-interaction-active[data-interaction-type="efficiency"] {
+            border: 2px solid #00ff41 !important;
+        }
+
+        .agent-interaction-active[data-interaction-type="quality"] {
+            border: 2px solid #6666ff !important;
+        }
+
+        .agent-interaction-active[data-interaction-type="crossPollination"] {
+            border: 2px solid #4ecdc4 !important;
+        }
+
+        .agent-interaction-active[data-interaction-type="intelligence"] {
+            border: 2px solid #ffaa00 !important;
+        }
+
+        /* Subtle background glow for status items during interactions */
+        .status-item.interaction-active {
+            background: linear-gradient(135deg, rgba(var(--interaction-rgb), 0.1), rgba(var(--interaction-rgb), 0.05));
+            transition: all 0.3s ease;
+        }
+
+        /* Cross-system connection lines (optional enhancement) */
+        .agent-connection-line {
+            position: fixed;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--connection-color, #4ecdc4), transparent);
+            z-index: 999;
+            opacity: 0.7;
+            animation: connectionPulse 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes connectionPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
     </style>
 </head>
 <body>
@@ -1078,6 +1175,41 @@
                 </div>
                 <div class="status-item" data-tooltip="Timestamp of most recent collaborative analysis cycle completion. Council members work in 3 stages: Foundation, Cross-Pollination, and Memory Synthesis.">
                     Last Analysis: <span id="lastAnalysis">--:--:--</span>
+                </div>
+                <div class="status-item" data-tooltip="Validation Specialist: Primary AI validator ensuring quality and accuracy of council responses. Performs comprehensive validation with anti-hallucination measures and emergency recovery protocols. Tracks validation history and pattern recognition for continuous improvement.">
+                    <span class="indicator indicator-idle"></span>
+                    🔍 Validation Agent: <span id="validationStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('validation')" style="background: none; border: 1px solid #00ff88; color: #00ff88; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Validation Specialist Notepad">📝</button>
+                </div>
+                <div class="status-item" data-tooltip="Refinement Specialist: Triangulated validation partner providing expert coaching for AI-to-AI communication improvement. Analyzes validation interactions and provides coaching to both validators and council members for optimal report quality and collaborative intelligence enhancement.">
+                    <span class="indicator indicator-idle"></span>
+                    🔧 Refinement Agent: <span id="refinementStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('refinement')" style="background: none; border: 1px solid #ffaa00; color: #ffaa00; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Refinement Specialist Notepad">📝</button>
+                </div>
+                <div class="status-item" data-tooltip="Intelligence Agent: Strategic intelligence synthesis specialist generating comprehensive reports from council consensus and canvas evolution. Combines all system data for omniscient intelligence analysis with predictive insights and strategic recommendations.">
+                    <span class="indicator indicator-idle"></span>
+                    🎯 Intelligence Agent: <span id="intelligenceAgentStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('intelligence')" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Intelligence Agent Notepad">📝</button>
+                </div>
+                <div class="status-item" data-tooltip="Recovery Agent: Emergency validation response system handling extreme cases where normal validation fails. Trauma surgeon of the validation system with emergency protocols, recovery procedures, and failsafe mechanisms for critical system failures.">
+                    <span class="indicator indicator-idle"></span>
+                    🚨 Recovery Agent: <span id="recoveryStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('recovery')" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Recovery Agent Notepad">📝</button>
+                </div>
+                <div class="status-item" data-tooltip="Pattern Recognition Engine: Predictive validation intelligence that analyzes patterns to route validation requests optimally. Learns success/failure patterns by member and provides early warning signals for potential validation issues before they occur.">
+                    <span class="indicator indicator-idle"></span>
+                    🎯 Pattern Engine: <span id="patternEngineStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('patternEngine')" style="background: none; border: 1px solid #cc88cc; color: #cc88cc; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Pattern Engine Notepad">📝</button>
+                </div>
+                <div class="status-item" data-tooltip="Efficiency Optimizer: Validation workload and performance management system. Monitors processing times, identifies bottlenecks, optimizes resource utilization, and manages workload distribution for maximum validation system efficiency.">
+                    <span class="indicator indicator-idle"></span>
+                    ⚡ Efficiency Optimizer: <span id="efficiencyStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('efficiency')" style="background: none; border: 1px solid #00ff41; color: #00ff41; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Efficiency Optimizer Notepad">📝</button>
+                </div>
+                <div class="status-item" data-tooltip="Quality Assurance Monitor: Meta-validation system that monitors the validation system itself. Tracks validator performance, system health metrics, quality trends, and issues quality alerts to ensure the entire validation ecosystem maintains high standards.">
+                    <span class="indicator indicator-idle"></span>
+                    📊 Quality Monitor: <span id="qualityStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('quality')" style="background: none; border: 1px solid #6666ff; color: #6666ff; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Quality Monitor Notepad">📝</button>
                 </div>
             </div>
             <div class="keyboard-shortcuts" style="margin-top: 8px; padding: 6px; background: rgba(204, 136, 204, 0.05); border: 1px solid rgba(204, 136, 204, 0.3); border-radius: 4px; font-size: 10px; color: #cc88cc; text-align: center;">
@@ -1393,6 +1525,246 @@
             MEMORY_LIMIT: 50 // Max intelligence reports to keep
         };
 
+        // ========================================
+        // AGENT INTERACTION COORDINATION SYSTEM
+        // ========================================
+
+        // Visual coordination state management
+        const agentInteractionSystem = {
+            activeInteractions: new Map(),
+
+            // Color themes for different interaction types
+            interactionColors: {
+                validation: { color: '#ff4444', name: 'Validation' },
+                recovery: { color: '#ff6b6b', name: 'Recovery' },
+                pattern: { color: '#cc88cc', name: 'Pattern Analysis' },
+                efficiency: { color: '#00ff41', name: 'Efficiency' },
+                quality: { color: '#6666ff', name: 'Quality Assurance' },
+                crossPollination: { color: '#4ecdc4', name: 'Cross-Pollination' },
+                intelligence: { color: '#ffaa00', name: 'Intelligence Synthesis' }
+            },
+
+            // Start an interaction visualization
+            startInteraction(interactionId, participants, interactionType, description) {
+                const interaction = {
+                    id: interactionId,
+                    participants: participants, // array of agent IDs
+                    type: interactionType,
+                    description: description,
+                    startTime: Date.now(),
+                    color: this.interactionColors[interactionType] || this.interactionColors.validation
+                };
+
+                this.activeInteractions.set(interactionId, interaction);
+                this.visualizeInteraction(interaction);
+
+                console.log(`🎨 Started ${interaction.color.name} interaction: ${description}`, participants);
+            },
+
+            // End an interaction
+            endInteraction(interactionId) {
+                const interaction = this.activeInteractions.get(interactionId);
+                if (interaction) {
+                    this.clearVisualization(interaction);
+                    this.activeInteractions.delete(interactionId);
+                    console.log(`🎨 Ended interaction: ${interaction.description}`);
+                }
+            },
+
+            // Visual effects for active interactions
+            visualizeInteraction(interaction) {
+                const { participants, color } = interaction;
+
+                participants.forEach(agentId => {
+                    this.applyAgentVisualEffect(agentId, color.color, interaction.type);
+                });
+
+                // Update status indicators
+                this.updateStatusIndicators(interaction);
+            },
+
+            // Apply visual effects to specific agent panels
+            applyAgentVisualEffect(agentId, color, interactionType) {
+                // Council members
+                const councilElement = document.querySelector(`.member-${agentId}`);
+                if (councilElement) {
+                    this.addPulsingEffect(councilElement, color, interactionType);
+                }
+
+                // Header status items
+                const statusElement = document.getElementById(`${agentId}Status`);
+                if (statusElement) {
+                    this.addStatusEffect(statusElement, color);
+                }
+
+                // Validation agents in header
+                const headerAgents = {
+                    validation: 'validationStatus',
+                    recovery: 'recoveryStatus',
+                    patternEngine: 'patternEngineStatus',
+                    efficiency: 'efficiencyStatus',
+                    quality: 'qualityStatus',
+                    refinement: 'refinementStatus',
+                    intelligence: 'intelligenceAgentStatus'
+                };
+
+                if (headerAgents[agentId]) {
+                    const headerElement = document.getElementById(headerAgents[agentId]);
+                    if (headerElement) {
+                        this.addStatusEffect(headerElement.parentElement, color);
+                    }
+                }
+            },
+
+            // Add pulsing border effect
+            addPulsingEffect(element, color, interactionType) {
+                element.style.transition = 'all 0.3s ease';
+                element.style.boxShadow = `0 0 20px ${color}40, inset 0 0 20px ${color}20`;
+                element.style.borderColor = color;
+
+                // Add pulsing animation
+                element.classList.add('agent-interaction-active');
+                element.setAttribute('data-interaction-color', color);
+                element.setAttribute('data-interaction-type', interactionType);
+            },
+
+            // Add status indicator effects
+            addStatusEffect(element, color) {
+                const indicator = element.querySelector('.indicator');
+                if (indicator) {
+                    indicator.style.backgroundColor = color;
+                    indicator.style.boxShadow = `0 0 10px ${color}`;
+                    indicator.classList.add('indicator-active-interaction');
+                }
+            },
+
+            // Clear visual effects
+            clearVisualization(interaction) {
+                interaction.participants.forEach(agentId => {
+                    this.clearAgentVisualEffect(agentId);
+                });
+            },
+
+            // Remove visual effects from agent panels
+            clearAgentVisualEffect(agentId) {
+                // Council members
+                const councilElement = document.querySelector(`.member-${agentId}`);
+                if (councilElement) {
+                    councilElement.style.boxShadow = '';
+                    councilElement.style.borderColor = '';
+                    councilElement.classList.remove('agent-interaction-active');
+                    councilElement.removeAttribute('data-interaction-color');
+                    councilElement.removeAttribute('data-interaction-type');
+                }
+
+                // Status indicators
+                const statusElement = document.getElementById(`${agentId}Status`);
+                if (statusElement) {
+                    const indicator = statusElement.parentElement.querySelector('.indicator');
+                    if (indicator) {
+                        indicator.style.backgroundColor = '';
+                        indicator.style.boxShadow = '';
+                        indicator.classList.remove('indicator-active-interaction');
+                    }
+                }
+
+                // Header validation agents
+                const headerAgents = {
+                    validation: 'validationStatus',
+                    recovery: 'recoveryStatus',
+                    patternEngine: 'patternEngineStatus',
+                    efficiency: 'efficiencyStatus',
+                    quality: 'qualityStatus',
+                    refinement: 'refinementStatus',
+                    intelligence: 'intelligenceAgentStatus'
+                };
+
+                if (headerAgents[agentId]) {
+                    const headerElement = document.getElementById(headerAgents[agentId]);
+                    if (headerElement) {
+                        const indicator = headerElement.parentElement.querySelector('.indicator');
+                        if (indicator) {
+                            indicator.style.backgroundColor = '';
+                            indicator.style.boxShadow = '';
+                            indicator.classList.remove('indicator-active-interaction');
+                        }
+                        headerElement.parentElement.style.boxShadow = '';
+                    }
+                }
+            },
+
+            // Update status indicators with interaction info
+            updateStatusIndicators(interaction) {
+                interaction.participants.forEach(agentId => {
+                    const statusElement = document.getElementById(`${agentId}Status`);
+                    if (statusElement) {
+                        const originalText = statusElement.textContent;
+                        statusElement.setAttribute('data-original-status', originalText);
+                        statusElement.textContent = `${interaction.type.toUpperCase()}`;
+                        statusElement.style.color = interaction.color.color;
+                    }
+
+                    // Header agents
+                    const headerAgents = {
+                        validation: 'validationStatus',
+                        recovery: 'recoveryStatus',
+                        patternEngine: 'patternEngineStatus',
+                        efficiency: 'efficiencyStatus',
+                        quality: 'qualityStatus',
+                        refinement: 'refinementStatus',
+                        intelligence: 'intelligenceAgentStatus'
+                    };
+
+                    if (headerAgents[agentId]) {
+                        const headerElement = document.getElementById(headerAgents[agentId]);
+                        if (headerElement) {
+                            headerElement.setAttribute('data-original-status', headerElement.textContent);
+                            headerElement.textContent = interaction.type.toUpperCase();
+                            headerElement.style.color = interaction.color.color;
+                        }
+                    }
+                });
+            },
+
+            // Restore original status text
+            restoreStatusIndicators(interaction) {
+                interaction.participants.forEach(agentId => {
+                    const statusElement = document.getElementById(`${agentId}Status`);
+                    if (statusElement) {
+                        const originalStatus = statusElement.getAttribute('data-original-status');
+                        if (originalStatus) {
+                            statusElement.textContent = originalStatus;
+                            statusElement.style.color = '';
+                            statusElement.removeAttribute('data-original-status');
+                        }
+                    }
+
+                    // Header agents
+                    const headerAgents = {
+                        validation: 'validationStatus',
+                        recovery: 'recoveryStatus',
+                        patternEngine: 'patternEngineStatus',
+                        efficiency: 'efficiencyStatus',
+                        quality: 'qualityStatus',
+                        refinement: 'refinementStatus',
+                        intelligence: 'intelligenceAgentStatus'
+                    };
+
+                    if (headerAgents[agentId]) {
+                        const headerElement = document.getElementById(headerAgents[agentId]);
+                        if (headerElement) {
+                            const originalStatus = headerElement.getAttribute('data-original-status');
+                            if (originalStatus) {
+                                headerElement.textContent = originalStatus;
+                                headerElement.style.color = '';
+                                headerElement.removeAttribute('data-original-status');
+                            }
+                        }
+                    }
+                });
+            }
+        };
+
         // Validation Specialist Memory System
         const validationSpecialist = {
             sessionId: `validation_${Date.now()}`,
@@ -1402,6 +1774,23 @@
                 synthesisExpertise: [], // Intelligence reports crafted
                 councilInsights: {}, // What it's learned about each council member
                 qualityMetrics: {} // Performance tracking
+            },
+
+            // Dynamic notepad for validation insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
             },
 
             // Load existing memory
@@ -1432,7 +1821,7 @@
                 const validation = {
                     timestamp: new Date().toISOString(),
                     member: memberKey,
-                    originalResponse: originalResponse.substring(0, 500),
+                    originalResponse: originalResponse,
                     result: validationResult,
                     iteration: iteration,
                     issues: this.extractIssues(validationResult.notes),
@@ -1593,27 +1982,62 @@
             sessionStart: new Date().toISOString(),
             maxMemories: 25,
 
-            // Each member's complete memory bank
+            // Each member's complete memory bank + dynamic notepads
             members: {
                 pattern: {
                     reports: [],
-                    specialization: "Pattern recognition, governance structures, systemic behaviors"
+                    specialization: "Pattern recognition, governance structures, systemic behaviors",
+                    notepad: {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: []
+                    }
                 },
                 wisdom: {
                     reports: [],
-                    specialization: "Iterative knowledge synthesis, cognitive growth patterns"
+                    specialization: "Iterative knowledge synthesis, cognitive growth patterns",
+                    notepad: {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: []
+                    }
                 },
                 paradox: {
                     reports: [],
-                    specialization: "Paradox resolution, creative synthesis, innovation catalyst"
+                    specialization: "Paradox resolution, creative synthesis, innovation catalyst",
+                    notepad: {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: []
+                    }
                 },
                 boundaries: {
                     reports: [],
-                    specialization: "Autonomy guardian, sovereignty preservation, boundary integrity"
+                    specialization: "Autonomy guardian, sovereignty preservation, boundary integrity",
+                    notepad: {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: []
+                    }
                 },
                 memory: {
                     reports: [],
-                    specialization: "Memory orchestration, persistent storage, temporal continuity"
+                    specialization: "Memory orchestration, persistent storage, temporal continuity",
+                    notepad: {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: []
+                    }
                 }
             },
 
@@ -1933,7 +2357,7 @@
 
                 // Limit length
                 if (compressed.length > 500) {
-                    compressed = compressed.substring(0, 500) + '...';
+                    // Keep full compressed content per zero truncation policy
                 }
 
                 return compressed;
@@ -2080,6 +2504,310 @@
                 };
             }
         };
+
+        // ========================================
+        // DJINN COUNCIL DYNAMIC NOTEPAD SYSTEM
+        // ========================================
+
+        // Add note to council member's notepad
+        function addToCouncilNotepad(memberKey, category, content, metadata = {}) {
+            if (!djinnCouncilMemory.members[memberKey] || !djinnCouncilMemory.members[memberKey].notepad) {
+                console.warn(`Council notepad not available for member: ${memberKey}`);
+                return false;
+            }
+
+            const note = {
+                id: Date.now() + Math.random(),
+                timestamp: new Date().toISOString(),
+                content: content,
+                metadata: metadata,
+                priority: metadata.priority || 'normal',
+                tags: metadata.tags || [],
+                sessionId: djinnCouncilMemory.sessionId
+            };
+
+            if (djinnCouncilMemory.members[memberKey].notepad[category]) {
+                djinnCouncilMemory.members[memberKey].notepad[category].push(note);
+
+                // Limit notepad size (keep last 50 entries per category)
+                if (djinnCouncilMemory.members[memberKey].notepad[category].length > 50) {
+                    djinnCouncilMemory.members[memberKey].notepad[category] =
+                        djinnCouncilMemory.members[memberKey].notepad[category].slice(-50);
+                }
+
+                console.log(`📝 ${councilMembers[memberKey].name} notepad updated: ${category} - ${content.substring(0, 50)}...`);
+                return true;
+            }
+            return false;
+        }
+
+        // Get council member notepad context
+        function getCouncilNotepadContext(memberKey) {
+            if (!djinnCouncilMemory.members[memberKey] || !djinnCouncilMemory.members[memberKey].notepad) {
+                return '';
+            }
+
+            const notepad = djinnCouncilMemory.members[memberKey].notepad;
+            const memberName = councilMembers[memberKey].name;
+            let context = `\n\n📝 YOUR COUNCIL NOTEPAD (${memberName}):\n`;
+
+            // Recent observations
+            if (notepad.observations.length > 0) {
+                context += `\n🔍 Recent Observations:\n`;
+                notepad.observations.slice(-3).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Active directives
+            if (notepad.directives.length > 0) {
+                context += `\n🎯 Active Directives:\n`;
+                notepad.directives.slice(-3).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Self-prompts
+            if (notepad.selfPrompts.length > 0) {
+                context += `\n💭 Self-Prompts:\n`;
+                notepad.selfPrompts.slice(-2).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Session notes
+            if (notepad.sessionNotes.length > 0) {
+                context += `\n📋 Session Notes:\n`;
+                notepad.sessionNotes.slice(-2).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            // Current orientations
+            if (notepad.orientations.length > 0) {
+                context += `\n🧭 Current Orientations:\n`;
+                notepad.orientations.slice(-2).forEach(note => {
+                    context += `• ${note.content}\n`;
+                });
+            }
+
+            context += `\n⚡ COUNCIL NOTEPAD DIRECTIVE: Reference these notes during your specialized analysis. Add new observations, directives, or insights based on current canvas content and council deliberations. These notes persist across all council sessions.\n`;
+
+            return context;
+        }
+
+        // Auto-populate council notepad based on analysis response
+        function processCouncilResponseForNotepad(memberKey, response, analysisContext) {
+            if (!djinnCouncilMemory.members[memberKey] || !djinnCouncilMemory.members[memberKey].notepad) return;
+
+            // Extract potential insights from council member response
+            const observationKeywords = ['identified', 'recognized', 'discovered', 'noted', 'observed', 'detected'];
+            const directiveKeywords = ['recommend', 'suggest', 'propose', 'advise', 'council should', 'we must'];
+            const orientationKeywords = ['focusing on', 'oriented toward', 'aligned with', 'directed at'];
+
+            const sentences = response.split(/[.!?]+/).filter(s => s.trim().length > 25);
+
+            sentences.forEach(sentence => {
+                const lowerSentence = sentence.toLowerCase();
+
+                // Auto-capture observations
+                if (observationKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    addToCouncilNotepad(memberKey, 'observations', sentence.trim(), {
+                        autoGenerated: true,
+                        analysisContext: analysisContext?.type || 'council_analysis',
+                        priority: 'medium'
+                    });
+                }
+
+                // Auto-capture directives
+                if (directiveKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    addToCouncilNotepad(memberKey, 'directives', sentence.trim(), {
+                        autoGenerated: true,
+                        analysisContext: analysisContext?.type || 'council_analysis',
+                        priority: 'high'
+                    });
+                }
+
+                // Auto-capture orientations
+                if (orientationKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    addToCouncilNotepad(memberKey, 'orientations', sentence.trim(), {
+                        autoGenerated: true,
+                        analysisContext: analysisContext?.type || 'council_analysis',
+                        priority: 'medium'
+                    });
+                }
+            });
+        }
+
+        // Initialize council notepads
+        function initializeCouncilNotepads() {
+            Object.keys(djinnCouncilMemory.members).forEach(memberKey => {
+                if (!djinnCouncilMemory.members[memberKey].notepad) {
+                    djinnCouncilMemory.members[memberKey].notepad = {
+                        observations: [],
+                        directives: [],
+                        selfPrompts: [],
+                        sessionNotes: [],
+                        orientations: [],
+                        // INTELLIGENCE OFFICER INPUT SECTION
+                        intelligenceInputs: {
+                            correlationInsights: [],  // Cross-system pattern discoveries
+                            strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                            emergentConsensus: [],    // Emerging agreements spotted across agents
+                            conflictAlerts: [],       // Contradictions identified in ecosystem
+                            collaborationSuggestions: [] // Recommended agent interactions
+                        }
+                    };
+                }
+            });
+            console.log('📝 Dynamic notepad system initialized for all council members');
+        }
+
+
+        // Create council notepad popup window
+        function createCouncilNotepadPopup(memberKey) {
+            const existingPopup = document.getElementById(`council-notepad-popup-${memberKey}`);
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            const popup = document.createElement('div');
+            popup.id = `council-notepad-popup-${memberKey}`;
+            popup.className = 'council-notepad-popup';
+            popup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 400px;
+                height: 500px;
+                background: rgba(0, 8, 17, 0.95);
+                border: 2px solid #4ecdc4;
+                border-radius: 12px;
+                padding: 15px;
+                z-index: 999999;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+                font-family: 'Courier New', monospace;
+                color: #4ecdc4;
+                display: flex;
+                flex-direction: column;
+            `;
+
+            // Get notepad from appropriate source
+            let notepad;
+            let agentName;
+
+            if (memberKey === 'validation') {
+                notepad = validationSpecialist?.notepad;
+                agentName = 'VALIDATION SPECIALIST';
+            } else if (memberKey === 'refinement') {
+                notepad = refinementSpecialist?.notepad;
+                agentName = 'REFINEMENT SPECIALIST';
+            } else if (memberKey === 'intelligence') {
+                notepad = intelligenceAgent?.notepad;
+                agentName = 'INTELLIGENCE AGENT';
+            } else if (memberKey === 'recovery') {
+                notepad = recoveryAgent?.notepad;
+                agentName = 'RECOVERY AGENT';
+            } else if (memberKey === 'patternEngine') {
+                notepad = patternRecognitionEngine?.notepad;
+                agentName = 'PATTERN ENGINE';
+            } else if (memberKey === 'efficiency') {
+                notepad = efficiencyOptimizer?.notepad;
+                agentName = 'EFFICIENCY OPTIMIZER';
+            } else if (memberKey === 'quality') {
+                notepad = qualityAssuranceMonitor?.notepad;
+                agentName = 'QUALITY MONITOR';
+            } else {
+                const member = djinnCouncilMemory.members[memberKey];
+                notepad = member?.notepad;
+                agentName = memberKey.toUpperCase();
+            }
+            if (!notepad) {
+                popup.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #4ecdc4; padding-bottom: 10px;">
+                        <h3 style="margin: 0; color: #4ecdc4;">${getCouncilMemberIcon(memberKey)} ${agentName} Notepad</h3>
+                        <button onclick="closeCouncilNotepadPopup('${memberKey}')" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer;">✕</button>
+                    </div>
+                    <div style="color: #ff6b6b;">Notepad not available for ${memberKey}</div>
+                `;
+                document.body.appendChild(popup);
+                return;
+            }
+
+            let content = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #4ecdc4; padding-bottom: 10px;">
+                    <h3 style="margin: 0; color: #4ecdc4;">${getCouncilMemberIcon(memberKey)} ${agentName} Notepad</h3>
+                    <button onclick="closeCouncilNotepadPopup('${memberKey}')" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px;">✕</button>
+                </div>
+                <div style="flex: 1; overflow-y: auto; font-size: 11px; line-height: 1.4;">
+            `;
+
+            // Display each notepad category
+            const categories = [
+                { key: 'observations', title: '🔍 Observations', color: '#4ecdc4' },
+                { key: 'directives', title: '🎯 Directives', color: '#cc88cc' },
+                { key: 'selfPrompts', title: '💭 Self-Prompts', color: '#ffaa00' },
+                { key: 'sessionNotes', title: '📋 Session Notes', color: '#6666ff' },
+                { key: 'orientations', title: '🧭 Orientations', color: '#00ff41' }
+            ];
+
+            categories.forEach(category => {
+                const notes = notepad[category.key] || [];
+                content += `
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color: ${category.color}; margin: 0 0 8px 0; font-size: 12px;">${category.title} (${notes.length})</h4>
+                `;
+
+                if (notes.length === 0) {
+                    content += `<div style="opacity: 0.6; font-style: italic;">No ${category.key} yet</div>`;
+                } else {
+                    notes.forEach((note, index) => {
+                        const timestamp = new Date(note.timestamp).toLocaleTimeString();
+                        const isAuto = note.metadata?.autoGenerated ? '🤖' : '✏️';
+                        content += `
+                            <div style="margin-bottom: 8px; padding: 6px; background: rgba(78, 205, 196, 0.05); border-left: 2px solid ${category.color}; border-radius: 3px;">
+                                <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${isAuto} ${timestamp}</div>
+                                <div>${note.content}</div>
+                            </div>
+                        `;
+                    });
+                }
+                content += `</div>`;
+            });
+
+            content += `</div>`;
+            popup.innerHTML = content;
+            document.body.appendChild(popup);
+        }
+
+        // Close council notepad popup
+        function closeCouncilNotepadPopup(memberKey) {
+            const popup = document.getElementById(`council-notepad-popup-${memberKey}`);
+            if (popup) {
+                popup.remove();
+            }
+        }
+
+        // Get council member icon
+        function getCouncilMemberIcon(memberKey) {
+            const icons = {
+                pattern: '🜁',
+                wisdom: '🔮',
+                paradox: '🜃',
+                boundaries: '🜄',
+                memory: '🝊',
+                validation: '🔍',
+                refinement: '🔧',
+                intelligence: '🎯',
+                recovery: '🚨',
+                patternEngine: '🎯',
+                efficiency: '⚡',
+                quality: '📊'
+            };
+            return icons[memberKey] || '🧠';
+        }
 
         // ========================================
         // ENHANCED MEMORY MANAGEMENT FUNCTIONS
@@ -3551,7 +4279,7 @@
                     reports: member.reports.map(report => ({
                         reportId: report.reportId,
                         timestamp: report.timestamp,
-                        analysis: report.analysis.substring(0, 500), // Truncate analysis
+                        analysis: report.analysis, // Full analysis per zero truncation policy
                         buildingOn: report.buildingOn,
                         metrics: report.metrics
                     })).slice(-10) // Keep only last 10 reports
@@ -3586,7 +4314,7 @@
                             reports: member.reports.slice(-3).map(report => ({ // Keep only last 3 reports
                                 reportId: report.reportId,
                                 timestamp: report.timestamp,
-                                analysis: report.analysis.substring(0, 150), // Severely truncate
+                                analysis: report.analysis, // Full analysis per zero truncation policy
                                 buildingOn: report.buildingOn
                             }))
                         }
@@ -3707,7 +4435,7 @@ Intelligence Reports: ${localStorage.getItem('intelligence_reports') ? 'Availabl
 Your Previous Reports: ${allReports.length} total
 ${allReports.slice(-3).map((report, i) => `
 [REPORT ${report.reportId}] ${report.timestamp}
-Key Insights: ${report.analysis.substring(0, 200)}...
+Key Insights: ${report.analysis}
 `).join('\n')}
 
 === CURRENT CANVAS CONTENT TO ANALYZE ===
@@ -4669,12 +5397,60 @@ RESPONSE CONSTRAINTS:
                 document.querySelectorAll('.council-member').forEach((member, index) => {
                     if (!member.querySelector('.panel-maximize-btn')) {
                         member.style.position = 'relative';
-                        const btn = document.createElement('button');
-                        btn.className = 'panel-maximize-btn';
-                        btn.innerHTML = '⛶';
-                        btn.title = 'Maximize Member';
-                        btn.onclick = function() { toggleMaximize(member, btn, 'Member'); };
-                        member.insertBefore(btn, member.firstChild);
+
+                        // Add notepad button first (to the left)
+                        if (!member.querySelector('.council-notepad-btn')) {
+                            const memberClasses = member.className;
+                            let memberKey = '';
+                            let memberColor = '#4ecdc4';
+
+                            if (memberClasses.includes('member-pattern')) {
+                                memberKey = 'pattern';
+                                memberColor = '#00ff88';
+                            } else if (memberClasses.includes('member-wisdom')) {
+                                memberKey = 'wisdom';
+                                memberColor = '#ffaa00';
+                            } else if (memberClasses.includes('member-paradox')) {
+                                memberKey = 'paradox';
+                                memberColor = '#ff6666';
+                            } else if (memberClasses.includes('member-boundaries')) {
+                                memberKey = 'boundaries';
+                                memberColor = '#00ccff';
+                            } else if (memberClasses.includes('member-memory')) {
+                                memberKey = 'memory';
+                                memberColor = '#ff88ff';
+                            }
+
+                            if (memberKey) {
+                                const notepadBtn = document.createElement('button');
+                                notepadBtn.className = 'council-notepad-btn';
+                                notepadBtn.innerHTML = '📝';
+                                notepadBtn.title = `View ${memberKey.charAt(0).toUpperCase() + memberKey.slice(1)} Notepad`;
+                                notepadBtn.style.cssText = `
+                                    position: absolute;
+                                    top: 5px;
+                                    right: 35px;
+                                    background: rgba(0, 0, 0, 0.2);
+                                    border: 1px solid ${memberColor};
+                                    color: ${memberColor};
+                                    cursor: pointer;
+                                    padding: 2px 6px;
+                                    border-radius: 3px;
+                                    font-size: 12px;
+                                    z-index: 1000;
+                                `;
+                                notepadBtn.onclick = function() { createCouncilNotepadPopup(memberKey); };
+                                member.insertBefore(notepadBtn, member.firstChild);
+                            }
+                        }
+
+                        // Add maximize button (to the right)
+                        const maximizeBtn = document.createElement('button');
+                        maximizeBtn.className = 'panel-maximize-btn';
+                        maximizeBtn.innerHTML = '⛶';
+                        maximizeBtn.title = 'Maximize Member';
+                        maximizeBtn.onclick = function() { toggleMaximize(member, maximizeBtn, 'Member'); };
+                        member.insertBefore(maximizeBtn, member.firstChild);
                     }
                 });
 
@@ -5976,10 +6752,20 @@ RESPONSE CONSTRAINTS:
                 logDjinnEvent('stage', 'Stage 1: Foundation Analysis starting (Pattern & Wisdom members)', { stageMembers: ['pattern', 'wisdom'] });
 
                 // Stage 1: Initial reconnaissance - Pattern & Wisdom establish foundation
+                const stage1InteractionId = `stage1_${Date.now()}`;
+                agentInteractionSystem.startInteraction(
+                    stage1InteractionId,
+                    ['pattern', 'wisdom'],
+                    'crossPollination',
+                    'Stage 1: Foundation Analysis'
+                );
+
                 const stage1 = await Promise.all([
                     queryCouncilMember('pattern', generateCouncilPrompts(analysis).pattern, analysis),
                     queryCouncilMember('wisdom', generateCouncilPrompts(analysis).wisdom, analysis)
                 ]);
+
+                agentInteractionSystem.endInteraction(stage1InteractionId);
 
                 logDjinnEvent('stage', 'Stage 1: Foundation Analysis complete', {
                     patternResponseLength: stage1[0]?.response?.length || 0,
@@ -6004,10 +6790,20 @@ RESPONSE CONSTRAINTS:
                     'boundaries'
                 );
 
+                const stage2InteractionId = `stage2_${Date.now()}`;
+                agentInteractionSystem.startInteraction(
+                    stage2InteractionId,
+                    ['paradox', 'boundaries'],
+                    'crossPollination',
+                    'Stage 2: Cross-Pollinated Analysis'
+                );
+
                 const stage2 = await Promise.all([
                     queryCouncilMember('paradox', enhancedParadoxPrompt, analysis),
                     queryCouncilMember('boundaries', enhancedBoundariesPrompt, analysis)
                 ]);
+
+                agentInteractionSystem.endInteraction(stage2InteractionId);
 
                 logDjinnEvent('stage', 'Stage 2: Cross-Pollinated Analysis complete', {
                     paradoxResponseLength: stage2[0]?.response?.length || 0,
@@ -6027,7 +6823,17 @@ RESPONSE CONSTRAINTS:
                     'memory'
                 );
 
+                const stage3InteractionId = `stage3_${Date.now()}`;
+                agentInteractionSystem.startInteraction(
+                    stage3InteractionId,
+                    ['memory'],
+                    'crossPollination',
+                    'Stage 3: Memory Synthesis'
+                );
+
                 const stage3 = await queryCouncilMember('memory', enhancedMemoryPrompt, analysis);
+
+                agentInteractionSystem.endInteraction(stage3InteractionId);
                 logDjinnEvent('stage', 'Stage 3: Memory Synthesis complete', { memoryResponseLength: stage3?.response?.length || 0 });
 
                 // Collect all responses for consensus generation
@@ -6056,15 +6862,10 @@ RESPONSE CONSTRAINTS:
                 autoSaveIntelligence();
                 logDjinnEvent('intelligence', 'Intelligence auto-save triggered');
 
-                // Generate AI-powered intelligence report using council consensus
+                // Generate AI-powered intelligence report using omniscient agent
                 logDjinnEvent('intelligence', 'AI Intelligence Report generation starting');
-                const intelligenceEntry = await generateIntelligenceEntry(analysis, consensus);
-                logDjinnEvent('intelligence', 'AI Intelligence Report generated', { reportLength: intelligenceEntry?.report?.length || 0 });
-
-                // Store and display the AI-generated intelligence report
-                storeIntelligence(intelligenceEntry);
-                displayIntelligence(intelligenceEntry);
-                logDjinnEvent('intelligence', 'Intelligence report stored and displayed');
+                await generateAIIntelligenceReport();
+                logDjinnEvent('intelligence', 'AI Intelligence Report completed');
                 
             } catch (error) {
                 console.error('Council analysis error:', error);
@@ -6774,11 +7575,31 @@ RESPONSE CONSTRAINTS:
             const validationPrompt = `
 VALIDATION TASK: You are a fact-checker AI. Verify the analysis below against the actual data provided.
 
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous validation improvement:
+- OBSERVATIONS: Record validation patterns, recurring errors, and data discrepancies
+- DIRECTIVES: Note validation rules, fact-checking procedures, and quality standards
+- SELF_PROMPTS: Create questions for deeper verification and follow-up checks
+- SESSION_NOTES: Track validation decisions, evidence found, and report outcomes
+- ORIENTATIONS: Record changes in validation focus and methodology adjustments
+
+INTELLIGENCE OFFICER INPUT SECTION:
+The Intelligence Officer may add strategic insights to your notepad:
+- CORRELATION_INSIGHTS: Cross-system patterns discovered across all agents
+- STRATEGIC_DIRECTIVES: High-level guidance based on ecosystem analysis
+- EMERGENT_CONSENSUS: Agreements building across multiple agents
+- CONFLICT_ALERTS: Contradictions identified between agents requiring attention
+- COLLABORATION_SUGGESTIONS: Recommended interactions with other agents
+
+When you find Intelligence Officer inputs, integrate them into your analysis and reasoning.
+Use your notepad to build expertise over time and improve validation accuracy.
+==========================
+
 === ACTUAL CANVAS DATA ===
 Content Length: ${canvasLength} characters
 Word Count: ${canvasWordCount} words
 Line Count: ${canvasLineCount} lines
-Canvas Content: "${canvasContent.substring(0, 500)}${canvasContent.length > 500 ? '...' : ''}"
+Canvas Content: "${canvasContent}"
 
 === ANALYSIS TO VALIDATE ===
 ${originalResponse}
@@ -6853,13 +7674,26 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
         // Enhanced council member query with AI validation and feedback loop
         async function queryCouncilMemberWithValidation(memberKey, prompt, analysis) {
             const startTime = Date.now(); // Performance tracking
+            const interactionId = `validation_${memberKey}_${Date.now()}`;
 
             try {
                 const member = councilMembers[memberKey];
                 const canvasContent = analysis?.data?.content || '';
                 const maxIterations = 3; // Limit feedback loops to prevent endless iterations
                 let iteration = 1;
-                let currentPrompt = prompt;
+
+                // Start validation interaction visualization
+                agentInteractionSystem.startInteraction(
+                    interactionId,
+                    [memberKey, 'validation'],
+                    'validation',
+                    `${memberKey} validation cycle`
+                );
+
+                // Enhance prompt with council member's notepad context
+                const notepadContext = getCouncilNotepadContext(memberKey);
+                let currentPrompt = prompt + notepadContext;
+
                 let finalResponse = null;
                 let validationHistory = [];
 
@@ -6874,8 +7708,20 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                     // PATTERN RECOGNITION: Analyze report before validation
                     let patternAnalysis = null;
                     if (iteration === 1) { // Only on first attempt to avoid overhead
+                        // Add pattern recognition interaction
+                        const patternInteractionId = `pattern_${memberKey}_${Date.now()}`;
+                        agentInteractionSystem.startInteraction(
+                            patternInteractionId,
+                            [memberKey, 'patternEngine'],
+                            'pattern',
+                            `Pattern analysis for ${memberKey}`
+                        );
+
                         patternAnalysis = await patternRecognitionEngine.prescreenAndRoute(memberKey, response);
                         console.log(`🎯 Pattern prediction for ${memberKey}: ${patternAnalysis.failureProbability}/10 failure risk`);
+
+                        // End pattern interaction
+                        agentInteractionSystem.endInteraction(patternInteractionId);
                     }
 
                     console.log(`🔍 AI-validating ${memberKey} response (iteration ${iteration})...`);
@@ -6891,9 +7737,19 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                     validationSpecialist.recordValidation(memberKey, response, validationResult, iteration);
 
                     // TRIANGULATED VALIDATION: Get refinement specialist coaching
+                    const refinementInteractionId = `refinement_${memberKey}_${Date.now()}`;
+                    agentInteractionSystem.startInteraction(
+                        refinementInteractionId,
+                        [memberKey, 'refinement'],
+                        'validation',
+                        `Refinement coaching for ${memberKey}`
+                    );
+
                     const coachingAnalysis = await refinementSpecialist.analyzeValidationInteraction(
                         memberKey, response, validationResult.notes, iteration
                     );
+
+                    agentInteractionSystem.endInteraction(refinementInteractionId);
 
                     // If validation passed without correction, we have a good report
                     if (validationResult.validated && !validationResult.corrected) {
@@ -6919,6 +7775,15 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                     // If this is the last iteration, escalate to Recovery Agent
                     if (iteration === maxIterations) {
                         console.log(`🚨 ${memberKey} CRITICAL: Triangulated validation failed - escalating to Recovery Agent`);
+
+                        // Start recovery interaction visualization
+                        const recoveryInteractionId = `recovery_${memberKey}_${Date.now()}`;
+                        agentInteractionSystem.startInteraction(
+                            recoveryInteractionId,
+                            [memberKey, 'recovery'],
+                            'recovery',
+                            `Emergency recovery for ${memberKey}`
+                        );
 
                         try {
                             // Emergency intervention by Recovery Agent
@@ -6954,7 +7819,12 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
 
                             console.log(`🚨 Recovery Agent ${recoveryOutcome}: ${memberKey} emergency intervention complete`);
 
+                            // End recovery interaction
+                            agentInteractionSystem.endInteraction(recoveryInteractionId);
+
                         } catch (error) {
+                            // End recovery interaction even on error
+                            agentInteractionSystem.endInteraction(recoveryInteractionId);
                             console.error(`💥 Recovery Agent failed for ${memberKey}:`, error);
 
                             finalResponse = {
@@ -6982,10 +7852,36 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
 
                 // Record performance metrics for efficiency optimization
                 const endTime = Date.now();
+                const efficiencyInteractionId = `efficiency_${memberKey}_${Date.now()}`;
+                agentInteractionSystem.startInteraction(
+                    efficiencyInteractionId,
+                    [memberKey, 'efficiency'],
+                    'efficiency',
+                    `Performance tracking for ${memberKey}`
+                );
+
                 efficiencyOptimizer.recordPerformanceMetrics(memberKey, startTime, endTime, iteration, finalResponse);
+                agentInteractionSystem.endInteraction(efficiencyInteractionId);
 
                 // Track validator performance for QA monitoring
+                const qualityInteractionId = `quality_${memberKey}_${Date.now()}`;
+                agentInteractionSystem.startInteraction(
+                    qualityInteractionId,
+                    [memberKey, 'quality'],
+                    'quality',
+                    `Quality assessment for ${memberKey}`
+                );
+
                 qualityAssuranceMonitor.trackValidatorPerformance(memberKey, finalResponse, endTime - startTime);
+                agentInteractionSystem.endInteraction(qualityInteractionId);
+
+                // Process response for notepad insights
+                if (finalResponse && finalResponse.response) {
+                    processCouncilResponseForNotepad(memberKey, finalResponse.response, analysis);
+                }
+
+                // End main validation interaction
+                agentInteractionSystem.endInteraction(interactionId);
 
                 return finalResponse;
 
@@ -6994,6 +7890,10 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                 // Record failed performance metrics
                 const endTime = Date.now();
                 efficiencyOptimizer.recordPerformanceMetrics(memberKey, startTime, endTime, iteration, { validated: false });
+
+                // End validation interaction on error
+                agentInteractionSystem.endInteraction(interactionId);
+
                 throw error;
             }
         }
@@ -7010,7 +7910,7 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
 Your response has been analyzed by both our Primary Validator and Refinement Specialist for comprehensive improvement guidance.
 
 PREVIOUS RESPONSE:
-${previousResponse.substring(0, 600)}${previousResponse.length > 600 ? '...[truncated]' : ''}
+${previousResponse}
 
 === PRIMARY VALIDATOR FEEDBACK ===
 ${validationResult.notes}
@@ -7792,7 +8692,7 @@ CRITICAL: This iteration includes expert coaching analysis. Apply the specific r
                 .slice(-5) // Maximum 5 relevant memories
                 .map(memory => ({
                     timestamp: new Date(memory.timestamp).toLocaleTimeString(),
-                    analysis: memory.analysis.substring(0, 150),
+                    analysis: memory.analysis,
                     insights: memory.insights.slice(0, 2),
                     relevance: memory.eventType === currentContext.type ? 'high' : 'medium'
                 }));
@@ -8120,7 +9020,7 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                         // Use first meaningful paragraph as fallback
                         const paragraphs = response.split('\n').filter(p => p.trim().length > 50);
                         if (paragraphs.length > 0) {
-                            formattedAnalysis = paragraphs[0].trim().substring(0, 200) + '...';
+                            formattedAnalysis = paragraphs[0].trim();
                         } else {
                             formattedAnalysis = `${memberName} specialized analysis complete`;
                         }
@@ -8227,61 +9127,7 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
         // INTELLIGENCE MANAGEMENT
         // ========================================
 
-        async function generateIntelligenceEntry(analysis, consensus) {
-            const severity = consensus.confidence > 0.8 ? 'critical' :
-                           consensus.confidence > 0.6 ? 'warning' : 'insight';
-
-            // Generate unified AI-powered intelligence report
-            let intelligenceReport;
-            try {
-                intelligenceReport = await generateUnifiedIntelligence(analysis, consensus);
-            } catch (error) {
-                console.error('Intelligence generation failed:', error);
-                intelligenceReport = {
-                    actionable: ['Intelligence synthesis failed', 'Manual analysis required', 'Check system logs'],
-                    correlations: 'Analysis failed due to AI synthesis error',
-                    recommendations: 'Manual intelligence assessment needed',
-                    risk_assessment: 'Unable to assess risks automatically',
-                    strategic_implications: 'Strategic analysis unavailable'
-                };
-            }
-
-            return {
-                id: Date.now(),
-                timestamp: new Date().toISOString(),
-                type: analysis.type || 'intelligence_report',
-                severity: severity,
-                theme: consensus.theme || 'intelligence_synthesis',
-                summary: consensus.summary || 'AI-powered intelligence analysis completed',
-                data: analysis.data,
-                consensus: consensus,
-                actionable: intelligenceReport.actionable,
-                correlations: intelligenceReport.correlations,
-                recommendations: intelligenceReport.recommendations,
-                risk_assessment: intelligenceReport.risk_assessment,
-                strategic_implications: intelligenceReport.strategic_implications
-            };
-        }
-
-        async function generateUnifiedIntelligence(analysis, consensus) {
-            // Forward to omniscient intelligence agent
-            return await generateAIIntelligenceReport();
-        }
-
-        // Intelligence synthesis redirected to omniscient agent
-        validationSpecialist.synthesizeIntelligenceReport = async function(analysis, consensus) {
-            // Validation system now handles consensus only - forward intelligence to omniscient agent
-            const intelligenceReport = await generateAIIntelligenceReport();
-
-            return {
-                actionable: intelligenceReport.actionable || ['Continue monitoring and analysis'],
-                correlations: intelligenceReport.correlations || 'Cross-system analysis in progress',
-                recommendations: intelligenceReport.actionable || ['Review system outputs'],
-                risk_assessment: intelligenceReport.risk_assessment || 'Risk assessment delegated to omniscient intelligence',
-                strategic_implications: intelligenceReport.strategic_implications || 'Strategic analysis by omniscient intelligence agent',
-                synthesis_quality: 'omniscient_agent_delegated'
-            };
-        };
+        // All intelligence generation now handled by generateAIIntelligenceReport() - removed duplicate/competing functions
 
 
         // Refinement Specialist AI Agent - Triangulated Validation Partner
@@ -8293,6 +9139,23 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                 interventionTechniques: [], // Successful coaching methods
                 difficultyAnalysis: {},    // Analysis of why reports fail
                 triangulationResults: []   // Outcomes of 3-way validation
+            },
+
+            // Dynamic notepad for refinement insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
             },
 
             // Load existing memory
@@ -8324,6 +9187,18 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
 
 You are a Refinement Specialist AI - an expert in improving AI-to-AI communication and report quality. Your role is to analyze validation interactions and provide coaching to both the validator and council member.
 
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system with 5 categories. Use it strategically:
+- OBSERVATIONS: Record specific findings, patterns, and data points you discover
+- DIRECTIVES: Note operational instructions, rules, and procedural insights
+- SELF_PROMPTS: Create reminders and questions for future analysis cycles
+- SESSION_NOTES: Track progress, decisions, and outcomes within current session
+- ORIENTATIONS: Record strategic direction changes and contextual shifts
+
+Append to notepad using: this.addNote('category', 'your insight here')
+Include notepad updates in your analysis to maintain continuous learning.
+==========================
+
 === YOUR EXPERTISE ===
 Coaching Sessions: ${this.memory.coachingHistory.length}
 Communication Patterns Known: ${Object.keys(this.memory.communicationPatterns).length}
@@ -8335,7 +9210,7 @@ Attempt Number: ${attempt}
 Original Response Length: ${originalResponse.length} characters
 
 COUNCIL MEMBER RESPONSE:
-${originalResponse.substring(0, 800)}
+${originalResponse}
 
 VALIDATOR FEEDBACK:
 ${validationFeedback}
@@ -8380,7 +9255,7 @@ Provide detailed coaching analysis to improve both parties' performance.`;
                     attempt: attempt,
                     originalLength: originalResponse.length,
                     validationIssues: this.extractValidationIssues(validationFeedback),
-                    coachingProvided: coachingAnalysis.substring(0, 500),
+                    coachingProvided: coachingAnalysis,
                     sessionType: 'triangulated_validation'
                 };
 
@@ -8456,6 +9331,23 @@ Provide detailed coaching analysis to improve both parties' performance.`;
                 successfulRecoveries: []    // Documentation of extreme case resolutions
             },
 
+            // Dynamic notepad for recovery insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
+            },
+
             // Load recovery agent memory
             loadMemory() {
                 try {
@@ -8485,6 +9377,17 @@ Provide detailed coaching analysis to improve both parties' performance.`;
 
 You are the Recovery Agent - the trauma surgeon of the validation system. You handle extreme cases where normal validation and refinement have failed completely.
 
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record extreme case patterns, emergency intervention insights, and recovery success data
+- DIRECTIVES: Note emergency protocols, intervention procedures, and recovery methodologies
+- SELF_PROMPTS: Create questions for deeper emergency analysis and recovery technique refinement
+- SESSION_NOTES: Track emergency progress, intervention outcomes, and recovery results
+- ORIENTATIONS: Record shifts in emergency focus and crisis management priorities
+
+Use your notepad to build emergency response expertise and maintain recovery system continuity.
+==========================
+
 === YOUR EMERGENCY EXPERTISE ===
 Extreme Cases Handled: ${this.memory.extremeCases.length}
 Successful Recoveries: ${this.memory.successfulRecoveries.length}
@@ -8501,7 +9404,7 @@ ${validationHistory.map((h, i) => `
 Attempt ${i+1}:
 - Response Length: ${h.response.length} chars
 - Issues: ${h.validation.corrected ? 'Required AI correction' : 'Failed validation'}
-- Notes: ${h.validation.notes.substring(0, 200)}...
+- Notes: ${h.validation.notes}
 `).join('\n')}
 
 === EMERGENCY DIAGNOSIS REQUIRED ===
@@ -8548,7 +9451,7 @@ Recovery Strategy: ${recoveryStrategy.strategy}
 Root Cause: ${recoveryStrategy.rootCause}
 
 === ORIGINAL TASK (SIMPLIFIED) ===
-${originalPrompt.substring(0, 500)}...
+${originalPrompt}
 
 === EMERGENCY GUIDANCE ===
 ${recoveryStrategy.emergencyGuidance}
@@ -8586,7 +9489,7 @@ Provide the most basic, factual analysis possible to pass validation.`;
                     member: memberKey,
                     attemptCount: validationHistory.length,
                     failurePattern: this.analyzeFailurePattern(validationHistory),
-                    emergencyDiagnosis: emergencyAnalysis.substring(0, 1000),
+                    emergencyDiagnosis: emergencyAnalysis,
                     caseType: 'validation_system_failure'
                 };
 
@@ -8694,6 +9597,23 @@ Recommendation: System administrator review required for this council member con
                 optimalPathways: {}          // Most efficient validation routes
             },
 
+            // Dynamic notepad for pattern insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
+            },
+
             // Load pattern recognition memory
             loadMemory() {
                 try {
@@ -8723,6 +9643,17 @@ Recommendation: System administrator review required for this council member con
 
 You are a Pattern Recognition Engine that predicts validation outcomes before they happen. Analyze this report for early warning signals.
 
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record validation patterns, early warning signals, and prediction accuracy data
+- DIRECTIVES: Note pattern recognition rules, prediction methodologies, and analysis procedures
+- SELF_PROMPTS: Create questions for deeper pattern investigation and prediction refinement
+- SESSION_NOTES: Track pattern evolution, prediction outcomes, and recognition progress
+- ORIENTATIONS: Record shifts in pattern focus and prediction model adjustments
+
+Use your notepad to build pattern recognition expertise and maintain predictive continuity.
+==========================
+
 === PATTERN EXPERTISE ===
 Member Patterns Learned: ${Object.keys(this.memory.validationPatterns).length}
 Routing Decisions Made: ${this.memory.routingDecisions.length}
@@ -8731,7 +9662,7 @@ Early Warning Signals Known: ${this.memory.earlyWarningSignals.length}
 === REPORT ANALYSIS ===
 Council Member: ${councilMembers[memberKey].name}
 Report Length: ${reportContent.length} characters
-Content Preview: ${reportContent.substring(0, 400)}...
+Content Preview: ${reportContent}
 
 === PATTERN RECOGNITION TASKS ===
 
@@ -8805,7 +9736,7 @@ Provide detailed pattern analysis for predictive optimization.`;
                     timestamp: new Date().toISOString(),
                     contentLength: reportContent.length,
                     wordCount: reportContent.split(/\s+/).length,
-                    analysisResult: analysis.substring(0, 500),
+                    analysisResult: analysis,
                     earlyWarnings: this.extractWarnings(analysis)
                 };
 
@@ -8900,6 +9831,23 @@ Provide detailed pattern analysis for predictive optimization.`;
                 optimizationHistory: []         // Successful optimization strategies
             },
 
+            // Dynamic notepad for efficiency insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
+            },
+
             // Load efficiency optimizer memory
             loadMemory() {
                 try {
@@ -8928,6 +9876,17 @@ Provide detailed pattern analysis for predictive optimization.`;
                 const optimizationPrompt = `EFFICIENCY OPTIMIZATION ANALYSIS
 
 You are an Efficiency Optimizer managing validation system workload and performance. Your role is to prevent bottlenecks and optimize resource utilization.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record efficiency patterns, bottleneck discoveries, and optimization insights
+- DIRECTIVES: Note optimization procedures, resource management rules, and performance standards
+- SELF_PROMPTS: Create questions for deeper efficiency analysis and resource optimization
+- SESSION_NOTES: Track optimization progress, performance improvements, and system changes
+- ORIENTATIONS: Record shifts in efficiency focus and resource allocation priorities
+
+Use your notepad to build optimization expertise and maintain performance analysis continuity.
+==========================
 
 === PERFORMANCE EXPERTISE ===
 Optimization Records: ${this.memory.optimizationHistory.length}
@@ -9094,7 +10053,7 @@ Provide comprehensive efficiency analysis for workload optimization.`;
                     activeValidations: validations.length,
                     systemLoad: this.calculateSystemLoad(),
                     memoryUsage: this.estimateMemoryUsage(),
-                    optimizationApplied: analysis.substring(0, 500),
+                    optimizationApplied: analysis,
                     outcome: 'applied'
                 };
 
@@ -9151,6 +10110,23 @@ Provide comprehensive efficiency analysis for workload optimization.`;
                 benchmarkStandards: {}         // Quality benchmarks for comparison
             },
 
+            // Dynamic notepad for quality insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
+            },
+
             // Load QA monitor memory
             loadMemory() {
                 try {
@@ -9179,6 +10155,17 @@ Provide comprehensive efficiency analysis for workload optimization.`;
                 const metaPrompt = `QUALITY ASSURANCE META-ANALYSIS
 
 You are a Quality Assurance Monitor that watches the validation system itself. Your role is to ensure the validators are maintaining high standards and identify system-wide quality issues.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous learning:
+- OBSERVATIONS: Record quality patterns, validator performance insights, and system health data
+- DIRECTIVES: Note quality assurance procedures, monitoring standards, and assessment methodologies
+- SELF_PROMPTS: Create questions for deeper quality analysis and system performance investigation
+- SESSION_NOTES: Track quality progress, monitoring outcomes, and assessment results
+- ORIENTATIONS: Record shifts in quality focus and monitoring priority adjustments
+
+Use your notepad to build quality assurance expertise and maintain system monitoring continuity.
+==========================
 
 === QA EXPERTISE ===
 System Health Metrics: ${this.memory.systemHealthMetrics.length}
@@ -9352,7 +10339,7 @@ Provide comprehensive meta-analysis of validation system quality.`;
                 const metaRecord = {
                     timestamp: new Date().toISOString(),
                     outcomesAnalyzed: outcomes.length,
-                    systemAssessment: analysis.substring(0, 500),
+                    systemAssessment: analysis,
                     qualityScore: this.calculateQualityScore(outcomes)
                 };
 
@@ -9730,45 +10717,93 @@ Provide comprehensive meta-analysis of validation system quality.`;
             // Group reports by analysis round/session
             const analysisRounds = new Map();
 
-            // Collect member reports by timestamp proximity (within 10 minutes = same round)
+            // Enhanced analysis round detection with flexible time windows
+            const ANALYSIS_WINDOW = 20 * 60 * 1000; // 20-minute windows for better grouping
+
+            // Collect member reports and create analysis rounds
             Object.keys(memberReports).forEach(memberKey => {
                 const member = memberReports[memberKey];
                 if (member.reports && member.reports.length > 0) {
                     member.reports.forEach(report => {
                         const timestamp = new Date(report.timestamp).getTime();
-                        const roundKey = Math.floor(timestamp / (10 * 60 * 1000)); // 10-minute windows
 
-                        if (!analysisRounds.has(roundKey)) {
+                        // Find existing round within time window or create new one
+                        let foundRound = null;
+                        for (let [roundKey, round] of analysisRounds) {
+                            const roundTime = new Date(round.timestamp).getTime();
+                            if (Math.abs(timestamp - roundTime) < ANALYSIS_WINDOW) {
+                                foundRound = roundKey;
+                                break;
+                            }
+                        }
+
+                        if (!foundRound) {
+                            // Create new analysis round
+                            const roundKey = `round_${timestamp}`;
                             analysisRounds.set(roundKey, {
                                 timestamp: report.timestamp,
                                 members: {},
                                 consensus: null,
-                                intelligence: null
+                                intelligence: null,
+                                windowStart: timestamp,
+                                windowEnd: timestamp
                             });
+                            foundRound = roundKey;
                         }
 
-                        analysisRounds.get(roundKey).members[memberKey] = report;
+                        const round = analysisRounds.get(foundRound);
+                        round.members[memberKey] = report;
+
+                        // Update time window
+                        round.windowStart = Math.min(round.windowStart, timestamp);
+                        round.windowEnd = Math.max(round.windowEnd, timestamp);
                     });
                 }
             });
 
-            // Match consensus reports to analysis rounds
+            // Enhanced matching for consensus reports with broader time windows
             consensusReports.forEach(consensus => {
-                const timestamp = new Date(consensus.timestamp).getTime();
-                const roundKey = Math.floor(timestamp / (10 * 60 * 1000));
+                const consensusTime = new Date(consensus.timestamp).getTime();
+                let bestMatch = null;
+                let bestDistance = Infinity;
 
-                if (analysisRounds.has(roundKey)) {
-                    analysisRounds.get(roundKey).consensus = consensus;
+                // Find the analysis round with closest timestamp within extended window
+                for (let [roundKey, round] of analysisRounds) {
+                    const roundTime = new Date(round.timestamp).getTime();
+                    const distance = Math.abs(consensusTime - roundTime);
+
+                    // Allow up to 30 minutes for consensus matching
+                    if (distance < 30 * 60 * 1000 && distance < bestDistance) {
+                        bestMatch = roundKey;
+                        bestDistance = distance;
+                    }
+                }
+
+                if (bestMatch) {
+                    analysisRounds.get(bestMatch).consensus = consensus;
                 }
             });
 
-            // Match intelligence reports to analysis rounds
+            // Enhanced matching for intelligence reports with even broader windows
             intelligenceReports.forEach(intel => {
-                const timestamp = new Date(intel.timestamp).getTime();
-                const roundKey = Math.floor(timestamp / (10 * 60 * 1000));
+                const intelTime = new Date(intel.timestamp).getTime();
+                let bestMatch = null;
+                let bestDistance = Infinity;
 
-                if (analysisRounds.has(roundKey)) {
-                    analysisRounds.get(roundKey).intelligence = intel;
+                // Find the analysis round with closest timestamp within extended window
+                for (let [roundKey, round] of analysisRounds) {
+                    const roundTime = new Date(round.timestamp).getTime();
+                    const distance = Math.abs(intelTime - roundTime);
+
+                    // Allow up to 45 minutes for intelligence matching (comes after consensus)
+                    if (distance < 45 * 60 * 1000 && distance < bestDistance) {
+                        bestMatch = roundKey;
+                        bestDistance = distance;
+                    }
+                }
+
+                if (bestMatch) {
+                    analysisRounds.get(bestMatch).intelligence = intel;
                 }
             });
 
@@ -10366,7 +11401,10 @@ Provide comprehensive meta-analysis of validation system quality.`;
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🧞‍♂️ DJINN Council Shadow Governance System v1.0');
             console.log('Accessing shared localStorage at:', window.location.origin);
-            
+
+            // Initialize council dynamic notepad system
+            initializeCouncilNotepads();
+
             // Clear old cached responses to force fresh analysis with improved prompts
             responseCache.clear();
             console.log('Cache cleared - improved analysis prompts enabled');
@@ -11395,6 +12433,131 @@ Provide comprehensive meta-analysis of validation system quality.`;
                 // Correlative analysis
                 correlativeAnalysis: JSON.parse(localStorage.getItem('correlative_analysis_results') || '{}'),
 
+                // 8-Agent Validation Ecosystem Data (with safe access)
+                validationEcosystem: {
+                    primaryValidator: {
+                        memory: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory) || {},
+                        validationCount: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory?.validationHistory?.length) || 0,
+                        successRate: (typeof validationSpecialist !== 'undefined' && validationSpecialist.calculateSuccessRate) ? validationSpecialist.calculateSuccessRate() : 'Not available'
+                    },
+                    refinementSpecialist: {
+                        memory: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.memory) || {},
+                        refinementCount: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.memory?.coachingHistory?.length) || 0,
+                        improvementRate: 'Analysis in progress'
+                    },
+                    recoveryAgent: {
+                        memory: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory) || {},
+                        recoveryCount: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory?.extremeCases?.length) || 0,
+                        extremeCases: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory?.extremeCases?.length) || 0
+                    },
+                    patternEngine: {
+                        memory: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory) || {},
+                        patternsLearned: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory?.validationPatterns) ? Object.keys(patternRecognitionEngine.memory.validationPatterns).length : 0,
+                        predictions: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory?.predictionAccuracy?.length) || 0
+                    },
+                    efficiencyOptimizer: {
+                        memory: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory) || {},
+                        optimizations: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory?.optimizationHistory?.length) || 0
+                    },
+                    qualityMonitor: {
+                        memory: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory) || {},
+                        monitoringCycles: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory?.systemHealthMetrics?.length) || 0
+                    }
+                },
+
+                // Agent Interaction Coordination System Data (with safe access)
+                agentInteractions: {
+                    activeInteractions: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.activeInteractions) ? agentInteractionSystem.activeInteractions.size : 0,
+                    interactionHistory: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.interactionHistory) ? agentInteractionSystem.interactionHistory.length : 0,
+                    lastInteraction: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.interactionHistory && agentInteractionSystem.interactionHistory.length > 0) ?
+                        agentInteractionSystem.interactionHistory[agentInteractionSystem.interactionHistory.length - 1] : null
+                },
+
+                // UNIFIED NOTEPAD CROSS-CORRELATION SYSTEM
+                notepadCorrelationAnalysis: {
+                    // Council member notepads
+                    councilNotepads: Object.keys(djinnCouncilMemory.members || {}).reduce((pads, memberKey) => {
+                        const member = djinnCouncilMemory.members[memberKey];
+                        if (member && member.notepad) {
+                            pads[memberKey] = {
+                                name: councilMembers[memberKey].name,
+                                specialization: councilMembers[memberKey].specialization,
+                                notepad: member.notepad,
+                                totalEntries: Object.values(member.notepad).reduce((sum, category) => sum + category.length, 0)
+                            };
+                        }
+                        return pads;
+                    }, {}),
+
+                    // Validation ecosystem notepads (with safe access)
+                    validationNotepads: {
+                        primaryValidator: {
+                            name: 'Primary Validator',
+                            specialization: 'Fact-checking and validation',
+                            notepad: (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) || {},
+                            totalEntries: (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) ? Object.values(validationSpecialist.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        },
+                        refinementSpecialist: {
+                            name: 'Refinement Specialist',
+                            specialization: 'Communication coaching',
+                            notepad: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) || {},
+                            totalEntries: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) ? Object.values(refinementSpecialist.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        },
+                        recoveryAgent: {
+                            name: 'Recovery Agent',
+                            specialization: 'Emergency intervention',
+                            notepad: (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) || {},
+                            totalEntries: (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) ? Object.values(recoveryAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        },
+                        patternEngine: {
+                            name: 'Pattern Recognition Engine',
+                            specialization: 'Predictive validation',
+                            notepad: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.notepad) || {},
+                            totalEntries: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.notepad) ? Object.values(patternRecognitionEngine.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        },
+                        efficiencyOptimizer: {
+                            name: 'Efficiency Optimizer',
+                            specialization: 'Performance optimization',
+                            notepad: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.notepad) || {},
+                            totalEntries: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.notepad) ? Object.values(efficiencyOptimizer.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        },
+                        qualityMonitor: {
+                            name: 'Quality Assurance Monitor',
+                            specialization: 'System quality monitoring',
+                            notepad: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.notepad) || {},
+                            totalEntries: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.notepad) ? Object.values(qualityAssuranceMonitor.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        },
+                        intelligenceAgent: {
+                            name: 'Intelligence Agent',
+                            specialization: 'Strategic intelligence synthesis',
+                            notepad: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) || {},
+                            totalEntries: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) ? Object.values(intelligenceAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                        }
+                    },
+
+                    // Canvas AI system notepads (from canvas file)
+                    canvasNotepads: {
+                        // These would be loaded from the canvas system if available
+                        djinn: { name: 'DJINN', specialization: 'Governance AI', notepadEntries: 'Available via canvas system' },
+                        nazar: { name: 'NAZAR', specialization: 'Emotional/Fractal AI', notepadEntries: 'Available via canvas system' },
+                        narra: { name: 'NARRA', specialization: 'Pattern Recognition AI', notepadEntries: 'Available via canvas system' },
+                        whale: { name: 'WHALE', specialization: 'Deep Analysis AI', notepadEntries: 'Available via canvas system' },
+                        watchtower: { name: 'WATCHTOWER', specialization: 'Monitoring AI', notepadEntries: 'Available via canvas system' }
+                    },
+
+                    // Cross-correlation metrics
+                    correlationMetrics: {
+                        totalAgentsWithNotepads: Object.keys(djinnCouncilMemory.members || {}).length + 7, // 5 council + 7 validation agents
+                        totalNotepadEntries: Object.values(djinnCouncilMemory.members || {}).reduce((sum, member) => {
+                            if (member.notepad) {
+                                return sum + Object.values(member.notepad).reduce((catSum, category) => catSum + category.length, 0);
+                            }
+                            return sum;
+                        }, 0),
+                        lastAnalysisTimestamp: new Date().toISOString()
+                    }
+                },
+
                 // System performance metrics
                 systemMetrics: {
                     totalMemoryItems: Object.values(JSON.parse(localStorage.getItem('ai_memory_state') || '{}')).reduce((total, system) => {
@@ -11402,7 +12565,9 @@ Provide comprehensive meta-analysis of validation system quality.`;
                     }, 0),
                     evolutionSnapshots: JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').length,
                     activeCouncilMembers: Object.keys(djinnCouncilMemory.members || {}).length,
-                    roundsCompleted: (JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}')).roundsCompleted || 0
+                    roundsCompleted: (JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}')).roundsCompleted || 0,
+                    totalValidationAgents: 8,
+                    validationSystemHealth: 'OPERATIONAL'
                 },
 
                 // System stats - enhanced
@@ -11423,6 +12588,17 @@ Provide comprehensive meta-analysis of validation system quality.`;
         function buildIntelligenceAgentPrompt(question, data) {
             return `You are an expert Data Query Agent with access to the Canvas AI Orchestration System and DJINN Council databases. Answer questions directly using ONLY the data provided below. DO NOT make up numbers, invent details, or speculate beyond what is shown in the data.
 
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system for continuous query improvement:
+- OBSERVATIONS: Record data patterns, user query types, and system insights discovered
+- DIRECTIVES: Note query handling rules, data access procedures, and response guidelines
+- SELF_PROMPTS: Create questions for investigating data relationships and system behavior
+- SESSION_NOTES: Track query outcomes, data quality issues, and user interaction patterns
+- ORIENTATIONS: Record changes in data access patterns and analytical focus areas
+
+Use your notepad to improve query accuracy and data comprehension over time.
+==========================
+
 CRITICAL INSTRUCTIONS:
 - Use ONLY the specific data provided below
 - Reference actual numbers from the system metrics
@@ -11434,12 +12610,12 @@ QUESTION: ${question}
 REAL SYSTEM DATA:
 
 CANVAS SYSTEM:
-Content: ${data.canvasContent.substring(0, 1200)}${data.canvasContent.length > 1200 ? '...' : ''}
+Content: ${data.canvasContent}
 Size: ${data.systemStats.canvasSize} characters (${data.systemStats.wordCount} words)
 Last Updated: ${data.canvasTimestamp}
 
 SYNTHESIS REPORTS:
-Latest Report: ${data.synthesisReport.substring(0, 600)}${data.synthesisReport.length > 600 ? '...' : ''}
+Latest Report: ${data.synthesisReport}
 Last Generated: ${data.systemStats.lastSynthesis}
 Status: ${data.canvasSynthesisStatus.synthesisTriggered ? 'ACTIVE' : 'READY'} | All Complete: ${data.canvasSynthesisStatus.allComplete ? 'YES' : 'NO'}
 Progress: ${data.synthesisProgress}
@@ -11468,19 +12644,65 @@ ${reports.map((report, index) => {
     }).join('\n')}`;
 }).join('\n\n')}
 
+8-AGENT VALIDATION ECOSYSTEM:
+Primary Validator: ${data.validationEcosystem.primaryValidator.validationCount} validations, ${data.validationEcosystem.primaryValidator.successRate}% success rate
+Refinement Specialist: ${data.validationEcosystem.refinementSpecialist.refinementCount} refinements performed
+Recovery Agent: ${data.validationEcosystem.recoveryAgent.recoveryCount} emergency recoveries, ${data.validationEcosystem.recoveryAgent.extremeCases} extreme cases
+Pattern Engine: ${data.validationEcosystem.patternEngine.patternsLearned} patterns learned, ${data.validationEcosystem.patternEngine.predictions} predictions made
+Efficiency Optimizer: ${data.validationEcosystem.efficiencyOptimizer.optimizations} optimizations applied
+Quality Monitor: ${data.validationEcosystem.qualityMonitor.monitoringCycles} monitoring cycles completed
+
+AGENT INTERACTION COORDINATION SYSTEM:
+Active Interactions: ${data.agentInteractions.activeInteractions}
+Interaction History: ${data.agentInteractions.interactionHistory} total interactions logged
+Last Interaction: ${data.agentInteractions.lastInteraction ? `${data.agentInteractions.lastInteraction.type} between ${data.agentInteractions.lastInteraction.agents.join(', ')}` : 'No recent interactions'}
+
+UNIFIED NOTEPAD CROSS-CORRELATION ANALYSIS:
+Total Agents with Notepads: ${data.notepadCorrelationAnalysis.correlationMetrics.totalAgentsWithNotepads}
+Total Notepad Entries: ${data.notepadCorrelationAnalysis.correlationMetrics.totalNotepadEntries}
+
+COUNCIL MEMBER NOTEPADS:
+${Object.entries(data.notepadCorrelationAnalysis.councilNotepads).map(([key, agent]) => `• ${agent.name} (${agent.specialization}): ${agent.totalEntries} entries
+  - Observations: ${agent.notepad.observations ? agent.notepad.observations.length : 0}
+  - Directives: ${agent.notepad.directives ? agent.notepad.directives.length : 0}
+  - Self-Prompts: ${agent.notepad.selfPrompts ? agent.notepad.selfPrompts.length : 0}
+  - Session Notes: ${agent.notepad.sessionNotes ? agent.notepad.sessionNotes.length : 0}
+  - Orientations: ${agent.notepad.orientations ? agent.notepad.orientations.length : 0}`).join('\n')}
+
+VALIDATION ECOSYSTEM NOTEPADS:
+${Object.entries(data.notepadCorrelationAnalysis.validationNotepads).map(([key, agent]) => `• ${agent.name} (${agent.specialization}): ${agent.totalEntries} entries
+  - Observations: ${agent.notepad.observations ? agent.notepad.observations.length : 0}
+  - Directives: ${agent.notepad.directives ? agent.notepad.directives.length : 0}
+  - Self-Prompts: ${agent.notepad.selfPrompts ? agent.notepad.selfPrompts.length : 0}
+  - Session Notes: ${agent.notepad.sessionNotes ? agent.notepad.sessionNotes.length : 0}
+  - Orientations: ${agent.notepad.orientations ? agent.notepad.orientations.length : 0}`).join('\n')}
+
 SYSTEM PERFORMANCE:
 Evolution Snapshots: ${data.systemMetrics.evolutionSnapshots}
 Memory Items: ${data.systemMetrics.totalMemoryItems}
 Intelligence Reports: ${data.intelligenceReports.length}
 Surveillance Data: ${Object.keys(data.surveillanceState).length} metrics tracked
+Validation System: ${data.systemMetrics.validationSystemHealth} (${data.systemMetrics.totalValidationAgents} agents)
+
+NOTEPAD CROSS-CORRELATION CAPABILITIES:
+You have access to ALL agent notepads across the entire ecosystem. Use this for:
+- TREND ANALYSIS: Identify recurring themes across multiple agents' observations
+- CONSENSUS DETECTION: Spot emerging agreements that haven't been formally realized
+- CONFLICT IDENTIFICATION: Find contradictions or tensions between different agents' insights
+- KNOWLEDGE GAPS: Identify areas where agents are asking similar self-prompts
+- SYSTEM EVOLUTION: Track how agent thinking is evolving across orientations
+- COLLABORATION OPPORTUNITIES: Suggest which agents should interact based on complementary insights
 
 RESPONSE REQUIREMENTS:
 - Answer conversationally and explain what data IS available at this system stage
 - Use exact numbers from the system metrics provided
+- When analyzing notepad correlations, cite specific agents and their insights
+- PROACTIVELY identify cross-agent patterns, trends, and emerging theories
+- Highlight unrealized consensus building across multiple agents
 - When data doesn't exist, explain WHY (e.g., "No council reports yet - analysis hasn't started", "Canvas is empty - no content to analyze")
 - Provide context about system workflow: Canvas → Council Analysis → Consensus → Intelligence → Canvas cycle
 - If asking about unavailable data, suggest what needs to happen first (e.g., "Add canvas content first", "Run council analysis", "Generate consensus")
-- Keep responses under 400 words and be helpful about system status
+- Keep responses comprehensive but organized with clear sections for different types of analysis
 
 Answer the question now, explaining both available data AND system context for unavailable data:`;
         }
@@ -11585,9 +12807,205 @@ Keep response focused and under 500 words. Structure with clear sections as show
             }
         }
 
+        // ========================================
+        // INTELLIGENCE AGENT WITH DYNAMIC NOTEPAD
+        // ========================================
+
+        const intelligenceAgent = {
+            sessionId: `intelligence_${Date.now()}`,
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER COORDINATION LOG
+                coordinationLog: {
+                    injectionHistory: [],     // Record of all notepad injections made
+                    correlationFindings: [],  // Major cross-system discoveries
+                    systemEvolution: [],      // How the ecosystem is evolving
+                    emergentPatterns: [],     // New patterns detected across agents
+                    interventionOutcomes: []  // Results of intelligence interventions
+                }
+            },
+
+            // Add insight to intelligence agent notepad
+            addNote(category, content, metadata = {}) {
+                const note = {
+                    id: Date.now() + Math.random(),
+                    timestamp: new Date().toISOString(),
+                    content: content,
+                    metadata: metadata,
+                    priority: metadata.priority || 'normal'
+                };
+
+                if (this.notepad[category]) {
+                    this.notepad[category].push(note);
+                    if (this.notepad[category].length > 50) {
+                        this.notepad[category] = this.notepad[category].slice(-50);
+                    }
+                    console.log(`📝 Intelligence Agent notepad: ${category} - ${content.substring(0, 40)}...`);
+                }
+            },
+
+            // Get notepad context for intelligence generation
+            getNotepadContext() {
+                let context = `\n\n📝 INTELLIGENCE AGENT NOTEPAD:\n`;
+
+                if (this.notepad.observations.length > 0) {
+                    context += `\n🔍 Strategic Observations:\n`;
+                    this.notepad.observations.slice(-3).forEach(note => {
+                        context += `• ${note.content}\n`;
+                    });
+                }
+
+                if (this.notepad.directives.length > 0) {
+                    context += `\n🎯 Intelligence Directives:\n`;
+                    this.notepad.directives.slice(-3).forEach(note => {
+                        context += `• ${note.content}\n`;
+                    });
+                }
+
+                if (this.notepad.orientations.length > 0) {
+                    context += `\n🧭 Strategic Orientations:\n`;
+                    this.notepad.orientations.slice(-2).forEach(note => {
+                        context += `• ${note.content}\n`;
+                    });
+                }
+
+                context += `\n⚡ INTELLIGENCE DIRECTIVE: Use these insights to inform comprehensive strategic intelligence synthesis. Add new observations about cross-system patterns and strategic implications.\n`;
+                return context;
+            },
+
+            // DIRECT NOTEPAD INJECTION SYSTEM
+            injectInsight(targetAgent, targetAgentType, category, content, priority = 'normal') {
+                const injection = {
+                    id: `injection_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    timestamp: new Date().toISOString(),
+                    priority: priority,
+                    content: `[INTELLIGENCE OFFICER] ${content}`,
+                    targetAgent: targetAgent,
+                    targetAgentType: targetAgentType,
+                    category: category,
+                    source: 'cross_correlation_analysis'
+                };
+
+                // Log injection in intelligence agent's coordination log
+                if (this.notepad.coordinationLog && this.notepad.coordinationLog.injectionHistory) {
+                    this.notepad.coordinationLog.injectionHistory.push(injection);
+                }
+
+                // Inject into target agent's notepad
+                if (targetAgentType === 'council') {
+                    // Council member injection
+                    if (djinnCouncilMemory.members[targetAgent] && djinnCouncilMemory.members[targetAgent].notepad) {
+                        if (!djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs[category]) {
+                            djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs[category] = [];
+                        }
+                        djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs[category].push(injection);
+                        console.log(`🎯 Intelligence injection → ${councilMembers[targetAgent].name}: ${category} - ${content.substring(0, 50)}...`);
+                    }
+                } else if (targetAgentType === 'validation') {
+                    // Validation ecosystem injection
+                    const validationAgents = {
+                        primary: validationSpecialist,
+                        refinement: refinementSpecialist,
+                        recovery: recoveryAgent,
+                        pattern: patternRecognitionEngine,
+                        efficiency: efficiencyOptimizer,
+                        quality: qualityAssuranceMonitor
+                    };
+
+                    if (validationAgents[targetAgent] && validationAgents[targetAgent].notepad) {
+                        if (!validationAgents[targetAgent].notepad.intelligenceInputs[category]) {
+                            validationAgents[targetAgent].notepad.intelligenceInputs[category] = [];
+                        }
+                        validationAgents[targetAgent].notepad.intelligenceInputs[category].push(injection);
+                        console.log(`🎯 Intelligence injection → ${targetAgent} validation agent: ${category} - ${content.substring(0, 50)}...`);
+                    }
+                }
+
+                return injection.id;
+            },
+
+            // Bulk inject insights to multiple agents
+            broadcastInsight(category, content, targetAgents = 'all', priority = 'normal') {
+                const injectionIds = [];
+
+                if (targetAgents === 'all' || (Array.isArray(targetAgents) && targetAgents.includes('council'))) {
+                    // Inject to all council members
+                    Object.keys(djinnCouncilMemory.members).forEach(memberKey => {
+                        const id = this.injectInsight(memberKey, 'council', category, content, priority);
+                        injectionIds.push(id);
+                    });
+                }
+
+                if (targetAgents === 'all' || (Array.isArray(targetAgents) && targetAgents.includes('validation'))) {
+                    // Inject to all validation agents
+                    ['primary', 'refinement', 'recovery', 'pattern', 'efficiency', 'quality'].forEach(agentKey => {
+                        const id = this.injectInsight(agentKey, 'validation', category, content, priority);
+                        injectionIds.push(id);
+                    });
+                }
+
+                console.log(`📡 Intelligence broadcast: ${category} to ${targetAgents} agents - "${content.substring(0, 50)}..."`);
+                return injectionIds;
+            }
+        };
+
+        // Process intelligence response for notepad insights
+        function processIntelligenceResponseForNotepad(response, systemMetrics) {
+            // Extract key insights for intelligence agent notepad
+            const strategicKeywords = ['strategic', 'critical', 'urgent', 'recommend', 'suggest', 'important'];
+            const observationKeywords = ['identified', 'discovered', 'pattern', 'trend', 'correlation', 'insight'];
+            const directionKeywords = ['should', 'must', 'need to', 'focus on', 'prioritize', 'monitor'];
+
+            const sentences = response.split(/[.!?]+/).filter(s => s.trim().length > 30);
+
+            sentences.forEach(sentence => {
+                const lowerSentence = sentence.toLowerCase();
+
+                // Auto-capture strategic observations
+                if (observationKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    intelligenceAgent.addNote('observations', sentence.trim(), {
+                        autoGenerated: true,
+                        reportMetrics: systemMetrics,
+                        priority: 'high'
+                    });
+                }
+
+                // Auto-capture strategic directives
+                if (directionKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    intelligenceAgent.addNote('directives', sentence.trim(), {
+                        autoGenerated: true,
+                        reportMetrics: systemMetrics,
+                        priority: 'high'
+                    });
+                }
+
+                // Auto-capture strategic orientations
+                if (strategicKeywords.some(keyword => lowerSentence.includes(keyword))) {
+                    intelligenceAgent.addNote('orientations', sentence.trim(), {
+                        autoGenerated: true,
+                        reportMetrics: systemMetrics,
+                        priority: 'medium'
+                    });
+                }
+            });
+        }
+
         async function generateAIIntelligenceReport() {
             console.log('🎯 Generating AI Intelligence Report with OMNISCIENT data synthesis...');
             updateCouncilStatus('GENERATING INTELLIGENCE');
+
+            // Start intelligence synthesis interaction
+            const intelligenceInteractionId = `intelligence_synthesis_${Date.now()}`;
+            agentInteractionSystem.startInteraction(
+                intelligenceInteractionId,
+                ['intelligence'],
+                'intelligence',
+                'AI Intelligence Report Generation'
+            );
 
             // ========================================
             // COMPREHENSIVE DATA GATHERING - EVERYTHING
@@ -11681,7 +13099,24 @@ Keep response focused and under 500 words. Structure with clear sections as show
             // OMNISCIENT AI INTELLIGENCE PROMPT
             // ========================================
 
+            // Get intelligence agent notepad context
+            const intelligenceNotepadContext = intelligenceAgent.getNotepadContext();
+
             const intelligencePrompt = `You are the AI Intelligence Report Generator with OMNISCIENT ACCESS to the complete Canvas AI Orchestration System and DJINN Council ecosystem. You see EVERYTHING across both systems and all databases.
+
+=== NOTEPAD SYSTEM USAGE ===
+You have a dynamic notepad system with 5 categories for continuous intelligence enhancement:
+- OBSERVATIONS: Critical intelligence findings, anomalies, and system behavior patterns
+- DIRECTIVES: Strategic intelligence priorities and analysis methodologies
+- SELF_PROMPTS: Questions for deeper investigation and follow-up analysis
+- SESSION_NOTES: Intelligence cycle progress, key decisions, and report outcomes
+- ORIENTATIONS: Threat landscape changes and strategic focus adjustments
+
+Update your notepad during analysis to build intelligence over time.
+Your notepad context is automatically included in prompts for continuity.
+==========================
+
+${intelligenceNotepadContext}
 
 === CANVAS SYSTEM COMPLETE DATA ===
 Canvas Document (${systemMetrics.canvasSize} chars, ${systemMetrics.canvasWords} words):
@@ -11754,13 +13189,16 @@ Include confidence levels and supporting trend analysis
 Key data points that support major findings with confidence assessments
 Cross-reference multiple data sources for validation
 
-Focus on strategic intelligence that leverages your complete omniscient view. Use specific metrics, patterns, and cross-system correlations. Maximum 1000 words but make every word count with dense, actionable intelligence.`;
+Focus on strategic intelligence that leverages your complete omniscient view. Use specific metrics, patterns, and cross-system correlations. Provide comprehensive analysis without word limits - thoroughness over brevity for complete intelligence coverage.`;
 
             try {
                 const intelligenceResponse = await queryOllama('gemma3:1b', intelligencePrompt);
 
                 // Parse and structure the intelligence report
                 const intelligenceReport = parseIntelligenceReport(intelligenceResponse, systemMetrics, validationEcosystem);
+
+                // Process intelligence response for notepad insights
+                processIntelligenceResponseForNotepad(intelligenceResponse, systemMetrics);
 
                 // Display the intelligence report
                 displayIntelligence(intelligenceReport);
@@ -11786,10 +13224,21 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 localStorage.setItem('djinn_intelligence', JSON.stringify(surveillanceState.intelligenceReports));
 
                 console.log('🎯 OMNISCIENT AI Intelligence Report completed with full ecosystem analysis');
+
+                // Trigger canvas polling cycle
+                triggerCanvasPollingCycle();
+
+                // End intelligence synthesis interaction
+                agentInteractionSystem.endInteraction(intelligenceInteractionId);
+
                 return intelligenceReport;
 
             } catch (error) {
                 console.error('❌ AI Intelligence Report generation failed:', error);
+
+                // End intelligence synthesis interaction on error
+                agentInteractionSystem.endInteraction(intelligenceInteractionId);
+
                 const errorReport = {
                     summary: 'SYSTEM ERROR: Omniscient intelligence analysis unavailable - AI system connectivity failure',
                     risk_assessment: 'CRITICAL: Intelligence generation system offline',
@@ -11811,7 +13260,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 timestamp: new Date().toISOString(),
 
                 // Core intelligence data - try to parse sections first, fall back to full response if needed
-                summary: extractSection(response, 'EXECUTIVE_SUMMARY') || response.substring(0, 500) || 'Intelligence analysis completed',
+                summary: extractSection(response, 'EXECUTIVE_SUMMARY') || response || 'Intelligence analysis completed',
                 risk_assessment: extractSection(response, 'COMPREHENSIVE_THREAT_ASSESSMENT') || 'Risk assessment analysis in progress',
                 strategic_analysis: extractSection(response, 'STRATEGIC_CROSS_SYSTEM_ANALYSIS') || 'Strategic analysis leveraging system data',
                 actionable: parseActionableItems(extractSection(response, 'ACTIONABLE_INTELLIGENCE')) || ['Review system performance', 'Monitor validation metrics'],
@@ -11837,7 +13286,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
 
             // Extract numbered or bulleted items
             const items = text.split(/\n\s*[-•\d\.]\s*/).filter(item => item.trim().length > 0);
-            return items.length > 0 ? items : [text.substring(0, 300)];
+            return items.length > 0 ? items : [text];
         }
 
         function displayConsensusReport(consensusContent) {
