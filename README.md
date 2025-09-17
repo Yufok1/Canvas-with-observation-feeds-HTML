@@ -1,6 +1,6 @@
 # 🜂 Canvas AI Orchestration System
 
-A comprehensive web-based platform for real-time AI collaboration, analysis, and intelligence synthesis. This system provides a sovereign workspace integrated with multiple specialized AI agents, delivering collaborative intelligence through event-driven architecture and cross-system correlation analysis.
+A comprehensive web-based platform for real-time AI collaboration, analysis, and intelligence synthesis. This system provides a workspace integrated with multiple specialized AI agents, delivering collaborative intelligence through event-driven architecture and cross-system correlation analysis.
 
 ## 🌟 Visual README
 **Experience the Enhanced Visual Documentation**: [https://yufok1.github.io/Canvas-with-observation-feeds-HTML/](https://yufok1.github.io/Canvas-with-observation-feeds-HTML/)
@@ -33,22 +33,24 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 - **Dynamic User Response Integration**: Interactive UI elements with polls, rating scales, and strategic questionnaires
 - **Agent-Agnostic Query Systems**: Universal inquiry templates applicable across all AI agents
 - **Memory-Integrated Learning**: User responses stored in agent-specific memory systems for continuous improvement
+- **Intelligence Officer Auto-Response**: AI-powered automatic responses to Canvas agent queries using correlative analysis
 
 ### Dynamic Model Management
-- **Universal Model Selection**: Dynamic model switching across all agents from personal Ollama database
+- **Universal Model Selection**: Dynamic model switching across all agents from Ollama model database
 - **Cross-System Synchronization**: Real-time model selection sync between Canvas and Council interfaces
 - **Storage Event Coordination**: Automatic dropdown updates across multiple browser windows/tabs
-- **Zero Hardcoded Dependencies**: Complete elimination of static model assignments
+- **Cloud Integration**: Compatible with local Ollama instances and Ollama Turbo cloud service for 120B-671B parameter models
+- **Validation System Integration**: All agents including validation ecosystem use selected model
 
 ## 🚀 System Architecture
 
 ### Dual Operating Modes
 - **Standalone Canvas Mode**: Independent 5-AI analysis with continuous auto-polling and memory continuity
-- **Council-Integrated Intelligence Mode**: Canvas + DJINN Council surveillance with event-driven coordination and zero truncation policy
+- **Council-Integrated Intelligence Mode**: Canvas + DJINN Council surveillance with event-driven coordination and comprehensive data access
 
 ### Technical Infrastructure
-- **Event-Driven Processing**: Activation only on notepad updates and synthesis events
-- **Zero Truncation Policy**: Complete data access without artificial limits
+- **Event-Driven Processing**: Activation only on notepad updates and synthesis events with cycle prevention
+- **Zero Truncation Policy**: Complete data access without artificial limitations
 - **Memory Networks**: Persistent learning across sessions with localStorage management
 - **Real-Time Cross-Window Communication**: Synchronized operation between Canvas and Council interfaces
 - **Intelligent Export Systems**: Time-window matched analysis packages with dynamic grouping logic
@@ -59,11 +61,12 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 - **Emergency Recovery Protocols**: Specialized handling of extreme validation edge cases
 - **Performance Optimization**: Smart workload distribution and bottleneck prevention
 - **Meta-Validation Monitoring**: Quality assurance for the validation system itself
+- **Intelligence Officer Validation**: Strategic intelligence reports undergo same validation as Council members
 
 ## 🎯 Core Features
 
 ### Canvas Workspace
-- **Sovereign Canvas**: User-controlled workspace for observations and strategic assessments
+- **Workspace**: User-controlled workspace for observations and strategic assessments
 - **Live AI Intelligence Streams**: Real-time feeds from specialized analysis systems
 - **Interactive Synthesis Engine**: Multi-system collaborative analysis with unified synthesis
 - **Memory Continuity**: Conversational persistence across sessions with intelligent caching
@@ -75,48 +78,53 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 - **Anti-Hallucination Architecture**: Strict data-only analysis preventing fabricated metrics and system states
 - **Real-Time localStorage Monitoring**: Complete access to system data including AI conversation histories and synthesis content
 - **Comprehensive Ecosystem Analysis**: Strategic intelligence covering document evolution, memory trends, and insight synthesis
+- **Responsive Panel Design**: Consistent panel sizing during zoom operations (CTRL+mousewheel)
 
 ### Advanced Analysis Capabilities
-- **Hierarchical Governance**: NAZAR-led triage council with DJINN oversight and authorization
-- **Behavioral Analysis**: Mouse tracking and user engagement pattern analysis
+- **Hierarchical Governance**: Multi-layer council with oversight and authorization
+- **Behavioral Analysis**: User engagement pattern analysis
 - **Real-Time Performance Metrics**: System health monitoring and correlation analysis
 - **Content Complexity Detection**: Dynamic domain analysis with intelligent refresh triggers
 - **Proactive AI Engagement**: Content-pattern-based conversation initiation
+- **Canvas Query Auto-Response**: Intelligence Officer automatically responds to Canvas AI interactive queries
 
 ### User Interface Excellence
-- **Dynamic GUI Scaling**: CTRL + mousewheel resizing for optimal viewing
-- **Professional Launch Experience**: Automated batch files with ASCII art startup sequences
+- **Dynamic GUI Scaling**: CTRL + mousewheel resizing for optimal viewing with consistent panel layout
+- **Professional Launch Experience**: Automated batch files with startup sequences
 - **Real-Time Status Indicators**: Live AI system confidence and processing state monitoring
-- **Square Grid Layout**: Optimized space utilization with full-height panel design
-- **Extended Operation Timeouts**: 10-20 minute timeouts for complex AI operations
+- **Responsive Layout**: Optimized space utilization with adaptive design using CSS Grid minmax()
+- **Extended Operation Timeouts**: Extended timeouts for complex AI operations
 
 ## ⚙️ Technical Specifications
 
 ### System Requirements
-- **Operating System**: Windows 10/11
+- **Operating System**: Windows 10/11, macOS, Linux
 - **RAM**: 4GB minimum, 8GB recommended for optimal performance
-- **Storage**: 2GB free space for Ollama models
-- **Network**: Local Ollama connection (localhost:11434)
+- **Storage**: 2GB free space for model caching
+- **AI Backend**: Ollama (local or cloud)
 - **Browser**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
 ### AI Model Compatibility
-- **Universal Model Support**: Compatible with any Ollama-supported AI model
-- **Dynamic Model Assignment**: Real-time switching between different models
+- **Local Models**: Any Ollama-compatible model (1B to 70B+ parameters)
+- **Cloud Integration**: Ollama Turbo support for 120B-671B parameter models
+- **Dynamic Model Assignment**: Real-time switching between different models across all agents
 - **Performance Optimization**: Configurable timeouts and polling intervals based on model capabilities
 - **Memory Management**: Intelligent caching with model-specific optimization
+- **GPU Acceleration**: Automatic GPU detection and utilization for optimal performance
 
 ### Data Architecture
-- **Local-Only Processing**: All AI operations and data storage remain strictly local
-- **Browser localStorage**: Persistent data management with quota monitoring
-- **Intelligent Caching**: Map-based response caching with configurable durations
+- **Local-First Processing**: All AI operations and data storage remain local by default
+- **Browser localStorage**: Persistent data management with quota monitoring and compression
+- **Intelligent Caching**: Response caching with configurable durations
 - **Activity-Based Polling**: Dynamic update intervals based on user engagement patterns
+- **Error Handling**: Comprehensive localStorage quota management and graceful degradation
 
 ## 🚀 Quick Start
 
 ### Professional Launch (Recommended)
 1. **Download Repository**: Clone or download the Canvas AI Orchestration System
 2. **Install Ollama**: Download from https://ollama.ai/ and install
-3. **Pull AI Models**: Use `ollama pull [model-name]` for desired models
+3. **Pull AI Models**: Use `ollama pull [model-name]` for desired models (e.g., qwen2.5:1.5b)
 4. **Launch System**: Double-click `LAUNCH_CANVAS_SURVEILLANCE.bat` for full intelligence ecosystem
 
 ### Manual Setup Alternative
@@ -145,34 +153,37 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 - **Cross-System Communication**: Seamless data flow between Canvas and Council interfaces
 - **Memory Integration**: Persistent learning with conversation history and insight accumulation
 - **Performance Monitoring**: Real-time system health and correlation analysis
-- **Strategic Oversight**: DJINN governance with autonomous decision-making capabilities
+- **Strategic Oversight**: Governance with autonomous decision-making capabilities
+- **Automated Intelligence**: Intelligence Officer provides strategic insights and query responses
 
 ## 🔧 Configuration & Customization
 
 ### Model Assignment
 Models are dynamically selected through the Universal Model Selector, supporting any Ollama-compatible model including:
-- **Language Models**: llama3.2, gemma3, mistral, codellama
+- **Language Models**: llama3.2, gemma3, mistral, codellama, qwen2.5, deepseek
+- **Cloud Models**: 120B-671B parameter models via Ollama Turbo
 - **Specialized Models**: Technical analysis, creative writing, code generation
-- **Performance Tiers**: 1B parameters (speed) to 70B+ parameters (quality)
+- **Performance Tiers**: 1B parameters (speed) to 671B parameters (maximum capability)
 
 ### System Optimization
 - **Caching Configuration**: Adjustable response, context, and synthesis cache durations
 - **Polling Intervals**: Activity-based timing from 2 minutes (active) to 10 minutes (idle)
-- **Memory Management**: Configurable localStorage limits with automatic cleanup
+- **Memory Management**: Configurable localStorage limits with automatic cleanup and compression
 - **Performance Tuning**: Concurrent request limits and timeout adjustments
+- **Validation Controls**: Enable/disable validation layers for different performance profiles
 
 ## 🛡️ Security & Privacy
 
-### Local-Only Architecture
-- **No External Servers**: All processing occurs locally on user machine
-- **Data Sovereignty**: Complete user control over all data and AI interactions
-- **Network Isolation**: Only localhost connections for AI model communication
-- **Browser Security**: Standard web security model with localStorage encryption
+### Local-First Architecture
+- **Local Processing**: All processing occurs locally by default
+- **Data Control**: Complete user control over all data and AI interactions
+- **Network Isolation**: Only localhost connections for local AI model communication
+- **Browser Security**: Standard web security model with localStorage management
 
 ### Privacy Protection
-- **No Data Transmission**: Zero external data sharing or cloud connectivity
+- **No Mandatory Data Transmission**: Local-first approach with optional cloud integration
 - **User Control**: Complete authority over data retention and deletion
-- **Session Isolation**: Independent operation without external dependencies
+- **Session Management**: Independent operation with flexible deployment options
 
 ## 📖 Documentation & Support
 
@@ -222,7 +233,7 @@ Intelligence Officer (Cross-System Coordination)
 ### Interface Design
 - **Cyberpunk Aesthetics**: Matrix-inspired visual design with professional functionality
 - **Real-Time Feedback**: Visual indicators for AI processing states and system health
-- **Responsive Layout**: Dynamic scaling and optimization for different screen sizes
+- **Responsive Layout**: Dynamic scaling and optimization for different screen sizes with CSS Grid
 - **Color-Coded Systems**: Distinct visual identity for different AI agents and functions
 
 ### Animation & Effects
@@ -236,7 +247,7 @@ Intelligence Officer (Cross-System Coordination)
 ### System Monitoring
 - **Real-Time Metrics**: Live performance tracking and resource utilization
 - **AI Response Analytics**: Quality assessment and processing time monitoring
-- **Memory Usage Tracking**: localStorage optimization and quota management
+- **Memory Usage Tracking**: localStorage optimization and quota management with compression
 - **Cross-System Correlation**: Intelligence flow analysis between Canvas and Council
 
 ### Optimization Features
@@ -244,6 +255,7 @@ Intelligence Officer (Cross-System Coordination)
 - **Parallel Processing**: Concurrent AI operations for improved efficiency
 - **Resource Management**: Automatic cleanup and memory optimization
 - **Performance Scaling**: Dynamic adjustment based on system capabilities
+- **Error Recovery**: Robust error handling with graceful degradation
 
 ## 🤝 Contributing & Development
 
@@ -256,12 +268,12 @@ Intelligence Officer (Cross-System Coordination)
 ### Code Standards
 - **Semantic HTML5**: Proper document structure and accessibility
 - **Modular JavaScript**: Separation of concerns and maintainable code architecture
-- **CSS Organization**: Consistent styling with responsive design principles
+- **CSS Organization**: Consistent styling with responsive design principles using CSS Grid
 - **Documentation**: Comprehensive commenting and technical documentation
 
 ## 📄 License & Usage
 
-This project is provided for educational and research purposes. Users must ensure compliance with Ollama's licensing terms and applicable AI usage policies. All AI processing and data storage occur locally with no external dependencies.
+This project is provided for educational and research purposes. Users must ensure compliance with applicable AI usage policies. All AI processing and data storage can occur locally with optional cloud integration.
 
 ---
 

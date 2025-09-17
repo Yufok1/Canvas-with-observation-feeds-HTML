@@ -3065,6 +3065,23 @@
                 systemHarmony: 0
             },
 
+            // Dynamic notepad for cross-system insights
+            notepad: {
+                observations: [],
+                directives: [],
+                selfPrompts: [],
+                sessionNotes: [],
+                orientations: [],
+                // INTELLIGENCE OFFICER INPUT SECTION
+                intelligenceInputs: {
+                    correlationInsights: [],  // Cross-system pattern discoveries
+                    strategicDirectives: [],  // Strategic guidance from intelligence analysis
+                    emergentConsensus: [],    // Emerging agreements spotted across agents
+                    conflictAlerts: [],       // Contradictions identified in ecosystem
+                    collaborationSuggestions: [] // Recommended agent interactions
+                }
+            },
+
             // Initialize correlation engine
             initialize: function() {
                 console.log('🔗 Initializing Cross-System Correlation Engine');
@@ -3110,6 +3127,33 @@
                 this.correlationHistory.push(correlations);
                 if (this.correlationHistory.length > 100) {
                     this.correlationHistory.shift(); // Keep last 100 analyses
+                }
+
+                // Add notepad entries for correlation analysis
+                if (correlations.emergingPatterns.length > 0) {
+                    this.notepad.observations.push({
+                        timestamp: new Date().toISOString(),
+                        content: `🔗 EMERGING PATTERNS detected: ${correlations.emergingPatterns.slice(0, 3).join(', ')}. Cross-system correlation strength: ${correlations.crossCorrelations.strength || 'moderate'}`,
+                        priority: correlations.emergingPatterns.length > 2 ? 'high' : 'normal'
+                    });
+                }
+
+                if (correlations.conflictAnalysis.conflicts && correlations.conflictAnalysis.conflicts.length > 0) {
+                    this.notepad.directives.push({
+                        timestamp: new Date().toISOString(),
+                        content: `⚠️ CROSS-SYSTEM CONFLICTS identified: ${correlations.conflictAnalysis.conflicts.slice(0, 2).join(', ')}. Recommend strategic intervention to resolve divergence.`,
+                        priority: 'high'
+                    });
+                }
+
+                // Track correlation analysis frequency
+                if (this.correlationHistory.length % 25 === 0) {
+                    const recentHarmony = this.correlationHistory.slice(-10).map(c => c.systemConsensus + c.councilConsensus).reduce((a, b) => a + b, 0) / 20;
+                    this.notepad.sessionNotes.push({
+                        timestamp: new Date().toISOString(),
+                        content: `📊 Correlation checkpoint: ${this.correlationHistory.length} analyses completed. Recent system harmony: ${recentHarmony.toFixed(1)}/2.0. Trend: ${recentHarmony > 1.5 ? 'converging' : recentHarmony < 1.0 ? 'diverging' : 'stable'}`,
+                        priority: recentHarmony < 1.0 ? 'high' : 'normal'
+                    });
                 }
 
                 // Update metrics
@@ -5345,7 +5389,11 @@ RESPONSE CONSTRAINTS:
                 Object.assign(djinnCouncilMemory, JSON.parse(existingMemory));
             } else {
                 // Fresh session - save initial state
-                localStorage.setItem('djinn_council_complete_memory', JSON.stringify(djinnCouncilMemory));
+                try {
+                    localStorage.setItem('djinn_council_complete_memory', JSON.stringify(djinnCouncilMemory));
+                } catch (error) {
+                    console.warn('Failed to save initial Council memory state:', error);
+                }
             }
 
             // Track Canvas AI performance
@@ -7776,7 +7824,7 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
 `;
 
             try {
-                const validationResponse = await queryOllama('gemma3:1b', validationPrompt);
+                const validationResponse = await queryOllama(getCurrentModel(), validationPrompt);
                 console.log(`🔍 AI validation completed for ${memberName}`);
 
                 // Parse validation response
@@ -8146,7 +8194,8 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                 console.error(`Council member ${memberKey} analysis failed:`, error);
                 // Record failed performance metrics
                 const endTime = Date.now();
-                efficiencyOptimizer.recordPerformanceMetrics(memberKey, startTime, endTime, iteration, { validated: false });
+                const safeIteration = typeof iteration !== 'undefined' ? iteration : 1;
+                efficiencyOptimizer.recordPerformanceMetrics(memberKey, startTime, endTime, safeIteration, { validated: false });
 
                 // End validation interaction on error
                 agentInteractionSystem.endInteraction(interactionId);
@@ -9140,7 +9189,7 @@ SESSION: ${djinnCouncilMemory.sessionId}
 COUNCIL ANALYSES (${validResponses.length} members):
 ${validResponses.map(r => `
 [${councilMembers[r.member].name.toUpperCase()}]
-${r.response.substring(0, 500)}${r.response.length > 500 ? '...' : ''}
+${r.response}
 `).join('\n')}
 
 CRITICAL REQUIREMENTS:
@@ -9178,8 +9227,8 @@ Output concise synthesis (max 600 words):
 Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights from COLLABORATION.`;
 
             try {
-                // Use gemma3:1b for consensus synthesis
-                const consensusResponse = await queryOllama('gemma3:1b', consensusPrompt);
+                // Use selected model for consensus synthesis
+                const consensusResponse = await queryOllama(getCurrentModel(), consensusPrompt);
 
                 // Parse the AI-generated consensus
                 const synthesisMatch = consensusResponse.match(/\*\*SYNTHESIS OVERVIEW\*\*(.*?)(?=\*\*CROSS-MEMBER PATTERNS\*\*|$)/s);
@@ -9522,7 +9571,7 @@ Is this a recurring pattern? What similar cases have you seen?
 Provide detailed coaching analysis to improve both parties' performance.`;
 
                 try {
-                    const coachingAnalysis = await queryOllama('gemma3:1b', analysisPrompt);
+                    const coachingAnalysis = await queryOllama(getCurrentModel(), analysisPrompt);
 
                     // Add to notepad: Coaching session initiated
                     this.addNote('sessionNotes', `Initiated coaching session for ${memberKey} (attempt ${attempt}). Analyzing validation failure patterns for improvement guidance.`, {
@@ -9742,7 +9791,7 @@ Can this case be recovered, or does it indicate a fundamental system limitation?
 Provide comprehensive emergency analysis for immediate intervention.`;
 
                 try {
-                    const emergencyAnalysis = await queryOllama('gemma3:1b', diagnosisPrompt);
+                    const emergencyAnalysis = await queryOllama(getCurrentModel(), diagnosisPrompt);
 
                     // Record this extreme case
                     this.recordExtremeCase(memberKey, validationHistory, emergencyAnalysis);
@@ -9785,7 +9834,7 @@ This is an emergency recovery attempt. Focus ONLY on:
 Provide the most basic, factual analysis possible to pass validation.`;
 
                 try {
-                    const recoveryResponse = await queryOllama('gemma3:1b', emergencyPrompt);
+                    const recoveryResponse = await queryOllama(getCurrentModel(), emergencyPrompt);
 
                     // Record successful recovery attempt
                     this.recordRecoveryAttempt(memberKey, recoveryStrategy, recoveryResponse, 'attempted');
@@ -10010,7 +10059,7 @@ How can potential issues be prevented before validation begins?
 Provide detailed pattern analysis for predictive optimization.`;
 
                 try {
-                    const patternAnalysis = await queryOllama('gemma3:1b', patternPrompt);
+                    const patternAnalysis = await queryOllama(getCurrentModel(), patternPrompt);
 
                     // Record pattern analysis
                     this.recordPatternAnalysis(memberKey, reportContent, patternAnalysis);
@@ -10037,6 +10086,33 @@ Provide detailed pattern analysis for predictive optimization.`;
 
                 // Record routing decision
                 this.memory.routingDecisions.unshift(routingRecommendation);
+
+                // Add notepad entries for pattern analysis
+                if (patterns.failureProbability > 6) {
+                    this.notepad.observations.push({
+                        timestamp: new Date().toISOString(),
+                        content: `🚨 HIGH FAILURE RISK detected for ${memberKey}: ${patterns.failureProbability}/10 probability. Early warnings: ${patterns.earlyWarnings.join(', ')}. Recommending ${patterns.optimalRoute} pathway.`,
+                        priority: 'high'
+                    });
+                }
+
+                if (patterns.earlyWarnings.length > 0) {
+                    this.notepad.directives.push({
+                        timestamp: new Date().toISOString(),
+                        content: `Pattern prevention strategy for ${memberKey}: ${patterns.preventionStrategy}. Implementing pre-validation optimization to reduce iteration requirements.`,
+                        priority: 'normal'
+                    });
+                }
+
+                // Track routing patterns
+                if (this.memory.routingDecisions.length % 20 === 0) {
+                    const recentFailures = this.memory.routingDecisions.slice(0, 20).filter(r => r.failureProbability > 5).length;
+                    this.notepad.sessionNotes.push({
+                        timestamp: new Date().toISOString(),
+                        content: `Pattern checkpoint: ${recentFailures}/20 recent predictions indicated high failure risk. System learning effectiveness: ${recentFailures < 5 ? 'improving' : recentFailures > 10 ? 'needs optimization' : 'stable'}`,
+                        priority: recentFailures > 10 ? 'high' : 'normal'
+                    });
+                }
 
                 // Limit routing history
                 if (this.memory.routingDecisions.length > 100) {
@@ -10088,6 +10164,31 @@ Provide detailed pattern analysis for predictive optimization.`;
                         Math.max(currentAccuracy - 0.05, 0.0);
 
                     this.memory.validationPatterns[memberKey].predictiveAccuracy = newAccuracy;
+
+                    // Add notepad entries for prediction accuracy tracking
+                    if (!wasCorrect) {
+                        this.notepad.observations.push({
+                            timestamp: new Date().toISOString(),
+                            content: `🎯 PREDICTION MISS for ${memberKey}: Predicted ${predictedProbability}/10 failure risk, but ${actualOutcome.validated ? 'validation succeeded' : 'validation failed'}. Updating learning model. New accuracy: ${(newAccuracy * 100).toFixed(1)}%`,
+                            priority: 'normal'
+                        });
+                    }
+
+                    if (newAccuracy < 0.6) {
+                        this.notepad.directives.push({
+                            timestamp: new Date().toISOString(),
+                            content: `⚠️ ACCURACY ALERT: ${memberKey} prediction accuracy dropped to ${(newAccuracy * 100).toFixed(1)}%. Pattern recognition model requires recalibration and expanded training data.`,
+                            priority: 'high'
+                        });
+                    }
+
+                    if (newAccuracy > 0.85) {
+                        this.notepad.sessionNotes.push({
+                            timestamp: new Date().toISOString(),
+                            content: `✅ HIGH ACCURACY achieved for ${memberKey}: ${(newAccuracy * 100).toFixed(1)}% prediction accuracy. Pattern model is well-calibrated for this agent's behavior patterns.`,
+                            priority: 'normal'
+                        });
+                    }
 
                     console.log(`🎯 Pattern accuracy for ${memberKey}: ${(newAccuracy * 100).toFixed(1)}%`);
                     this.saveMemory();
@@ -10258,7 +10359,7 @@ What specific steps should be taken to optimize validation efficiency?
 Provide comprehensive efficiency analysis for workload optimization.`;
 
                 try {
-                    const optimizationAnalysis = await queryOllama('gemma3:1b', optimizationPrompt);
+                    const optimizationAnalysis = await queryOllama(getCurrentModel(), optimizationPrompt);
 
                     // Record optimization analysis
                     this.recordOptimization(activeValidations, optimizationAnalysis);
@@ -10345,6 +10446,32 @@ Provide comprehensive efficiency analysis for workload optimization.`;
                 // Update success rate
                 const wasSuccessful = outcome.validated ? 1 : 0;
                 metrics.successRate = ((metrics.successRate * total) + wasSuccessful) / (total + 1);
+
+                // Add notepad entries for efficiency tracking
+                if (iterations > 1) {
+                    this.notepad.observations.push({
+                        timestamp: new Date().toISOString(),
+                        content: `${memberKey} required ${iterations} iterations (${processingTime}ms). Efficiency factor: ${efficiency.toFixed(2)}. Pattern suggests ${iterations > 2 ? 'optimization needed' : 'normal refinement process'}.`,
+                        priority: iterations > 2 ? 'high' : 'normal'
+                    });
+                }
+
+                if (processingTime > 30000) { // Over 30 seconds
+                    this.notepad.directives.push({
+                        timestamp: new Date().toISOString(),
+                        content: `PERFORMANCE ALERT: ${memberKey} processing exceeded ${(processingTime/1000).toFixed(1)}s. Consider workload redistribution or model optimization.`,
+                        priority: 'high'
+                    });
+                }
+
+                // Track validation patterns
+                if (total > 0 && total % 5 === 0) { // Every 5th validation
+                    this.notepad.sessionNotes.push({
+                        timestamp: new Date().toISOString(),
+                        content: `Performance checkpoint for ${memberKey}: ${metrics.successRate.toFixed(1)}% success rate, ${metrics.averageIterations.toFixed(1)} avg iterations, ${(metrics.averageTime/1000).toFixed(1)}s avg time`,
+                        priority: 'normal'
+                    });
+                }
 
                 this.saveMemory();
             },
@@ -10552,7 +10679,7 @@ What quality alerts or system adjustments should be implemented?
 Provide comprehensive meta-analysis of validation system quality.`;
 
                 try {
-                    const metaAnalysis = await queryOllama('gemma3:1b', metaPrompt);
+                    const metaAnalysis = await queryOllama(getCurrentModel(), metaPrompt);
 
                     // Record meta-validation analysis
                     this.recordMetaValidation(validationOutcomes, metaAnalysis);
@@ -10591,12 +10718,47 @@ Provide comprehensive meta-analysis of validation system quality.`;
                 }
 
                 // Determine quality trend
+                const oldTrend = perf.qualityTrend;
                 if (perf.successRate > 0.85 && perf.averageIterations < 2) {
                     perf.qualityTrend = 'improving';
                 } else if (perf.successRate < 0.6 || perf.emergencyEscalations > (total * 0.1)) {
                     perf.qualityTrend = 'degrading';
                 } else {
                     perf.qualityTrend = 'stable';
+                }
+
+                // Add notepad entries for quality monitoring
+                if (validationResult.emergency_recovery) {
+                    this.notepad.observations.push({
+                        timestamp: new Date().toISOString(),
+                        content: `🚨 EMERGENCY ESCALATION: ${memberKey} required recovery intervention. Current escalation rate: ${((perf.emergencyEscalations / perf.totalValidations) * 100).toFixed(1)}%. Investigating systemic quality issues.`,
+                        priority: 'critical'
+                    });
+                }
+
+                if (perf.qualityTrend !== oldTrend) {
+                    this.notepad.sessionNotes.push({
+                        timestamp: new Date().toISOString(),
+                        content: `Quality trend change for ${memberKey}: ${oldTrend} → ${perf.qualityTrend}. Success rate: ${(perf.successRate * 100).toFixed(1)}%, Avg iterations: ${perf.averageIterations.toFixed(1)}`,
+                        priority: perf.qualityTrend === 'degrading' ? 'high' : 'normal'
+                    });
+                }
+
+                if (perf.successRate < 0.7 && perf.totalValidations > 3) {
+                    this.notepad.directives.push({
+                        timestamp: new Date().toISOString(),
+                        content: `QUALITY ALERT: ${memberKey} success rate dropped to ${(perf.successRate * 100).toFixed(1)}%. Recommend validation methodology review and potential coaching intervention.`,
+                        priority: 'high'
+                    });
+                }
+
+                // Periodic quality assessments
+                if (perf.totalValidations % 10 === 0) {
+                    this.notepad.observations.push({
+                        timestamp: new Date().toISOString(),
+                        content: `Quality checkpoint for ${memberKey}: ${perf.totalValidations} validations, ${(perf.successRate * 100).toFixed(1)}% success, ${perf.averageIterations.toFixed(1)} avg iterations, ${(perf.averageTime/1000).toFixed(1)}s avg time. Trend: ${perf.qualityTrend}`,
+                        priority: 'normal'
+                    });
                 }
 
                 this.saveMemory();
@@ -12424,16 +12586,23 @@ Provide comprehensive meta-analysis of validation system quality.`;
                     // TRIGGER ACTUAL DJINN COUNCIL ANALYSIS when synthesis report is generated
                     setTimeout(() => {
                         const synthesisReport = localStorage.getItem('synthesis_report');
-                        const canvasData = {
-                            aiOutputs: [],
-                            memories: JSON.parse(localStorage.getItem('ai_memory_state') || '{}'),
-                            documentChanges: [],
-                            canvasContent: localStorage.getItem('sovereign_canvas_content') || ''
-                        };
+                        const lastCouncilSession = localStorage.getItem('last_council_session_hash');
+                        const synthesisHash = synthesisReport ? hashContent(synthesisReport) : '';
 
-                        if (synthesisReport) {
-                            console.log('🏛️ DJINN Council activated by synthesis report generation');
+                        // Only trigger Council if this is a NEW synthesis report
+                        if (synthesisReport && synthesisHash !== lastCouncilSession) {
+                            const canvasData = {
+                                aiOutputs: [],
+                                memories: JSON.parse(localStorage.getItem('ai_memory_state') || '{}'),
+                                documentChanges: [],
+                                canvasContent: localStorage.getItem('sovereign_canvas_content') || ''
+                            };
+
+                            console.log('🏛️ DJINN Council activated by NEW synthesis report generation');
+                            localStorage.setItem('last_council_session_hash', synthesisHash);
                             initiateCouncilDeliberation({ content: synthesisReport, timestamp: new Date().toISOString() }, canvasData);
+                        } else if (synthesisHash === lastCouncilSession) {
+                            console.log('⏭️ DJINN Council skipping - already processed this synthesis report');
                         }
                     }, 1000);
                 }
@@ -13153,7 +13322,7 @@ Recommend strategic direction based on the collective council wisdom
 Keep response focused and under 500 words. Structure with clear sections as shown above.`;
 
             try {
-                const consensusResponse = await queryOllama('gemma3:1b', consensusPrompt);
+                const consensusResponse = await queryOllama(getCurrentModel(), consensusPrompt);
 
                 // Display consensus report
                 displayConsensusReport(consensusResponse);
@@ -13275,6 +13444,17 @@ Keep response focused and under 500 words. Structure with clear sections as show
                 if (targetAgentType === 'council') {
                     // Council member injection
                     if (djinnCouncilMemory.members[targetAgent] && djinnCouncilMemory.members[targetAgent].notepad) {
+                        // Ensure intelligenceInputs object exists
+                        if (!djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs) {
+                            djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs = {
+                                correlationInsights: [],
+                                strategicDirectives: [],
+                                emergentConsensus: [],
+                                conflictAlerts: [],
+                                collaborationSuggestions: []
+                            };
+                        }
+                        // Ensure the specific category array exists
                         if (!djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs[category]) {
                             djinnCouncilMemory.members[targetAgent].notepad.intelligenceInputs[category] = [];
                         }
@@ -13293,11 +13473,49 @@ Keep response focused and under 500 words. Structure with clear sections as show
                     };
 
                     if (validationAgents[targetAgent] && validationAgents[targetAgent].notepad) {
+                        // Ensure intelligenceInputs object exists
+                        if (!validationAgents[targetAgent].notepad.intelligenceInputs) {
+                            validationAgents[targetAgent].notepad.intelligenceInputs = {
+                                correlationInsights: [],
+                                strategicDirectives: [],
+                                emergentConsensus: [],
+                                conflictAlerts: [],
+                                collaborationSuggestions: []
+                            };
+                        }
+                        // Ensure the specific category array exists
                         if (!validationAgents[targetAgent].notepad.intelligenceInputs[category]) {
                             validationAgents[targetAgent].notepad.intelligenceInputs[category] = [];
                         }
                         validationAgents[targetAgent].notepad.intelligenceInputs[category].push(injection);
                         console.log(`🎯 Intelligence injection → ${targetAgent} validation agent: ${category} - ${content.substring(0, 50)}...`);
+                    }
+                } else if (targetAgentType === 'canvas') {
+                    // Canvas agent injection - store in localStorage
+                    try {
+                        const memoryKey = `ai_memory_${targetAgent}`;
+                        const existingMemory = localStorage.getItem(memoryKey);
+                        if (existingMemory) {
+                            const memory = JSON.parse(existingMemory);
+                            if (!memory.notepad) memory.notepad = {};
+                            if (!memory.notepad.intelligenceInputs) {
+                                memory.notepad.intelligenceInputs = {
+                                    correlationInsights: [],
+                                    strategicDirectives: [],
+                                    emergentConsensus: [],
+                                    conflictAlerts: [],
+                                    collaborationSuggestions: []
+                                };
+                            }
+                            if (!memory.notepad.intelligenceInputs[category]) {
+                                memory.notepad.intelligenceInputs[category] = [];
+                            }
+                            memory.notepad.intelligenceInputs[category].push(injection);
+                            localStorage.setItem(memoryKey, JSON.stringify(memory));
+                            console.log(`🎯 Intelligence injection → Canvas ${targetAgent}: ${category} - ${content.substring(0, 50)}...`);
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to inject intelligence to Canvas ${targetAgent}:`, error);
                     }
                 }
 
@@ -13330,6 +13548,105 @@ Keep response focused and under 500 words. Structure with clear sections as show
         };
 
         // Process intelligence response for notepad insights
+        // AUTO-QUERY RESPONSE SYSTEM - Intelligence Officer analyzes and responds to Canvas AI queries
+        function processCanvasQueryResponses() {
+            if (typeof intelligenceAgent !== 'undefined') {
+                // Scan Canvas AI notepads for unanswered queries
+                const canvasAgents = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+
+                canvasAgents.forEach(agentName => {
+                    try {
+                        const notepadData = localStorage.getItem(`ai_memory_${agentName}`);
+                        if (notepadData) {
+                            const memory = JSON.parse(notepadData);
+                            if (memory.notepad) {
+                                scanForUnrespondedQueries(agentName, memory.notepad);
+                            }
+                        }
+                    } catch (error) {
+                        console.log(`Intelligence Officer: Could not access ${agentName} notepad for query processing`);
+                    }
+                });
+            }
+        }
+
+        function scanForUnrespondedQueries(agentName, notepad) {
+            const queryPatterns = [
+                'Rate your confidence in this conclusion:',
+                'which should take priority?',
+                'How should I proceed with this analysis?',
+                'Low (0-25%) - Moderate (25-50%) - High (50-75%) - Very High (75-100%)',
+                'Urgent - Important - Moderate - Low Priority',
+                'Expand This - Continue - Reduce Focus - Pause',
+                'Accurate - Partially - Inaccurate - Need More Info'
+            ];
+
+            ['observations', 'directives', 'selfPrompts', 'sessionNotes', 'orientations'].forEach(category => {
+                if (notepad[category] && Array.isArray(notepad[category])) {
+                    // Check recent entries for query patterns
+                    notepad[category].slice(-3).forEach(entry => {
+                        if (entry.content && entry.timestamp) {
+                            const hasQuery = queryPatterns.some(pattern => entry.content.includes(pattern));
+                            const hasResponse = entry.content.includes('INTELLIGENCE AUTO-RESPONSE') || entry.content.includes('INTELLIGENCE RESPONSE');
+
+                            if (hasQuery && !hasResponse) {
+                                // Found unanswered query - generate AI response
+                                generateIntelligenceQueryResponse(agentName, category, entry.content);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        async function generateIntelligenceQueryResponse(agentName, category, queryContent) {
+            if (typeof intelligenceAgent === 'undefined' || !getCurrentModel()) return;
+
+            const analysisPrompt = `You are the Intelligence Officer analyzing a query from ${agentName.toUpperCase()} in their ${category} notepad.
+
+AGENT QUERY CONTENT:
+${queryContent}
+
+SYSTEM CONTEXT:
+- Agent: ${agentName.toUpperCase()}
+- Notepad Category: ${category}
+- Cross-system intelligence available
+- Full ecosystem data access
+
+QUERY ANALYSIS TASK:
+1. Identify the specific query type (Confidence Assessment, Priority Ranking, Direction Indicator, or Validation Check)
+2. Use your omniscient system access to provide data-driven responses
+3. Select the most appropriate response option based on system metrics and agent performance
+
+RESPONSE FORMATS TO USE:
+- Confidence: "Low (0-25%)", "Moderate (25-50%)", "High (50-75%)", "Very High (75-100%)"
+- Priority: "🔥 Urgent", "⚡ Important", "📝 Moderate", "⏳ Low Priority"
+- Direction: "↗️ Expand This", "➡️ Continue", "↘️ Reduce Focus", "⏸️ Pause"
+- Validation: "✅ Accurate", "≈ Partially", "❌ Inaccurate", "❓ Need More Info"
+
+Provide a concise intelligence response with your reasoning and the selected option. Format as: "INTELLIGENCE AUTO-RESPONSE: [Selected Option] - [Brief reasoning based on system data]"`;
+
+            try {
+                const response = await queryOllama(getCurrentModel(), analysisPrompt);
+
+                // Inject the Intelligence Officer's response back to the agent
+                intelligenceAgent.injectInsight(
+                    agentName,
+                    'canvas',
+                    category === 'observations' ? 'correlationInsights' :
+                    category === 'directives' ? 'strategicDirectives' :
+                    category === 'sessionNotes' ? 'collaborationSuggestions' : 'correlationInsights',
+                    response,
+                    'normal'
+                );
+
+                console.log(`🤖 Intelligence Officer responded to ${agentName} query in ${category}`);
+
+            } catch (error) {
+                console.error('Intelligence Officer query response failed:', error);
+            }
+        }
+
         function processIntelligenceResponseForNotepad(response, systemMetrics) {
             // Extract key insights for intelligence agent notepad
             const strategicKeywords = ['strategic', 'critical', 'urgent', 'recommend', 'suggest', 'important'];
@@ -13386,8 +13703,8 @@ Keep response focused and under 500 words. Structure with clear sections as show
             const compressed = {};
             Object.keys(sections).forEach(key => {
                 if (sections[key] && sections[key].trim().length > 0) {
-                    // Truncate each section to reasonable size
-                    compressed[key] = sections[key].substring(0, 500);
+                    // Store full section content per zero truncation policy
+                    compressed[key] = sections[key];
                 }
             });
 
@@ -13399,7 +13716,7 @@ Keep response focused and under 500 words. Structure with clear sections as show
             const archived = {
                 id: report.id,
                 timestamp: report.timestamp,
-                summary: report.structured?.summary?.substring(0, 200) || 'Intelligence report archived',
+                summary: report.structured?.summary || 'Intelligence report archived',
                 metrics: report.dataSnapshot?.systemMetrics || {},
                 archived: true
             };
@@ -13626,14 +13943,46 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
             }
 
             try {
-                console.log(`🎯 Querying ${selectedModel} for intelligence report...`);
-                const intelligenceResponse = await queryOllama(selectedModel, intelligencePrompt);
+                console.log(`🎯 Querying ${selectedModel} for intelligence report with validation...`);
+
+                // Get initial Intelligence Officer response
+                let intelligenceResponse = await queryOllama(selectedModel, intelligencePrompt);
+
+                // Apply validation system to Intelligence Officer response
+                if (typeof validationSpecialist !== 'undefined') {
+                    console.log('🔍 Applying validation system to Intelligence Officer report...');
+
+                    const validationResult = await validationSpecialist.validateResponse(
+                        intelligenceResponse,
+                        intelligencePrompt,
+                        { content: canvasContent, systemMetrics: systemMetrics }
+                    );
+
+                    if (!validationResult.validated) {
+                        console.log('⚠️ Intelligence Officer report requires refinement...');
+
+                        // Apply refinement if available
+                        if (typeof refinementSpecialist !== 'undefined') {
+                            const refinedResponse = await refinementSpecialist.generateCoachingAnalysis(
+                                'intelligence',
+                                intelligencePrompt,
+                                intelligenceResponse,
+                                validationResult,
+                                { content: canvasContent }
+                            );
+                            intelligenceResponse = refinedResponse || intelligenceResponse;
+                        }
+                    }
+                }
 
                 // Parse and structure the intelligence report
                 const intelligenceReport = parseIntelligenceReport(intelligenceResponse, systemMetrics, validationEcosystem);
 
                 // Process intelligence response for notepad insights
                 processIntelligenceResponseForNotepad(intelligenceResponse, systemMetrics);
+
+                // Process any pending Canvas AI queries
+                processCanvasQueryResponses();
 
                 // Display the intelligence report
                 displayIntelligence(intelligenceReport);
@@ -13681,10 +14030,10 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                     const emergencyRecord = {
                         id: fullIntelligenceRecord.id,
                         timestamp: fullIntelligenceRecord.timestamp,
-                        summary: intelligenceReport.summary?.substring(0, 300) || 'Intelligence analysis completed',
-                        risk_assessment: intelligenceReport.risk_assessment?.substring(0, 200) || 'Risk assessment completed',
+                        summary: intelligenceReport.summary || 'Intelligence analysis completed',
+                        risk_assessment: intelligenceReport.risk_assessment || 'Risk assessment completed',
                         actionable: Array.isArray(intelligenceReport.actionable)
-                            ? intelligenceReport.actionable.slice(0, 3)
+                            ? intelligenceReport.actionable
                             : ['Continue monitoring', 'Maintain analysis', 'Review system health'],
                         metrics: {
                             canvas: systemMetrics.canvasWords,
@@ -13773,7 +14122,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
 
                 // Core intelligence data - try to parse sections first, fall back to meaningful defaults
                 summary: extractSection(response, 'EXECUTIVE_SUMMARY') ||
-                         response.substring(0, 500) + (response.length > 500 ? '...' : '') ||
+                         response ||
                          'Intelligence analysis completed successfully',
 
                 risk_assessment: extractSection(response, 'COMPREHENSIVE_THREAT_ASSESSMENT') ||

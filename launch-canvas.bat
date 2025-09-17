@@ -52,7 +52,7 @@ echo  SYSTEM REQUIREMENTS
 echo  ============================================
 echo.
 echo  * Ollama must be running (ollama serve)
-echo  * Models: gemma3:1b (all systems)
+echo  * Models: Any Ollama-compatible model (user-configurable)
 echo  * Modern browser with localStorage support
 echo  * 4GB RAM minimum, 8GB recommended
 echo.
