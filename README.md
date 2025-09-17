@@ -45,8 +45,20 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 ## 🚀 System Architecture
 
 ### Dual Operating Modes
-- **Standalone Canvas Mode**: Independent 5-AI analysis with continuous auto-polling and memory continuity
-- **Council-Integrated Intelligence Mode**: Canvas + DJINN Council surveillance with event-driven coordination and comprehensive data access
+
+#### Standalone Canvas Mode (Port 8000)
+- **File**: `launch-canvas.bat`
+- **Features**: Independent 5-AI analysis with continuous auto-polling
+- **Modes**: Local Ollama + Turbo cloud models
+- **Use Case**: Pure canvas experience with maximum flexibility
+- **AI Systems**: DJINN, NAZAR, NARRA, WHALE, WATCHTOWER
+
+#### Council-Integrated Intelligence Mode (Port 8080)
+- **File**: `LAUNCH_CANVAS_SURVEILLANCE.bat`
+- **Features**: Canvas + DJINN Council surveillance with event-driven coordination
+- **Intelligence**: 8-agent validation ecosystem + 5 council members
+- **Use Case**: Advanced collaborative intelligence with governance oversight
+- **Architecture**: Event-driven processing with comprehensive data access
 
 ### Technical Infrastructure
 - **Event-Driven Processing**: Activation only on notepad updates and synthesis events with cycle prevention
@@ -71,6 +83,7 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 - **Interactive Synthesis Engine**: Multi-system collaborative analysis with unified synthesis
 - **Memory Continuity**: Conversational persistence across sessions with intelligent caching
 - **Dynamic Content Analysis**: Activity-based triggers for enhanced AI engagement
+- **🔧 Triage Force**: Advanced capability assessment system for comprehensive AI analysis
 
 ### DJINN Council Governance Interface
 - **Document Evolution Analysis**: Specialized tracking of AI collaborative intelligence impact on content transformation
@@ -105,12 +118,26 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 - **Browser**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
 ### AI Model Compatibility
-- **Local Models**: Any Ollama-compatible model (1B to 70B+ parameters)
-- **Cloud Integration**: Ollama Turbo support for 120B-671B parameter models
-- **Dynamic Model Assignment**: Real-time switching between different models across all agents
-- **Performance Optimization**: Configurable timeouts and polling intervals based on model capabilities
-- **Memory Management**: Intelligent caching with model-specific optimization
-- **GPU Acceleration**: Automatic GPU detection and utilization for optimal performance
+
+#### Local Mode (Traditional Ollama)
+- **Model Range**: 1B to 70B+ parameters
+- **Requirements**: Local Ollama installation and `ollama serve`
+- **Performance**: GPU acceleration with automatic detection
+- **Privacy**: Complete local processing with no data transmission
+- **Models**: llama3.2, gemma3, mistral, codellama, qwen2.5, deepseek
+
+#### Turbo Mode (Cloud Models)
+- **Model Range**: 480B to 671B parameters (massive models!)
+- **Requirements**: No local Ollama needed - cloud processing
+- **Proxy**: Auto-configured CORS proxy on port 11435
+- **Performance**: Enterprise-grade cloud infrastructure
+- **Access**: Toggle in interface - seamless switching
+
+#### Universal Features
+- **Dynamic Model Assignment**: Real-time switching between local and cloud models
+- **Cross-System Synchronization**: Model selection syncs across Canvas and Council
+- **Intelligent Caching**: Model-specific optimization and response caching
+- **Performance Tuning**: Configurable timeouts based on model capabilities
 
 ### Data Architecture
 - **Local-First Processing**: All AI operations and data storage remain local by default
@@ -121,17 +148,42 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 
 ## 🚀 Quick Start
 
-### Professional Launch (Recommended)
-1. **Download Repository**: Clone or download the Canvas AI Orchestration System
-2. **Install Ollama**: Download from https://ollama.ai/ and install
-3. **Pull AI Models**: Use `ollama pull [model-name]` for desired models (e.g., qwen2.5:1.5b)
-4. **Launch System**: Double-click `LAUNCH_CANVAS_SURVEILLANCE.bat` for full intelligence ecosystem
+### Launch Options
+
+#### Option 1: Standalone Canvas Mode (Local + Turbo)
+**File**: `launch-canvas.bat` | **Port**: 8000
+- **Local Mode**: Traditional Ollama models (1B-70B parameters)
+- **Turbo Mode**: Cloud models via Ollama Turbo (480B+ parameters!)
+- **Features**: 5-AI orchestration with dual-mode support
+- **Use Case**: Pure canvas experience with maximum model flexibility
+
+#### Option 2: Council-Integrated Intelligence Mode (Full Surveillance)
+**File**: `LAUNCH_CANVAS_SURVEILLANCE.bat` | **Port**: 8080
+- **Canvas + Council**: Complete intelligence ecosystem
+- **Event-Driven**: Council responds only to synthesis events
+- **Validation Network**: 8-agent validation ecosystem
+- **Use Case**: Advanced collaborative intelligence with governance oversight
+
+### Setup Instructions
+
+#### For Local Mode (Traditional Ollama)
+1. **Install Ollama**: Download from https://ollama.ai/ and install
+2. **Start Ollama**: Run `ollama serve` in terminal
+3. **Pull Models**: Use `ollama pull [model-name]` (e.g., `qwen2.5:1.5b`)
+4. **Launch**: Double-click `launch-canvas.bat` or `LAUNCH_CANVAS_SURVEILLANCE.bat`
+
+#### For Turbo Mode (Cloud Models)
+1. **No Ollama Required**: Cloud models via Ollama Turbo
+2. **Auto-Configured**: Turbo proxy starts automatically with launch scripts
+3. **Massive Models**: Access 480B-671B parameter models
+4. **Launch**: Same launch scripts - toggle to Turbo mode in interface
 
 ### Manual Setup Alternative
-1. **Start Ollama Server**: Run `ollama serve` in terminal
-2. **Start Web Server**: Execute `python -m http.server 8080` in project directory
-3. **Access Canvas**: Navigate to `http://localhost:8080/canvas-with-observation-feeds.html`
-4. **Access Council**: Navigate to `http://localhost:8080/djinn-council-shadow-governance.html`
+1. **Start Ollama Server**: Run `ollama serve` in terminal (for local mode)
+2. **Start Turbo Proxy**: Run `python ollama-turbo-proxy.py` (for cloud mode)
+3. **Start Web Server**: Execute `python -m http.server 8080` in project directory
+4. **Access Canvas**: Navigate to `http://localhost:8080/canvas-with-observation-feeds.html`
+5. **Access Council**: Navigate to `http://localhost:8080/djinn-council-shadow-governance.html`
 
 ## 🎛️ Usage Guide
 
@@ -159,11 +211,27 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 ## 🔧 Configuration & Customization
 
 ### Model Assignment
-Models are dynamically selected through the Universal Model Selector, supporting any Ollama-compatible model including:
+
+#### Universal Model Selector
+Dynamic model selection supporting both local and cloud models:
+
+**Local Models (Traditional Ollama)**
 - **Language Models**: llama3.2, gemma3, mistral, codellama, qwen2.5, deepseek
-- **Cloud Models**: 120B-671B parameter models via Ollama Turbo
-- **Specialized Models**: Technical analysis, creative writing, code generation
-- **Performance Tiers**: 1B parameters (speed) to 671B parameters (maximum capability)
+- **Performance Range**: 1B-70B parameters
+- **Requirements**: Local Ollama installation
+- **Privacy**: Complete local processing
+
+**Cloud Models (Ollama Turbo)**
+- **Massive Models**: 480B-671B parameter models
+- **Enterprise Performance**: Cloud infrastructure processing
+- **No Local Requirements**: Direct cloud access via proxy
+- **Auto-Configuration**: Seamless integration with launch scripts
+
+**Specialized Applications**
+- **Technical Analysis**: Code generation and debugging
+- **Creative Writing**: Advanced language generation
+- **Research**: Complex reasoning and analysis
+- **Performance Tiers**: From 1B (speed) to 671B (maximum capability)
 
 ### System Optimization
 - **Caching Configuration**: Adjustable response, context, and synthesis cache durations
@@ -174,16 +242,23 @@ Models are dynamically selected through the Universal Model Selector, supporting
 
 ## 🛡️ Security & Privacy
 
-### Local-First Architecture
-- **Local Processing**: All processing occurs locally by default
-- **Data Control**: Complete user control over all data and AI interactions
-- **Network Isolation**: Only localhost connections for local AI model communication
-- **Browser Security**: Standard web security model with localStorage management
+### Local Mode (Maximum Privacy)
+- **Complete Local Processing**: All AI operations occur on your machine
+- **No Data Transmission**: Zero data leaves your system
+- **Network Isolation**: Only localhost connections to Ollama
+- **Full Control**: Complete authority over all data and AI interactions
 
-### Privacy Protection
-- **No Mandatory Data Transmission**: Local-first approach with optional cloud integration
-- **User Control**: Complete authority over data retention and deletion
+### Turbo Mode (Cloud Processing)
+- **Cloud Infrastructure**: Processing on enterprise-grade cloud servers
+- **Secure Transmission**: Encrypted communication via HTTPS
+- **API Key Management**: Secure credential handling with localStorage
+- **User Choice**: Optional cloud integration - toggle as needed
+
+### Universal Privacy Features
+- **Data Control**: Complete authority over data retention and deletion
 - **Session Management**: Independent operation with flexible deployment options
+- **Browser Security**: Standard web security model with localStorage management
+- **Mode Selection**: Choose privacy level based on your needs
 
 ## 📖 Documentation & Support
 

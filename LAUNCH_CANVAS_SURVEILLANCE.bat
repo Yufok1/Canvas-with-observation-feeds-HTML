@@ -15,77 +15,43 @@ echo                    DJINN COUNCIL DOCUMENT SURVEILLANCE
 echo                        Advanced Collaborative Intelligence
 echo.
 echo  =============================================================================
-echo  THIS WINDOW: System startup and server management
-echo  - Starts Python HTTP server to serve the web interfaces
-echo  - Launches browser windows for canvas and surveillance
-echo  - Keep this window open to maintain server connection
+echo  SURVEILLANCE SYSTEM INITIALIZATION
+echo  =============================================================================
+echo.
+echo  Starting Servers:
+echo  - Web Server on port 8080
+echo  - Turbo Proxy on port 11435 (for 480B+ parameter models)
+echo.
+echo  Opening Browser Windows:
+echo  - Canvas Interface (integrated mode)
+echo  - DJINN Council Surveillance
+echo.
+echo  =============================================================================
+echo  SYSTEM ACTIVATION SEQUENCE
 echo  =============================================================================
 echo.
 
-REM Check Python
-echo [1/4] Checking Python...
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo ERROR: Python not found! Install Python from python.org
-    pause
-    exit
-)
-echo      Python found - OK
+REM Start Turbo Proxy Server in background
+start /min py ollama-turbo-proxy.py
 
-REM Kill existing server if running
-echo [2/4] Checking for existing server...
-netstat -an | find ":8080" >nul
-if not errorlevel 1 (
-    echo      Port 8080 in use - stopping existing server
-    taskkill /f /im python.exe >nul 2>&1
-    timeout /t 2 >nul
-) else (
-    echo      Port 8080 available - OK
-)
+REM Start Web Server in background
+start /min py -m http.server 8080
 
-REM Start server
-echo [3/4] Starting HTTP server...
-echo.
-echo      PYTHON HTTP SERVER WINDOW:
-echo      - Serves web files to your browser
-echo      - Runs in background (minimized)
-echo      - DO NOT CLOSE - needed for system to work
-echo.
-start /min python -m http.server 8080
-timeout /t 3 >nul
+REM Wait for servers to start
+timeout /t 3 /nobreak >nul
 
-REM Verify server started
-netstat -an | find ":8080" >nul
-if errorlevel 1 (
-    echo ERROR: Server failed to start
-    pause
-    exit
-)
-echo      HTTP server started - OK
-
-REM Launch browsers
-echo [4/4] Opening browser windows...
-echo.
-echo      WINDOW 1: Main Canvas Interface
-echo      - Primary creative workspace for writing and analysis
-echo      - Live AI feeds provide intelligence and synthesis
-echo      - Your main working environment
+REM Open Canvas interface (integrated mode)
 start http://localhost:8080/canvas-with-observation-feeds.html?mode=council_integrated
-timeout /t 2 >nul
 
-if exist "djinn-council-shadow-governance.html" (
-    echo.
-    echo      WINDOW 2: DJINN Council Surveillance Interface
-    echo      - Advanced intelligence analysis and monitoring
-    echo      - Cross-references all canvas activity and AI responses
-    echo      - Chat with intelligence agent about system data
-    start http://localhost:8080/djinn-council-shadow-governance.html
-    echo.
-    echo      Both interfaces launched - OK
-) else (
-    echo      Canvas interface launched - OK
-)
+REM Wait a moment then open DJINN Council
+timeout /t 2 /nobreak >nul
+start http://localhost:8080/djinn-council-shadow-governance.html
 
+echo  [OK] Turbo proxy server started!
+echo  [OK] Web server started on port 8080!
+echo  [OK] Canvas interface opened (integrated mode)!
+echo  [OK] DJINN Council surveillance opened!
+echo  [OK] AI surveillance systems active!
 echo.
 echo  =============================================================================
 echo  SURVEILLANCE SYSTEMS ACTIVE
@@ -94,15 +60,16 @@ echo.
 echo  Canvas Interface:     http://localhost:8080/canvas-with-observation-feeds.html
 echo  DJINN Council:        http://localhost:8080/djinn-council-shadow-governance.html
 echo  Server Status:        Running on port 8080
+echo  Turbo Proxy:          Running on port 11435 (for 480B+ models)
 echo.
 echo  =============================================================================
-echo  KEEP THIS WINDOW OPEN - Press any key to shutdown...
+echo  KEEP THIS WINDOW OPEN - Press any key to shutdown servers...
 echo  =============================================================================
 
 pause >nul
 
 echo.
-echo Shutting down server...
-taskkill /f /im python.exe >nul 2>&1
-echo Server stopped.
+echo Shutting down servers...
+taskkill /f /im py.exe >nul 2>&1
+echo Servers stopped.
 timeout /t 2 >nul

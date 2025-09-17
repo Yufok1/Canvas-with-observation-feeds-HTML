@@ -1230,6 +1230,13 @@
                             <option value="">Loading models...</option>
                         </select>
                     </span>
+                    <span style="margin-left: 10px; border-left: 1px solid #ff6b6b; padding-left: 10px;" data-tooltip="Toggle between local Ollama models and cloud Turbo models for enhanced performance">
+                        <label style="color: #ff6b6b; font-size: 10px; cursor: pointer;">
+                            <input type="checkbox" id="ollamaTurboToggle" onchange="updateOllamaMode()" style="margin-right: 4px; accent-color: #ff6b6b;">
+                            ⚡ Turbo
+                        </label>
+                        <span id="turboStatus" style="margin-left: 5px; color: #00ff41; font-size: 9px;">[LOCAL]</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -1532,12 +1539,22 @@
         // UNIVERSAL MODEL MANAGEMENT SYSTEM
         // ========================================
 
-        // Fetch available models from Ollama
+        // Fetch available models from Ollama (local or turbo)
         async function fetchOllamaModels() {
             try {
-                const response = await fetch('http://localhost:11434/api/tags');
-                const data = await response.json();
-                return data.models || [];
+                const config = getOllamaConfig();
+
+                if (config.models) {
+                    // Return Turbo models
+                    return config.models.map(name => ({ name }));
+                } else {
+                    // Fetch local models
+                    const response = await fetch(config.tagsEndpoint, {
+                        headers: config.headers
+                    });
+                    const data = await response.json();
+                    return data.models || [];
+                }
             } catch (error) {
                 console.error('Failed to fetch Ollama models:', error);
                 return [];
@@ -1633,7 +1650,136 @@
                     localStorage.setItem('council_universal_model', newModel);
                 }
             }
+
+            // Sync Turbo mode across pages
+            if (e.key === 'turbo_sync_trigger') {
+                // Add small delay to prevent conflicts
+                setTimeout(async () => {
+                    initializeTurboMode();
+                    await populateCouncilModelSelector(); // Refresh model list when turbo mode changes
+                    console.log('🔄 Council: Synced Turbo mode and refreshed models from other page');
+                }, 100);
+            }
         });
+
+        // ========================================
+        // OLLAMA TURBO INTEGRATION
+        // ========================================
+
+        // Check if Turbo mode is enabled
+        function isTurboMode() {
+            return localStorage.getItem('ollama_turbo_enabled') === 'true';
+        }
+
+        // Get the appropriate Ollama endpoint and headers
+        function getOllamaConfig() {
+            const turboEnabled = isTurboMode();
+            const apiKey = localStorage.getItem('ollama_turbo_api_key');
+
+            if (turboEnabled && apiKey) {
+                // Use local proxy server for Turbo API access (bypasses CORS)
+                return {
+                    endpoint: 'http://localhost:11435/api/generate',
+                    tagsEndpoint: 'http://localhost:11435/api/tags',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // API key handled by proxy server
+                    },
+                    models: ['qwen3-coder:480b', 'deepseek-v3.1:671b', 'gpt-oss:120b', 'gpt-oss:20b'] // All available Turbo models
+                };
+            } else {
+                return {
+                    endpoint: 'http://localhost:11434/api/generate',
+                    tagsEndpoint: 'http://localhost:11434/api/tags',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    models: null // Will fetch from local Ollama
+                };
+            }
+        }
+
+        // Update Ollama mode (local/turbo)
+        async function updateOllamaMode() {
+            const toggle = document.getElementById('ollamaTurboToggle');
+            const status = document.getElementById('turboStatus');
+            const turboEnabled = toggle.checked;
+
+            localStorage.setItem('ollama_turbo_enabled', turboEnabled.toString());
+
+            if (turboEnabled) {
+                const apiKey = localStorage.getItem('ollama_turbo_api_key');
+                if (!apiKey) {
+                    // Prompt for API key
+                    const key = prompt('Enter your Ollama Turbo API key:\n\nGet your key at: https://ollama.com/settings/keys');
+                    if (key) {
+                        localStorage.setItem('ollama_turbo_api_key', key.trim());
+                        status.textContent = '[TURBO]';
+                        status.style.color = '#ff6b6b';
+                        console.log('⚡ Ollama Turbo mode enabled');
+                    } else {
+                        toggle.checked = false;
+                        localStorage.setItem('ollama_turbo_enabled', 'false');
+                        return;
+                    }
+                } else {
+                    status.textContent = '[TURBO]';
+                    status.style.color = '#ff6b6b';
+                    console.log('⚡ Ollama Turbo mode enabled');
+                }
+
+                // Update model selector with Turbo models
+                await populateCouncilModelSelector();
+
+                // Auto-select first available Turbo model
+                const selector = document.getElementById('councilModelSelector');
+                if (selector && selector.options.length > 0) {
+                    const firstModel = selector.options[0].value;
+                    if (firstModel) {
+                        selector.value = firstModel;
+                        updateAllCouncilModels(); // This will sync to other page
+                    }
+                }
+            } else {
+                status.textContent = '[LOCAL]';
+                status.style.color = '#00ff41';
+                console.log('🏠 Ollama Local mode enabled');
+
+                // Update model selector with local models
+                await populateCouncilModelSelector();
+
+                // Auto-select first available local model
+                const selector = document.getElementById('councilModelSelector');
+                if (selector && selector.options.length > 0) {
+                    const firstModel = selector.options[0].value;
+                    if (firstModel) {
+                        selector.value = firstModel;
+                        updateAllCouncilModels(); // This will sync to other page
+                    }
+                }
+            }
+
+            // Sync across pages
+            localStorage.setItem('turbo_sync_trigger', Date.now().toString());
+        }
+
+        // Initialize Turbo mode state
+        function initializeTurboMode() {
+            const toggle = document.getElementById('ollamaTurboToggle');
+            const status = document.getElementById('turboStatus');
+            const turboEnabled = localStorage.getItem('ollama_turbo_enabled') === 'true';
+
+            if (toggle) {
+                toggle.checked = turboEnabled;
+                if (turboEnabled) {
+                    status.textContent = '[TURBO]';
+                    status.style.color = '#ff6b6b';
+                } else {
+                    status.textContent = '[LOCAL]';
+                    status.style.color = '#00ff41';
+                }
+            }
+        }
 
         // System Configuration
         const DJINN_CONFIG = {
@@ -7630,9 +7776,10 @@ RESPONSE CONSTRAINTS:
             console.log(`📝 Prompt length: ${prompt.length} characters`);
             
             try {
-                const response = await fetch('http://localhost:11434/api/generate', {
+                const config = getOllamaConfig();
+                const response = await fetch(config.endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: config.headers,
                     body: JSON.stringify({
                         model: getCurrentModel(),
                         system: "You are an expert AI analyst. Analyze the provided data and write a structured report. Start directly with **SUMMARY** and follow the exact format specified in the prompt. Do not include any introductory text or copy the prompt structure - generate your own analysis content. In the ACTIONS section, provide exactly 3 numbered recommendations without any sub-headers like 'SECOND RECOMMENDATION'.",
@@ -10941,6 +11088,15 @@ Provide comprehensive meta-analysis of validation system quality.`;
 
             // Initialize Council model selector
             populateCouncilModelSelector();
+
+            // Initialize Turbo mode
+            initializeTurboMode();
+
+            // Auto-set API key if not already present
+            if (!localStorage.getItem('ollama_turbo_api_key')) {
+                localStorage.setItem('ollama_turbo_api_key', '9530d1e6e9b34702927ee472648b0979.jFTbKz1M_LhtuDM4BNZBuf4Q');
+                console.log('🔑 Ollama Turbo API key auto-configured');
+            }
         });
 
         // Canvas Integration - Trigger canvas cycle after intelligence completion
@@ -11928,6 +12084,15 @@ Provide comprehensive meta-analysis of validation system quality.`;
             // Initialize council dynamic notepad system
             initializeCouncilNotepads();
 
+            // Initialize Turbo mode
+            initializeTurboMode();
+
+            // Auto-set API key if not already present
+            if (!localStorage.getItem('ollama_turbo_api_key')) {
+                localStorage.setItem('ollama_turbo_api_key', '9530d1e6e9b34702927ee472648b0979.jFTbKz1M_LhtuDM4BNZBuf4Q');
+                console.log('🔑 Ollama Turbo API key auto-configured');
+            }
+
             // Clear old cached responses to force fresh analysis with improved prompts
             responseCache.clear();
             console.log('Cache cleared - improved analysis prompts enabled');
@@ -12899,9 +13064,10 @@ Provide comprehensive meta-analysis of validation system quality.`;
                 const prompt = buildIntelligenceAgentPrompt(question, comprehensiveData);
 
                 // Query Ollama with comprehensive context
-                const response = await fetch('http://localhost:11434/api/generate', {
+                const config = getOllamaConfig();
+                const response = await fetch(config.endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: config.headers,
                     body: JSON.stringify({
                         model: getCurrentModel(),
                         prompt: prompt,
@@ -13952,25 +14118,30 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 if (typeof validationSpecialist !== 'undefined') {
                     console.log('🔍 Applying validation system to Intelligence Officer report...');
 
-                    const validationResult = await validationSpecialist.validateResponse(
+                    const validationResult = await validateWithAI(
                         intelligenceResponse,
-                        intelligencePrompt,
-                        { content: canvasContent, systemMetrics: systemMetrics }
+                        canvasContent,
+                        'intelligence'
                     );
+
+                    // Record validation in specialist memory
+                    validationSpecialist.recordValidation('intelligence', intelligenceResponse, validationResult, 1);
 
                     if (!validationResult.validated) {
                         console.log('⚠️ Intelligence Officer report requires refinement...');
 
                         // Apply refinement if available
                         if (typeof refinementSpecialist !== 'undefined') {
-                            const refinedResponse = await refinementSpecialist.generateCoachingAnalysis(
+                            const coachingAnalysis = await refinementSpecialist.analyzeValidationInteraction(
                                 'intelligence',
-                                intelligencePrompt,
                                 intelligenceResponse,
-                                validationResult,
-                                { content: canvasContent }
+                                validationResult.notes,
+                                1
                             );
-                            intelligenceResponse = refinedResponse || intelligenceResponse;
+                            // Use coaching analysis to refine if it provides improvement
+                            if (coachingAnalysis && coachingAnalysis.length > intelligenceResponse.length) {
+                                intelligenceResponse = coachingAnalysis;
+                            }
                         }
                     }
                 }
