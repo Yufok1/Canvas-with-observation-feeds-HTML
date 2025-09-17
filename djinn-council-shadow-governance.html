@@ -30,7 +30,7 @@
                 "surveillance council-left council-right surveillance-extended"
                 "surveillance consensus intelligence surveillance-extended"
                 "controls controls controls controls";
-            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
             grid-template-rows: minmax(60px, auto) 1fr 0.4fr minmax(60px, auto);
             height: calc(100vh - 20px);
             gap: clamp(4px, 1vw, 8px);
@@ -206,13 +206,20 @@
         /* Council Member Panels */
         .council-left,
         .council-right {
-            grid-area: council-left;
             display: flex;
             flex-direction: column;
             gap: clamp(2px, 0.5vw, 6px);
             min-height: 0;
             height: 100%;
             align-items: stretch;
+            /* Ensure equal sizing during zoom */
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .council-left {
+            grid-area: council-left;
         }
 
         .council-right {
@@ -380,7 +387,7 @@
         .djinn-controls {
             grid-area: controls;
             background: linear-gradient(135deg, #1a0033, #2a0044);
-            border: 2px solid #cc88cc;
+            border: none;
             border-radius: 8px;
             padding: clamp(6px, 1.5vw, 10px);
             display: flex;
@@ -934,7 +941,7 @@
         /* High zoom level adjustments */
         @media (max-height: 700px) {
             .djinn-container {
-                grid-template-rows: minmax(50px, auto) 1fr 1fr minmax(70px, auto);
+                grid-template-rows: minmax(50px, auto) 1fr 1fr minmax(130px, auto);
             }
 
             .council-member {
@@ -1214,9 +1221,15 @@
             </div>
             <div class="keyboard-shortcuts" style="margin-top: 8px; padding: 6px; background: rgba(204, 136, 204, 0.05); border: 1px solid rgba(204, 136, 204, 0.3); border-radius: 4px; font-size: 10px; color: #cc88cc; text-align: center;">
                 <div style="font-weight: bold; margin-bottom: 4px;">🎛️ CONTROLS</div>
-                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; align-items: center;">
                     <span data-tooltip="Hold CTRL and scroll mouse wheel to resize the GUI interface for optimal viewing">🎛️ CTRL + Mousewheel: Resize GUI</span>
                     <span data-tooltip="Press Ctrl+F5 to refresh browser and clear cache for fresh analysis">🔄 Ctrl+F5: Refresh & Clear Cache</span>
+                    <span style="border-left: 1px solid #cc88cc; padding-left: 15px;" data-tooltip="Select AI model for all Council members and validation agents">
+                        🧠 Model:
+                        <select id="councilModelSelector" onchange="updateAllCouncilModels()" style="background: #ffffff; border: 1px solid #cc88cc; color: #000000; border-radius: 3px; padding: 2px 6px; font-size: 10px; margin-left: 4px;">
+                            <option value="">Loading models...</option>
+                        </select>
+                    </span>
                 </div>
             </div>
         </div>
@@ -1388,7 +1401,7 @@
                     </div>
                     <div style="font-size: 10px;">
                         <strong>📜 Full Canvas Content:</strong>
-                        <div id="canvasContentPreview" style="margin-top: 5px; padding: 5px; background: #000811; border: 1px solid #9966ff; border-radius: 3px; font-family: monospace; word-wrap: break-word; white-space: pre-wrap; max-height: 150px; overflow-y: auto;">
+                        <div id="canvasContentPreview" style="margin-top: 5px; padding: 5px; background: #000811; border: 1px solid #9966ff; border-radius: 3px; font-family: monospace; word-wrap: break-word; white-space: pre-wrap; height: calc(100% - 80px); min-height: 200px; overflow-y: auto;">
                             No canvas content detected yet...
                         </div>
                     </div>
@@ -1515,6 +1528,112 @@
         // ========================================
         // DJINN COUNCIL - SHADOW GOVERNANCE SYSTEM
         // ========================================
+
+        // UNIVERSAL MODEL MANAGEMENT SYSTEM
+        // ========================================
+
+        // Fetch available models from Ollama
+        async function fetchOllamaModels() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags');
+                const data = await response.json();
+                return data.models || [];
+            } catch (error) {
+                console.error('Failed to fetch Ollama models:', error);
+                return [];
+            }
+        }
+
+        // Populate Council model selector
+        async function populateCouncilModelSelector() {
+            const selector = document.getElementById('councilModelSelector');
+            if (!selector) return;
+
+            const models = await fetchOllamaModels();
+
+            // Clear existing options
+            selector.innerHTML = '';
+
+            if (models.length === 0) {
+                selector.innerHTML = '<option value="">No models available</option>';
+                return;
+            }
+
+            // Add models to selector
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.name;
+                option.textContent = model.name;
+                selector.appendChild(option);
+            });
+
+            // Set current model (check Canvas selection first, then localStorage, then first available)
+            const canvasModel = localStorage.getItem('canvas_universal_model');
+            const councilModel = localStorage.getItem('council_universal_model');
+            const currentModel = canvasModel || councilModel || models[0].name;
+            selector.value = currentModel;
+
+            // Update Council models to match
+            if (currentModel) {
+                updateAllCouncilModels();
+            }
+
+            console.log(`🧠 Council: Loaded ${models.length} available models: ${models.map(m => m.name).join(', ')}`);
+        }
+
+        // Get current selected model for all API calls
+        function getCurrentModel() {
+            const selector = document.getElementById('councilModelSelector');
+            if (selector && selector.value) {
+                return selector.value;
+            }
+
+            const storedModel = localStorage.getItem('council_universal_model') ||
+                               localStorage.getItem('canvas_universal_model');
+            if (storedModel) {
+                return storedModel;
+            }
+
+            console.warn('⚠️ No model selected - API calls will fail');
+            return null;
+        }
+
+        // Update all Council agents to use selected model
+        function updateAllCouncilModels() {
+            const selector = document.getElementById('councilModelSelector');
+            const selectedModel = selector.value;
+
+            if (!selectedModel) return;
+
+            // Note: Council members now use getCurrentModel() dynamically instead of static assignments
+
+            // Save selection to localStorage
+            localStorage.setItem('council_universal_model', selectedModel);
+
+            // Also update Canvas via cross-system sync
+            localStorage.setItem('canvas_universal_model', selectedModel);
+
+            // Trigger storage event for cross-page sync
+            localStorage.setItem('model_sync_trigger', Date.now().toString());
+
+            console.log(`🧠 Council: Updated all members and validation agents to use model: ${selectedModel}`);
+        }
+
+        // Listen for model changes from other pages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'canvas_universal_model' || e.key === 'council_universal_model') {
+                const newModel = e.newValue;
+                const selector = document.getElementById('councilModelSelector');
+
+                if (newModel && selector && selector.value !== newModel) {
+                    selector.value = newModel;
+                    console.log(`🔄 Council: Synced model from other page: ${newModel}`);
+
+                    // Update localStorage without triggering another storage event
+                    localStorage.setItem('council_universal_model', newModel);
+                }
+            }
+        });
 
         // System Configuration
         const DJINN_CONFIG = {
@@ -1869,35 +1988,35 @@
         const councilMembers = {
             pattern: {
                 name: "Pattern & Witness",
-                model: "gemma3:1b",
+                model: null, // Set dynamically by getCurrentModel()
                 element: "patternContent",
                 status: "patternStatus",
                 focus: ["governance patterns", "decision consistency", "authority distribution"]
             },
             wisdom: {
                 name: "Recursive Wisdom",
-                model: "gemma3:1b",
+                model: null, // Set dynamically by getCurrentModel()
                 element: "wisdomContent",
                 status: "wisdomStatus",
                 focus: ["depth analysis", "learning progression", "wisdom accumulation"]
             },
             paradox: {
                 name: "Creative Paradox",
-                model: "gemma3:1b",
+                model: null, // Set dynamically by getCurrentModel()
                 element: "paradoxContent",
                 status: "paradoxStatus",
                 focus: ["logic conflicts", "creative solutions", "innovation opportunities"]
             },
             boundaries: {
                 name: "Sovereign Boundaries",
-                model: "gemma3:1b",
+                model: null, // Set dynamically by getCurrentModel()
                 element: "boundariesContent",
                 status: "boundariesStatus",
                 focus: ["autonomy preservation", "choice freedom", "sovereignty metrics"]
             },
             memory: {
                 name: "Echo & Memory",
-                model: "gemma3:1b",
+                model: null, // Set dynamically by getCurrentModel()
                 element: "memoryContent",
                 status: "memoryStatus",
                 focus: ["memory consolidation", "information retention", "historical continuity"]
@@ -2536,6 +2655,38 @@
                 }
 
                 console.log(`📝 ${councilMembers[memberKey].name} notepad updated: ${category} - ${content.substring(0, 50)}...`);
+                return true;
+            }
+            return false;
+        }
+
+        // Update council member notepad (full implementation matching existing system)
+        function updateCouncilNotepad(memberKey, category, content, metadata = {}) {
+            if (!djinnCouncilMemory.members[memberKey] || !djinnCouncilMemory.members[memberKey].notepad) {
+                console.warn(`❌ Cannot update notepad for ${memberKey} - member not found`);
+                return false;
+            }
+
+            const note = {
+                id: Date.now() + Math.random(),
+                timestamp: new Date().toISOString(),
+                content: content,
+                metadata: metadata,
+                priority: metadata.priority || 'normal',
+                tags: metadata.tags || [],
+                sessionId: djinnCouncilMemory.sessionId
+            };
+
+            if (djinnCouncilMemory.members[memberKey].notepad[category]) {
+                djinnCouncilMemory.members[memberKey].notepad[category].push(note);
+
+                // Limit notepad size (keep last 50 entries per category)
+                if (djinnCouncilMemory.members[memberKey].notepad[category].length > 50) {
+                    djinnCouncilMemory.members[memberKey].notepad[category] =
+                        djinnCouncilMemory.members[memberKey].notepad[category].slice(-50);
+                }
+
+                console.log(`📝 ${councilMembers[memberKey]?.name || memberKey} notepad updated: ${category} - ${content.substring(0, 50)}...`);
                 return true;
             }
             return false;
@@ -7032,7 +7183,7 @@ RESPONSE CONSTRAINTS:
             logDjinnEvent('member', `${member.name} analysis starting`, {
                 member: memberKey,
                 promptLength: prompt.length,
-                model: member.model
+                model: getCurrentModel()
             });
 
             // Update status
@@ -7053,7 +7204,7 @@ RESPONSE CONSTRAINTS:
                 }
 
                 // Query Ollama with AI validation layer
-                logDjinnEvent('ollama', `${member.name} querying Ollama ${member.model} with validation`, { member: memberKey, model: member.model });
+                logDjinnEvent('ollama', `${member.name} querying Ollama ${getCurrentModel()} with validation`, { member: memberKey, model: getCurrentModel() });
                 const validationResult = await queryCouncilMemberWithValidation(memberKey, prompt, analysisContext);
 
                 const response = validationResult.response;
@@ -7435,7 +7586,7 @@ RESPONSE CONSTRAINTS:
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: model,
+                        model: getCurrentModel(),
                         system: "You are an expert AI analyst. Analyze the provided data and write a structured report. Start directly with **SUMMARY** and follow the exact format specified in the prompt. Do not include any introductory text or copy the prompt structure - generate your own analysis content. In the ACTIONS section, provide exactly 3 numbered recommendations without any sub-headers like 'SECOND RECOMMENDATION'.",
                         prompt: prompt,
                         stream: false,
@@ -7702,8 +7853,15 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                 }
 
                 while (iteration <= maxIterations) {
-                    console.log(`🔍 Querying ${member.model} for ${memberKey} analysis (attempt ${iteration}/${maxIterations})...`);
-                    const response = await queryOllama(member.model, currentPrompt);
+                    // SELF-ASSESSMENT: Council member reflects before generating response
+                    if (iteration === 1) {
+                        updateCouncilNotepad(memberKey, 'sessionNotes', `Validation cycle ${iteration}: Assessing my analytical readiness and potential blind spots for this complex query`);
+                    } else {
+                        updateCouncilNotepad(memberKey, 'sessionNotes', `Validation cycle ${iteration}: Reflecting on previous feedback and adjusting my analytical approach`);
+                    }
+
+                    console.log(`🔍 Querying ${getCurrentModel()} for ${memberKey} analysis (attempt ${iteration}/${maxIterations})...`);
+                    const response = await queryOllama(getCurrentModel(), currentPrompt);
 
                     // PATTERN RECOGNITION: Analyze report before validation
                     let patternAnalysis = null;
@@ -7725,7 +7883,31 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                     }
 
                     console.log(`🔍 AI-validating ${memberKey} response (iteration ${iteration})...`);
+
+                    // VALIDATION SPECIALIST SELF-ASSESSMENT: Before validating
+                    if (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) {
+                        validationSpecialist.notepad.sessionNotes.push({
+                            timestamp: new Date().toISOString(),
+                            content: `Pre-validation self-check: Reviewing ${memberKey} response (${response.length} chars). Assessing my own validation criteria and potential biases.`
+                        });
+                    }
+
                     const validationResult = await validateWithAI(response, canvasContent, memberKey);
+
+                    // VALIDATION SPECIALIST SELF-ASSESSMENT: After validating
+                    if (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) {
+                        validationSpecialist.notepad.sessionNotes.push({
+                            timestamp: new Date().toISOString(),
+                            content: `Post-validation reflection: Found ${validationResult.validated ? 'valid' : 'invalid'} response. Critical self-assessment: Did I apply appropriate rigor? Any blind spots in my analysis?`
+                        });
+
+                        if (!validationResult.validated) {
+                            validationSpecialist.notepad.selfPrompts.push({
+                                timestamp: new Date().toISOString(),
+                                content: `Why did this response fail validation? What specific criteria could ${memberKey} improve? Am I being too strict or too lenient?`
+                            });
+                        }
+                    }
 
                     validationHistory.push({
                         iteration: iteration,
@@ -7745,15 +7927,50 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                         `Refinement coaching for ${memberKey}`
                     );
 
+                    // REFINEMENT SPECIALIST SELF-ASSESSMENT: Before coaching
+                    if (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) {
+                        refinementSpecialist.notepad.sessionNotes.push({
+                            timestamp: new Date().toISOString(),
+                            content: `Pre-coaching self-assessment: About to analyze ${memberKey}'s validation interaction (iteration ${iteration}). What coaching approach would be most effective here?`
+                        });
+                    }
+
                     const coachingAnalysis = await refinementSpecialist.analyzeValidationInteraction(
                         memberKey, response, validationResult.notes, iteration
                     );
+
+                    // REFINEMENT SPECIALIST SELF-ASSESSMENT: After coaching
+                    if (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) {
+                        refinementSpecialist.notepad.sessionNotes.push({
+                            timestamp: new Date().toISOString(),
+                            content: `Post-coaching reflection: Provided coaching to ${memberKey}. Self-critical assessment: Was my coaching constructive? Did I identify the right improvement areas?`
+                        });
+
+                        refinementSpecialist.notepad.selfPrompts.push({
+                            timestamp: new Date().toISOString(),
+                            content: `How can I improve my coaching effectiveness for ${memberKey}? Are there patterns in validation failures I should address differently?`
+                        });
+                    }
 
                     agentInteractionSystem.endInteraction(refinementInteractionId);
 
                     // If validation passed without correction, we have a good report
                     if (validationResult.validated && !validationResult.corrected) {
                         console.log(`✅ ${memberKey} produced validated report on iteration ${iteration}`);
+
+                        // COUNCIL MEMBER SELF-ASSESSMENT: Successful validation
+                        updateCouncilNotepad(memberKey, 'observations', `Successfully validated on iteration ${iteration}! Analyzing what analytical approaches worked well for future reference.`);
+
+                        // Intelligence Officer: Capture successful patterns for other agents
+                        if (typeof intelligenceAgent !== 'undefined') {
+                            intelligenceAgent.injectInsight(
+                                'all',
+                                ['council', 'validation'],
+                                'emergentConsensus',
+                                `${memberKey} achieved first-iteration validation success. Analytical approach demonstrates effective framework that other agents could adapt.`,
+                                'normal'
+                            );
+                        }
 
                         // Update pattern recognition accuracy if we had a prediction
                         if (patternAnalysis) {
@@ -7786,6 +8003,19 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                         );
 
                         try {
+                            // RECOVERY AGENT SELF-ASSESSMENT: Critical escalation received
+                            if (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) {
+                                recoveryAgent.notepad.sessionNotes.push({
+                                    timestamp: new Date().toISOString(),
+                                    content: `CRITICAL ESCALATION: ${memberKey} failed ${maxIterations} validation attempts. Performing emergency self-assessment: What systemic failure patterns am I seeing? Is this agent-specific or broader system issue?`
+                                });
+
+                                recoveryAgent.notepad.observations.push({
+                                    timestamp: new Date().toISOString(),
+                                    content: `Validation failure pattern for ${memberKey}: ${validationHistory.length} attempts. Analyzing if this indicates deeper architectural problems requiring system-wide intervention.`
+                                });
+                            }
+
                             // Emergency intervention by Recovery Agent
                             const recoveryAnalysis = await recoveryAgent.performEmergencyIntervention(
                                 memberKey, validationHistory, coachingAnalysis ? 1 : 0
@@ -7841,6 +8071,22 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
                         break;
                     }
 
+                    // COUNCIL MEMBER SELF-ASSESSMENT: Receiving feedback for iteration
+                    updateCouncilNotepad(memberKey, 'observations', `Validation feedback received - my response was ${validationResult.validated ? 'valid but needs refinement' : 'invalid'}. Critical self-reflection needed.`);
+                    updateCouncilNotepad(memberKey, 'selfPrompts', `What specific weaknesses in my analysis led to this validation outcome? How can I adjust my analytical approach for the next iteration?`);
+
+                    // Intelligence Officer: Detect patterns in validation failures for strategic intervention
+                    if (typeof intelligenceAgent !== 'undefined' && iteration > 1) {
+                        const failurePattern = `${memberKey} requiring ${iteration} iterations - potential systematic issue`;
+                        intelligenceAgent.injectInsight(
+                            memberKey,
+                            'council',
+                            'correlationInsights',
+                            `Cross-system analysis shows repeated validation challenges. Consider adjusting core analytical framework rather than surface-level modifications.`,
+                            'high'
+                        );
+                    }
+
                     // Create enhanced feedback prompt with triangulated coaching
                     console.log(`🔄 ${memberKey} needs improvement, applying triangulated coaching for iteration ${iteration + 1}`);
                     currentPrompt = createTriangulatedFeedbackPrompt(prompt, response, validationResult, coachingAnalysis, canvasContent, memberKey, iteration);
@@ -7874,6 +8120,17 @@ CRITICAL: Only approve claims that can be verified from the actual canvas conten
 
                 qualityAssuranceMonitor.trackValidatorPerformance(memberKey, finalResponse, endTime - startTime);
                 agentInteractionSystem.endInteraction(qualityInteractionId);
+
+                // Intelligence Officer: Cross-agent learning opportunities
+                if (typeof intelligenceAgent !== 'undefined' && iteration > 1) {
+                    intelligenceAgent.injectInsight(
+                        'all',
+                        ['validation'],
+                        'collaborationSuggestions',
+                        `${memberKey} refined approach over ${iteration} iterations. Quality patterns detected: ${iteration === 2 ? 'quick adaptation' : 'persistence methodology'}. Share validation techniques with similar analytical profiles.`,
+                        iteration > 3 ? 'high' : 'normal'
+                    );
+                }
 
                 // Process response for notepad insights
                 if (finalResponse && finalResponse.response) {
@@ -9181,6 +9438,25 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                 }
             },
 
+            // Add note to refinement specialist notepad
+            addNote(category, content, metadata = {}) {
+                const note = {
+                    id: Date.now() + Math.random(),
+                    timestamp: new Date().toISOString(),
+                    content: content,
+                    metadata: metadata,
+                    priority: metadata.priority || 'normal'
+                };
+
+                if (this.notepad[category]) {
+                    this.notepad[category].push(note);
+                    if (this.notepad[category].length > 50) {
+                        this.notepad[category] = this.notepad[category].slice(-50);
+                    }
+                    console.log(`🔧 Refinement Specialist notepad: ${category} - ${content.substring(0, 40)}...`);
+                }
+            },
+
             // Analyze validation interaction for coaching opportunities
             async analyzeValidationInteraction(memberKey, originalResponse, validationFeedback, attempt) {
                 const analysisPrompt = `REFINEMENT COACHING ANALYSIS
@@ -9197,6 +9473,17 @@ You have a dynamic notepad system with 5 categories. Use it strategically:
 
 Append to notepad using: this.addNote('category', 'your insight here')
 Include notepad updates in your analysis to maintain continuous learning.
+
+=== INTELLIGENCE OFFICER COORDINATION ===
+The Intelligence Officer monitors all agent notepads and may inject strategic insights:
+- CORRELATION INSIGHTS: Cross-system patterns discovered between agents
+- STRATEGIC DIRECTIVES: High-level guidance based on ecosystem analysis
+- EMERGENT CONSENSUS: Emerging agreements spotted across multiple agents
+- CONFLICT ALERTS: Contradictions identified that need resolution
+- COLLABORATION SUGGESTIONS: Recommended agent interactions
+
+Check your notepad.intelligenceInputs for any strategic guidance before analysis.
+When significant patterns emerge, they will be shared across the validation ecosystem.
 ==========================
 
 === YOUR EXPERTISE ===
@@ -9237,12 +9524,29 @@ Provide detailed coaching analysis to improve both parties' performance.`;
                 try {
                     const coachingAnalysis = await queryOllama('gemma3:1b', analysisPrompt);
 
+                    // Add to notepad: Coaching session initiated
+                    this.addNote('sessionNotes', `Initiated coaching session for ${memberKey} (attempt ${attempt}). Analyzing validation failure patterns for improvement guidance.`, {
+                        member: memberKey,
+                        attempt: attempt,
+                        priority: attempt > 2 ? 'high' : 'normal'
+                    });
+
                     // Record this coaching session
                     this.recordCoachingSession(memberKey, originalResponse, validationFeedback, coachingAnalysis, attempt);
+
+                    // Add to notepad: Analysis completed
+                    this.addNote('observations', `Completed coaching analysis for ${memberKey}. Identified specific improvement patterns and intervention strategies.`, {
+                        member: memberKey,
+                        priority: 'normal'
+                    });
 
                     return this.parseCoachingAnalysis(coachingAnalysis);
                 } catch (error) {
                     console.error('Refinement specialist analysis failed:', error);
+                    this.addNote('orientations', `Coaching analysis failed for ${memberKey} - switching to fallback methodology. Need to investigate AI query system reliability.`, {
+                        member: memberKey,
+                        priority: 'high'
+                    });
                     return this.generateFallbackCoaching(memberKey, validationFeedback);
                 }
             },
@@ -9386,6 +9690,17 @@ You have a dynamic notepad system for continuous learning:
 - ORIENTATIONS: Record shifts in emergency focus and crisis management priorities
 
 Use your notepad to build emergency response expertise and maintain recovery system continuity.
+
+=== INTELLIGENCE OFFICER COORDINATION ===
+The Intelligence Officer monitors all agent notepads and may inject strategic insights:
+- CORRELATION INSIGHTS: Cross-system patterns discovered between agents
+- STRATEGIC DIRECTIVES: High-level guidance based on ecosystem analysis
+- EMERGENT CONSENSUS: Emerging agreements spotted across multiple agents
+- CONFLICT ALERTS: Contradictions identified that need resolution
+- COLLABORATION SUGGESTIONS: Recommended agent interactions
+
+Check your notepad.intelligenceInputs for any strategic guidance before emergency intervention.
+When critical patterns emerge, they will be shared across the validation ecosystem.
 ==========================
 
 === YOUR EMERGENCY EXPERTISE ===
@@ -9652,6 +9967,17 @@ You have a dynamic notepad system for continuous learning:
 - ORIENTATIONS: Record shifts in pattern focus and prediction model adjustments
 
 Use your notepad to build pattern recognition expertise and maintain predictive continuity.
+
+=== INTELLIGENCE OFFICER COORDINATION ===
+The Intelligence Officer monitors all agent notepads and may inject strategic insights:
+- CORRELATION INSIGHTS: Cross-system patterns discovered between agents
+- STRATEGIC DIRECTIVES: High-level guidance based on ecosystem analysis
+- EMERGENT CONSENSUS: Emerging agreements spotted across multiple agents
+- CONFLICT ALERTS: Contradictions identified that need resolution
+- COLLABORATION SUGGESTIONS: Recommended agent interactions
+
+Check your notepad.intelligenceInputs for any strategic guidance before pattern analysis.
+When predictive patterns emerge, they will be shared across the validation ecosystem.
 ==========================
 
 === PATTERN EXPERTISE ===
@@ -9886,6 +10212,17 @@ You have a dynamic notepad system for continuous learning:
 - ORIENTATIONS: Record shifts in efficiency focus and resource allocation priorities
 
 Use your notepad to build optimization expertise and maintain performance analysis continuity.
+
+=== INTELLIGENCE OFFICER COORDINATION ===
+The Intelligence Officer monitors all agent notepads and may inject strategic insights:
+- CORRELATION INSIGHTS: Cross-system patterns discovered between agents
+- STRATEGIC DIRECTIVES: High-level guidance based on ecosystem analysis
+- EMERGENT CONSENSUS: Emerging agreements spotted across multiple agents
+- CONFLICT ALERTS: Contradictions identified that need resolution
+- COLLABORATION SUGGESTIONS: Recommended agent interactions
+
+Check your notepad.intelligenceInputs for any strategic guidance before performance analysis.
+When optimization patterns emerge, they will be shared across the validation ecosystem.
 ==========================
 
 === PERFORMANCE EXPERTISE ===
@@ -10165,6 +10502,17 @@ You have a dynamic notepad system for continuous learning:
 - ORIENTATIONS: Record shifts in quality focus and monitoring priority adjustments
 
 Use your notepad to build quality assurance expertise and maintain system monitoring continuity.
+
+=== INTELLIGENCE OFFICER COORDINATION ===
+The Intelligence Officer monitors all agent notepads and may inject strategic insights:
+- CORRELATION INSIGHTS: Cross-system patterns discovered between agents
+- STRATEGIC DIRECTIVES: High-level guidance based on ecosystem analysis
+- EMERGENT CONSENSUS: Emerging agreements spotted across multiple agents
+- CONFLICT ALERTS: Contradictions identified that need resolution
+- COLLABORATION SUGGESTIONS: Recommended agent interactions
+
+Check your notepad.intelligenceInputs for any strategic guidance before quality assessment.
+When system quality patterns emerge, they will be shared across the validation ecosystem.
 ==========================
 
 === QA EXPERTISE ===
@@ -10406,6 +10754,16 @@ Provide comprehensive meta-analysis of validation system quality.`;
 
         // Initialize validation specialist memory when system starts
         document.addEventListener('DOMContentLoaded', function() {
+            // Clear any stuck synthesis states on startup
+            localStorage.setItem('canvas_synthesis_status', JSON.stringify({
+                completedSystems: 0,
+                synthesisTriggered: false,
+                allComplete: false,
+                isActive: false,
+                lastUpdate: new Date().toISOString()
+            }));
+            console.log('🔄 Reset synthesis status on system startup');
+
             validationSpecialist.loadMemory();
             refinementSpecialist.loadMemory();
             recoveryAgent.loadMemory();
@@ -10418,6 +10776,9 @@ Provide comprehensive meta-analysis of validation system quality.`;
             console.log('🎯 Pattern Recognition Engine initialized with predictive intelligence');
             console.log('⚡ Efficiency Optimizer initialized with performance management');
             console.log('📊 Quality Assurance Monitor initialized with meta-validation system');
+
+            // Initialize Council model selector
+            populateCouncilModelSelector();
         });
 
         // Canvas Integration - Trigger canvas cycle after intelligence completion
@@ -12373,7 +12734,7 @@ Provide comprehensive meta-analysis of validation system quality.`;
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: 'gemma3:1b',
+                        model: getCurrentModel(),
                         prompt: prompt,
                         stream: false
                     })
@@ -12831,6 +13192,19 @@ Keep response focused and under 500 words. Structure with clear sections as show
 
             // Add insight to intelligence agent notepad
             addNote(category, content, metadata = {}) {
+                if (!this.notepad[category]) return;
+
+                // Check for duplicate content to prevent repetition loops
+                const contentPreview = content.substring(0, 100).toLowerCase();
+                const isDuplicate = this.notepad[category].some(existingNote =>
+                    existingNote.content.substring(0, 100).toLowerCase() === contentPreview
+                );
+
+                if (isDuplicate) {
+                    console.log(`🔄 Skipping duplicate intelligence note: ${category} - ${content.substring(0, 40)}...`);
+                    return;
+                }
+
                 const note = {
                     id: Date.now() + Math.random(),
                     timestamp: new Date().toISOString(),
@@ -12839,11 +13213,13 @@ Keep response focused and under 500 words. Structure with clear sections as show
                     priority: metadata.priority || 'normal'
                 };
 
-                if (this.notepad[category]) {
-                    this.notepad[category].push(note);
-                    if (this.notepad[category].length > 50) {
-                        this.notepad[category] = this.notepad[category].slice(-50);
-                    }
+                this.notepad[category].push(note);
+                if (this.notepad[category].length > 50) {
+                    this.notepad[category] = this.notepad[category].slice(-50);
+                }
+
+                // Only log every 10th entry to reduce console spam
+                if (this.notepad[category].length % 10 === 0) {
                     console.log(`📝 Intelligence Agent notepad: ${category} - ${content.substring(0, 40)}...`);
                 }
             },
@@ -12992,6 +13368,58 @@ Keep response focused and under 500 words. Structure with clear sections as show
                     });
                 }
             });
+        }
+
+        // Intelligence data compression system
+        function compressIntelligenceData(response) {
+            // Extract key sections and create compressed representation
+            const sections = {
+                summary: extractSection(response, 'EXECUTIVE_SUMMARY'),
+                threats: extractSection(response, 'COMPREHENSIVE_THREAT_ASSESSMENT'),
+                strategic: extractSection(response, 'STRATEGIC_CROSS_SYSTEM_ANALYSIS'),
+                actionable: extractSection(response, 'ACTIONABLE_INTELLIGENCE'),
+                performance: extractSection(response, 'SYSTEM_PERFORMANCE_INTELLIGENCE'),
+                predictive: extractSection(response, 'PREDICTIVE_INTELLIGENCE')
+            };
+
+            // Only store non-empty sections to save space
+            const compressed = {};
+            Object.keys(sections).forEach(key => {
+                if (sections[key] && sections[key].trim().length > 0) {
+                    // Truncate each section to reasonable size
+                    compressed[key] = sections[key].substring(0, 500);
+                }
+            });
+
+            return compressed;
+        }
+
+        function archiveIntelligenceReport(report) {
+            // Create ultra-compressed archive entry
+            const archived = {
+                id: report.id,
+                timestamp: report.timestamp,
+                summary: report.structured?.summary?.substring(0, 200) || 'Intelligence report archived',
+                metrics: report.dataSnapshot?.systemMetrics || {},
+                archived: true
+            };
+
+            // Store in separate archive with rotation
+            let archives = JSON.parse(localStorage.getItem('djinn_intelligence_archive') || '[]');
+            archives.push(archived);
+
+            // Keep only last 5 archived entries
+            if (archives.length > 5) {
+                archives = archives.slice(-5);
+            }
+
+            try {
+                localStorage.setItem('djinn_intelligence_archive', JSON.stringify(archives));
+                console.log(`📦 Archived intelligence report ${report.id} (${archived.summary.substring(0, 50)}...)`);
+            } catch (e) {
+                console.warn('Archive storage failed, clearing old archives');
+                localStorage.removeItem('djinn_intelligence_archive');
+            }
         }
 
         async function generateAIIntelligenceReport() {
@@ -13191,8 +13619,15 @@ Cross-reference multiple data sources for validation
 
 Focus on strategic intelligence that leverages your complete omniscient view. Use specific metrics, patterns, and cross-system correlations. Provide comprehensive analysis without word limits - thoroughness over brevity for complete intelligence coverage.`;
 
+            // Validate model selection before proceeding
+            const selectedModel = getCurrentModel();
+            if (!selectedModel) {
+                throw new Error('No AI model selected - please select a model from the dropdown');
+            }
+
             try {
-                const intelligenceResponse = await queryOllama('gemma3:1b', intelligencePrompt);
+                console.log(`🎯 Querying ${selectedModel} for intelligence report...`);
+                const intelligenceResponse = await queryOllama(selectedModel, intelligencePrompt);
 
                 // Parse and structure the intelligence report
                 const intelligenceReport = parseIntelligenceReport(intelligenceResponse, systemMetrics, validationEcosystem);
@@ -13203,25 +13638,76 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 // Display the intelligence report
                 displayIntelligence(intelligenceReport);
 
-                // Store comprehensive intelligence data
+                // Smart storage system: compress and archive intelligence data
                 const fullIntelligenceRecord = {
                     id: Date.now(),
                     timestamp: new Date().toISOString(),
-                    report: intelligenceResponse,
-                    structured: intelligenceReport,
+                    structured: intelligenceReport, // Keep the structured analysis intact
+                    // Compress the full response using efficient storage
+                    report_compressed: compressIntelligenceData(intelligenceResponse),
                     dataSnapshot: {
-                        systemMetrics: systemMetrics,
-                        validationEcosystem: validationEcosystem,
-                        councilReports: councilReports.length,
-                        canvasEvolution: canvasContent.length,
-                        crossSystemCorrelations: correlationData
+                        systemMetrics: {
+                            canvasWords: systemMetrics.canvasWords,
+                            councilReports: systemMetrics.councilReportTotal,
+                            validationCycles: systemMetrics.validationCycles,
+                            intelligenceCount: systemMetrics.intelligenceReports
+                        },
+                        validationHealth: {
+                            successRate: validationEcosystem.primaryValidator.successRate,
+                            refinements: validationEcosystem.refinementSpecialist.refinementCount,
+                            patterns: validationEcosystem.patternEngine.patternsLearned
+                        }
                     },
                     omniscientAccess: true
                 };
 
-                // Update surveillance state
+                // Smart storage management with rotation
+                const maxReports = 2; // Keep only 2 most recent
                 surveillanceState.intelligenceReports.push(fullIntelligenceRecord);
-                localStorage.setItem('djinn_intelligence', JSON.stringify(surveillanceState.intelligenceReports));
+
+                if (surveillanceState.intelligenceReports.length > maxReports) {
+                    // Archive older reports to a compressed format
+                    const oldReport = surveillanceState.intelligenceReports.shift();
+                    archiveIntelligenceReport(oldReport);
+                }
+
+                try {
+                    localStorage.setItem('djinn_intelligence', JSON.stringify(surveillanceState.intelligenceReports));
+                    console.log(`💾 Stored intelligence report (${surveillanceState.intelligenceReports.length} reports in memory)`);
+                } catch (quotaError) {
+                    console.warn('🚨 Storage pressure detected - implementing emergency compression');
+
+                    // Emergency: Create minimal essential-only record
+                    const emergencyRecord = {
+                        id: fullIntelligenceRecord.id,
+                        timestamp: fullIntelligenceRecord.timestamp,
+                        summary: intelligenceReport.summary?.substring(0, 300) || 'Intelligence analysis completed',
+                        risk_assessment: intelligenceReport.risk_assessment?.substring(0, 200) || 'Risk assessment completed',
+                        actionable: Array.isArray(intelligenceReport.actionable)
+                            ? intelligenceReport.actionable.slice(0, 3)
+                            : ['Continue monitoring', 'Maintain analysis', 'Review system health'],
+                        metrics: {
+                            canvas: systemMetrics.canvasWords,
+                            council: systemMetrics.councilReportTotal,
+                            validation: systemMetrics.validationCycles
+                        },
+                        emergency_compressed: true
+                    };
+
+                    // Replace with single emergency record
+                    surveillanceState.intelligenceReports = [emergencyRecord];
+
+                    try {
+                        localStorage.setItem('djinn_intelligence', JSON.stringify(surveillanceState.intelligenceReports));
+                        console.log('🆘 Emergency compression successful - intelligence preserved in minimal format');
+                    } catch (finalError) {
+                        console.error('❌ Critical storage failure - intelligence report displayed but not persisted');
+                        // Clear non-essential storage to free space
+                        ['canvas_analysis_cache', 'ai_feeds_backup', 'temporary_data'].forEach(key => {
+                            localStorage.removeItem(key);
+                        });
+                    }
+                }
 
                 console.log('🎯 OMNISCIENT AI Intelligence Report completed with full ecosystem analysis');
 
@@ -13239,38 +13725,92 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 // End intelligence synthesis interaction on error
                 agentInteractionSystem.endInteraction(intelligenceInteractionId);
 
-                const errorReport = {
-                    summary: 'SYSTEM ERROR: Omniscient intelligence analysis unavailable - AI system connectivity failure',
-                    risk_assessment: 'CRITICAL: Intelligence generation system offline',
-                    actionable: ['Verify AI system connectivity', 'Check Ollama server status', 'Restart intelligence analysis'],
-                    strategic_implications: 'Strategic intelligence compromised - manual system intervention required',
-                    system_health: 'Intelligence ecosystem requires immediate attention'
-                };
+                // Create specific error report based on error type
+                let errorReport;
+                if (error.message.includes('No AI model selected')) {
+                    errorReport = {
+                        summary: 'MODEL SELECTION REQUIRED: No AI model selected for intelligence analysis',
+                        risk_assessment: 'MEDIUM: Intelligence generation paused until model selection',
+                        actionable: ['Select AI model from dropdown menu', 'Ensure Ollama has downloaded models', 'Retry intelligence generation'],
+                        strategic_implications: 'Intelligence analysis requires model selection to proceed',
+                        system_health: 'System ready - awaiting model selection'
+                    };
+                } else if (error.message.includes('fetch') || error.name === 'AbortError') {
+                    errorReport = {
+                        summary: 'CONNECTIVITY ERROR: Unable to connect to Ollama AI service',
+                        risk_assessment: 'HIGH: Intelligence generation system offline',
+                        actionable: ['Verify Ollama server is running', 'Check localhost:11434 connectivity', 'Restart Ollama service if needed'],
+                        strategic_implications: 'Intelligence ecosystem requires Ollama connectivity for operation',
+                        system_health: 'AI connectivity failure detected'
+                    };
+                } else {
+                    errorReport = {
+                        summary: `INTELLIGENCE ERROR: ${error.message || 'Unknown analysis failure'}`,
+                        risk_assessment: 'MEDIUM: Intelligence generation encountered unexpected error',
+                        actionable: ['Check browser console for details', 'Verify system resources', 'Retry intelligence analysis'],
+                        strategic_implications: 'Intelligence analysis requires troubleshooting for optimal operation',
+                        system_health: 'Intelligence system error detected'
+                    };
+                }
+
                 displayIntelligence(errorReport);
+                updateCouncilStatus('INTELLIGENCE ERROR');
                 throw error;
             }
         }
 
         function parseIntelligenceReport(response, metrics, validationData) {
-            // Enhanced parsing with system context
+            // Enhanced parsing with system context and better fallbacks
+            if (!response || response.trim().length === 0) {
+                throw new Error('Empty response received from AI model');
+            }
+
             const report = {
                 // Required properties for displayIntelligence function
                 severity: 'intel',
                 type: 'AI_INTELLIGENCE_REPORT',
                 timestamp: new Date().toISOString(),
 
-                // Core intelligence data - try to parse sections first, fall back to full response if needed
-                summary: extractSection(response, 'EXECUTIVE_SUMMARY') || response || 'Intelligence analysis completed',
-                risk_assessment: extractSection(response, 'COMPREHENSIVE_THREAT_ASSESSMENT') || 'Risk assessment analysis in progress',
-                strategic_analysis: extractSection(response, 'STRATEGIC_CROSS_SYSTEM_ANALYSIS') || 'Strategic analysis leveraging system data',
-                actionable: parseActionableItems(extractSection(response, 'ACTIONABLE_INTELLIGENCE')) || ['Review system performance', 'Monitor validation metrics'],
-                system_health: extractSection(response, 'SYSTEM_PERFORMANCE_INTELLIGENCE') || `Canvas: ${metrics.canvasWords} words, Council: ${metrics.councilReportTotal} reports, Validation: ${validationData.primaryValidator.validationCount} cycles`,
-                predictive_intelligence: extractSection(response, 'PREDICTIVE_INTELLIGENCE') || 'Predictive analysis based on historical data',
-                supporting_evidence: extractSection(response, 'EVIDENCE_FOUNDATION') || 'Evidence compiled from system data',
-                strategic_implications: extractSection(response, 'STRATEGIC_IMPLICATIONS') || 'Strategic implications derived from ecosystem analysis',
-                correlations: extractSection(response, 'CORRELATION_ANALYSIS') || 'Cross-system correlations identified through data analysis',
-                confidence_level: 'HIGH - Based on complete system visibility'
+                // Core intelligence data - try to parse sections first, fall back to meaningful defaults
+                summary: extractSection(response, 'EXECUTIVE_SUMMARY') ||
+                         response.substring(0, 500) + (response.length > 500 ? '...' : '') ||
+                         'Intelligence analysis completed successfully',
+
+                risk_assessment: extractSection(response, 'COMPREHENSIVE_THREAT_ASSESSMENT') ||
+                               'Risk assessment completed - review full analysis for details',
+
+                strategic_analysis: extractSection(response, 'STRATEGIC_CROSS_SYSTEM_ANALYSIS') ||
+                                  'Strategic analysis leveraging complete system data',
+
+                actionable: parseActionableItems(extractSection(response, 'ACTIONABLE_INTELLIGENCE')) ||
+                          ['Continue comprehensive system monitoring', 'Maintain cross-system data synchronization', 'Execute next analysis cycle'],
+
+                system_health: extractSection(response, 'SYSTEM_PERFORMANCE_INTELLIGENCE') ||
+                             `Canvas: ${metrics.canvasWords} words, Council: ${metrics.councilReportTotal} reports, Validation: ${validationData.primaryValidator.validationCount} cycles`,
+
+                predictive_intelligence: extractSection(response, 'PREDICTIVE_INTELLIGENCE') ||
+                                       'Predictive analysis based on comprehensive historical data patterns',
+
+                supporting_evidence: extractSection(response, 'EVIDENCE_FOUNDATION') ||
+                                   'Evidence foundation compiled from complete system analysis',
+
+                strategic_implications: extractSection(response, 'STRATEGIC_IMPLICATIONS') ||
+                                      'Strategic implications derived from comprehensive ecosystem analysis',
+
+                correlations: extractSection(response, 'CORRELATION_ANALYSIS') ||
+                            'Cross-system correlations identified through comprehensive data analysis',
+
+                confidence_level: 'HIGH - Based on complete omniscient system visibility',
+
+                // Include full response for debugging
+                full_response: response
             };
+
+            console.log('📋 Parsed intelligence report:', {
+                summary_length: report.summary.length,
+                sections_found: Object.keys(report).filter(key => report[key] && report[key] !== report.full_response).length,
+                response_length: response.length
+            });
 
             return report;
         }

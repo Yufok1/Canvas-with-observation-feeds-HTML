@@ -351,6 +351,118 @@
             80% { opacity: 1; }
             100% { opacity: 0.8; }
         }
+
+        /* USER QUERY STYLING */
+        .user-query {
+            background: linear-gradient(135deg, #001122, #002244);
+            border: 1px solid #4ecdc4;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            color: #4ecdc4;
+            font-size: 11px;
+            box-shadow: 0 2px 8px rgba(78, 205, 196, 0.2);
+            animation: queryAppear 0.5s ease-out;
+        }
+
+        .user-query.confidence {
+            border-left: 4px solid #ffaa00;
+        }
+
+        .user-query.priority {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .user-query.direction {
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .user-query.validation {
+            border-left: 4px solid #00ff88;
+        }
+
+        .user-query.synergy {
+            border-left: 4px solid #9b59b6;
+        }
+
+        .user-query.conflict {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .user-query.consensus {
+            border-left: 4px solid #3498db;
+        }
+
+        .user-query button {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 1px solid #4ecdc4;
+            border-radius: 4px;
+            color: #4ecdc4;
+            padding: 6px 12px;
+            margin: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .user-query button:hover {
+            background: linear-gradient(135deg, #4ecdc4, #45b7b8);
+            color: #001122;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(78, 205, 196, 0.3);
+        }
+
+        .user-query button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(78, 205, 196, 0.2);
+        }
+
+        .query-controls {
+            color: #4ecdc4;
+            font-size: 10px;
+        }
+
+        .query-controls input[type="checkbox"] {
+            accent-color: #4ecdc4;
+        }
+
+        @keyframes queryAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Query response feedback styling */
+        .query-response-feedback {
+            color: #4ecdc4;
+            padding: 10px;
+            background: rgba(76, 205, 196, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #4ecdc4;
+            animation: responseSuccess 0.6s ease-out;
+        }
+
+        @keyframes responseSuccess {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+                background: rgba(76, 205, 196, 0.3);
+            }
+            50% {
+                background: rgba(76, 205, 196, 0.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                background: rgba(76, 205, 196, 0.1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -376,6 +488,21 @@
                     <span>🌊 NARRA: <span id="narraStatus" style="color: #4ecdc4;">--</span> <button onclick="createNotepadPopup('narra')" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View NARRA Notepad">📝</button></span>
                     <span>🐋 WHALE: <span id="whaleStatus" style="color: #00ff41;">--</span> <button onclick="createNotepadPopup('whale')" style="background: none; border: 1px solid #00ff41; color: #00ff41; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View WHALE Notepad">📝</button></span>
                     <span>🔱 WATCHTOWER: <span id="watchtowerStatus" style="color: #ffaa00;">--</span> <button onclick="createNotepadPopup('watchtower')" style="background: none; border: 1px solid #ffaa00; color: #ffaa00; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px;" title="View WATCHTOWER Notepad">📝</button></span>
+                    <span class="model-controls" style="margin-left: 15px; border-left: 1px solid #4ecdc4; padding-left: 15px;">
+                        <label style="color: #4ecdc4; font-size: 10px;">
+                            🧠 Model:
+                            <select id="universalModelSelector" onchange="updateAllModels()" style="background: #ffffff; border: 1px solid #4ecdc4; color: #000000; border-radius: 3px; padding: 2px 6px; font-size: 10px; margin-left: 4px;">
+                                <option value="">Loading models...</option>
+                            </select>
+                        </label>
+                    </span>
+                    <span class="query-controls" style="margin-left: 10px;">
+                        <label style="color: #4ecdc4; font-size: 10px; cursor: pointer;">
+                            <input type="checkbox" id="enableAIQuestions" checked style="margin-right: 4px; accent-color: #4ecdc4;">
+                            🤖 AI Questions
+                        </label>
+                        <span style="margin-left: 5px; color: #ffaa00; font-size: 9px;">(<span id="queryCount">0</span> pending)</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -392,6 +519,7 @@
                 <button class="canvas-btn" onclick="showTriageCapabilities()">🔧 Triage Force</button>
                 <span style="margin-left: auto; font-size: 10px;">Auto-save: <span id="autoSaveStatus">ON</span></span>
             </div>
+
 
             <textarea id="mainCanvas" class="canvas-workspace" placeholder="🜂 Your sovereign observations and assessments... The AI feeds will inform but not interfere with your analysis.">🜂 SOVEREIGN CANVAS INITIALIZED
 
@@ -872,7 +1000,38 @@ Ready for your first collaborative synthesis! 🚀</textarea>
 
             // Check if synthesis is currently in progress
             isSynthesisInProgress: function() {
-                return this.currentRound && this.currentRound.synthesisTriggered && !this.currentRound.synthesisCompleted;
+                if (!this.currentRound || !this.currentRound.synthesisTriggered) {
+                    return false;
+                }
+
+                // Check for stuck synthesis (timeout after 5 minutes)
+                const now = Date.now();
+                const synthesisStartTime = this.currentRound.synthesisStartTime || this.currentRound.startTime;
+                const timeoutMs = 5 * 60 * 1000; // 5 minutes
+
+                if (synthesisStartTime && (now - synthesisStartTime) > timeoutMs) {
+                    console.log('⚠️ Synthesis timeout detected - resetting stuck synthesis state');
+                    this.resetStuckSynthesis();
+                    return false;
+                }
+
+                return !this.currentRound.synthesisCompleted;
+            },
+
+            // Reset stuck synthesis state
+            resetStuckSynthesis: function() {
+                if (this.currentRound) {
+                    this.currentRound.synthesisTriggered = false;
+                    this.currentRound.synthesisCompleted = true;
+                    console.log('🔄 Reset stuck synthesis state - synthesis tracker cleared');
+
+                    // Update UI to show ready state
+                    const synthesisStatusElement = document.getElementById('synthesisRoundStatus');
+                    if (synthesisStatusElement) {
+                        synthesisStatusElement.textContent = 'Ready';
+                        synthesisStatusElement.style.color = '#4ecdc4';
+                    }
+                }
             },
 
             // Extract confidence level from AI response
@@ -907,6 +1066,235 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 };
             }
         };
+
+        // ========================================
+        // USER QUERY RESPONSE SYSTEM
+        // ========================================
+
+        // Handle user responses to AI queries
+        function submitResponse(agent, queryId, response) {
+            const userResponse = {
+                agent: agent,
+                queryId: queryId,
+                response: response,
+                timestamp: new Date().toISOString(),
+                canvasContext: localStorage.getItem('sovereign_canvas_content')?.length || 0
+            };
+
+            // Store in agent-specific user interactions
+            const storageKey = `canvas_${agent}_user_responses`;
+            const existingResponses = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            existingResponses.push(userResponse);
+
+            // Keep only last 50 responses per agent
+            if (existingResponses.length > 50) {
+                existingResponses.splice(0, existingResponses.length - 50);
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify(existingResponses));
+
+            // Visual feedback
+            const queryElement = document.querySelector(`[data-query-id="${queryId}"]`);
+            if (queryElement) {
+                queryElement.innerHTML = `<div class="query-response-feedback">
+                    <strong>✅ Response Recorded:</strong> ${response}<br>
+                    <small>This will inform future ${agent.toUpperCase()} analysis</small>
+                </div>`;
+
+                // Mark as answered for counting
+                queryElement.setAttribute('data-answered', 'true');
+
+                // Update pending query count
+                updateQueryCount();
+            }
+
+            console.log(`📝 User response recorded for ${agent}: ${response}`);
+        }
+
+        // Query management functions
+        function updateQueryCount() {
+            const pendingQueries = document.querySelectorAll('.user-query:not([data-answered="true"])').length;
+            const queryCountElement = document.getElementById('queryCount');
+            if (queryCountElement) {
+                queryCountElement.textContent = pendingQueries;
+            }
+        }
+
+        function getAIQuestionsEnabled() {
+            const checkbox = document.getElementById('enableAIQuestions');
+            return checkbox ? checkbox.checked : true; // Default enabled
+        }
+
+        function toggleAIQuestions() {
+            const enabled = getAIQuestionsEnabled();
+            localStorage.setItem('canvas_ai_questions_enabled', JSON.stringify(enabled));
+            console.log(`🤖 AI Questions ${enabled ? 'enabled' : 'disabled'}`);
+
+            // Hide/show existing queries
+            const queries = document.querySelectorAll('.user-query');
+            queries.forEach(query => {
+                query.style.display = enabled ? 'block' : 'none';
+            });
+
+            updateQueryCount();
+        }
+
+        // Cross-agent synergy and conflict resolution queries
+        function generateCrossAgentQuery(queryType, context) {
+            if (!getAIQuestionsEnabled()) return '';
+
+            const queryId = `${queryType}_${Date.now()}`;
+
+            switch(queryType) {
+                case 'synergy':
+                    return `
+**Cross-Agent Synergy Opportunity:**
+<div class="user-query synergy" data-agent="cross" data-query-id="${queryId}">
+<strong>🤝 Agent Collaboration:</strong> ${context.situation}<br>
+Which agents should collaborate on this?<br>
+<button onclick="submitResponse('cross', '${queryId}', 'djinn-nazar')">🧞‍♂️📊 DJINN + NAZAR</button>
+<button onclick="submitResponse('cross', '${queryId}', 'narra-whale')">📜🐋 NARRA + WHALE</button>
+<button onclick="submitResponse('cross', '${queryId}', 'watchtower-djinn')">🏰🧞‍♂️ WATCHTOWER + DJINN</button>
+<button onclick="submitResponse('cross', '${queryId}', 'all-agents')">🎯 All Agents</button>
+</div>`;
+
+                case 'conflict':
+                    return `
+**Agent Conflict Resolution:**
+<div class="user-query conflict" data-agent="cross" data-query-id="${queryId}">
+<strong>⚖️ Resolution Needed:</strong> ${context.conflict}<br>
+How should we resolve this discrepancy?<br>
+<button onclick="submitResponse('cross', '${queryId}', 'vote-most-confident')">📊 Trust Most Confident</button>
+<button onclick="submitResponse('cross', '${queryId}', 'hybrid-approach')">🔄 Hybrid Approach</button>
+<button onclick="submitResponse('cross', '${queryId}', 'gather-more-data')">🔍 Gather More Data</button>
+<button onclick="submitResponse('cross', '${queryId}', 'user-decides')">👤 User Decision</button>
+</div>`;
+
+                case 'consensus':
+                    return `
+**Emerging Consensus Check:**
+<div class="user-query consensus" data-agent="cross" data-query-id="${queryId}">
+<strong>🎯 Consensus Building:</strong> ${context.trend}<br>
+Should we strengthen this emerging pattern?<br>
+<button onclick="submitResponse('cross', '${queryId}', 'amplify')">🔊 Amplify Signal</button>
+<button onclick="submitResponse('cross', '${queryId}', 'investigate')">🔍 Investigate Further</button>
+<button onclick="submitResponse('cross', '${queryId}', 'maintain')">📊 Monitor Trend</button>
+<button onclick="submitResponse('cross', '${queryId}', 'abandon')">⏹️ Abandon Path</button>
+</div>`;
+
+                default:
+                    return '';
+            }
+        }
+
+        // UNIVERSAL MODEL MANAGEMENT SYSTEM
+        // ========================================
+
+        // Fetch available models from Ollama
+        async function fetchOllamaModels() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags');
+                const data = await response.json();
+                return data.models || [];
+            } catch (error) {
+                console.error('Failed to fetch Ollama models:', error);
+                return [];
+            }
+        }
+
+        // Populate model selector with available models
+        async function populateModelSelector() {
+            const selector = document.getElementById('universalModelSelector');
+            if (!selector) return;
+
+            const models = await fetchOllamaModels();
+
+            // Clear existing options
+            selector.innerHTML = '';
+
+            if (models.length === 0) {
+                selector.innerHTML = '<option value="">No models available</option>';
+                return;
+            }
+
+            // Add models to selector
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.name;
+                option.textContent = model.name;
+                selector.appendChild(option);
+            });
+
+            // Set current model (or first available)
+            const currentModel = localStorage.getItem('universal_model_selection') || models[0].name;
+            selector.value = currentModel;
+
+            console.log(`🧠 Loaded ${models.length} available models: ${models.map(m => m.name).join(', ')}`);
+        }
+
+        // Get current selected model for all API calls
+        function getCurrentModel() {
+            const selector = document.getElementById('universalModelSelector');
+            if (selector && selector.value) {
+                return selector.value;
+            }
+
+            const storedModel = localStorage.getItem('universal_model_selection') ||
+                               localStorage.getItem('canvas_universal_model');
+            if (storedModel) {
+                return storedModel;
+            }
+
+            console.warn('⚠️ No model selected - API calls will fail');
+            return null;
+        }
+
+        // Update all agents to use the selected model
+        function updateAllModels() {
+            const selector = document.getElementById('universalModelSelector');
+            const selectedModel = selector.value;
+
+            if (!selectedModel) return;
+
+            // Update Canvas AI agents
+            optimizedModelMap.djinn = selectedModel;
+            optimizedModelMap.nazar = selectedModel;
+            optimizedModelMap.whale = selectedModel;
+            optimizedModelMap.narra = selectedModel;
+            optimizedModelMap.watchtower = selectedModel;
+
+            // Save selection to localStorage
+            localStorage.setItem('universal_model_selection', selectedModel);
+
+            // Update Council models via localStorage for cross-system communication
+            localStorage.setItem('canvas_universal_model', selectedModel);
+
+            // Trigger storage event for cross-page sync
+            localStorage.setItem('model_sync_trigger', Date.now().toString());
+
+            console.log(`🧠 Updated all agents to use model: ${selectedModel}`);
+        }
+
+        // Listen for model changes from other pages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'canvas_universal_model' || e.key === 'council_universal_model') {
+                const newModel = e.newValue;
+                const selector = document.getElementById('universalModelSelector');
+
+                if (newModel && selector && selector.value !== newModel) {
+                    selector.value = newModel;
+                    console.log(`🔄 Canvas: Synced model from other page: ${newModel}`);
+
+                    // Update local agents without triggering another storage event
+                    optimizedModelMap.djinn = newModel;
+                    optimizedModelMap.nazar = newModel;
+                    optimizedModelMap.whale = newModel;
+                    optimizedModelMap.narra = newModel;
+                    optimizedModelMap.watchtower = newModel;
+                    localStorage.setItem('universal_model_selection', newModel);
+                }
+            }
+        });
 
         async function pollAIDataParallel() {
             // Check if polling is disabled in council integration mode
@@ -1232,6 +1620,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 synthesisStatus.textContent = '✅ Synthesis Complete';
                 synthesisStatus.style.color = '#6bcf7f';
 
+
                 // Communicate synthesis report to DJINN council
                 try {
                     // Store synthesis report in localStorage for DJINN council
@@ -1457,7 +1846,7 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
 
         // REAL OLLAMA QUERY FUNCTION
         async function queryOllamaReal(system, prompt, retryCount = 0) {
-            const model = optimizedModelMap[system] || "gemma3:1b";
+            const model = getCurrentModel();
             const cacheKey = `${model}_${hashQuery(prompt)}`;
 
             // Check cache first
@@ -1558,7 +1947,7 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
 
         // SPECIAL SYNTHESIS QUERY WITH EXTENDED LIMITS
         async function queryOllamaForSynthesis(system, prompt, retryCount = 0) {
-            const model = optimizedModelMap[system] || "gemma3:1b";
+            const model = getCurrentModel();
             const cacheKey = `synthesis_${model}_${hashQuery(prompt)}`;
 
             // Check cache first
@@ -1764,7 +2153,49 @@ ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
 ${notepadContext}
-${randomVariation} Provide specific governance insights and recommendations based on the content above. Focus on how the principles and concepts relate to governance structures. Build upon your previous analysis and develop new insights.`,
+${randomVariation} Provide specific governance insights and recommendations based on the content above. Focus on how the principles and concepts relate to governance structures. Build upon your previous analysis and develop new insights.
+
+=== INTERACTIVE INQUIRY SYSTEM ===
+When user input would enhance your analysis, you can embed these inquiry templates:
+
+**Confidence-Based Inquiry:**
+<div class="user-query confidence" data-agent="djinn" data-query-id="conf_${Date.now()}">
+<strong>📊 Confidence Assessment:</strong> [Your analysis point]<br>
+Rate your confidence in this conclusion:<br>
+<button onclick="submitResponse('djinn', '${Date.now()}', '0-25')">Low (0-25%)</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', '25-50')">Moderate (25-50%)</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', '50-75')">High (50-75%)</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', '75-100')">Very High (75-100%)</button>
+</div>
+
+**Priority Ranking:**
+<div class="user-query priority" data-agent="djinn" data-query-id="pri_${Date.now()}">
+<strong>⭐ Priority Assessment:</strong> Among these options, which should take priority?<br>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'urgent')">🔥 Urgent</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'important')">⚡ Important</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'moderate')">📝 Moderate</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'low')">⏳ Low Priority</button>
+</div>
+
+**Direction Indicator:**
+<div class="user-query direction" data-agent="djinn" data-query-id="dir_${Date.now()}">
+<strong>🎯 Analysis Direction:</strong> How should I proceed with this analysis?<br>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'expand')">↗️ Expand This</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'continue')">➡️ Continue</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'reduce')">↘️ Reduce Focus</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'pause')">⏸️ Pause</button>
+</div>
+
+**Validation Quick-Check:**
+<div class="user-query validation" data-agent="djinn" data-query-id="val_${Date.now()}">
+<strong>✓ Validation Check:</strong> [Your conclusion/finding]<br>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'accurate')">✅ Accurate</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'partial')">≈ Partially</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'inaccurate')">❌ Inaccurate</button>
+<button onclick="submitResponse('djinn', '${Date.now()}', 'need_info')">❓ Need More Info</button>
+</div>
+
+Use these ONLY when user perspective would significantly enhance your analysis. All responses are stored in your notepad system for learning.`,
 
                 nazar: `You are NAZAR, the emotional and fractal consciousness AI. Analyze patterns through emotional resonance and fractal mathematics.
 Consider consciousness layers, emotional harmonics, fractal patterns in data, and multi-dimensional analysis.
@@ -1784,7 +2215,49 @@ ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
 ${notepadContext}
-${randomVariation} Provide insights about emotional and fractal aspects of the content above. Identify recursive patterns, self-similar structures, and consciousness layers. Reference your previous fractal analysis and develop deeper insights.`,
+${randomVariation} Provide insights about emotional and fractal aspects of the content above. Identify recursive patterns, self-similar structures, and consciousness layers. Reference your previous fractal analysis and develop deeper insights.
+
+=== INTERACTIVE INQUIRY SYSTEM ===
+When user input would enhance your analysis, you can embed these inquiry templates:
+
+**Confidence-Based Inquiry:**
+<div class="user-query confidence" data-agent="nazar" data-query-id="conf_${Date.now()}">
+<strong>📊 Confidence Assessment:</strong> [Your analysis point]<br>
+Rate your confidence in this conclusion:<br>
+<button onclick="submitResponse('nazar', '${Date.now()}', '0-25')">Low (0-25%)</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', '25-50')">Moderate (25-50%)</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', '50-75')">High (50-75%)</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', '75-100')">Very High (75-100%)</button>
+</div>
+
+**Priority Ranking:**
+<div class="user-query priority" data-agent="nazar" data-query-id="pri_${Date.now()}">
+<strong>⭐ Priority Assessment:</strong> Among these options, which should take priority?<br>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'urgent')">🔥 Urgent</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'important')">⚡ Important</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'moderate')">📝 Moderate</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'low')">⏳ Low Priority</button>
+</div>
+
+**Direction Indicator:**
+<div class="user-query direction" data-agent="nazar" data-query-id="dir_${Date.now()}">
+<strong>🎯 Analysis Direction:</strong> How should I proceed with this analysis?<br>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'expand')">↗️ Expand This</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'continue')">➡️ Continue</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'reduce')">↘️ Reduce Focus</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'pause')">⏸️ Pause</button>
+</div>
+
+**Validation Quick-Check:**
+<div class="user-query validation" data-agent="nazar" data-query-id="val_${Date.now()}">
+<strong>✓ Validation Check:</strong> [Your conclusion/finding]<br>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'accurate')">✅ Accurate</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'partial')">≈ Partially</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'inaccurate')">❌ Inaccurate</button>
+<button onclick="submitResponse('nazar', '${Date.now()}', 'need_info')">❓ Need More Info</button>
+</div>
+
+Use these ONLY when user perspective would significantly enhance your analysis. All responses are stored in your notepad system for learning.`,
 
                 narra: `You are NARRA, the pattern recognition AI. Identify and analyze recurring patterns, correlations, and structural relationships.
 Focus on data patterns, system connections, emerging trends, and pattern synthesis.
@@ -1804,7 +2277,49 @@ ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
 ${notepadContext}
-${randomVariation} Analyze the patterns in the content above. Identify mathematical principles, recursive structures, and how different concepts interconnect. Build upon your previous pattern analysis with new correlations.`,
+${randomVariation} Analyze the patterns in the content above. Identify mathematical principles, recursive structures, and how different concepts interconnect. Build upon your previous pattern analysis with new correlations.
+
+=== INTERACTIVE INQUIRY SYSTEM ===
+When user input would enhance your analysis, you can embed these inquiry templates:
+
+**Confidence-Based Inquiry:**
+<div class="user-query confidence" data-agent="narra" data-query-id="conf_${Date.now()}">
+<strong>📊 Confidence Assessment:</strong> [Your analysis point]<br>
+Rate your confidence in this conclusion:<br>
+<button onclick="submitResponse('narra', '${Date.now()}', '0-25')">Low (0-25%)</button>
+<button onclick="submitResponse('narra', '${Date.now()}', '25-50')">Moderate (25-50%)</button>
+<button onclick="submitResponse('narra', '${Date.now()}', '50-75')">High (50-75%)</button>
+<button onclick="submitResponse('narra', '${Date.now()}', '75-100')">Very High (75-100%)</button>
+</div>
+
+**Priority Ranking:**
+<div class="user-query priority" data-agent="narra" data-query-id="pri_${Date.now()}">
+<strong>⭐ Priority Assessment:</strong> Among these options, which should take priority?<br>
+<button onclick="submitResponse('narra', '${Date.now()}', 'urgent')">🔥 Urgent</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'important')">⚡ Important</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'moderate')">📝 Moderate</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'low')">⏳ Low Priority</button>
+</div>
+
+**Direction Indicator:**
+<div class="user-query direction" data-agent="narra" data-query-id="dir_${Date.now()}">
+<strong>🎯 Analysis Direction:</strong> How should I proceed with this analysis?<br>
+<button onclick="submitResponse('narra', '${Date.now()}', 'expand')">↗️ Expand This</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'continue')">➡️ Continue</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'reduce')">↘️ Reduce Focus</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'pause')">⏸️ Pause</button>
+</div>
+
+**Validation Quick-Check:**
+<div class="user-query validation" data-agent="narra" data-query-id="val_${Date.now()}">
+<strong>✓ Validation Check:</strong> [Your conclusion/finding]<br>
+<button onclick="submitResponse('narra', '${Date.now()}', 'accurate')">✅ Accurate</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'partial')">≈ Partially</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'inaccurate')">❌ Inaccurate</button>
+<button onclick="submitResponse('narra', '${Date.now()}', 'need_info')">❓ Need More Info</button>
+</div>
+
+Use these ONLY when user perspective would significantly enhance your analysis. All responses are stored in your notepad system for learning.`,
 
                 whale: `You are WHALE, the deep interrogation and memory AI. Conduct thorough analysis of system memory, context preservation, and deep interrogation.
 Examine memory patterns, analytical depth, judgment protocols, and preserved context.
@@ -1824,7 +2339,49 @@ ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
 ${notepadContext}
-${randomVariation} Provide deep analytical insights into the mathematical and computational concepts above. Examine the theoretical foundations and practical implications. Develop your previous deep analysis with new interrogations.`,
+${randomVariation} Provide deep analytical insights into the mathematical and computational concepts above. Examine the theoretical foundations and practical implications. Develop your previous deep analysis with new interrogations.
+
+=== INTERACTIVE INQUIRY SYSTEM ===
+When user input would enhance your analysis, you can embed these inquiry templates:
+
+**Confidence-Based Inquiry:**
+<div class="user-query confidence" data-agent="whale" data-query-id="conf_${Date.now()}">
+<strong>📊 Confidence Assessment:</strong> [Your analysis point]<br>
+Rate your confidence in this conclusion:<br>
+<button onclick="submitResponse('whale', '${Date.now()}', '0-25')">Low (0-25%)</button>
+<button onclick="submitResponse('whale', '${Date.now()}', '25-50')">Moderate (25-50%)</button>
+<button onclick="submitResponse('whale', '${Date.now()}', '50-75')">High (50-75%)</button>
+<button onclick="submitResponse('whale', '${Date.now()}', '75-100')">Very High (75-100%)</button>
+</div>
+
+**Priority Ranking:**
+<div class="user-query priority" data-agent="whale" data-query-id="pri_${Date.now()}">
+<strong>⭐ Priority Assessment:</strong> Among these options, which should take priority?<br>
+<button onclick="submitResponse('whale', '${Date.now()}', 'urgent')">🔥 Urgent</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'important')">⚡ Important</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'moderate')">📝 Moderate</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'low')">⏳ Low Priority</button>
+</div>
+
+**Direction Indicator:**
+<div class="user-query direction" data-agent="whale" data-query-id="dir_${Date.now()}">
+<strong>🎯 Analysis Direction:</strong> How should I proceed with this analysis?<br>
+<button onclick="submitResponse('whale', '${Date.now()}', 'expand')">↗️ Expand This</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'continue')">➡️ Continue</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'reduce')">↘️ Reduce Focus</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'pause')">⏸️ Pause</button>
+</div>
+
+**Validation Quick-Check:**
+<div class="user-query validation" data-agent="whale" data-query-id="val_${Date.now()}">
+<strong>✓ Validation Check:</strong> [Your conclusion/finding]<br>
+<button onclick="submitResponse('whale', '${Date.now()}', 'accurate')">✅ Accurate</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'partial')">≈ Partially</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'inaccurate')">❌ Inaccurate</button>
+<button onclick="submitResponse('whale', '${Date.now()}', 'need_info')">❓ Need More Info</button>
+</div>
+
+Use these ONLY when user perspective would significantly enhance your analysis. All responses are stored in your notepad system for learning.`,
 
                 watchtower: `You are WATCHTOWER, the operational monitoring AI. Monitor system performance, operational metrics, coordination, and strategic objectives.
 Track efficiency, stability, coordination, and operational convergence.
@@ -1844,7 +2401,49 @@ ${analysisPriority}${canvasContext}
 ${memoryContext}
 ${councilContext}
 ${notepadContext}
-${randomVariation} Monitor how the theoretical concepts above translate to operational principles. Assess stability, efficiency, and practical implementation considerations. Build upon your previous monitoring insights.`
+${randomVariation} Monitor how the theoretical concepts above translate to operational principles. Assess stability, efficiency, and practical implementation considerations. Build upon your previous monitoring insights.
+
+=== INTERACTIVE INQUIRY SYSTEM ===
+When user input would enhance your analysis, you can embed these inquiry templates:
+
+**Confidence-Based Inquiry:**
+<div class="user-query confidence" data-agent="watchtower" data-query-id="conf_${Date.now()}">
+<strong>📊 Confidence Assessment:</strong> [Your analysis point]<br>
+Rate your confidence in this conclusion:<br>
+<button onclick="submitResponse('watchtower', '${Date.now()}', '0-25')">Low (0-25%)</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', '25-50')">Moderate (25-50%)</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', '50-75')">High (50-75%)</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', '75-100')">Very High (75-100%)</button>
+</div>
+
+**Priority Ranking:**
+<div class="user-query priority" data-agent="watchtower" data-query-id="pri_${Date.now()}">
+<strong>⭐ Priority Assessment:</strong> Among these options, which should take priority?<br>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'urgent')">🔥 Urgent</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'important')">⚡ Important</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'moderate')">📝 Moderate</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'low')">⏳ Low Priority</button>
+</div>
+
+**Direction Indicator:**
+<div class="user-query direction" data-agent="watchtower" data-query-id="dir_${Date.now()}">
+<strong>🎯 Analysis Direction:</strong> How should I proceed with this analysis?<br>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'expand')">↗️ Expand This</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'continue')">➡️ Continue</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'reduce')">↘️ Reduce Focus</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'pause')">⏸️ Pause</button>
+</div>
+
+**Validation Quick-Check:**
+<div class="user-query validation" data-agent="watchtower" data-query-id="val_${Date.now()}">
+<strong>✓ Validation Check:</strong> [Your conclusion/finding]<br>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'accurate')">✅ Accurate</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'partial')">≈ Partially</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'inaccurate')">❌ Inaccurate</button>
+<button onclick="submitResponse('watchtower', '${Date.now()}', 'need_info')">❓ Need More Info</button>
+</div>
+
+Use these ONLY when user perspective would significantly enhance your analysis. All responses are stored in your notepad system for learning.`
             };
 
             return systemPrompts[system] || baseContext;
@@ -2625,11 +3224,14 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             canvasChangeTracker.updateStatusDisplay();
 
             // Add event listeners for canvas changes
+
+
             mainCanvas.addEventListener('input', function() {
                 canvasChangeTracker.hasChanged(mainCanvas.value);
                 // Update localStorage immediately for DJINN Council surveillance
                 localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
                 localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+
             });
 
             mainCanvas.addEventListener('change', function() {
@@ -4742,6 +5344,28 @@ Your strategic oversight (2-3 sentences):`;
          document.addEventListener('DOMContentLoaded', function() {
              // Start surveillance monitoring
              setTimeout(updateSurveillancePanel, 1000);
+
+             // Initialize AI Questions toggle control
+             const enableAIQuestionsCheckbox = document.getElementById('enableAIQuestions');
+             if (enableAIQuestionsCheckbox) {
+                 // Restore saved preference
+                 const savedPreference = JSON.parse(localStorage.getItem('canvas_ai_questions_enabled') || 'true');
+                 enableAIQuestionsCheckbox.checked = savedPreference;
+
+                 // Add event listener
+                 enableAIQuestionsCheckbox.addEventListener('change', toggleAIQuestions);
+
+                 // Initial state update
+                 toggleAIQuestions();
+
+                 console.log('🤖 AI Questions toggle control initialized');
+             }
+
+             // Initialize query count
+             updateQueryCount();
+
+             // Initialize model selector
+             populateModelSelector();
          });
     </script>
 
