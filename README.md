@@ -174,16 +174,31 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 
 #### For Turbo Mode (Cloud Models)
 1. **No Ollama Required**: Cloud models via Ollama Turbo
-2. **Auto-Configured**: Turbo proxy starts automatically with launch scripts
+2. **Secure API Key Setup**: Launch scripts prompt for API key (no hardcoded credentials)
 3. **Massive Models**: Access 480B-671B parameter models
-4. **Launch**: Same launch scripts - toggle to Turbo mode in interface
+4. **Launch**: Same launch scripts - API key prompted automatically
 
-### Manual Setup Alternative
+### API Key Management
+
+#### Secure API Key Setup Utility
+Use the dedicated setup utility for secure API key management:
+```batch
+setup-api-key.bat
+```
+
+**Features:**
+- **Session Setup**: Temporary API key for current session
+- **Permanent Setup**: Store API key in user environment variables
+- **Status Check**: View current API key configuration
+- **Secure Cleanup**: Clear stored API keys when needed
+
+#### Manual Setup Alternative
 1. **Start Ollama Server**: Run `ollama serve` in terminal (for local mode)
-2. **Start Turbo Proxy**: Run `python ollama-turbo-proxy.py` (for cloud mode)
-3. **Start Web Server**: Execute `python -m http.server 8080` in project directory
-4. **Access Canvas**: Navigate to `http://localhost:8080/canvas-with-observation-feeds.html`
-5. **Access Council**: Navigate to `http://localhost:8080/djinn-council-shadow-governance.html`
+2. **Set API Key**: Run `set OLLAMA_TURBO_API_KEY=your_api_key_here` (for cloud mode)
+3. **Start Turbo Proxy**: Run `python ollama-turbo-proxy.py` (for cloud mode)
+4. **Start Web Server**: Execute `python -m http.server 8080` in project directory
+5. **Access Canvas**: Navigate to `http://localhost:8080/canvas-with-observation-feeds.html`
+6. **Access Council**: Navigate to `http://localhost:8080/djinn-council-shadow-governance.html`
 
 ## 🎛️ Usage Guide
 
@@ -251,7 +266,8 @@ Dynamic model selection supporting both local and cloud models:
 ### Turbo Mode (Cloud Processing)
 - **Cloud Infrastructure**: Processing on enterprise-grade cloud servers
 - **Secure Transmission**: Encrypted communication via HTTPS
-- **API Key Management**: Secure credential handling with localStorage
+- **Enhanced API Key Security**: No hardcoded credentials, environment variable based
+- **Dynamic Configuration**: API keys prompted at launch or via setup utility
 - **User Choice**: Optional cloud integration - toggle as needed
 
 ### Universal Privacy Features

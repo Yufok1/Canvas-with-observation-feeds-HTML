@@ -554,6 +554,7 @@ but this canvas remains yours for sovereign observation and judgment.
                 <button class="obs-tool" onclick="markObservation('pattern')">🔍 Pattern</button>
                 <button class="obs-tool" onclick="markObservation('anomaly')">⚠️ Anomaly</button>
                 <button class="obs-tool" onclick="markObservation('correlation')">🔗 Correlation</button>
+                <button class="obs-tool" onclick="performNotepadMaintenance()" title="Optimize all agent notepads - purge low-survival notes">🧬 Optimize Notepads</button>
                 <button class="obs-tool" onclick="markObservation('insight')">💡 Insight</button>
                 <button class="obs-tool" onclick="markObservation('note')">📝 Note</button>
             </div>
@@ -2213,6 +2214,7 @@ Should we strengthen this emerging pattern?<br>
             lastChangeTime: null,
             changeCount: 0,
             forceFreshAnalysis: false,
+            versionHistory: [],
 
             // Simple hash function for content comparison
             hashContent: function(content) {
@@ -2236,6 +2238,19 @@ Should we strengthen this emerging pattern?<br>
                     this.lastChangeTime = new Date();
                     this.changeCount++;
                     this.forceFreshAnalysis = true;
+                    
+                    // Store version history
+                    this.versionHistory.push({
+                        timestamp: this.lastChangeTime,
+                        content: currentContent,
+                        changeNumber: this.changeCount
+                    });
+                    
+                    // Keep only last 10 versions
+                    if (this.versionHistory.length > 10) {
+                        this.versionHistory = this.versionHistory.slice(-10);
+                    }
+                    
                     console.log(`📝 Canvas changed (change #${this.changeCount}) - forcing fresh AI analysis`);
 
                     // Check for complex content and refresh insights if needed
@@ -2770,11 +2785,27 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
 
                 // Step 4: Update AI memory for conversation continuity
                 updateAIMemory(system, aiResponse, new Date().toISOString());
+                
+                // Step 4.5: Trigger notepad updates for all agents (no reports)
+                triggerNotepadUpdates('ai_response', {
+                    system: system,
+                    response: aiResponse,
+                    timestamp: new Date().toISOString(),
+                    source: 'ai_interaction'
+                });
 
                 // Step 5: Process AI response for notepad insights
                 const canvas = document.getElementById('mainCanvas');
                 const canvasContent = canvas ? canvas.value : '';
                 processAIResponseForNotepad(system, aiResponse, canvasContent);
+
+                // Step 6: Trigger notepad updates for feed completion (no reports)
+                triggerNotepadUpdates('feed_completion', {
+                    system: system,
+                    response: aiResponse,
+                    timestamp: new Date().toISOString(),
+                    source: 'feed_update'
+                });
 
                 return { success: true, system: system, response: aiResponse };
 
@@ -2816,6 +2847,10 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
 
             // Get dynamic notepad context for this AI system
             const notepadContext = getNotepadContext(system);
+            
+            // Get canvas version history for evolution tracking
+            const versionContext = canvasChangeTracker.versionHistory.length > 0 ? 
+                `\n\nCANVAS EVOLUTION HISTORY:\n${canvasChangeTracker.versionHistory.slice(-3).map(v => `Change #${v.changeNumber} (${v.timestamp}): ${v.content.substring(0, 100)}...`).join('\n')}` : '';
 
             // Adjust prompt based on canvas change detection and mathematical content
             let analysisPriority = '';
@@ -3409,6 +3444,382 @@ CREATE TOOLS THAT WATCH OVER THE ENTIRE SYSTEM - Maximum operational awareness a
             } catch (error) {
                 console.warn('Failed to load AI memory:', error);
             }
+        }
+
+        // TRIGGER SELECTIVE NOTEPAD UPDATES FOR ALL AGENTS (NO REPORTS)
+        function triggerNotepadUpdates(eventType, data) {
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+            
+            systems.forEach(system => {
+                if (aiMemory[system] && aiMemory[system].notepad) {
+                    // Determine priority based on event type and data importance
+                    const priority = determineUpdatePriority(eventType, data, system);
+                    
+                    // Use selective update - agents choose what to update
+                    selectiveNotepadUpdate(system, eventType, data, priority);
+                    
+                    // Maximize agent capabilities with all available data
+                    maximizeAgentCapabilities(system);
+                }
+            });
+        }
+
+        // DETERMINE UPDATE PRIORITY FOR SELECTIVE UPDATES
+        function determineUpdatePriority(eventType, data, system) {
+            // High priority events
+            if (['capability_maximization', 'data_fusion'].includes(eventType)) {
+                return 'high';
+            }
+            
+            // Check data importance
+            const importance = calculateNoteImportance(data, system, 'cross_agent_data');
+            if (importance > 0.8) {
+                return 'high';
+            } else if (importance > 0.6) {
+                return 'normal';
+            } else {
+                return 'low';
+            }
+        }
+
+        // GET OTHER AGENT NOTEPADS FOR CROSS-AGENT AWARENESS
+        function getOtherAgentNotepads(currentSystem) {
+            const otherAgents = {};
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+            
+            systems.forEach(system => {
+                if (system !== currentSystem && aiMemory[system] && aiMemory[system].notepad) {
+                    otherAgents[system] = {
+                        observations: aiMemory[system].notepad.observations?.slice(-3) || [],
+                        directives: aiMemory[system].notepad.directives?.slice(-2) || [],
+                        insights: aiMemory[system].notepad.insights?.slice(-2) || [],
+                        lastUpdate: aiMemory[system].lastAnalysis
+                    };
+                }
+            });
+            
+            return otherAgents;
+        }
+
+        // INTELLIGENT NOTEPAD MANAGEMENT SYSTEM
+        function addNotepadEntry(system, category, note) {
+            if (!aiMemory[system] || !aiMemory[system].notepad) {
+                console.warn(`Notepad not initialized for ${system}`);
+                return;
+            }
+
+            // Add agent-specific metadata with importance scoring
+            const enhancedNote = {
+                ...note,
+                agent: system,
+                timestamp: new Date().toISOString(),
+                dataSource: note.source || 'unknown',
+                crossAgentData: note.otherAgents || {},
+                importance: calculateNoteImportance(note, system, category),
+                relevance: calculateNoteRelevance(note, system),
+                survivalScore: 0 // Will be calculated over time
+            };
+
+            if (aiMemory[system].notepad[category]) {
+                // Add to beginning (most recent at top)
+                aiMemory[system].notepad[category].unshift(enhancedNote);
+                
+                // Intelligent notepad optimization
+                optimizeNotepadSection(system, category);
+            }
+        }
+
+        // CALCULATE NOTE IMPORTANCE FOR SELECTIVE UPDATES
+        function calculateNoteImportance(note, system, category) {
+            let importance = 0;
+            
+            // Base importance by category
+            const categoryWeights = {
+                'cross_agent_data': 0.9,
+                'data_fusion': 0.95,
+                'observations': 0.8,
+                'directives': 0.85,
+                'insights': 0.9,
+                'self_prompts': 0.7,
+                'intelligence_inputs': 0.8
+            };
+            
+            importance += categoryWeights[category] || 0.5;
+            
+            // Boost importance based on data source
+            const sourceWeights = {
+                'ai_interaction': 0.9,
+                'canvas_change': 0.8,
+                'feed_update': 0.85,
+                'memory': 0.7,
+                'capability_maximization': 0.95
+            };
+            
+            importance += sourceWeights[note.source] || 0.5;
+            
+            // Boost importance based on cross-agent data richness
+            if (note.otherAgents && Object.keys(note.otherAgents).length > 0) {
+                importance += 0.1 * Math.min(Object.keys(note.otherAgents).length, 4);
+            }
+            
+            // Boost importance based on data complexity
+            if (note.data && typeof note.data === 'object') {
+                const dataComplexity = JSON.stringify(note.data).length;
+                importance += Math.min(dataComplexity / 1000, 0.2);
+            }
+            
+            return Math.min(importance, 1.0);
+        }
+
+        // CALCULATE NOTE RELEVANCE FOR CURRENT OPERATIONS
+        function calculateNoteRelevance(note, system) {
+            let relevance = 0.5; // Base relevance
+            
+            // Check if note contains current canvas content references
+            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            if (note.data && note.data.content && canvasContent.includes(note.data.content.substring(0, 50))) {
+                relevance += 0.3;
+            }
+            
+            // Check if note relates to recent AI interactions
+            const recentTime = Date.now() - (5 * 60 * 1000); // 5 minutes
+            if (new Date(note.timestamp).getTime() > recentTime) {
+                relevance += 0.2;
+            }
+            
+            // Check if note has cross-agent correlations
+            if (note.crossAgentData && Object.keys(note.crossAgentData).length > 0) {
+                relevance += 0.2;
+            }
+            
+            return Math.min(relevance, 1.0);
+        }
+
+        // OPTIMIZE NOTEPAD SECTION WITH SURVIVAL OF THE FITTEST
+        function optimizeNotepadSection(system, category) {
+            const notepad = aiMemory[system].notepad[category];
+            if (!notepad || notepad.length === 0) return;
+            
+            // Update survival scores based on recent activity
+            notepad.forEach(note => {
+                note.survivalScore = calculateSurvivalScore(note, system);
+            });
+            
+            // Sort by survival score (highest first) - most recent and important at top
+            notepad.sort((a, b) => {
+                // Primary sort: survival score (descending)
+                if (b.survivalScore !== a.survivalScore) {
+                    return b.survivalScore - a.survivalScore;
+                }
+                // Secondary sort: timestamp (most recent first)
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+            
+            // Intelligent purging - remove notes with low survival scores
+            const maxNotes = getMaxNotesForCategory(category, system);
+            if (notepad.length > maxNotes) {
+                const notesToKeep = notepad.slice(0, maxNotes);
+                const notesToPurge = notepad.slice(maxNotes);
+                
+                // Log purged notes for transparency
+                notesToPurge.forEach(note => {
+                    console.log(`🗑️ ${system.toUpperCase()} purged low-survival note: ${note.dataSource} (score: ${note.survivalScore.toFixed(2)})`);
+                });
+                
+                // Keep only the fittest notes
+                aiMemory[system].notepad[category] = notesToKeep;
+            }
+            
+            console.log(`🧬 ${system.toUpperCase()} notepad optimized: ${notepad.length} notes in ${category}`);
+        }
+
+        // CALCULATE SURVIVAL SCORE FOR NOTE EVOLUTION
+        function calculateSurvivalScore(note, system) {
+            let score = 0;
+            
+            // Base score from importance and relevance
+            score += (note.importance || 0) * 0.4;
+            score += (note.relevance || 0) * 0.3;
+            
+            // Recency boost (exponential decay)
+            const ageHours = (Date.now() - new Date(note.timestamp).getTime()) / (1000 * 60 * 60);
+            const recencyScore = Math.exp(-ageHours / 24); // Decay over 24 hours
+            score += recencyScore * 0.2;
+            
+            // Cross-agent interaction boost
+            if (note.crossAgentData && Object.keys(note.crossAgentData).length > 0) {
+                score += 0.1;
+            }
+            
+            // Data richness boost
+            if (note.data && typeof note.data === 'object') {
+                const dataSize = JSON.stringify(note.data).length;
+                score += Math.min(dataSize / 2000, 0.1);
+            }
+            
+            return Math.min(score, 1.0);
+        }
+
+        // GET MAX NOTES FOR CATEGORY BASED ON AGENT TYPE
+        function getMaxNotesForCategory(category, system) {
+            const baseLimits = {
+                'cross_agent_data': 25,
+                'data_fusion': 15,
+                'observations': 30,
+                'directives': 20,
+                'insights': 25,
+                'self_prompts': 15,
+                'intelligence_inputs': 20
+            };
+            
+            // Adjust limits based on agent type
+            const agentMultipliers = {
+                'djinn': 1.2,    // DJINN needs more data
+                'nazar': 1.1,    // NAZAR needs moderate data
+                'narra': 1.0,    // NARRA standard
+                'whale': 0.9,    // WHALE needs less data
+                'watchtower': 1.1 // WATCHTOWER needs moderate data
+            };
+            
+            const baseLimit = baseLimits[category] || 20;
+            const multiplier = agentMultipliers[system] || 1.0;
+            
+            return Math.floor(baseLimit * multiplier);
+        }
+
+        // MAXIMIZE AGENT CAPABILITIES USING ALL DATA SOURCES
+        function maximizeAgentCapabilities(system) {
+            if (!aiMemory[system] || !aiMemory[system].notepad) return;
+
+            const agent = aiMemory[system];
+            const otherAgents = getOtherAgentNotepads(system);
+            
+            // Create comprehensive data fusion for enhanced operations
+            const dataFusion = {
+                canvas: localStorage.getItem('sovereign_canvas_content') || '',
+                memory: agent.conversationHistory?.slice(-5) || [],
+                insights: agent.keyInsights?.slice(-3) || [],
+                crossAgent: otherAgents,
+                correlations: correlations || [],
+                observations: agent.notepad?.observations?.slice(-5) || [],
+                directives: agent.notepad?.directives?.slice(-3) || []
+            };
+
+            // Add data fusion to notepad for enhanced decision making
+            addNotepadEntry(system, 'data_fusion', {
+                fusion: dataFusion,
+                timestamp: new Date().toISOString(),
+                source: 'capability_maximization',
+                otherAgents: otherAgents
+            });
+
+            console.log(`🚀 ${system.toUpperCase()} capabilities maximized with data fusion`);
+        }
+
+        // AGENT-DRIVEN NOTEPAD OPTIMIZATION
+        function agentOptimizeNotepad(system, category = null) {
+            if (!aiMemory[system] || !aiMemory[system].notepad) return;
+            
+            const categories = category ? [category] : Object.keys(aiMemory[system].notepad);
+            let totalOptimized = 0;
+            
+            categories.forEach(cat => {
+                if (aiMemory[system].notepad[cat]) {
+                    const beforeCount = aiMemory[system].notepad[cat].length;
+                    optimizeNotepadSection(system, cat);
+                    const afterCount = aiMemory[system].notepad[cat].length;
+                    totalOptimized += (beforeCount - afterCount);
+                }
+            });
+            
+            console.log(`🧬 ${system.toUpperCase()} manually optimized notepad: ${totalOptimized} notes purged`);
+            return totalOptimized;
+        }
+
+        // PERIODIC NOTEPAD MAINTENANCE
+        function performNotepadMaintenance() {
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+            let totalMaintenance = 0;
+            
+            systems.forEach(system => {
+                if (aiMemory[system] && aiMemory[system].notepad) {
+                    const optimized = agentOptimizeNotepad(system);
+                    totalMaintenance += optimized;
+                }
+            });
+            
+            console.log(`🧹 Periodic notepad maintenance complete: ${totalMaintenance} total notes purged`);
+            return totalMaintenance;
+        }
+
+        // SELECTIVE NOTEPAD UPDATE - AGENTS CHOOSE WHAT TO UPDATE
+        function selectiveNotepadUpdate(system, eventType, data, priority = 'normal') {
+            if (!aiMemory[system] || !aiMemory[system].notepad) return;
+            
+            // Calculate if this update is worth adding based on priority and current notepad state
+            const shouldUpdate = shouldAgentUpdateNotepad(system, eventType, data, priority);
+            
+            if (shouldUpdate) {
+                // Determine best category for this update
+                const category = determineBestCategory(system, eventType, data);
+                
+                // Add with enhanced metadata
+                addNotepadEntry(system, category, {
+                    event: eventType,
+                    timestamp: data.timestamp,
+                    source: data.source,
+                    data: data,
+                    otherAgents: getOtherAgentNotepads(system),
+                    priority: priority,
+                    selectiveUpdate: true
+                });
+                
+                console.log(`🎯 ${system.toUpperCase()} selectively updated ${category} (priority: ${priority})`);
+            } else {
+                console.log(`⏭️ ${system.toUpperCase()} skipped notepad update (low priority)`);
+            }
+        }
+
+        // DETERMINE IF AGENT SHOULD UPDATE NOTEPAD
+        function shouldAgentUpdateNotepad(system, eventType, data, priority) {
+            const notepad = aiMemory[system].notepad;
+            if (!notepad) return false;
+            
+            // High priority always updates
+            if (priority === 'high') return true;
+            
+            // Check current notepad load
+            const totalNotes = Object.values(notepad).reduce((sum, category) => sum + category.length, 0);
+            const maxTotalNotes = 150; // Total notepad capacity
+            
+            // If notepad is full, only high-importance updates
+            if (totalNotes >= maxTotalNotes) {
+                return priority === 'high' || calculateNoteImportance(data, system, 'cross_agent_data') > 0.8;
+            }
+            
+            // Normal priority updates if notepad has space
+            if (priority === 'normal') return true;
+            
+            // Low priority only if notepad is relatively empty
+            if (priority === 'low') {
+                return totalNotes < maxTotalNotes * 0.7;
+            }
+            
+            return false;
+        }
+
+        // DETERMINE BEST CATEGORY FOR UPDATE
+        function determineBestCategory(system, eventType, data) {
+            // Map event types to optimal categories
+            const categoryMapping = {
+                'canvas_change': 'observations',
+                'ai_response': 'insights',
+                'feed_completion': 'cross_agent_data',
+                'memory_update': 'intelligence_inputs',
+                'capability_maximization': 'data_fusion'
+            };
+            
+            return categoryMapping[eventType] || 'cross_agent_data';
         }
 
         function updateAIMemory(system, response, timestamp) {
@@ -4188,9 +4599,36 @@ CREATE TOOLS THAT WATCH OVER THE ENTIRE SYSTEM - Maximum operational awareness a
             }
 
             console.log('🚀 AI Polling started with activity optimization');
+            
+        // DATA CONNECTIVITY: Update localStorage for AI visibility + notepad updates (no reports)
+        const mainCanvas = document.getElementById('mainCanvas');
+        if (mainCanvas) {
+            mainCanvas.addEventListener('input', function() {
+                // Update data for AI visibility + trigger notepad updates
+                setTimeout(() => {
+                    // Update canvas data
+                    localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
+                    localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+                    
+                    // Trigger notepad updates for all agents (no reports)
+                    triggerNotepadUpdates('canvas_change', {
+                        content: mainCanvas.value,
+                        timestamp: new Date().toISOString(),
+                        source: 'canvas'
+                    });
+                    
+                    console.log('📊 Canvas data updated + notepad updates triggered');
+                }, 100); // Quick data update
+            });
+        }
 
             // Start activity monitoring
             startActivityMonitoring();
+
+            // Start periodic notepad maintenance (every 10 minutes)
+            setInterval(() => {
+                performNotepadMaintenance();
+            }, 600000); // 10 minutes
 
             // Initial poll
             await pollAIDataParallel();
@@ -4423,6 +4861,21 @@ CREATE TOOLS THAT WATCH OVER THE ENTIRE SYSTEM - Maximum operational awareness a
         function updateMetrics(system, confidence) {
             systemMetrics[system] = confidence * 100;
             updateMetrics();
+        }
+
+        // TRIGGER AI FEED UPDATE FUNCTION
+        async function triggerAIFeedUpdate() {
+            console.log('🔄 Triggering AI feed update due to canvas change...');
+            
+            // Update all AI systems with fresh analysis
+            const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+            for (const system of systems) {
+                try {
+                    await updateFeedProgressive(system);
+                } catch (error) {
+                    console.error(`❌ Error updating ${system}:`, error);
+                }
+            }
         }
 
         // UPDATE DISPLAYS
@@ -6262,11 +6715,11 @@ Your strategic oversight (2-3 sentences):`;
                  // Initial state update
                  toggleAIQuestions();
 
-                 console.log('🤖 AI Questions toggle control initialized');
-             }
-
-             // Initialize query count
-             updateQueryCount();
+                console.log('🤖 AI Questions toggle control initialized');
+            }
+    
+            // Initialize query count
+            updateQueryCount();
 
              // Initialize model selector
              populateModelSelector();
@@ -6274,10 +6727,22 @@ Your strategic oversight (2-3 sentences):`;
              // Initialize Turbo mode
              initializeTurboMode();
 
-             // Auto-set API key if not already present
+             // Check for API key in URL parameters (for launch script integration)
+             const urlParams = new URLSearchParams(window.location.search);
+             const urlApiKey = urlParams.get('api_key');
+             if (urlApiKey) {
+                 localStorage.setItem('ollama_turbo_api_key', urlApiKey);
+                 console.log('🔑 API key loaded from URL parameter');
+                 // Remove API key from URL for security
+                 const newUrl = new URL(window.location);
+                 newUrl.searchParams.delete('api_key');
+                 window.history.replaceState({}, document.title, newUrl);
+             }
+
+             // API key will be set by launch script if provided
              if (!localStorage.getItem('ollama_turbo_api_key')) {
-                 localStorage.setItem('ollama_turbo_api_key', '9530d1e6e9b34702927ee472648b0979.jFTbKz1M_LhtuDM4BNZBuf4Q');
-                 console.log('🔑 Ollama Turbo API key auto-configured');
+                 // No default API key - user must provide one via interface or launch script
+                 console.log('ℹ️ No Ollama Turbo API key found. Please provide one via the interface or launch script.');
              }
          });
     </script>

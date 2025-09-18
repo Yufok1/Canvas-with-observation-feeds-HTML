@@ -17,7 +17,13 @@ import sys
 # Configuration
 PROXY_PORT = 11435
 OLLAMA_TURBO_BASE_URL = "https://ollama.com"
-API_KEY = "9530d1e6e9b34702927ee472648b0979.jFTbKz1M_LhtuDM4BNZBuf4Q"
+API_KEY = os.environ.get('OLLAMA_TURBO_API_KEY', '')
+
+if not API_KEY:
+    print("❌ ERROR: OLLAMA_TURBO_API_KEY environment variable not set!")
+    print("💡 Please set the API key using: set OLLAMA_TURBO_API_KEY=your_api_key_here")
+    print("🔧 Or use the enhanced launch scripts that prompt for the API key")
+    sys.exit(1)
 
 class OllamaTurboProxy(http.server.BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -106,7 +112,7 @@ def main():
     print("=" * 50)
     print(f"⚡ Turbo API: {OLLAMA_TURBO_BASE_URL}")
     print(f"🌐 Proxy Port: {PROXY_PORT}")
-    print(f"🔑 API Key: {API_KEY[:20]}...")
+    print(f"🔑 API Key: {API_KEY[:20]}... (loaded from environment)")
     print("=" * 50)
 
     try:
