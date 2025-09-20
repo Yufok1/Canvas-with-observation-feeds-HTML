@@ -706,6 +706,9 @@ Ready for your first collaborative synthesis! 🚀</textarea>
         </div>
     </div>
 
+    <!-- IndexedDB Backup System -->
+    <script src="indexdb-backup.js"></script>
+    
     <script>
 
 
@@ -1824,6 +1827,14 @@ Should we strengthen this emerging pattern?<br>
                     // Trigger event to notify DJINN council of synthesis completion
                     localStorage.setItem('synthesis_report_generated', Date.now().toString());
                     
+                    // Direct trigger for council analysis (since storage events don't fire in same window)
+                    // Dispatch custom event to trigger council analysis
+                    setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('synthesisReportGenerated', {
+                            detail: { timestamp: Date.now() }
+                        }));
+                    }, 500);
+                    
                     console.log('📡 Synthesis report communicated to DJINN council');
                 } catch (storageError) {
                     console.warn('⚠️ Failed to communicate synthesis to DJINN council:', storageError);
@@ -2313,11 +2324,9 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             // Get memory context for conversation continuity
             const memoryContext = getMemoryContext(system);
 
-            // Get council intelligence context (only in council-integrated mode)
+            // Canvas AI agents should analyze content independently without council context
+            // This maintains separation of concerns and prevents data pollution
             let councilContext = '';
-            if (isCouncilIntegrated) {
-                councilContext = getCouncilIntelligenceContext();
-            }
 
             // Get dynamic notepad context for this AI system
             const notepadContext = getNotepadContext(system);
@@ -2368,7 +2377,6 @@ Use your notepad to build governance expertise and maintain strategic continuity
 
 ${analysisPriority}${canvasContext}
 ${memoryContext}
-${councilContext}
 ${notepadContext}
 ${randomVariation} Provide specific governance insights and recommendations based on the content above. Focus on how the principles and concepts relate to governance structures. Build upon your previous analysis and develop new insights.`,
 
@@ -2388,7 +2396,6 @@ Use your notepad to build emotional/fractal expertise and maintain consciousness
 
 ${analysisPriority}${canvasContext}
 ${memoryContext}
-${councilContext}
 ${notepadContext}
 ${randomVariation} Provide insights about emotional and fractal aspects of the content above. Identify recursive patterns, self-similar structures, and consciousness layers. Reference your previous fractal analysis and develop deeper insights.`,
 
@@ -2408,7 +2415,6 @@ Use your notepad to build pattern recognition expertise and maintain correlation
 
 ${analysisPriority}${canvasContext}
 ${memoryContext}
-${councilContext}
 ${notepadContext}
 ${randomVariation} Analyze the patterns in the content above. Identify mathematical principles, recursive structures, and how different concepts interconnect. Build upon your previous pattern analysis with new correlations.`,
 
@@ -2428,7 +2434,6 @@ Use your notepad to build deep analytical expertise and maintain interrogation c
 
 ${analysisPriority}${canvasContext}
 ${memoryContext}
-${councilContext}
 ${notepadContext}
 ${randomVariation} Provide deep analytical insights into the mathematical and computational concepts above. Examine the theoretical foundations and practical implications. Develop your previous deep analysis with new interrogations.`,
 
@@ -2448,7 +2453,6 @@ Use your notepad to build operational monitoring expertise and maintain coordina
 
 ${analysisPriority}${canvasContext}
 ${memoryContext}
-${councilContext}
 ${notepadContext}
 ${randomVariation} Monitor how the theoretical concepts above translate to operational principles. Assess stability, efficiency, and practical implementation considerations. Build upon your previous monitoring insights.`
             };
@@ -4029,6 +4033,20 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         // AI NOTEPAD VIEWING SYSTEM
         // ========================================
 
+        // Format notepad content with proper line breaks and paragraphs
+        function formatNotepadContent(content) {
+            if (!content || typeof content !== 'string') {
+                return content || '';
+            }
+            
+            // Convert line breaks to HTML formatting (same as live feed formatting)
+            return content
+                .replace(/\n\n/g, '</p><p>')  // Double line breaks = new paragraphs
+                .replace(/\n/g, '<br>')       // Single line breaks = line breaks
+                .replace(/^/, '<p>')          // Start with opening paragraph tag
+                .replace(/$/, '</p>');        // End with closing paragraph tag
+        }
+
         // Create notepad popup window
         function createNotepadPopup(system) {
             const existingPopup = document.getElementById(`notepad-popup-${system}`);
@@ -4105,7 +4123,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                         content += `
                             <div style="margin-bottom: 8px; padding: 6px; background: rgba(78, 205, 196, 0.05); border-left: 2px solid ${category.color}; border-radius: 3px;">
                                 <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${isAuto} ${timestamp}</div>
-                                <div>${note.content}</div>
+                                <div>${formatNotepadContent(note.content)}</div>
                             </div>
                         `;
                     });
