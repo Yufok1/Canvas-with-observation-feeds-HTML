@@ -19,21 +19,27 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 ### AI Agent Architecture
 - **🎯 Canvas AI Systems**: 5 specialized agents for governance, consciousness analysis, pattern recognition, deep analysis, and operational monitoring
 - **🧞‍♂️ Council Members**: 5 governance specialists for pattern analysis, wisdom synthesis, creative innovation, boundary preservation, and memory orchestration
-- **🔍 Validation Ecosystem**: 8 validation agents providing primary validation, refinement coaching, emergency recovery, pattern prediction, efficiency optimization, quality assurance, intelligence coordination, and cross-system correlation
+- **🔍 Validation Ecosystem**: 7 validation agents providing primary validation, refinement coaching, emergency recovery, pattern prediction, efficiency optimization, quality assurance, and cross-system correlation
+- **🧠 Intelligence Officer**: Advanced system conductor with intelligent agent discovery, health monitoring, and cleanup planning capabilities
 
 ### Intelligence Processing Capabilities
+- **Intelligent Agent Discovery**: Dynamic detection of active agents through data trail analysis and memory footprint examination
+- **System Health Monitoring**: Comprehensive error detection, orphaned code identification, and redundant operation analysis
 - **Cross-Agent Correlation Analysis**: Intelligence officer monitors all agent notepads for emerging patterns and consensus
 - **Conflict Detection & Resolution**: Automated identification of contradictions requiring strategic attention
 - **Predictive Pattern Recognition**: AI-driven prediction of validation failures and optimization opportunities
 - **Strategic Coordination**: Intelligent collaboration suggestions between complementary agents
 - **Emergent Consensus Detection**: Real-time identification of agreements forming across multiple agents
+- **Cleanup Planning**: Evidence-based system optimization with prioritized maintenance recommendations
 
 ### Interactive User Engagement
+- **Minimized Chat Interface**: Clean footer-based chat that expands to full-screen overlay for Intelligence Officer interaction
 - **Multi-Dimensional Inquiry Framework**: Confidence-based assessments, priority ranking systems, directional indicators, and validation methodologies
 - **Dynamic User Response Integration**: Interactive UI elements with polls, rating scales, and strategic questionnaires
 - **Agent-Agnostic Query Systems**: Universal inquiry templates applicable across all AI agents
 - **Memory-Integrated Learning**: User responses stored in agent-specific memory systems for continuous improvement
 - **Intelligence Officer Auto-Response**: AI-powered automatic responses to Canvas agent queries using correlative analysis
+- **Evidence-Based Analysis**: Real-time system discovery and health monitoring through data trail forensics
 
 ### Dynamic Model Management
 - **Universal Model Selection**: Dynamic model switching across all agents from Ollama model database
@@ -159,10 +165,11 @@ A comprehensive web-based platform for real-time AI collaboration, analysis, and
 
 #### Option 2: Council-Integrated Intelligence Mode (Full Surveillance)
 **File**: `LAUNCH_CANVAS_SURVEILLANCE.bat` | **Port**: 8080
-- **Canvas + Council**: Complete intelligence ecosystem
+- **Canvas + Council**: Complete intelligence ecosystem with minimized chat interface
 - **Event-Driven**: Council responds only to synthesis events
-- **Validation Network**: 8-agent validation ecosystem
-- **Use Case**: Advanced collaborative intelligence with governance oversight
+- **Validation Network**: 7-agent validation ecosystem + Intelligence Officer
+- **Intelligence Chat**: Minimized footer interface with full-screen overlay for system analysis
+- **Use Case**: Advanced collaborative intelligence with governance oversight and health monitoring
 
 ### Setup Instructions
 
@@ -215,6 +222,16 @@ setup-api-key.bat
 3. **Consensus Monitoring**: Track emerging agreements and conflicts across the AI ecosystem
 4. **Export Coordination**: Create complete analysis packages with proper time-window matching
 5. **Real-Time Surveillance**: Monitor canvas activities with automatic council response triggers
+
+### Intelligence Officer Capabilities
+- **Minimized Chat Interface**: Footer-based chat button that expands to full-screen overlay
+- **Intelligent Agent Discovery**: Scans for active agents through data trail analysis, memory patterns, and behavioral evidence
+- **System Health Monitoring**: Detects critical issues, orphaned code, redundant operations, and broken systems
+- **Evidence-Based Analysis**: No assumptions - only reports what can be verified through actual data trails
+- **Cross-Site Health Analysis**: Monitors both Canvas and Council HTML files for system integrity
+- **Memory Footprint Analysis**: Examines localStorage, IndexedDB, and global memory usage patterns
+- **Cleanup Planning**: Generates prioritized maintenance recommendations based on discovered issues
+- **Real-Time Discovery**: Dynamic agent counting and capability detection through runtime signatures
 
 ### Advanced Interactions
 - **Cross-System Communication**: Seamless data flow between Canvas and Council interfaces
@@ -300,23 +317,28 @@ Intelligence Generation → Memory Update → Export Package Creation
 
 ### AI System Hierarchy
 ```
-Intelligence Officer (Cross-System Coordination)
-├── Canvas AI Systems (Real-Time Analysis)
+Intelligence Officer (Minimized Chat Interface + System Health Monitoring)
+├── Agent Discovery System (Data Trail Analysis)
+│   ├── Council Agent Detection (Memory & DOM Patterns)
+│   ├── Validation Agent Detection (Global Scope Scanning)
+│   ├── Canvas Agent Detection (localStorage Patterns)
+│   └── System Component Detection (Runtime Signatures)
+├── Canvas AI Systems (Real-Time Analysis) - Discovered: 5 agents
 │   ├── DJINN (Governance & Strategy)
 │   ├── NAZAR (Consciousness & Emotional)
 │   ├── NARRA (Pattern Recognition)
 │   ├── WHALE (Deep Analysis & Memory)
 │   └── WATCHTOWER (Monitoring & Metrics)
-├── DJINN Council (Governance Oversight)
+├── DJINN Council (Governance Oversight) - Discovered: 5 members
 │   ├── Pattern & Witness (Structure Analysis)
 │   ├── Recursive Wisdom (Knowledge Synthesis)
 │   ├── Creative Paradox (Innovation Catalyst)
 │   ├── Sovereign Boundaries (Autonomy Guardian)
 │   └── Echo & Memory (Temporal Coordination)
-└── Validation Ecosystem (Quality Assurance)
+└── Validation Ecosystem (Quality Assurance) - Discovered: 7 agents
     ├── Primary Validator → Refinement Specialist → Recovery Agent
     ├── Pattern Recognition Engine → Efficiency Optimizer
-    └── Quality Assurance Monitor → Intelligence Coordinator
+    └── Quality Assurance Monitor → Intelligence Officer (Self-Discovery)
 ```
 
 ## 🎨 Visual & User Experience

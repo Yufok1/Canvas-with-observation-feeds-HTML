@@ -399,9 +399,125 @@
         }
 
         .djinn-controls.minimized {
-            min-height: 60px;
-            height: 60px;
-            overflow: hidden;
+            min-height: 80px;
+            height: auto;
+            overflow: visible;
+        }
+
+        .djinn-controls.minimized .controls-chat {
+            display: none;
+        }
+
+        .minimized-chat-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 15, 30, 0.95);
+            border-top: 1px solid rgba(76, 205, 196, 0.3);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .chat-maximize-btn {
+            background: rgba(76, 205, 196, 0.2);
+            border: 1px solid rgba(76, 205, 196, 0.4);
+            border-radius: 4px;
+            color: #4ecdc4;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .chat-maximize-btn:hover {
+            background: rgba(76, 205, 196, 0.3);
+        }
+
+        .maximized-chat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 20, 0.95);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .maximized-chat-overlay.active {
+            display: flex;
+        }
+
+        .maximized-chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .maximized-chat-title {
+            color: #4ecdc4;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chat-minimize-btn {
+            background: rgba(255, 100, 100, 0.2);
+            border: 1px solid rgba(255, 100, 100, 0.4);
+            border-radius: 4px;
+            color: #ff6464;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .maximized-chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .maximized-chat-history {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .maximized-chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .maximized-chat-input input {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .maximized-chat-input button {
+            padding: 10px 16px;
+            background: rgba(204, 136, 204, 0.2);
+            border: 1px solid rgba(204, 136, 204, 0.4);
+            border-radius: 4px;
+            color: #cc88cc;
+            cursor: pointer;
+            font-size: 13px;
         }
 
         .controls-buttons {
@@ -1193,7 +1309,7 @@
                     🔧 Refinement Agent: <span id="refinementStatus">READY</span>
                     <button onclick="createCouncilNotepadPopup('refinement')" style="background: none; border: 1px solid #ffaa00; color: #ffaa00; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Refinement Specialist Notepad">📝</button>
                 </div>
-                <div class="status-item" data-tooltip="Intelligence Agent: Strategic intelligence synthesis specialist generating comprehensive reports from council consensus and canvas evolution. Combines all system data for omniscient intelligence analysis with predictive insights and strategic recommendations.">
+                <div class="status-item" data-tooltip="Intelligence Agent: Strategic intelligence synthesis specialist generating comprehensive reports from council consensus and canvas evolution. Combines all system data for comprehensive intelligence analysis with predictive insights and strategic recommendations.">
                     <span class="indicator indicator-idle"></span>
                     🎯 Intelligence Agent: <span id="intelligenceAgentStatus">READY</span>
                     <button onclick="createCouncilNotepadPopup('intelligence')" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Intelligence Agent Notepad">📝</button>
@@ -1504,13 +1620,6 @@
 
         <!-- Controls -->
         <div class="djinn-controls minimized" id="djinnControls">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <button class="controls-toggle-btn" data-tooltip="Omniscient Agent Chat: Enhanced AI query system with comprehensive data access to canvas content, AI systems, council analysis, synthesis reports, memories, and all stored data. Features improved context understanding and system workflow explanations." onclick="toggleControls()" id="controlsToggleBtn">Open Omniscient Agent Chat</button>
-                <span style="color: #4ecdc4; font-size: 12px; font-weight: bold;">
-                    🔍🧠 Omniscient Agent
-                    <span style="margin-left: 8px; font-size: 10px; color: #888; font-weight: normal;">Data queries + Intelligence reports • Complete system access</span>
-                </span>
-            </div>
             <!-- Control Buttons Section -->
             <div class="controls-buttons">
                 <button class="control-btn" onclick="triggerCouncilAnalysis()" data-tooltip="Initiate comprehensive 3-stage collaborative analysis with all five council members. Features foundation analysis, cross-pollination, and memory-enhanced synthesis.">🔍 Analyze Now</button>
@@ -1518,9 +1627,6 @@
             <button class="control-btn" onclick="clearIntelligence()" data-tooltip="Clear intelligence reports and consensus data only. Preserves all council member memories and analysis history for continuity.">🗑️ Clear Intel</button>
             <button class="control-btn" onclick="clearCouncilMemory()" data-tooltip="Reset DJINN Council memory system - clears all stored reports, analysis history, and starts fresh session. Preserves canvas AI data but resets council learning state.">� Reset Memory</button>
             <button class="control-btn" onclick="exportIntelligence()" data-tooltip="Export last 3 complete report packages - each containing council member analyses, consensus report, and intelligence report. Only complete packages are exported.">📦 Export Complete Reports</button>
-            <button class="control-btn emergency" onclick="emergencyAnalysis()" data-tooltip="Activate emergency analysis protocol with maximum priority processing. All five council members analyze simultaneously with accelerated memory recall.">🚨 Emergency Analysis</button>
-            <button class="control-btn" onclick="testIntelligenceOfficerDataAccess()" data-tooltip="Test Intelligence Officer Data Architecture - Bridge existing council reports to Intelligence Officer and verify data access patterns.">🧪 Test IO Data Access</button>
-            <button class="control-btn" onclick="executeIntelligenceOfficerActivation()" data-tooltip="Execute Complete Intelligence Officer Activation - Run the 5-step sequence to transform from 0% to full operational status.">🚀 Activate IO System</button>
             <span style="font-size: 10px; color: #666; margin-right: 60px; flex-shrink: 0;">
                 <span data-tooltip="Surveillance polling mode: AUTO (continuous cross-window monitoring with real-time updates) or MANUAL (analysis triggered only on-demand)">Polling: <span id="pollingStatus">AUTO</span></span> |
                 <span data-tooltip="Current analysis queue depth showing pending collaborative analysis requests awaiting processing by council members">Queue: <span id="queueStatus">0</span></span> |
@@ -1535,14 +1641,14 @@
 
                 <div class="intelligence-chat-history" id="intelligenceChatHistory" style="flex: 1; overflow-y: auto; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 10px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4; min-height: 0;">
                     <div style="color: #4ecdc4; margin-bottom: 10px;">
-                        <strong>🔍 Data Query Agent initialized</strong><br>
+                        <strong>🧠 Intelligence Officer initialized</strong><br>
                         <span style="color: #888; font-size: 11px;">Ready to answer questions about canvas content, AI systems, council analysis, synthesis reports, memories, and all stored data.</span>
                     </div>
                 </div>
 
                 <div class="intelligence-input-container" style="display: flex; gap: 10px; flex-shrink: 0;">
-                    <input type="text" id="intelligenceInput" placeholder="Ask about canvas content, AI systems, council analysis, memories..." style="flex: 1; padding: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; color: #fff; font-size: 12px;" onkeypress="if(event.key==='Enter') askIntelligenceAgent()">
-                    <button onclick="askIntelligenceAgent()" style="padding: 8px 15px; background: rgba(76, 205, 196, 0.2); border: 1px solid rgba(76, 205, 196, 0.4); border-radius: 4px; color: #4ecdc4; cursor: pointer; font-size: 12px; white-space: nowrap;">Ask Agent</button>
+                    <input type="text" id="intelligenceInput" placeholder="Ask Intelligence Officer for strategic insights, cross-agent correlation analysis..." style="flex: 1; padding: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; color: #fff; font-size: 12px;" onkeypress="if(event.key==='Enter') askIntelligenceAgent()">
+                    <button onclick="askIntelligenceAgent()" style="padding: 8px 15px; background: rgba(204, 136, 204, 0.2); border: 1px solid rgba(204, 136, 204, 0.4); border-radius: 4px; color: #cc88cc; cursor: pointer; font-size: 12px; white-space: nowrap;">Ask Officer</button>
                 </div>
             </div>
         </div>
@@ -2999,7 +3105,7 @@
                 border: 2px solid #4ecdc4;
                 border-radius: 12px;
                 padding: 15px;
-                z-index: 999999;
+                z-index: 10;
                 backdrop-filter: blur(10px);
                 box-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
                 font-family: 'Courier New', monospace;
@@ -6182,7 +6288,7 @@ Provide your specialized analysis of how the document content is evolving and de
                                     padding: 2px 6px;
                                     border-radius: 3px;
                                     font-size: 12px;
-                                    z-index: 1000;
+                                    z-index: 5;
                                 `;
                                 notepadBtn.onclick = function() { createCouncilNotepadPopup(memberKey); };
                                 member.insertBefore(notepadBtn, member.firstChild);
@@ -7684,7 +7790,7 @@ Provide your specialized analysis of how the document content is evolving and de
                 autoSaveIntelligence();
                 logDjinnEvent('intelligence', 'Intelligence auto-save triggered');
 
-                // Generate AI-powered intelligence report using omniscient agent
+                // Generate AI-powered intelligence report using Intelligence Officer
                 logDjinnEvent('intelligence', 'AI Intelligence Report generation starting');
                 await generateAIIntelligenceReport();
                 logDjinnEvent('intelligence', 'AI Intelligence Report completed');
@@ -11830,7 +11936,7 @@ Provide comprehensive meta-analysis of validation system quality.`;
         }
 
         async function generateIntelReport() {
-            console.log('🎯 Manual Intelligence Report Generation - Using Omniscient AI System');
+            console.log('🎯 Manual Intelligence Report Generation - Using Intelligence Officer');
 
             try {
                 // Check if we have recent consensus - if not, generate it first
@@ -11843,21 +11949,21 @@ Provide comprehensive meta-analysis of validation system quality.`;
                     console.log('✅ Consensus generated - proceeding to intelligence');
                 }
 
-                // Generate the omniscient AI Intelligence Report
+                // Generate the Intelligence Officer Report
                 await generateAIIntelligenceReport();
 
                 // Trigger canvas polling cycle
                 triggerCanvasPollingCycle();
 
                 // Show success message
-                alert(`🎯 OMNISCIENT AI Intelligence Report Generated!\n\n` +
+                alert(`🎯 Intelligence Officer Report Generated!\n\n` +
                       `✅ Consensus Report: Generated from all council member analyses\n` +
                       `🧠 Intelligence Report: Comprehensive synthesis with full system visibility\n` +
                       `🔄 Canvas Cycle: Triggered for next round of analysis\n\n` +
                       `Check both Consensus and Intelligence Report panels for the complete strategic intelligence package.`);
 
             } catch (error) {
-                console.error('❌ Omniscient intelligence report generation failed:', error);
+                console.error('❌ Intelligence Officer report generation failed:', error);
                 alert('Intelligence report generation failed. Check console for details and verify AI system connectivity.');
             }
         }
@@ -14470,8 +14576,8 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
         // ========================================
         // STEP E: MASTER ACTIVATION FUNCTION
         // ========================================
-        function executeIntelligenceOfficerOmniscience() {
-            console.log('🚀 EXECUTING INTELLIGENCE OFFICER PERFECT OMNISCIENCE SEQUENCE');
+        function executeIntelligenceOfficerActivation() {
+            console.log('🚀 EXECUTING INTELLIGENCE OFFICER ACTIVATION SEQUENCE');
 
             const results = {
                 stepA: null,
@@ -14500,12 +14606,12 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
                 results.stepD = { status: 'load_balancing_active', systemLoad: loadBalancingSystem.getSystemLoad() };
                 console.log('✅ STEP D COMPLETE: Load Balancing Active');
 
-                // STEP E: Perfect Omniscience Achieved
+                // STEP E: Intelligence Officer Fully Activated
                 results.completionTime = new Date().toISOString();
 
                 // Trigger Intelligence Officer to re-analyze with new capabilities
                 setTimeout(() => {
-                    eventMonitoringSystem.logEvent('perfect_omniscience_achieved', {
+                    eventMonitoringSystem.logEvent('intelligence_officer_activated', {
                         timestamp: results.completionTime,
                         capabilities: ['council_reports', 'real_time_monitoring', 'health_metrics', 'load_balancing']
                     });
@@ -14513,38 +14619,17 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
 
                 console.log('🎯 PERFECT COLLABORATIVE INTELLIGENCE ACHIEVED!', results);
 
-                // Store omniscience status
-                localStorage.setItem('intelligence_officer_omniscience', JSON.stringify(results));
+                // Store activation status
+                localStorage.setItem('intelligence_officer_activation', JSON.stringify(results));
 
                 return results;
 
             } catch (error) {
-                console.error('❌ OMNISCIENCE SEQUENCE FAILED:', error);
+                console.error('❌ INTELLIGENCE OFFICER ACTIVATION FAILED:', error);
                 return { error: error.message, partialResults: results };
             }
         }
 
-        // Add button to interface for manual execution
-        function addOmniscenceActivationButton() {
-            const controlsSection = document.querySelector('.djinn-controls') || document.body;
-
-            const button = document.createElement('button');
-            button.innerHTML = '🎯 Achieve Perfect Omniscience';
-            button.style.cssText = `
-                background: linear-gradient(135deg, #ff6b6b, #cc88cc);
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: bold;
-                cursor: pointer;
-                margin: 10px;
-                font-size: 14px;
-            `;
-
-            button.onclick = executeIntelligenceOfficerOmniscience;
-            controlsSection.appendChild(button);
-        }
 
         // Initialize the Intelligence Officer Data Architecture
         console.log('🚀 Initializing Intelligence Officer Data Architecture...');
@@ -14552,12 +14637,6 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
         console.log('✅ Intelligence Officer Data Architecture ready - Council reports can now be accessed!');
 
 
-        // Auto-execute Perfect Omniscience sequence on page load
-        setTimeout(() => {
-            addOmniscenceActivationButton();
-            // Auto-execute the omniscience sequence
-            executeIntelligenceOfficerOmniscience();
-        }, 3000);
 
         // TEST FUNCTION - Bridge existing export data to Intelligence Officer
         function testIntelligenceOfficerDataAccess() {
@@ -14781,12 +14860,194 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
             return validationResults;
         }
 
-        // Auto-test the data architecture on startup
-        setTimeout(() => {
-            testIntelligenceOfficerDataAccess();
-            // Execute the complete activation sequence
-            executeIntelligenceOfficerActivation();
-        }, 2000);
+
+        // ========================================
+        // INTELLIGENCE OFFICER DATA GATHERING
+        // ========================================
+
+        async function gatherIntelligenceOfficerData() {
+            // Canvas System Data (localStorage)
+            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            const aiMemory = JSON.parse(localStorage.getItem('ai_memory_state') || '{}');
+            const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
+            const synthesisReport = localStorage.getItem('synthesis_report') || '';
+            const canvasTimestamp = localStorage.getItem('sovereign_canvas_timestamp') || '';
+
+            // Council System Data (localStorage)
+            const consensusReport = document.getElementById('consensusFeed')?.textContent || '';
+            const existingIntelligence = JSON.parse(localStorage.getItem('djinn_intelligence') || '[]');
+            const djinnSurveillanceState = JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}');
+
+            // Canvas synthesis status and progress
+            const canvasSynthesisStatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
+            const synthesisProgress = localStorage.getItem('synthesis_progress') || 'Ready';
+
+            // Council Member Reports
+            const councilReports = [];
+            Object.keys(councilMembers).forEach(memberKey => {
+                const memberData = djinnCouncilMemory.members[memberKey];
+                if (memberData) {
+                    councilReports.push({
+                        member: councilMembers[memberKey].name,
+                        specialization: councilMembers[memberKey].specialization,
+                        allReports: memberData.reports,
+                        reportCount: memberData.reports.length
+                    });
+                }
+            });
+
+            // System Stats (matching expected structure)
+            const systemStats = {
+                canvasSize: canvasContent.length,
+                wordCount: canvasContent.split(/\s+/).filter(w => w.length > 0).length,
+                sessionDuration: Math.floor((Date.now() - Date.now()) / 60000),
+                totalCouncilReports: councilReports.reduce((sum, r) => sum + r.reportCount, 0),
+                lastSynthesis: 'Available'
+            };
+
+            // System Metrics (additional metrics the prompt expects)
+            const systemMetrics = {
+                totalMemoryItems: Object.values(aiMemory).reduce((total, system) => {
+                    return total + (system.conversationHistory ? system.conversationHistory.length : 0);
+                }, 0),
+                aiFeedCount: aiFeeds.length,
+                councilReportTotal: councilReports.reduce((sum, r) => sum + r.reportCount, 0),
+                intelligenceReports: existingIntelligence.length,
+                activeCouncilMembers: Object.keys(djinnCouncilMemory.members || {}).length,
+                roundsCompleted: djinnSurveillanceState.roundsCompleted || 0,
+                evolutionSnapshots: 0,
+                totalValidationAgents: 7,
+                validationSystemHealth: 'OPERATIONAL'
+            };
+
+            // Validation Ecosystem Complete Data (ALL 7 agents)
+            const validationEcosystem = {
+                primaryValidator: {
+                    memory: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory) || {},
+                    validationCount: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory?.validationHistory?.length) || 0,
+                    successRate: (typeof validationSpecialist !== 'undefined' && validationSpecialist.calculateSuccessRate) ? validationSpecialist.calculateSuccessRate() : 0
+                },
+                refinementSpecialist: {
+                    memory: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.memory) || {},
+                    refinementCount: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.memory?.refinementHistory?.length) || 0,
+                    improvementRate: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.calculateImprovementRate) ? refinementSpecialist.calculateImprovementRate() : 0
+                },
+                recoveryAgent: {
+                    memory: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory) || {},
+                    recoveryCount: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory?.recoveryAttempts?.length) || 0,
+                    extremeCases: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory?.extremeCases?.length) || 0
+                },
+                patternEngine: {
+                    memory: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory) || {},
+                    patternsLearned: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory?.validationPatterns) ? Object.keys(patternRecognitionEngine.memory.validationPatterns).length : 0,
+                    predictions: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory?.routingDecisions?.length) || 0
+                },
+                efficiencyOptimizer: {
+                    memory: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory) || {},
+                    optimizations: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory?.optimizationHistory?.length) || 0,
+                    performanceGains: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory?.performanceMetrics) || {}
+                },
+                qualityMonitor: {
+                    memory: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory) || {},
+                    monitoringCycles: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory?.monitoringHistory?.length) || 0,
+                    systemHealth: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory?.systemHealth) || {}
+                },
+                intelligenceAgent: {
+                    memory: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.memory) || {},
+                    synthesisCount: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.memory?.synthesisHistory?.length) || 0,
+                    correlationAnalysis: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.memory?.correlationAnalysis) || {}
+                }
+            };
+
+            // Agent Interaction System Data
+            const agentInteractions = {
+                activeInteractions: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.activeInteractions) ? agentInteractionSystem.activeInteractions.size : 0,
+                interactionHistory: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.interactionHistory) ? agentInteractionSystem.interactionHistory.length : 0,
+                lastInteraction: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.interactionHistory && agentInteractionSystem.interactionHistory.length > 0) ?
+                    agentInteractionSystem.interactionHistory[agentInteractionSystem.interactionHistory.length - 1] : null
+            };
+
+            // Notepad Correlation Analysis
+            const notepadCorrelationAnalysis = {
+                correlationMetrics: {
+                    totalAgentsWithNotepads: Object.keys(djinnCouncilMemory.members || {}).length + 7, // 5 council + 7 validation agents
+                    totalNotepadEntries: Object.values(djinnCouncilMemory.members || {}).reduce((sum, member) => {
+                        if (member.notepad) {
+                            return sum + Object.values(member.notepad).reduce((catSum, category) => {
+                                return catSum + (Array.isArray(category) ? category.length : 0);
+                            }, 0);
+                        }
+                        return sum;
+                    }, 0),
+                    lastAnalysisTimestamp: new Date().toISOString()
+                },
+                councilNotepads: Object.keys(djinnCouncilMemory.members || {}).reduce((pads, memberKey) => {
+                    const member = djinnCouncilMemory.members[memberKey];
+                    if (member && member.notepad) {
+                        pads[memberKey] = {
+                            name: councilMembers[memberKey]?.name || memberKey,
+                            specialization: councilMembers[memberKey]?.specialization || 'Unknown',
+                            notepad: member.notepad,
+                            totalEntries: Object.values(member.notepad).reduce((sum, category) => {
+                                return sum + (Array.isArray(category) ? category.length : 0);
+                            }, 0)
+                        };
+                    }
+                    return pads;
+                }, {}),
+                validationNotepads: {
+                    primaryValidator: {
+                        name: 'Primary Validator',
+                        specialization: 'Fact-checking and validation',
+                        notepad: (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) || {},
+                        totalEntries: (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) ?
+                            Object.values(validationSpecialist.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                    },
+                    refinementSpecialist: {
+                        name: 'Refinement Specialist',
+                        specialization: 'Communication coaching',
+                        notepad: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) || {},
+                        totalEntries: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) ?
+                            Object.values(refinementSpecialist.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                    },
+                    recoveryAgent: {
+                        name: 'Recovery Agent',
+                        specialization: 'Emergency intervention',
+                        notepad: (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) || {},
+                        totalEntries: (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) ?
+                            Object.values(recoveryAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                    },
+                    intelligenceAgent: {
+                        name: 'Intelligence Agent',
+                        specialization: 'Strategic intelligence synthesis',
+                        notepad: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) || {},
+                        totalEntries: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) ?
+                            Object.values(intelligenceAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
+                    }
+                }
+            };
+
+            return {
+                canvasContent,
+                canvasTimestamp,
+                systemStats,
+                systemMetrics,
+                aiMemoryState: aiMemory, // renamed for prompt compatibility
+                aiMemory,
+                aiFeeds,
+                synthesisReport,
+                synthesisProgress,
+                canvasSynthesisStatus,
+                consensusReport,
+                councilMemory: djinnCouncilMemory, // council memory data
+                councilReports,
+                validationEcosystem, // ALL 7 validation agents
+                agentInteractions, // agent interaction tracking
+                notepadCorrelationAnalysis, // notepad cross-correlation data
+                existingIntelligence,
+                djinnSurveillanceState
+            };
+        }
 
         // ========================================
         // INTELLIGENCE AGENT CHAT SYSTEM
@@ -14797,56 +15058,20 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
             const question = input.value.trim();
             if (!question) return;
 
-            // Check if this is an intelligence report generation request (be more specific)
-            const isIntelligenceReportRequest = question.toLowerCase().includes('generate intelligence report') ||
-                                               question.toLowerCase().includes('create intelligence report') ||
-                                               question.toLowerCase().includes('run intelligence report') ||
-                                               question.toLowerCase().includes('make intelligence report') ||
-                                               (question.toLowerCase().includes('generate report') && !question.toLowerCase().includes('generated'));
-
-            const chatHistory = document.getElementById('intelligenceChatHistory');
             const timestamp = new Date().toLocaleTimeString();
-
-            // Add user question to chat
             addToChatHistory(`<div style="color: #fff; margin-bottom: 10px;"><strong>👤 You (${timestamp}):</strong> ${question}</div>`);
-
-            // Clear input
             input.value = '';
 
-            if (isIntelligenceReportRequest) {
-                // Chat mode should NOT trigger system functions - only explain how to generate reports
-                document.getElementById('thinking')?.remove();
+            addToChatHistory(`<div id="thinking" style="color: #cc88cc; margin-bottom: 10px;"><strong>🧠 Intelligence Officer:</strong> <span style="animation: pulse 1s infinite;">Analyzing comprehensive system data...</span></div>`);
 
-                const instructionMessage = `🔍 **INTELLIGENCE REPORT GENERATION**
+            try {
+                // Gather all data using the same comprehensive system as the main Intelligence Officer
+                const data = await gatherIntelligenceOfficerData();
 
-❌ **Chat mode cannot generate system reports** - this would trigger actual council functions.
+                // Build Intelligence Officer query prompt
+                const prompt = buildIntelligenceOfficerPrompt(question, data);
 
-✅ **To generate intelligence reports, use:**
-
-1. **"📊 Generate Report" button** - Manual intelligence report generation
-2. **"🔍 Analyze Now" button** - Full analysis cycle (Analysis → Consensus → Intelligence)
-
-📊 **Current System Status:**
-- Council Member Reports: ${Object.keys(djinnCouncilMemory.members || {}).reduce((count, key) => count + (djinnCouncilMemory.members[key].reports?.length || 0), 0)} total
-- Consensus Reports: ${djinnCouncilMemory.consensusHistory?.length || 0}
-- Intelligence Reports: ${surveillanceState.intelligenceReports?.length || 0}
-
-🔍 **I can answer questions about existing data** - ask me about current reports, system status, or data analysis.`;
-
-                addToChatHistory(`<div style="color: #ff88ff; margin-bottom: 15px;"><strong>🔍 Data Query Agent (${timestamp}):</strong><br><div style="margin-top: 5px; padding-left: 10px; border-left: 2px solid #ff88ff; white-space: pre-wrap;">${instructionMessage}</div></div>`);
-
-            } else {
-                // Handle as regular data query
-                addToChatHistory(`<div id="thinking" style="color: #ffaa00; margin-bottom: 10px;"><strong>🔍 Data Query Agent:</strong> <span style="animation: pulse 1s infinite;">Analyzing comprehensive database...</span></div>`);
-
-                try {
-                    // Gather ALL available data
-                    const comprehensiveData = await gatherComprehensiveIntelligenceData();
-
-                // Build comprehensive prompt for AI
-                const prompt = buildIntelligenceAgentPrompt(question, comprehensiveData);
-
-                // Query Ollama with comprehensive context
+                // Query AI with Intelligence Officer context
                 const config = getOllamaConfig();
                 const response = await fetch(config.endpoint, {
                     method: 'POST',
@@ -14859,17 +15084,13 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
                 });
 
                 const result = await response.json();
-
-                // Remove thinking indicator
                 document.getElementById('thinking')?.remove();
 
-                    // Add AI response to chat
-                    addToChatHistory(`<div style="color: #4ecdc4; margin-bottom: 15px;"><strong>🔍 Data Query Agent (${timestamp}):</strong><br><div style="margin-top: 5px; padding-left: 10px; border-left: 2px solid #4ecdc4; white-space: pre-wrap;">${result.response}</div></div>`);
+                addToChatHistory(`<div style="color: #cc88cc; margin-bottom: 15px;"><strong>🧠 Intelligence Officer (${timestamp}):</strong><br><div style="margin-top: 5px; padding-left: 10px; border-left: 2px solid #cc88cc; white-space: pre-wrap;">${result.response}</div></div>`);
 
-                } catch (error) {
-                    document.getElementById('thinking')?.remove();
-                    addToChatHistory(`<div style="color: #ff6b6b; margin-bottom: 10px;"><strong>❌ Error:</strong> Failed to connect to AI system. ${error.message}</div>`);
-                }
+            } catch (error) {
+                document.getElementById('thinking')?.remove();
+                addToChatHistory(`<div style="color: #ff6b6b; margin-bottom: 10px;"><strong>❌ Error:</strong> Intelligence Officer system error: ${error.message}</div>`);
             }
         }
 
@@ -14880,192 +15101,10 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
         }
 
 
-        async function gatherComprehensiveIntelligenceData() {
-            const data = {
-                // Canvas data
-                canvasContent: localStorage.getItem('sovereign_canvas_content') || '',
-                canvasTimestamp: localStorage.getItem('sovereign_canvas_timestamp') || '',
-
-                // Synthesis data
-                synthesisReport: localStorage.getItem('synthesis_report') || '',
-                synthesisCanvas: localStorage.getItem('synthesis_canvas_content') || '',
-                synthesisGenerated: localStorage.getItem('synthesis_report_generated') || '',
-
-                // AI Memory data - comprehensive
-                aiMemoryState: JSON.parse(localStorage.getItem('ai_memory_state') || '{}'),
-                aiFeeds: JSON.parse(localStorage.getItem('ai_feeds') || '[]'),
-                aiEvolutionHistory: JSON.parse(localStorage.getItem('ai_evolution_history') || '[]'),
-
-                // DJINN Council data - complete
-                councilMemory: djinnCouncilMemory,
-                intelligenceReports: JSON.parse(localStorage.getItem('djinn_intelligence') || '[]'),
-                councilCompleteMemory: JSON.parse(localStorage.getItem('djinn_council_complete_memory') || '{}'),
-
-                // Canvas synthesis status - detailed
-                canvasSynthesisStatus: JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}'),
-                synthesisProgress: localStorage.getItem('synthesis_progress') || '',
-                synthesisReportGenerated: localStorage.getItem('synthesis_report_generated') || '',
-
-                // Surveillance data - comprehensive
-                surveillanceState: JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}'),
-
-                // Correlative analysis
-                correlativeAnalysis: JSON.parse(localStorage.getItem('correlative_analysis_results') || '{}'),
-
-                // 8-Agent Validation Ecosystem Data (with safe access)
-                validationEcosystem: {
-                    primaryValidator: {
-                        memory: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory) || {},
-                        validationCount: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory?.validationHistory?.length) || 0,
-                        successRate: (typeof validationSpecialist !== 'undefined' && validationSpecialist.calculateSuccessRate) ? validationSpecialist.calculateSuccessRate() : 'Not available'
-                    },
-                    refinementSpecialist: {
-                        memory: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.memory) || {},
-                        refinementCount: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.memory?.coachingHistory?.length) || 0,
-                        improvementRate: 'Analysis in progress'
-                    },
-                    recoveryAgent: {
-                        memory: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory) || {},
-                        recoveryCount: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory?.extremeCases?.length) || 0,
-                        extremeCases: (typeof recoveryAgent !== 'undefined' && recoveryAgent.memory?.extremeCases?.length) || 0
-                    },
-                    patternEngine: {
-                        memory: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory) || {},
-                        patternsLearned: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory?.validationPatterns) ? Object.keys(patternRecognitionEngine.memory.validationPatterns).length : 0,
-                        predictions: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.memory?.predictionAccuracy?.length) || 0
-                    },
-                    efficiencyOptimizer: {
-                        memory: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory) || {},
-                        optimizations: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.memory?.optimizationHistory?.length) || 0
-                    },
-                    qualityMonitor: {
-                        memory: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory) || {},
-                        monitoringCycles: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.memory?.systemHealthMetrics?.length) || 0
-                    }
-                },
-
-                // Agent Interaction Coordination System Data (with safe access)
-                agentInteractions: {
-                    activeInteractions: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.activeInteractions) ? agentInteractionSystem.activeInteractions.size : 0,
-                    interactionHistory: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.interactionHistory) ? agentInteractionSystem.interactionHistory.length : 0,
-                    lastInteraction: (typeof agentInteractionSystem !== 'undefined' && agentInteractionSystem.interactionHistory && agentInteractionSystem.interactionHistory.length > 0) ?
-                        agentInteractionSystem.interactionHistory[agentInteractionSystem.interactionHistory.length - 1] : null
-                },
-
-                // UNIFIED NOTEPAD CROSS-CORRELATION SYSTEM
-                notepadCorrelationAnalysis: {
-                    // Council member notepads
-                    councilNotepads: Object.keys(djinnCouncilMemory.members || {}).reduce((pads, memberKey) => {
-                        const member = djinnCouncilMemory.members[memberKey];
-                        if (member && member.notepad) {
-                            pads[memberKey] = {
-                                name: councilMembers[memberKey].name,
-                                specialization: councilMembers[memberKey].specialization,
-                                notepad: member.notepad,
-                                totalEntries: Object.values(member.notepad).reduce((sum, category) => sum + category.length, 0)
-                            };
-                        }
-                        return pads;
-                    }, {}),
-
-                    // Validation ecosystem notepads (with safe access)
-                    validationNotepads: {
-                        primaryValidator: {
-                            name: 'Primary Validator',
-                            specialization: 'Fact-checking and validation',
-                            notepad: (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) || {},
-                            totalEntries: (typeof validationSpecialist !== 'undefined' && validationSpecialist.notepad) ? Object.values(validationSpecialist.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        },
-                        refinementSpecialist: {
-                            name: 'Refinement Specialist',
-                            specialization: 'Communication coaching',
-                            notepad: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) || {},
-                            totalEntries: (typeof refinementSpecialist !== 'undefined' && refinementSpecialist.notepad) ? Object.values(refinementSpecialist.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        },
-                        recoveryAgent: {
-                            name: 'Recovery Agent',
-                            specialization: 'Emergency intervention',
-                            notepad: (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) || {},
-                            totalEntries: (typeof recoveryAgent !== 'undefined' && recoveryAgent.notepad) ? Object.values(recoveryAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        },
-                        patternEngine: {
-                            name: 'Pattern Recognition Engine',
-                            specialization: 'Predictive validation',
-                            notepad: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.notepad) || {},
-                            totalEntries: (typeof patternRecognitionEngine !== 'undefined' && patternRecognitionEngine.notepad) ? Object.values(patternRecognitionEngine.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        },
-                        efficiencyOptimizer: {
-                            name: 'Efficiency Optimizer',
-                            specialization: 'Performance optimization',
-                            notepad: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.notepad) || {},
-                            totalEntries: (typeof efficiencyOptimizer !== 'undefined' && efficiencyOptimizer.notepad) ? Object.values(efficiencyOptimizer.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        },
-                        qualityMonitor: {
-                            name: 'Quality Assurance Monitor',
-                            specialization: 'System quality monitoring',
-                            notepad: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.notepad) || {},
-                            totalEntries: (typeof qualityAssuranceMonitor !== 'undefined' && qualityAssuranceMonitor.notepad) ? Object.values(qualityAssuranceMonitor.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        },
-                        intelligenceAgent: {
-                            name: 'Intelligence Agent',
-                            specialization: 'Strategic intelligence synthesis',
-                            notepad: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) || {},
-                            totalEntries: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) ? Object.values(intelligenceAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
-                        }
-                    },
-
-                    // Canvas AI system notepads (from canvas file)
-                    canvasNotepads: {
-                        // These would be loaded from the canvas system if available
-                        djinn: { name: 'DJINN', specialization: 'Governance AI', notepadEntries: 'Available via canvas system' },
-                        nazar: { name: 'NAZAR', specialization: 'Emotional/Fractal AI', notepadEntries: 'Available via canvas system' },
-                        narra: { name: 'NARRA', specialization: 'Pattern Recognition AI', notepadEntries: 'Available via canvas system' },
-                        whale: { name: 'WHALE', specialization: 'Deep Analysis AI', notepadEntries: 'Available via canvas system' },
-                        watchtower: { name: 'WATCHTOWER', specialization: 'Monitoring AI', notepadEntries: 'Available via canvas system' }
-                    },
-
-                    // Cross-correlation metrics
-                    correlationMetrics: {
-                        totalAgentsWithNotepads: Object.keys(djinnCouncilMemory.members || {}).length + 7, // 5 council + 7 validation agents
-                        totalNotepadEntries: Object.values(djinnCouncilMemory.members || {}).reduce((sum, member) => {
-                            if (member.notepad) {
-                                return sum + Object.values(member.notepad).reduce((catSum, category) => catSum + category.length, 0);
-                            }
-                            return sum;
-                        }, 0),
-                        lastAnalysisTimestamp: new Date().toISOString()
-                    }
-                },
-
-                // System performance metrics
-                systemMetrics: {
-                    totalMemoryItems: Object.values(JSON.parse(localStorage.getItem('ai_memory_state') || '{}')).reduce((total, system) => {
-                        return total + (system.conversationHistory ? system.conversationHistory.length : 0);
-                    }, 0),
-                    evolutionSnapshots: JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').length,
-                    activeCouncilMembers: Object.keys(djinnCouncilMemory.members || {}).length,
-                    roundsCompleted: (JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}')).roundsCompleted || 0,
-                    totalValidationAgents: 8,
-                    validationSystemHealth: 'OPERATIONAL'
-                },
-
-                // System stats - enhanced
-                systemStats: {
-                    timestamp: new Date().toISOString(),
-                    sessionDuration: Math.floor((Date.now() - (djinnCouncilMemory.sessionStart ? new Date(djinnCouncilMemory.sessionStart).getTime() : Date.now())) / 60000),
-                    totalCouncilReports: Object.values(djinnCouncilMemory.members || {}).reduce((sum, member) => sum + (member.reports ? member.reports.length : 0), 0),
-                    canvasSize: (localStorage.getItem('sovereign_canvas_content') || '').length,
-                    wordCount: (localStorage.getItem('sovereign_canvas_content') || '').trim() ? (localStorage.getItem('sovereign_canvas_content') || '').trim().split(/\s+/).length : 0,
-                    lastSynthesis: localStorage.getItem('synthesis_report_generated') ? new Date(parseInt(localStorage.getItem('synthesis_report_generated'))).toLocaleString() : 'Never'
-                }
-            };
-
-            return data;
-        }
 
 
-        function buildIntelligenceAgentPrompt(question, data) {
-            return `You are an expert Data Query Agent with access to the Canvas AI Orchestration System and DJINN Council databases. Answer questions directly using ONLY the data provided below. DO NOT make up numbers, invent details, or speculate beyond what is shown in the data.
+        function buildIntelligenceOfficerPrompt(question, data) {
+            return `You are the Intelligence Officer with access to the Canvas AI Orchestration System and DJINN Council databases. Answer questions directly using ONLY the data provided below. DO NOT make up numbers, invent details, or speculate beyond what is shown in the data.
 
 === NOTEPAD SYSTEM USAGE ===
 You have a dynamic notepad system for continuous query improvement:
@@ -15077,6 +15116,30 @@ You have a dynamic notepad system for continuous query improvement:
 
 Use your notepad to improve query accuracy and data comprehension over time.
 ==========================
+
+=== SYSTEM HEALTH MONITORING CAPABILITIES ===
+You have comprehensive system health monitoring and error detection capabilities:
+- SYSTEM HEALTH ANALYSIS: Call intelligenceAgent.analyzeSystemHealth() to detect critical issues, warnings, orphaned code, redundant operations, and broken systems
+- CROSS-SITE HEALTH: Call intelligenceAgent.analyzeCrossSiteHealth() to check for issues across both HTML files (djinn-council-shadow-governance.html and canvas-with-observation-feeds.html)
+- CLEANUP PLANNING: Call intelligenceAgent.generateCleanupPlan() to create prioritized cleanup recommendations for system optimization
+- MEMORY SYSTEM INTEGRITY: Verify localStorage, IndexedDB access, and core memory objects
+- ORPHANED CODE DETECTION: Identify unused global variables, missing DOM elements, and unreferenced functions
+- REDUNDANT OPERATION ANALYSIS: Find duplicate event listeners, redundant memory storage, and unnecessary validation calls
+- CROSS-SYSTEM COMMUNICATION: Test notepad injection, agent interaction systems, and inter-agent communication channels
+
+=== INTELLIGENT AGENT DISCOVERY CAPABILITIES ===
+You DISCOVER agents through actual data trail analysis - no assumptions or pre-programmed lists:
+- AGENT DISCOVERY: Call intelligenceAgent.discoverActiveAgents() to scan for all active agents by analyzing their data trails, memory footprints, localStorage patterns, DOM signatures, and behavioral evidence
+- COUNCIL AGENT DETECTION: Scan djinnCouncilMemory for agent reports, notepad entries, DOM elements, and activity patterns
+- VALIDATION AGENT DETECTION: Scan global scope for agent objects, memory systems, notepad data, and function signatures
+- CANVAS AGENT DETECTION: Scan localStorage for ai_memory patterns, conversation history, insights, and activity timestamps
+- MEMORY FOOTPRINT ANALYSIS: Analyze actual memory usage, storage distribution, and data sizes across all discovered agents
+- SYSTEM COMPONENT DETECTION: Detect active system components by scanning for their runtime signatures and interaction patterns
+
+IMPORTANT: Always use intelligenceAgent.discoverActiveAgents() to get real-time agent counts and evidence-based data. Never assume agent counts or capabilities without supportive data trails.
+
+When users ask about system problems, broken functionality, cleanup needs, or optimization opportunities, proactively use these discovery and health monitoring functions to provide data-driven analysis and recommendations.
+===============================================================
 
 CRITICAL INSTRUCTIONS:
 - Use ONLY the specific data provided below
@@ -15159,8 +15222,8 @@ ${Object.entries(data.notepadCorrelationAnalysis.validationNotepads).map(([key, 
 SYSTEM PERFORMANCE:
 Evolution Snapshots: ${data.systemMetrics.evolutionSnapshots}
 Memory Items: ${data.systemMetrics.totalMemoryItems}
-Intelligence Reports: ${data.intelligenceReports.length}
-Surveillance Data: ${Object.keys(data.surveillanceState).length} metrics tracked
+Intelligence Reports: ${data.existingIntelligence.length}
+Surveillance Data: ${Object.keys(data.djinnSurveillanceState).length} metrics tracked
 Validation System: ${data.systemMetrics.validationSystemHealth} (${data.systemMetrics.totalValidationAgents} agents)
 
 NOTEPAD CROSS-CORRELATION CAPABILITIES:
@@ -15188,11 +15251,73 @@ Answer the question now, explaining both available data AND system context for u
 
         function clearIntelligenceChat() {
             document.getElementById('intelligenceChatHistory').innerHTML = `
-                <div style="color: #4ecdc4; margin-bottom: 10px;">
-                    <strong>🔍🧠 Omniscient Agent initialized</strong><br>
-                    <span style="color: #888; font-size: 11px;">Dual-mode agent: Ask questions about any data OR request "intelligence report" for comprehensive strategic analysis. Complete database access across both systems.</span>
+                <div style="color: #cc88cc; margin-bottom: 10px;">
+                    <strong>🧠 Intelligence Officer initialized</strong><br>
+                    <span style="color: #888; font-size: 11px;">Strategic intelligence synthesis with cross-agent correlation analysis and notepad monitoring.</span>
                 </div>
             `;
+        }
+
+        // Maximized Chat Functions
+        function maximizeChat() {
+            document.getElementById('maximizedChatOverlay').classList.add('active');
+            // Copy current chat history to maximized view
+            const currentHistory = document.getElementById('intelligenceChatHistory').innerHTML;
+            document.getElementById('maximizedChatHistory').innerHTML = currentHistory;
+        }
+
+        function minimizeChat() {
+            document.getElementById('maximizedChatOverlay').classList.remove('active');
+            // Copy maximized chat history back to original chat
+            const maximizedHistory = document.getElementById('maximizedChatHistory').innerHTML;
+            document.getElementById('intelligenceChatHistory').innerHTML = maximizedHistory;
+        }
+
+        async function askMaximizedIntelligenceAgent() {
+            const input = document.getElementById('maximizedChatInput');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const timestamp = new Date().toLocaleTimeString();
+            addToMaximizedChatHistory(`<div style="color: #fff; margin-bottom: 10px;"><strong>👤 You (${timestamp}):</strong> ${question}</div>`);
+            input.value = '';
+
+            addToMaximizedChatHistory(`<div id="maximizedThinking" style="color: #cc88cc; margin-bottom: 10px;"><strong>🧠 Intelligence Officer:</strong> <span style="animation: pulse 1s infinite;">Analyzing comprehensive system data...</span></div>`);
+
+            try {
+                // Use the same data gathering and prompting as the original Intelligence Officer
+                const data = await gatherIntelligenceOfficerData();
+                const prompt = buildIntelligenceOfficerPrompt(question, data);
+                const config = getOllamaConfig();
+
+                const response = await fetch(config.endpoint, {
+                    method: 'POST',
+                    headers: config.headers,
+                    body: JSON.stringify({
+                        model: getCurrentModel(),
+                        prompt: prompt,
+                        stream: false
+                    })
+                });
+
+                const result = await response.json();
+                document.getElementById('maximizedThinking')?.remove();
+
+                if (result.response) {
+                    addToMaximizedChatHistory(`<div style="color: #cc88cc; margin-bottom: 10px;"><strong>🧠 Intelligence Officer (${timestamp}):</strong><br><div style="margin-left: 20px; margin-top: 5px;">${result.response}</div></div>`);
+                } else {
+                    addToMaximizedChatHistory(`<div style="color: #ff6b6b; margin-bottom: 10px;"><strong>❌ Error:</strong> No response received from Intelligence Officer</div>`);
+                }
+            } catch (error) {
+                document.getElementById('maximizedThinking')?.remove();
+                addToMaximizedChatHistory(`<div style="color: #ff6b6b; margin-bottom: 10px;"><strong>❌ Error:</strong> Intelligence Officer system error: ${error.message}</div>`);
+            }
+        }
+
+        function addToMaximizedChatHistory(html) {
+            const chatHistory = document.getElementById('maximizedChatHistory');
+            chatHistory.innerHTML += html;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
         function toggleControls() {
@@ -15202,19 +15327,70 @@ Answer the question now, explaining both available data AND system context for u
 
             if (controlsContainer.classList.contains('minimized')) {
                 controlsContainer.classList.remove('minimized');
-                toggleBtn.textContent = 'Close Omniscient Agent Chat';
-                // Expand controls area to half the window
+                toggleBtn.textContent = 'Close Intelligence Officer Chat';
                 djinnContainer.style.gridTemplateRows = 'minmax(60px, auto) 1fr 0.4fr minmax(300px, 50vh)';
             } else {
                 controlsContainer.classList.add('minimized');
-                toggleBtn.textContent = 'Open Omniscient Agent Chat';
-                // Restore original layout with proper proportions
+                toggleBtn.textContent = 'Open Intelligence Officer Chat';
                 djinnContainer.style.gridTemplateRows = 'minmax(60px, auto) 1fr 0.4fr minmax(60px, auto)';
             }
         }
 
         // ========================================
-        // AI INTELLIGENCE REPORT SYSTEM - OMNISCIENT DATA ACCESS
+        // INDEXEDDB ACCESS FUNCTION FOR INTELLIGENCE OFFICER
+        // ========================================
+
+        async function getIndexedDBData() {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (!window.indexedDB) {
+                        resolve({ note: 'IndexedDB not supported in this browser' });
+                        return;
+                    }
+
+                    const request = indexedDB.open('djinn_intelligence_backup', 1);
+
+                    request.onerror = () => {
+                        resolve({ error: 'IndexedDB access failed' });
+                    };
+
+                    request.onsuccess = (event) => {
+                        const db = event.target.result;
+                        const transaction = db.transaction(['intelligence_data'], 'readonly');
+                        const store = transaction.objectStore('intelligence_data');
+                        const getAllRequest = store.getAll();
+
+                        getAllRequest.onsuccess = () => {
+                            const allData = getAllRequest.result || [];
+                            resolve({
+                                totalRecords: allData.length,
+                                archivedReports: allData.filter(item => item.type === 'intelligence_report'),
+                                archivedConsensus: allData.filter(item => item.type === 'consensus_report'),
+                                archivedCouncilMemory: allData.filter(item => item.type === 'council_memory'),
+                                rawData: allData
+                            });
+                        };
+
+                        getAllRequest.onerror = () => {
+                            resolve({ error: 'IndexedDB data retrieval failed' });
+                        };
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('intelligence_data')) {
+                            db.createObjectStore('intelligence_data', { keyPath: 'id', autoIncrement: true });
+                        }
+                    };
+
+                } catch (error) {
+                    resolve({ error: error.message });
+                }
+            });
+        }
+
+        // ========================================
+        // AI INTELLIGENCE REPORT SYSTEM - INTELLIGENCE OFFICER ACCESS
         // ========================================
 
         async function generateConsensusReport() {
@@ -15304,7 +15480,13 @@ Keep response focused and under 500 words. Structure with clear sections as show
                     correlationFindings: [],  // Major cross-system discoveries
                     systemEvolution: [],      // How the ecosystem is evolving
                     emergentPatterns: [],     // New patterns detected across agents
-                    interventionOutcomes: []  // Results of intelligence interventions
+                    interventionOutcomes: [], // Results of intelligence interventions
+                    // ACTIVE CONDUCTOR CAPABILITIES
+                    activeWorkflows: [],      // Currently orchestrated workflows
+                    taskAssignments: [],      // Tasks assigned to specific agents
+                    performanceMetrics: [],   // Agent interaction quality tracking
+                    conflictResolutions: [],  // Resolved conflicts between agents
+                    strategicDecisions: []    // Major decisions made and rationale
                 }
             },
 
@@ -15493,6 +15675,904 @@ Keep response focused and under 500 words. Structure with clear sections as show
 
                 console.log(`📡 Intelligence broadcast: ${category} to ${targetAgents} agents - "${content.substring(0, 50)}..."`);
                 return injectionIds;
+            },
+
+            // ========================================
+            // ACTIVE CONDUCTOR CAPABILITIES
+            // ========================================
+
+            // Assign tasks to specific agents with tracking
+            assignTask(targetAgent, targetAgentType, task, deadline = null, priority = 'normal') {
+                const assignment = {
+                    id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    timestamp: new Date().toISOString(),
+                    targetAgent: targetAgent,
+                    targetAgentType: targetAgentType,
+                    task: task,
+                    deadline: deadline,
+                    priority: priority,
+                    status: 'assigned',
+                    progress: 0,
+                    responses: []
+                };
+
+                this.notepad.coordinationLog.taskAssignments.push(assignment);
+
+                // Inject task as directive
+                this.injectInsight(targetAgent, targetAgentType, 'directives',
+                    `TASK ASSIGNMENT: ${task}${deadline ? ` (Deadline: ${deadline})` : ''}`, priority);
+
+                console.log(`🎯 Task assigned to ${targetAgent}: ${task.substring(0, 60)}...`);
+                return assignment.id;
+            },
+
+            // Detect patterns across all agent notepads
+            detectEmergentPatterns() {
+                const patterns = [];
+
+                // Scan council member notepads for common themes
+                const councilThemes = {};
+                Object.keys(djinnCouncilMemory.members).forEach(memberKey => {
+                    const member = djinnCouncilMemory.members[memberKey];
+                    if (member.notepad && member.notepad.observations) {
+                        member.notepad.observations.forEach(note => {
+                            const keywords = note.content.toLowerCase().match(/\b\w{4,}\b/g) || [];
+                            keywords.forEach(word => {
+                                councilThemes[word] = (councilThemes[word] || 0) + 1;
+                            });
+                        });
+                    }
+                });
+
+                // Identify emerging consensus (themes mentioned by 3+ members)
+                Object.entries(councilThemes).forEach(([theme, count]) => {
+                    if (count >= 3) {
+                        patterns.push({
+                            type: 'emergent_consensus',
+                            theme: theme,
+                            strength: count,
+                            agents: 'council',
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                });
+
+                // Store detected patterns
+                patterns.forEach(pattern => {
+                    this.notepad.coordinationLog.emergentPatterns.push(pattern);
+                });
+
+                if (patterns.length > 0) {
+                    console.log(`🔍 Detected ${patterns.length} emergent patterns across agents`);
+                }
+
+                return patterns;
+            },
+
+            // Resolve conflicts between agents
+            resolveConflict(conflictingAgents, issueDescription, resolution) {
+                const conflictResolution = {
+                    id: `conflict_${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    conflictingAgents: conflictingAgents,
+                    issue: issueDescription,
+                    resolution: resolution,
+                    status: 'resolved'
+                };
+
+                this.notepad.coordinationLog.conflictResolutions.push(conflictResolution);
+
+                // Broadcast resolution to involved agents
+                conflictingAgents.forEach(agent => {
+                    const [agentName, agentType] = agent.split(':');
+                    this.injectInsight(agentName, agentType, 'directives',
+                        `CONFLICT RESOLUTION: ${resolution}`, 'high');
+                });
+
+                console.log(`⚖️ Conflict resolved between ${conflictingAgents.join(', ')}: ${resolution.substring(0, 60)}...`);
+                return conflictResolution.id;
+            },
+
+            // Monitor agent performance and interaction quality
+            trackAgentPerformance(agentName, agentType, metric, value) {
+                const performanceRecord = {
+                    timestamp: new Date().toISOString(),
+                    agentName: agentName,
+                    agentType: agentType,
+                    metric: metric,
+                    value: value
+                };
+
+                this.notepad.coordinationLog.performanceMetrics.push(performanceRecord);
+
+                // Keep only last 100 performance records
+                if (this.notepad.coordinationLog.performanceMetrics.length > 100) {
+                    this.notepad.coordinationLog.performanceMetrics =
+                        this.notepad.coordinationLog.performanceMetrics.slice(-100);
+                }
+            },
+
+            // Make strategic decisions with full system context
+            makeStrategicDecision(decision, rationale, affectedAgents = []) {
+                const strategicDecision = {
+                    id: `decision_${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    decision: decision,
+                    rationale: rationale,
+                    affectedAgents: affectedAgents,
+                    implementation: 'pending'
+                };
+
+                this.notepad.coordinationLog.strategicDecisions.push(strategicDecision);
+
+                // Broadcast decision to affected agents
+                if (affectedAgents.length > 0) {
+                    affectedAgents.forEach(agent => {
+                        const [agentName, agentType] = agent.split(':');
+                        this.injectInsight(agentName, agentType, 'orientations',
+                            `STRATEGIC DECISION: ${decision} | Rationale: ${rationale}`, 'high');
+                    });
+                } else {
+                    // Broadcast to all agents
+                    this.broadcastInsight('orientations',
+                        `STRATEGIC DECISION: ${decision} | Rationale: ${rationale}`, 'all', 'high');
+                }
+
+                console.log(`🧠 Strategic decision made: ${decision.substring(0, 60)}...`);
+                return strategicDecision.id;
+            },
+
+            // Get comprehensive system overview for informed decisions
+            getSystemOverview() {
+                return {
+                    activeWorkflows: this.notepad.coordinationLog.activeWorkflows.length,
+                    pendingTasks: this.notepad.coordinationLog.taskAssignments.filter(t => t.status !== 'completed').length,
+                    emergentPatterns: this.notepad.coordinationLog.emergentPatterns.length,
+                    resolvedConflicts: this.notepad.coordinationLog.conflictResolutions.length,
+                    strategicDecisions: this.notepad.coordinationLog.strategicDecisions.length,
+                    councilMembers: Object.keys(djinnCouncilMemory.members).length,
+                    validationAgents: 7,
+                    lastActivity: new Date().toISOString()
+                };
+            },
+
+            // ========================================
+            // SYSTEM HEALTH MONITORING CAPABILITIES
+            // ========================================
+
+            // Comprehensive system health and error detection
+            analyzeSystemHealth() {
+                const healthReport = {
+                    timestamp: new Date().toISOString(),
+                    overallHealth: 'healthy',
+                    criticalIssues: [],
+                    warnings: [],
+                    orphanedCode: [],
+                    redundantOperations: [],
+                    brokenSystems: [],
+                    recommendations: []
+                };
+
+                try {
+                    // Check council member system integrity
+                    this.checkCouncilMemberHealth(healthReport);
+
+                    // Check validation ecosystem health
+                    this.checkValidationSystemHealth(healthReport);
+
+                    // Check memory system integrity
+                    this.checkMemorySystemHealth(healthReport);
+
+                    // Detect orphaned functions and variables
+                    this.detectOrphanedCode(healthReport);
+
+                    // Find redundant operations
+                    this.findRedundantOperations(healthReport);
+
+                    // Check cross-system communication
+                    this.checkCrossSystemCommunication(healthReport);
+
+                    // Generate recommendations
+                    this.generateHealthRecommendations(healthReport);
+
+                    // Determine overall health status
+                    if (healthReport.criticalIssues.length > 0) {
+                        healthReport.overallHealth = 'critical';
+                    } else if (healthReport.warnings.length > 3) {
+                        healthReport.overallHealth = 'degraded';
+                    }
+
+                    // Store in notepad for tracking
+                    this.addNote('observations',
+                        `System Health Analysis: ${healthReport.overallHealth.toUpperCase()} - ${healthReport.criticalIssues.length} critical, ${healthReport.warnings.length} warnings, ${healthReport.orphanedCode.length} orphaned elements detected`,
+                        { priority: healthReport.overallHealth === 'critical' ? 'high' : 'normal', type: 'systemHealth' }
+                    );
+
+                    return healthReport;
+                } catch (error) {
+                    healthReport.overallHealth = 'error';
+                    healthReport.criticalIssues.push(`System health analysis failed: ${error.message}`);
+                    return healthReport;
+                }
+            },
+
+            // Check council member system health
+            checkCouncilMemberHealth(healthReport) {
+                const requiredMembers = ['pattern', 'wisdom', 'paradox', 'boundaries', 'memory'];
+
+                requiredMembers.forEach(memberKey => {
+                    if (!councilMembers[memberKey]) {
+                        healthReport.criticalIssues.push(`Missing council member definition: ${memberKey}`);
+                    } else {
+                        const member = councilMembers[memberKey];
+                        if (!member.element || !document.getElementById(member.element)) {
+                            healthReport.warnings.push(`Council member ${memberKey} DOM element missing: ${member.element}`);
+                        }
+                        if (!member.status || !document.getElementById(member.status)) {
+                            healthReport.warnings.push(`Council member ${memberKey} status element missing: ${member.status}`);
+                        }
+                    }
+
+                    if (!djinnCouncilMemory.members[memberKey]) {
+                        healthReport.warnings.push(`Council member ${memberKey} missing from memory system`);
+                    } else {
+                        const memoryMember = djinnCouncilMemory.members[memberKey];
+                        if (!memoryMember.notepad) {
+                            healthReport.warnings.push(`Council member ${memberKey} notepad not initialized`);
+                        }
+                    }
+                });
+            },
+
+            // Check validation ecosystem health
+            checkValidationSystemHealth(healthReport) {
+                const validationAgents = {
+                    validationSpecialist: 'Primary Validator',
+                    refinementSpecialist: 'Refinement Specialist',
+                    recoveryAgent: 'Recovery Agent',
+                    patternRecognitionEngine: 'Pattern Recognition Engine',
+                    efficiencyOptimizer: 'Efficiency Optimizer',
+                    qualityAssuranceMonitor: 'Quality Assurance Monitor',
+                    intelligenceAgent: 'Intelligence Officer'
+                };
+
+                Object.entries(validationAgents).forEach(([agentVar, agentName]) => {
+                    try {
+                        const agent = eval(agentVar);
+                        if (typeof agent === 'undefined') {
+                            healthReport.criticalIssues.push(`Validation agent undefined: ${agentName} (${agentVar})`);
+                        } else if (!agent.notepad) {
+                            healthReport.warnings.push(`Validation agent ${agentName} missing notepad system`);
+                        }
+                    } catch (error) {
+                        healthReport.criticalIssues.push(`Validation agent ${agentName} evaluation error: ${error.message}`);
+                    }
+                });
+            },
+
+            // Check memory system integrity
+            checkMemorySystemHealth(healthReport) {
+                // Check localStorage accessibility
+                try {
+                    localStorage.setItem('health_test', 'test');
+                    localStorage.removeItem('health_test');
+                } catch (error) {
+                    healthReport.criticalIssues.push(`localStorage inaccessible: ${error.message}`);
+                }
+
+                // Check IndexedDB accessibility
+                if (!window.indexedDB) {
+                    healthReport.warnings.push('IndexedDB not available in this environment');
+                }
+
+                // Check core memory objects
+                if (typeof aiMemory === 'undefined') {
+                    healthReport.criticalIssues.push('Core aiMemory object undefined');
+                }
+                if (typeof djinnCouncilMemory === 'undefined') {
+                    healthReport.criticalIssues.push('djinnCouncilMemory object undefined');
+                }
+                if (typeof djinnSurveillanceState === 'undefined') {
+                    healthReport.warnings.push('djinnSurveillanceState object undefined');
+                }
+            },
+
+            // Detect orphaned code and unused systems
+            detectOrphanedCode(healthReport) {
+                const potentialOrphans = [];
+
+                // Check for unused global variables
+                const globalVars = ['responseCache', 'currentAIMemory', 'analysisInProgress'];
+                globalVars.forEach(varName => {
+                    try {
+                        const varValue = eval(varName);
+                        if (typeof varValue !== 'undefined') {
+                            // Check if variable is being used (basic check)
+                            const scriptContent = document.documentElement.outerHTML;
+                            const usageCount = (scriptContent.match(new RegExp(varName, 'g')) || []).length;
+                            if (usageCount <= 2) { // Only declaration and this check
+                                potentialOrphans.push(`Global variable '${varName}' appears unused`);
+                            }
+                        }
+                    } catch (error) {
+                        // Variable doesn't exist, which is fine
+                    }
+                });
+
+                // Check for orphaned DOM elements
+                const expectedElements = [
+                    'patternContent', 'wisdomContent', 'paradoxContent', 'boundariesContent', 'memoryContent',
+                    'patternStatus', 'wisdomStatus', 'paradoxStatus', 'boundariesStatus', 'memoryStatus',
+                    'intelligenceChat', 'intelligenceInput'
+                ];
+                expectedElements.forEach(elementId => {
+                    if (!document.getElementById(elementId)) {
+                        potentialOrphans.push(`Expected DOM element missing: ${elementId}`);
+                    }
+                });
+
+                healthReport.orphanedCode = potentialOrphans;
+            },
+
+            // Find redundant operations and duplicate systems
+            findRedundantOperations(healthReport) {
+                const redundancies = [];
+
+                // Check for duplicate event listeners
+                const eventTypes = ['storage', 'beforeunload', 'DOMContentLoaded'];
+                eventTypes.forEach(eventType => {
+                    // This is a simplified check - in real implementation would track listener registrations
+                    redundancies.push(`Monitor potential duplicate ${eventType} event listeners`);
+                });
+
+                // Check for redundant memory storage systems
+                if (typeof aiMemory !== 'undefined' && typeof djinnCouncilMemory !== 'undefined') {
+                    const aiMemorySize = JSON.stringify(aiMemory).length;
+                    const councilMemorySize = JSON.stringify(djinnCouncilMemory).length;
+                    if (aiMemorySize > 100000 || councilMemorySize > 100000) {
+                        redundancies.push('Large memory objects detected - consider compression or cleanup');
+                    }
+                }
+
+                // Check for redundant validation calls
+                if (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory) {
+                    const recentValidations = validationSpecialist.memory.validationHistory?.slice(0, 10) || [];
+                    const duplicateValidations = recentValidations.filter((v, i, arr) =>
+                        arr.findIndex(v2 => v2.member === v.member && v2.originalResponse === v.originalResponse) !== i
+                    );
+                    if (duplicateValidations.length > 0) {
+                        redundancies.push(`${duplicateValidations.length} duplicate validation operations detected`);
+                    }
+                }
+
+                healthReport.redundantOperations = redundancies;
+            },
+
+            // Check cross-system communication health
+            checkCrossSystemCommunication(healthReport) {
+                // Check if notepad injection system is working
+                try {
+                    const testInjection = this.injectInsight('pattern', 'council', 'observations', 'SYSTEM_HEALTH_TEST', 'low');
+                    if (!testInjection) {
+                        healthReport.warnings.push('Notepad injection system may not be functioning');
+                    }
+                } catch (error) {
+                    healthReport.warnings.push(`Cross-system communication error: ${error.message}`);
+                }
+
+                // Check agent interaction system
+                if (typeof agentInteractionSystem !== 'undefined') {
+                    if (agentInteractionSystem.activeInteractions.size > 10) {
+                        healthReport.warnings.push(`High number of active interactions: ${agentInteractionSystem.activeInteractions.size}`);
+                    }
+                } else {
+                    healthReport.criticalIssues.push('Agent interaction system undefined');
+                }
+            },
+
+            // Generate health-based recommendations
+            generateHealthRecommendations(healthReport) {
+                const recommendations = [];
+
+                if (healthReport.criticalIssues.length > 0) {
+                    recommendations.push('🚨 IMMEDIATE ACTION: Resolve critical system issues before continuing operations');
+                }
+
+                if (healthReport.orphanedCode.length > 5) {
+                    recommendations.push('🧹 CLEANUP: Remove orphaned code elements to improve system efficiency');
+                }
+
+                if (healthReport.redundantOperations.length > 3) {
+                    recommendations.push('⚡ OPTIMIZATION: Consolidate redundant operations to improve performance');
+                }
+
+                if (healthReport.warnings.length > 5) {
+                    recommendations.push('⚠️ MAINTENANCE: Address system warnings to prevent future issues');
+                }
+
+                // Always recommend periodic health checks
+                recommendations.push('📊 MONITORING: Schedule regular system health analyses');
+
+                healthReport.recommendations = recommendations;
+            },
+
+            // Cross-site system analysis (check for issues across HTML files)
+            analyzeCrossSiteHealth() {
+                const crossSiteReport = {
+                    timestamp: new Date().toISOString(),
+                    currentSite: 'djinn-council-shadow-governance.html',
+                    detectedIssues: [],
+                    sharedSystems: [],
+                    communicationChannels: []
+                };
+
+                // Check localStorage for cross-site data
+                try {
+                    const storageKeys = Object.keys(localStorage);
+                    const canvasKeys = storageKeys.filter(key => key.includes('ai_memory') || key.includes('canvas'));
+
+                    crossSiteReport.sharedSystems.push({
+                        type: 'localStorage',
+                        sharedKeys: canvasKeys.length,
+                        keys: canvasKeys.slice(0, 5) // Show first 5 as sample
+                    });
+
+                    // Look for potential communication issues
+                    canvasKeys.forEach(key => {
+                        try {
+                            const data = JSON.parse(localStorage.getItem(key));
+                            if (data && typeof data === 'object') {
+                                if (!data.timestamp && !data.lastUpdate) {
+                                    crossSiteReport.detectedIssues.push(`Stale data detected in ${key} - no timestamp`);
+                                }
+                            }
+                        } catch (error) {
+                            crossSiteReport.detectedIssues.push(`Invalid JSON in localStorage key: ${key}`);
+                        }
+                    });
+
+                } catch (error) {
+                    crossSiteReport.detectedIssues.push(`Cross-site storage analysis failed: ${error.message}`);
+                }
+
+                // Check for window communication channels
+                if (window.addEventListener && window.postMessage) {
+                    crossSiteReport.communicationChannels.push('window.postMessage available');
+                }
+
+                // Store analysis results
+                this.addNote('observations',
+                    `Cross-Site Health Analysis: ${crossSiteReport.detectedIssues.length} issues, ${crossSiteReport.sharedSystems.length} shared systems detected`,
+                    { priority: crossSiteReport.detectedIssues.length > 3 ? 'high' : 'normal', type: 'crossSiteHealth' }
+                );
+
+                return crossSiteReport;
+            },
+
+            // Generate comprehensive system cleanup recommendations
+            generateCleanupPlan() {
+                const systemHealth = this.analyzeSystemHealth();
+                const crossSiteHealth = this.analyzeCrossSiteHealth();
+
+                const cleanupPlan = {
+                    timestamp: new Date().toISOString(),
+                    priority: 'high',
+                    tasks: [],
+                    estimatedImpact: 'medium',
+                    categories: {
+                        immediate: [],
+                        shortTerm: [],
+                        longTerm: []
+                    }
+                };
+
+                // Immediate cleanup tasks (critical issues)
+                systemHealth.criticalIssues.forEach(issue => {
+                    cleanupPlan.categories.immediate.push({
+                        task: `Fix critical issue: ${issue}`,
+                        type: 'critical_fix',
+                        impact: 'high'
+                    });
+                });
+
+                // Short-term cleanup tasks (orphaned code, redundancies)
+                systemHealth.orphanedCode.forEach(orphan => {
+                    cleanupPlan.categories.shortTerm.push({
+                        task: `Remove orphaned element: ${orphan}`,
+                        type: 'cleanup',
+                        impact: 'medium'
+                    });
+                });
+
+                systemHealth.redundantOperations.forEach(redundancy => {
+                    cleanupPlan.categories.shortTerm.push({
+                        task: `Optimize redundant operation: ${redundancy}`,
+                        type: 'optimization',
+                        impact: 'medium'
+                    });
+                });
+
+                // Long-term maintenance tasks
+                cleanupPlan.categories.longTerm.push({
+                    task: 'Implement automated system health monitoring',
+                    type: 'enhancement',
+                    impact: 'high'
+                });
+
+                cleanupPlan.categories.longTerm.push({
+                    task: 'Create cross-site communication optimization',
+                    type: 'enhancement',
+                    impact: 'medium'
+                });
+
+                // Store cleanup plan
+                this.addNote('directives',
+                    `System Cleanup Plan Generated: ${cleanupPlan.categories.immediate.length} immediate, ${cleanupPlan.categories.shortTerm.length} short-term, ${cleanupPlan.categories.longTerm.length} long-term tasks`,
+                    { priority: 'high', type: 'cleanupPlan', plan: cleanupPlan }
+                );
+
+                return cleanupPlan;
+            },
+
+            // ========================================
+            // INTELLIGENT AGENT DISCOVERY SYSTEM
+            // ========================================
+
+            // Discover agents by analyzing their actual data trails and system footprints
+            discoverActiveAgents() {
+                const discovery = {
+                    timestamp: new Date().toISOString(),
+                    discoveredAgents: [],
+                    dataTrails: {},
+                    memoryFootprints: {},
+                    activeSystems: {},
+                    totalAgentsFound: 0
+                };
+
+                try {
+                    // Scan for Council Agents by memory patterns
+                    const councilDiscovery = this.scanCouncilAgentTrails();
+                    discovery.discoveredAgents.push(...councilDiscovery.agents);
+                    discovery.dataTrails.council = councilDiscovery.trails;
+
+                    // Scan for Validation Agents by code patterns
+                    const validationDiscovery = this.scanValidationAgentTrails();
+                    discovery.discoveredAgents.push(...validationDiscovery.agents);
+                    discovery.dataTrails.validation = validationDiscovery.trails;
+
+                    // Scan for Canvas AI Agents by localStorage patterns
+                    const canvasDiscovery = this.scanCanvasAgentTrails();
+                    discovery.discoveredAgents.push(...canvasDiscovery.agents);
+                    discovery.dataTrails.canvas = canvasDiscovery.trails;
+
+                    // Analyze memory footprints
+                    discovery.memoryFootprints = this.analyzeAgentMemoryFootprints();
+
+                    // Detect active system components
+                    discovery.activeSystems = this.detectActiveSystemComponents();
+
+                    discovery.totalAgentsFound = discovery.discoveredAgents.length;
+
+                    // Store discovery results
+                    this.addNote('observations',
+                        `Agent Discovery Complete: Found ${discovery.totalAgentsFound} active agents through data trail analysis`,
+                        { priority: 'high', type: 'agentDiscovery', discovery: discovery }
+                    );
+
+                    return discovery;
+                } catch (error) {
+                    discovery.error = error.message;
+                    return discovery;
+                }
+            },
+
+            // Scan for Council Agent trails in memory and DOM
+            scanCouncilAgentTrails() {
+                const trails = {
+                    memoryTrails: {},
+                    domTrails: {},
+                    behaviorTrails: {}
+                };
+                const agents = [];
+
+                // Scan djinnCouncilMemory for active agent patterns
+                if (typeof djinnCouncilMemory !== 'undefined' && djinnCouncilMemory.members) {
+                    Object.entries(djinnCouncilMemory.members).forEach(([agentKey, memberData]) => {
+                        const trail = {
+                            agent: agentKey,
+                            type: 'council',
+                            evidence: [],
+                            lastActivity: null,
+                            memorySize: 0,
+                            notepadEntries: 0
+                        };
+
+                        // Check for reports (active behavior)
+                        if (memberData.reports && memberData.reports.length > 0) {
+                            trail.evidence.push(`${memberData.reports.length} analysis reports`);
+                            trail.lastActivity = memberData.reports[memberData.reports.length - 1].timestamp;
+                        }
+
+                        // Check for notepad activity
+                        if (memberData.notepad) {
+                            const totalEntries = Object.values(memberData.notepad).reduce((sum, category) => {
+                                return sum + (Array.isArray(category) ? category.length : 0);
+                            }, 0);
+                            trail.notepadEntries = totalEntries;
+                            if (totalEntries > 0) {
+                                trail.evidence.push(`${totalEntries} notepad entries`);
+                            }
+                        }
+
+                        // Check for DOM elements
+                        const contentElement = document.getElementById(`${agentKey}Content`);
+                        const statusElement = document.getElementById(`${agentKey}Status`);
+                        if (contentElement) trail.evidence.push('DOM content element');
+                        if (statusElement) trail.evidence.push('DOM status element');
+
+                        trail.memorySize = JSON.stringify(memberData).length;
+
+                        if (trail.evidence.length > 0) {
+                            agents.push({
+                                name: agentKey,
+                                type: 'council',
+                                status: 'active',
+                                evidence: trail.evidence,
+                                lastActivity: trail.lastActivity,
+                                dataSize: trail.memorySize
+                            });
+                            trails.memoryTrails[agentKey] = trail;
+                        }
+                    });
+                }
+
+                return { agents, trails };
+            },
+
+            // Scan for Validation Agent trails in global scope
+            scanValidationAgentTrails() {
+                const trails = {};
+                const agents = [];
+
+                const potentialAgents = [
+                    'validationSpecialist',
+                    'refinementSpecialist',
+                    'recoveryAgent',
+                    'patternRecognitionEngine',
+                    'efficiencyOptimizer',
+                    'qualityAssuranceMonitor',
+                    'intelligenceAgent'
+                ];
+
+                potentialAgents.forEach(agentVar => {
+                    try {
+                        const agent = eval(agentVar);
+                        if (typeof agent !== 'undefined' && agent !== null) {
+                            const trail = {
+                                agent: agentVar,
+                                type: 'validation',
+                                evidence: [],
+                                memorySize: 0,
+                                notepadEntries: 0,
+                                functions: []
+                            };
+
+                            // Check for notepad system
+                            if (agent.notepad) {
+                                const totalEntries = Object.values(agent.notepad).reduce((sum, category) => {
+                                    return sum + (Array.isArray(category) ? category.length : 0);
+                                }, 0);
+                                trail.notepadEntries = totalEntries;
+                                trail.evidence.push('notepad system');
+                            }
+
+                            // Check for memory system
+                            if (agent.memory) {
+                                trail.memorySize = JSON.stringify(agent.memory).length;
+                                trail.evidence.push('memory system');
+                            }
+
+                            // Check for functions (indicates active agent)
+                            const functions = Object.keys(agent).filter(key => typeof agent[key] === 'function');
+                            trail.functions = functions;
+                            if (functions.length > 0) {
+                                trail.evidence.push(`${functions.length} functions`);
+                            }
+
+                            if (trail.evidence.length > 0) {
+                                agents.push({
+                                    name: agentVar,
+                                    type: 'validation',
+                                    status: 'active',
+                                    evidence: trail.evidence,
+                                    dataSize: trail.memorySize,
+                                    capabilities: trail.functions
+                                });
+                                trails[agentVar] = trail;
+                            }
+                        }
+                    } catch (error) {
+                        // Agent doesn't exist or is inaccessible
+                    }
+                });
+
+                return { agents, trails };
+            },
+
+            // Scan for Canvas AI Agent trails in localStorage
+            scanCanvasAgentTrails() {
+                const trails = {};
+                const agents = [];
+
+                const canvasAgentKeys = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
+
+                canvasAgentKeys.forEach(agentKey => {
+                    try {
+                        const memoryKey = `ai_memory_${agentKey}`;
+                        const memoryData = localStorage.getItem(memoryKey);
+
+                        if (memoryData) {
+                            const memory = JSON.parse(memoryData);
+                            const trail = {
+                                agent: agentKey,
+                                type: 'canvas',
+                                evidence: [],
+                                memorySize: memoryData.length,
+                                conversations: 0,
+                                insights: 0,
+                                lastActivity: null
+                            };
+
+                            // Check for conversation history
+                            if (memory.conversationHistory && memory.conversationHistory.length > 0) {
+                                trail.conversations = memory.conversationHistory.length;
+                                trail.evidence.push(`${trail.conversations} conversations`);
+                                trail.lastActivity = memory.lastActivity;
+                            }
+
+                            // Check for insights
+                            if (memory.keyInsights && memory.keyInsights.length > 0) {
+                                trail.insights = memory.keyInsights.length;
+                                trail.evidence.push(`${trail.insights} insights`);
+                            }
+
+                            // Check for notepad
+                            if (memory.notepad) {
+                                const notepadSize = JSON.stringify(memory.notepad).length;
+                                if (notepadSize > 50) { // Non-empty notepad
+                                    trail.evidence.push('notepad data');
+                                }
+                            }
+
+                            if (trail.evidence.length > 0) {
+                                agents.push({
+                                    name: agentKey,
+                                    type: 'canvas',
+                                    status: 'active',
+                                    evidence: trail.evidence,
+                                    dataSize: trail.memorySize,
+                                    lastActivity: trail.lastActivity
+                                });
+                                trails[agentKey] = trail;
+                            }
+                        }
+                    } catch (error) {
+                        // Memory data corrupted or inaccessible
+                    }
+                });
+
+                return { agents, trails };
+            },
+
+            // Analyze memory footprints of all discovered agents
+            analyzeAgentMemoryFootprints() {
+                const footprints = {
+                    totalMemoryUsage: 0,
+                    largestAgents: [],
+                    memoryDistribution: {},
+                    storageTypes: {
+                        localStorage: 0,
+                        globalScope: 0,
+                        councilMemory: 0
+                    }
+                };
+
+                try {
+                    // Analyze localStorage usage
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && (key.includes('ai_memory') || key.includes('council') || key.includes('validation'))) {
+                            const data = localStorage.getItem(key);
+                            const size = data ? data.length : 0;
+                            footprints.totalMemoryUsage += size;
+                            footprints.storageTypes.localStorage += size;
+                            footprints.memoryDistribution[key] = size;
+                        }
+                    }
+
+                    // Analyze global scope memory
+                    if (typeof djinnCouncilMemory !== 'undefined') {
+                        const councilSize = JSON.stringify(djinnCouncilMemory).length;
+                        footprints.totalMemoryUsage += councilSize;
+                        footprints.storageTypes.councilMemory = councilSize;
+                    }
+
+                    // Sort by memory usage
+                    footprints.largestAgents = Object.entries(footprints.memoryDistribution)
+                        .sort(([,a], [,b]) => b - a)
+                        .slice(0, 5)
+                        .map(([agent, size]) => ({ agent, size }));
+
+                } catch (error) {
+                    footprints.error = error.message;
+                }
+
+                return footprints;
+            },
+
+            // Detect active system components by scanning for their signatures
+            detectActiveSystemComponents() {
+                const systems = {
+                    interactionSystem: false,
+                    correlationEngine: false,
+                    memoryOrchestrator: false,
+                    reportMonitor: false,
+                    eventMonitoring: false,
+                    predictiveAnalytics: false
+                };
+
+                try {
+                    // Check for agent interaction system
+                    if (typeof agentInteractionSystem !== 'undefined') {
+                        systems.interactionSystem = {
+                            active: true,
+                            activeInteractions: agentInteractionSystem.activeInteractions ? agentInteractionSystem.activeInteractions.size : 0,
+                            interactionHistory: agentInteractionSystem.interactionHistory ? agentInteractionSystem.interactionHistory.length : 0
+                        };
+                    }
+
+                    // Check for correlation engine
+                    if (typeof crossSystemCorrelationEngine !== 'undefined') {
+                        systems.correlationEngine = {
+                            active: true,
+                            correlationHistory: crossSystemCorrelationEngine.correlationHistory ? crossSystemCorrelationEngine.correlationHistory.length : 0
+                        };
+                    }
+
+                    // Check for memory orchestrator
+                    if (typeof advancedMemoryOrchestrator !== 'undefined') {
+                        systems.memoryOrchestrator = {
+                            active: true,
+                            contentFingerprints: advancedMemoryOrchestrator.contentFingerprints ? advancedMemoryOrchestrator.contentFingerprints.size : 0
+                        };
+                    }
+
+                    // Check for report monitor
+                    if (typeof councilReportMonitor !== 'undefined') {
+                        systems.reportMonitor = {
+                            active: true
+                        };
+                    }
+
+                    // Check for event monitoring
+                    if (typeof eventMonitoringSystem !== 'undefined') {
+                        systems.eventMonitoring = {
+                            active: true
+                        };
+                    }
+
+                    // Check for predictive analytics
+                    if (typeof predictiveAnalyticsFramework !== 'undefined') {
+                        systems.predictiveAnalytics = {
+                            active: true
+                        };
+                    }
+
+                } catch (error) {
+                    systems.error = error.message;
+                }
+
+                return systems;
             }
         };
 
@@ -15564,7 +16644,7 @@ SYSTEM CONTEXT:
 
 QUERY ANALYSIS TASK:
 1. Identify the specific query type (Confidence Assessment, Priority Ranking, Direction Indicator, or Validation Check)
-2. Use your omniscient system access to provide data-driven responses
+2. Use your comprehensive system access to provide data-driven responses
 3. Select the most appropriate response option based on system metrics and agent performance
 
 RESPONSE FORMATS TO USE:
@@ -15689,7 +16769,7 @@ Provide a concise intelligence response with your reasoning and the selected opt
         }
 
         async function generateAIIntelligenceReport() {
-            console.log('🎯 Generating AI Intelligence Report with OMNISCIENT data synthesis...');
+            console.log('🎯 Generating AI Intelligence Report with comprehensive data synthesis...');
             updateCouncilStatus('GENERATING INTELLIGENCE');
 
             // Start intelligence synthesis interaction
@@ -15705,16 +16785,46 @@ Provide a concise intelligence response with your reasoning and the selected opt
             // COMPREHENSIVE DATA GATHERING - EVERYTHING
             // ========================================
 
-            // Canvas System Data
+            // Canvas System Data (localStorage)
             const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
             const aiMemory = JSON.parse(localStorage.getItem('ai_memory_state') || '{}');
             const aiFeeds = JSON.parse(localStorage.getItem('ai_feeds') || '[]');
             const synthesisReport = localStorage.getItem('synthesis_report') || '';
             const synthesisCanvasContent = localStorage.getItem('synthesis_canvas_content') || '';
+            const canvasTimestamp = localStorage.getItem('sovereign_canvas_timestamp') || '';
+            const aiEvolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
 
-            // Council System Data
+            // Council System Data (localStorage)
             const consensusReport = document.getElementById('consensusFeed')?.textContent || '';
             const existingIntelligence = JSON.parse(localStorage.getItem('djinn_intelligence') || '[]');
+            const djinnCompleteMemory = JSON.parse(localStorage.getItem('djinn_council_complete_memory') || '{}');
+            const djinnSurveillanceState = JSON.parse(localStorage.getItem('djinn_surveillance_state') || '{}');
+
+            // Surveillance State & Tracking History
+            const surveillanceMetrics = {
+                currentState: djinnSurveillanceState,
+                canvasModifications: djinnSurveillanceState.canvasModifications || [],
+                analysisHistory: djinnSurveillanceState.analysisHistory || [],
+                intelligenceReports: djinnSurveillanceState.intelligenceReports || [],
+                roundsCompleted: djinnSurveillanceState.roundsCompleted || 0,
+                lastAnalysisTime: djinnSurveillanceState.lastAnalysisTime || 'Never',
+                systemHealth: djinnSurveillanceState.systemHealth || {}
+            };
+
+            // Cross-Window Sync Event Logs
+            const crossWindowEvents = JSON.parse(localStorage.getItem('djinn_cross_window_events') || '[]');
+            const intelligenceTriggers = JSON.parse(localStorage.getItem('djinn_intelligence_trigger') || '{}');
+
+            // IndexedDB Data Retrieval
+            let indexedDBData = {};
+            try {
+                // Attempt to retrieve IndexedDB backup data
+                const backupData = await getIndexedDBData();
+                indexedDBData = backupData || {};
+            } catch (error) {
+                console.log('IndexedDB access not available or empty:', error);
+                indexedDBData = { note: 'IndexedDB data retrieval in progress or unavailable' };
+            }
 
             // Council Member Complete Analysis
             const councilReports = [];
@@ -15790,13 +16900,13 @@ Provide a concise intelligence response with your reasoning and the selected opt
             }
 
             // ========================================
-            // OMNISCIENT AI INTELLIGENCE PROMPT
+            // INTELLIGENCE OFFICER PROMPT
             // ========================================
 
             // Get intelligence agent notepad context
             const intelligenceNotepadContext = intelligenceAgent.getNotepadContext();
 
-            const intelligencePrompt = `You are the AI Intelligence Report Generator with OMNISCIENT ACCESS to the complete Canvas AI Orchestration System and DJINN Council ecosystem. You see EVERYTHING across both systems and all databases.
+            const intelligencePrompt = `You are the Intelligence Officer with comprehensive access to the complete Canvas AI Orchestration System and DJINN Council ecosystem. You see all data across both systems and all databases.
 
 === NOTEPAD SYSTEM USAGE ===
 You have a dynamic notepad system with 5 categories for continuous intelligence enhancement:
@@ -15834,7 +16944,13 @@ ${Object.keys(aiMemory).map(system => {
 Council Member Complete Analysis (${councilReports.length} members, ${systemMetrics.councilReportTotal} total reports):
 ${councilReports.map(r => `
 **${r.member}** (${r.specialization}) - ${r.reportCount} reports
-Latest: ${r.latestReport?.content || 'No content available'}
+All Reports Complete Evolution:
+${r.allReports?.map((report, index) => `
+Report ${report.reportId} (${new Date(report.timestamp).toLocaleString()}):
+Analysis: ${report.analysis}
+Building On: ${report.buildingOn}
+Canvas Data: ${report.canvasDataAnalyzed}
+---`).join('\n') || 'No reports available'}
 `).join('\n')}
 
 Consensus Report:
@@ -15848,12 +16964,53 @@ Pattern Engine: ${validationEcosystem.patternEngine.patternsLearned} patterns le
 Efficiency Optimizer: ${validationEcosystem.efficiencyOptimizer.optimizations} optimizations applied
 Quality Monitor: ${validationEcosystem.qualityMonitor.monitoringCycles} monitoring cycles completed
 
+=== SURVEILLANCE STATE & TRACKING HISTORY ===
+Analysis Rounds Completed: ${surveillanceMetrics.roundsCompleted}
+Last Analysis Time: ${surveillanceMetrics.lastAnalysisTime}
+Canvas Modifications Tracked: ${surveillanceMetrics.canvasModifications.length} events
+Analysis History: ${surveillanceMetrics.analysisHistory.length} analysis cycles
+Intelligence Reports Generated: ${surveillanceMetrics.intelligenceReports.length}
+System Health Status: ${JSON.stringify(surveillanceMetrics.systemHealth)}
+
+Canvas Modification Events:
+${surveillanceMetrics.canvasModifications.slice(-10).map(mod => `[${new Date(mod.timestamp).toLocaleString()}] ${mod.type}: ${mod.details}`).join('\n')}
+
+Analysis History (Last 10):
+${surveillanceMetrics.analysisHistory.slice(-10).map(analysis => `[${new Date(analysis.timestamp).toLocaleString()}] ${analysis.type}: ${analysis.status}`).join('\n')}
+
+=== CROSS-WINDOW SYNCHRONIZATION EVENTS ===
+Cross-Window Events Logged: ${crossWindowEvents.length} total events
+Recent Sync Events:
+${crossWindowEvents.slice(-5).map(event => `[${new Date(event.timestamp).toLocaleString()}] ${event.type}: ${event.source} → ${event.target}`).join('\n')}
+
+Intelligence Triggers:
+Type: ${intelligenceTriggers.type || 'None'}
+Last Trigger: ${intelligenceTriggers.timestamp ? new Date(intelligenceTriggers.timestamp).toLocaleString() : 'Never'}
+Source System: ${intelligenceTriggers.systems || 'Unknown'}
+
+=== INDEXEDDB ARCHIVED DATA ACCESS ===
+IndexedDB Status: ${indexedDBData.error ? 'Error: ' + indexedDBData.error : 'Connected'}
+Total Archived Records: ${indexedDBData.totalRecords || 0}
+Archived Intelligence Reports: ${indexedDBData.archivedReports?.length || 0}
+Archived Consensus Reports: ${indexedDBData.archivedConsensus?.length || 0}
+Archived Council Memory: ${indexedDBData.archivedCouncilMemory?.length || 0}
+
+Recent Archived Intelligence Reports:
+${indexedDBData.archivedReports?.slice(-3).map(report => `[${new Date(report.timestamp).toLocaleString()}] Report ID: ${report.id}`).join('\n') || 'No archived reports available'}
+
+=== AI EVOLUTION HISTORY ===
+Evolution Snapshots: ${aiEvolutionHistory.length} total snapshots
+Recent Evolution Events:
+${aiEvolutionHistory.slice(-5).map(snapshot => `[${new Date(snapshot.timestamp).toLocaleString()}] ${snapshot.type}: ${snapshot.changes} changes`).join('\n')}
+
 === CROSS-SYSTEM INTELLIGENCE ===
 Previous Intelligence Reports: ${systemMetrics.intelligenceReports}
 System Integration Status: Canvas ↔ Council synchronization active
 Data Evolution: Canvas content → AI analysis → Council synthesis → Intelligence report → Canvas cycle
+Canvas Last Modified: ${canvasTimestamp}
+Complete Memory Records: ${Object.keys(djinnCompleteMemory).length} memory categories
 
-=== OMNISCIENT INTELLIGENCE ANALYSIS REQUIREMENTS ===
+=== INTELLIGENCE OFFICER ANALYSIS REQUIREMENTS ===
 As the master intelligence analyst with complete system visibility, create a comprehensive document evolution intelligence report:
 
 [EXECUTIVE_SUMMARY]
@@ -15883,7 +17040,7 @@ Include confidence levels and supporting evolutionary trend analysis
 Key document evolution data points that support major findings with confidence assessments
 Cross-reference multiple data sources for validation
 
-Focus on strategic intelligence that leverages your complete omniscient view. Use specific metrics, patterns, and cross-system correlations. Provide comprehensive analysis without word limits - thoroughness over brevity for complete intelligence coverage.`;
+Focus on strategic intelligence that leverages your complete system view. Use specific metrics, patterns, and cross-system correlations. Provide comprehensive analysis without word limits - thoroughness over brevity for complete intelligence coverage.`;
 
             // Validate model selection before proceeding
             const selectedModel = getCurrentModel();
@@ -15961,7 +17118,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                             patterns: validationEcosystem.patternEngine.patternsLearned
                         }
                     },
-                    omniscientAccess: true
+                    comprehensiveAccess: true
                 };
 
                 // Smart storage management with rotation
@@ -16012,7 +17169,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                     }
                 }
 
-                console.log('🎯 OMNISCIENT AI Intelligence Report completed with full ecosystem analysis');
+                console.log('🎯 Intelligence Officer Report completed with full ecosystem analysis');
 
                 // Trigger canvas polling cycle
                 triggerCanvasPollingCycle();
@@ -16103,7 +17260,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 correlations: extractSection(response, 'CORRELATION_ANALYSIS') ||
                             'Cross-system correlations identified through comprehensive data analysis',
 
-                confidence_level: 'HIGH - Based on complete omniscient system visibility',
+                confidence_level: 'HIGH - Based on complete system visibility',
 
                 // Include full response for debugging
                 full_response: response
@@ -16125,7 +17282,7 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
         }
 
         function parseActionableItems(text) {
-            if (!text) return ['Continue omniscient intelligence monitoring', 'Maintain cross-system data synchronization', 'Execute next analysis cycle'];
+            if (!text) return ['Continue intelligence monitoring', 'Maintain cross-system data synchronization', 'Execute next analysis cycle'];
 
             // Extract numbered or bulleted items
             const items = text.split(/\n\s*[-•\d\.]\s*/).filter(item => item.trim().length > 0);
@@ -16157,14 +17314,14 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
         }
 
         function triggerCanvasPollingCycle() {
-            console.log('🔄 Triggering canvas polling cycle from omniscient intelligence completion');
+            console.log('🔄 Triggering canvas polling cycle from intelligence completion');
 
             // Send comprehensive intelligence completion signals
             try {
                 // Method 1: Enhanced postMessage with intelligence metadata
                 window.postMessage({
                     type: 'council_intelligence_complete',
-                    source: 'djinn-council-omniscient-intelligence',
+                    source: 'djinn-council-intelligence-officer',
                     timestamp: Date.now(),
                     trigger: 'ai_intelligence_report_complete',
                     intelligenceData: {
@@ -16179,18 +17336,18 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 const triggerData = {
                     timestamp: Date.now(),
                     type: 'intelligence_complete',
-                    systems: 'omniscient_analysis',
+                    systems: 'intelligence_analysis',
                     nextAction: 'canvas_polling_cycle'
                 };
                 localStorage.setItem('djinn_intelligence_trigger', JSON.stringify(triggerData));
-                console.log('🔗 Omniscient intelligence trigger sent via localStorage');
+                console.log('🔗 Intelligence trigger sent via localStorage');
 
                 // Method 3: Try postMessage to parent/opener with enhanced data
                 if (window.opener && !window.opener.closed) {
                     window.opener.postMessage({
                         type: 'council_intelligence_complete',
                         timestamp: Date.now(),
-                        source: 'omniscient_intelligence_system'
+                        source: 'intelligence_officer_system'
                     }, '*');
                     console.log('🔗 Intelligence completion sent to canvas via opener');
                 }
@@ -16201,14 +17358,14 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                     channel.postMessage({
                         type: 'council_intelligence_complete',
                         timestamp: Date.now(),
-                        source: 'omniscient_intelligence',
+                        source: 'intelligence_officer',
                         ready: true
                     });
                     channel.close();
                     console.log('🔗 Intelligence completion broadcasted to all canvas instances');
                 }
 
-                console.log('✅ Canvas polling cycle triggered - omniscient intelligence analysis complete');
+                console.log('✅ Canvas polling cycle triggered - intelligence analysis complete');
 
             } catch (error) {
                 console.error('Failed to trigger canvas polling from intelligence system:', error);
@@ -16241,6 +17398,34 @@ Focus on strategic intelligence that leverages your complete omniscient view. Us
                 <button onclick="deselectAllReports()" style="padding: 8px 16px; background: #666; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Deselect All</button>
                 <button onclick="performExport()" style="padding: 8px 16px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Export Selected</button>
                 <button onclick="closeExportModal()" style="padding: 8px 16px; background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimized Chat Footer -->
+    <div class="minimized-chat-footer" id="minimizedChatFooter">
+        <button class="chat-maximize-btn" onclick="maximizeChat()">🧠 Intelligence Officer</button>
+        <div style="flex: 1; font-size: 11px; color: #999;">
+            Ready for system analysis, health monitoring, and strategic insights
+        </div>
+    </div>
+
+    <!-- Maximized Chat Overlay -->
+    <div class="maximized-chat-overlay" id="maximizedChatOverlay">
+        <div class="maximized-chat-header">
+            <div class="maximized-chat-title">🧠 Intelligence Officer - System Analysis & Health Monitoring</div>
+            <button class="chat-minimize-btn" onclick="minimizeChat()">Minimize</button>
+        </div>
+        <div class="maximized-chat-content">
+            <div class="maximized-chat-history" id="maximizedChatHistory">
+                <div style="color: #4ecdc4; margin-bottom: 10px;">
+                    <strong>🧠 Intelligence Officer initialized</strong><br>
+                    <span style="color: #888; font-size: 11px;">Ready for system health monitoring, cross-agent analysis, cleanup planning, and strategic insights.</span>
+                </div>
+            </div>
+            <div class="maximized-chat-input">
+                <input type="text" id="maximizedChatInput" placeholder="Ask Intelligence Officer about system health, broken systems, cleanup needs, or strategic analysis..." onkeypress="if(event.key==='Enter') askMaximizedIntelligenceAgent()">
+                <button onclick="askMaximizedIntelligenceAgent()">Ask Officer</button>
             </div>
         </div>
     </div>
