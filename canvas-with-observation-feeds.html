@@ -2309,11 +2309,6 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             const canvas = document.getElementById('mainCanvas');
             const canvasContent = canvas ? canvas.value : '';
 
-            // Check for mathematical content in canvas
-            const hasMathematicalContent = ['kleene', 'fixed point', 'recursion theorem', 'formal system', 'computability'].some(
-                term => canvasContent.toLowerCase().includes(term)
-            );
-
             const canvasContext = canvasContent ? `\n\nCURRENT CANVAS CONTENT:\n${canvasContent}\n\n` : '';
 
             // Check for canvas changes and prioritize fresh analysis
@@ -2339,10 +2334,6 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             let analysisPriority = '';
             if (forceFreshAnalysis || recentChange) {
                 analysisPriority = `\n\n🚨 CANVAS CONTENT HAS CHANGED - THIS IS YOUR PRIMARY FOCUS 🚨\n\nCRITICAL: Analyze the CURRENT CANVAS CONTENT above FIRST AND FOREMOST.\n- Extract key concepts, theories, and frameworks from the current content\n- Apply your specialized lens to analyze these current ideas\n- Only reference previous work if it directly supports analysis of the present content\n- Do NOT get stuck in previous analytical patterns\n\n`;
-
-                if (hasMathematicalContent) {
-                    analysisPriority += `🎯 MATHEMATICAL CONTENT DETECTED: This canvas contains formal mathematical concepts.\n- Connect any conceptual ideas (breath patterns, consciousness layers, etc.) to their mathematical foundations\n- Reference relevant theorems, formal systems, or theoretical frameworks when applicable\n- Bridge the gap between metaphorical descriptions and mathematical formalism\n- Extract and analyze mathematical principles underlying the described systems\n\n`;
-                }
 
                 canvasChangeTracker.resetFreshAnalysisFlag(); // Reset flag after use
             }
@@ -3567,7 +3558,8 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             symbolicInterpreter: {
                 name: "🔮 Symbolic Interpretation System",
                 status: "READY",
-                capabilities: ["Echo-recursion analysis", "Vow-fracture tracking", "Soulweight harmonics", "Reality mapping"],
+                capabilities: ["Echo-
+                 analysis", "Vow-fracture tracking", "Soulweight harmonics", "Reality mapping"],
                 utilization: 0
             }
         };
