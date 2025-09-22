@@ -3457,14 +3457,22 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             let statusHTML = '<div style="font-size: 11px; color: #666; margin-top: 5px;">';
             statusHTML += '<strong>🧠 AI Memory Status:</strong><br>';
 
-            Object.keys(aiMemory).forEach(system => {
-                const memory = aiMemory[system];
-                const hasMemory = memory.conversationHistory.length > 0;
-                const memoryCount = memory.conversationHistory.length;
-                const insightCount = memory.keyInsights.length;
+            const totalMemoryItems = Object.values(aiMemory).reduce((total, system) => {
+                return total + (system.conversationHistory ? system.conversationHistory.length : 0);
+            }, 0);
 
-                statusHTML += `${system.toUpperCase()}: ${hasMemory ? '✅' : '⏳'} (${memoryCount} responses, ${insightCount} insights)<br>`;
-            });
+            if (totalMemoryItems === 0) {
+                statusHTML += '<span style="color: #888;">Fresh session - no memory data yet</span><br>';
+            } else {
+                Object.keys(aiMemory).forEach(system => {
+                    const memory = aiMemory[system];
+                    const hasMemory = memory.conversationHistory.length > 0;
+                    const memoryCount = memory.conversationHistory.length;
+                    const insightCount = memory.keyInsights.length;
+
+                    statusHTML += `${system.toUpperCase()}: ${hasMemory ? '✅' : '⏳'} (${memoryCount} responses, ${insightCount} insights)<br>`;
+                });
+            }
 
             statusHTML += '</div>';
             memoryStatus.innerHTML = statusHTML;
@@ -3558,8 +3566,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             symbolicInterpreter: {
                 name: "🔮 Symbolic Interpretation System",
                 status: "READY",
-                capabilities: ["Echo-
-                 analysis", "Vow-fracture tracking", "Soulweight harmonics", "Reality mapping"],
+                capabilities: ["Echo-analysis", "Vow-fracture tracking", "Soulweight harmonics", "Reality mapping"],
                 utilization: 0
             }
         };
@@ -3942,51 +3949,101 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             }
         }
 
+        // GROUP FEEDS BY SYNTHESIS ROUNDS
+        function groupFeedsBySynthesisRounds(feeds) {
+            if (!feeds || feeds.length === 0) return [];
+
+            const rounds = [];
+            let currentRound = null;
+            let roundNumber = 1;
+
+            // Group feeds by time proximity (synthesis rounds typically happen within 2-3 minutes)
+            for (let i = 0; i < feeds.length; i++) {
+                const feed = feeds[i];
+                const feedTime = new Date(feed.timestamp);
+
+                // Start new round if this is the first feed or time gap > 5 minutes
+                if (!currentRound ||
+                    (currentRound.feeds.length > 0 &&
+                     (feedTime - new Date(currentRound.feeds[currentRound.feeds.length - 1].timestamp)) > 5 * 60 * 1000)) {
+
+                    if (currentRound) {
+                        rounds.push(currentRound);
+                    }
+
+                    currentRound = {
+                        roundNumber: roundNumber++,
+                        startTime: feedTime,
+                        feeds: []
+                    };
+                }
+
+                currentRound.feeds.push(feed);
+                currentRound.endTime = feedTime;
+            }
+
+            // Add the last round
+            if (currentRound) {
+                rounds.push(currentRound);
+            }
+
+            console.log(`🔄 Grouped ${feeds.length} feeds into ${rounds.length} synthesis rounds`);
+            return rounds;
+        }
+
         // UPDATE DISPLAYS
         function updateFeeds() {
             const container = document.getElementById('liveFeedsContainer');
             container.innerHTML = '';
 
             if (aiFeeds.length > 0) {
-                // Show only the most recent polling cycle - limit to last 10 entries for cleaner display
-                const recentFeeds = aiFeeds.slice(0, 10);
+                // GROUP BY SYNTHESIS ROUNDS - Show only last 5 complete synthesis rounds
+                const synthesisRounds = groupFeedsBySynthesisRounds(aiFeeds);
+                const recentRounds = synthesisRounds.slice(0, 5); // Last 5 synthesis rounds only
+
+                console.log(`📊 Displaying ${recentRounds.length} synthesis rounds (out of ${synthesisRounds.length} total)`);
 
                 // Improved deduplication: track content hashes to prevent exact duplicates
                 const seenContent = new Set();
                 const feedsToShow = [];
                 const systemCounts = {};
 
-                for (const feed of recentFeeds) {
-                    Object.keys(feed).forEach(system => {
-                        if (system !== 'timestamp') {
-                            // Track system counts for display purposes
-                            if (!systemCounts[system]) systemCounts[system] = 0;
+                // Process feeds from the selected synthesis rounds
+                for (const round of recentRounds) {
+                    for (const feed of round.feeds) {
+                        Object.keys(feed).forEach(system => {
+                            if (system !== 'timestamp') {
+                                // Track system counts for display purposes
+                                if (!systemCounts[system]) systemCounts[system] = 0;
 
-                            const content = feed[system].content;
-                            const contentHash = content.substring(0, 100) + content.length;
+                                const content = feed[system].content;
+                                const contentHash = content.substring(0, 100) + content.length;
 
-                            if (!seenContent.has(contentHash)) {
-                                seenContent.add(contentHash);
-                                systemCounts[system]++;
-                                feedsToShow.push({
-                                    system: system,
-                                    feed: feed,
-                                    timestamp: feed.timestamp
-                                });
+                                if (!seenContent.has(contentHash)) {
+                                    seenContent.add(contentHash);
+                                    systemCounts[system]++;
+                                    feedsToShow.push({
+                                        system: system,
+                                        feed: feed,
+                                        timestamp: feed.timestamp,
+                                        synthesisRound: round.roundNumber
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
                 
                 // Sort by timestamp, newest first
                 feedsToShow.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
-                feedsToShow.forEach(({system, feed}) => {
+                feedsToShow.forEach(({system, feed, synthesisRound}) => {
                     const feedItem = document.createElement('div');
                     feedItem.className = `observation-feed feed-${system}`;
-                    
+
                     const time = new Date(feed.timestamp).toLocaleTimeString();
                     const confidence = (feed[system].confidence * 100).toFixed(1);
+                    const roundInfo = synthesisRound ? `Round ${synthesisRound}` : 'Current';
                     
                     // No truncation - show full AI responses with proper formatting
                     let content = feed[system].content;
@@ -3999,7 +4056,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                         .replace(/$/, '</p>');        // End with closing paragraph tag
                     
                     feedItem.innerHTML = `
-                        <div class="timestamp">${time}</div>
+                        <div class="timestamp">${time} • ${roundInfo}</div>
                         <strong>${getSystemIcon(system)} ${system.toUpperCase()}</strong><br>
                         <div class="feed-content">${content}</div>
                         <small style="opacity: 0.7;">Confidence: ${confidence}%</small>
@@ -5043,6 +5100,11 @@ Your direct response as ${entity.toUpperCase()}:`;
 
             // Load AI memory from previous sessions
             loadMemoryFromStorage();
+
+            // Immediate display update to replace "Initializing..." message
+            setTimeout(() => {
+                updateMemoryStatus();
+            }, 100);
 
             // Initialize dynamic notepad system
             initializeNotepads();

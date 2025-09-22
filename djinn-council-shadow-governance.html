@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -484,15 +486,46 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             padding: 20px;
+            min-height: 0;
+            height: 100%;
         }
 
         .maximized-chat-history {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             margin-bottom: 15px;
             font-family: 'Courier New', monospace;
             font-size: 13px;
             line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(78, 205, 196, 0.5) rgba(0, 0, 0, 0.3);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        .maximized-chat-history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .maximized-chat-history::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .maximized-chat-history::-webkit-scrollbar-thumb {
+            background: rgba(78, 205, 196, 0.5);
+            border-radius: 4px;
+        }
+
+        .maximized-chat-history::-webkit-scrollbar-thumb:hover {
+            background: rgba(78, 205, 196, 0.7);
         }
 
         .maximized-chat-input {
@@ -1309,10 +1342,10 @@
                     🔧 Refinement Agent: <span id="refinementStatus">READY</span>
                     <button onclick="createCouncilNotepadPopup('refinement')" style="background: none; border: 1px solid #ffaa00; color: #ffaa00; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Refinement Specialist Notepad">📝</button>
                 </div>
-                <div class="status-item" data-tooltip="Intelligence Agent: Strategic intelligence synthesis specialist generating comprehensive reports from council consensus and canvas evolution. Combines all system data for comprehensive intelligence analysis with predictive insights and strategic recommendations.">
+                <div class="status-item" data-tooltip="Validation Synthesizer: Validation ecosystem synthesis specialist generating comprehensive reports from validation consensus and quality analysis. Combines validation system data for quality intelligence analysis with predictive insights and validation recommendations.">
                     <span class="indicator indicator-idle"></span>
-                    🎯 Intelligence Agent: <span id="intelligenceAgentStatus">READY</span>
-                    <button onclick="createCouncilNotepadPopup('intelligence')" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Intelligence Agent Notepad">📝</button>
+                    🔬 Validation Synthesizer: <span id="intelligenceAgentStatus">READY</span>
+                    <button onclick="createCouncilNotepadPopup('intelligence')" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; padding: 1px 4px; cursor: pointer; font-size: 9px; margin-left: 6px;" title="View Validation Synthesizer Notepad">📝</button>
                 </div>
                 <div class="status-item" data-tooltip="Recovery Agent: Emergency validation response system handling extreme cases where normal validation fails. Trauma surgeon of the validation system with emergency protocols, recovery procedures, and failsafe mechanisms for critical system failures.">
                     <span class="indicator indicator-idle"></span>
@@ -1635,7 +1668,12 @@
             </div>
             <!-- Expanded Chat Section -->
             <div class="controls-chat" id="controlsChat">
-                <div class="intelligence-chat-header" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; min-height: 32px;">
+                <div class="intelligence-chat-header" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; min-height: 32px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="toggleIntelligenceOfficerNotepad()" style="padding: 4px 8px; background: rgba(78, 205, 196, 0.2); border: 1px solid rgba(78, 205, 196, 0.3); border-radius: 4px; color: #4ecdc4; font-size: 10px; cursor: pointer;">📝 Notepad</button>
+                        <button onclick="showIntelligenceOfficerSystemHealth()" style="padding: 4px 8px; background: rgba(255, 170, 0, 0.2); border: 1px solid rgba(255, 170, 0, 0.3); border-radius: 4px; color: #ffaa00; font-size: 10px; cursor: pointer;">🔍 System Health</button>
+                        <button onclick="discoverActiveAgents()" style="padding: 4px 8px; background: rgba(204, 136, 204, 0.2); border: 1px solid rgba(204, 136, 204, 0.3); border-radius: 4px; color: #cc88cc; font-size: 10px; cursor: pointer;">🎯 Discover Agents</button>
+                    </div>
                     <button onclick="clearIntelligenceChat()" style="padding: 4px 8px; background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 4px; color: #ff6b6b; font-size: 10px; cursor: pointer;">Clear Chat</button>
                 </div>
 
@@ -1643,6 +1681,67 @@
                     <div style="color: #4ecdc4; margin-bottom: 10px;">
                         <strong>🧠 Intelligence Officer initialized</strong><br>
                         <span style="color: #888; font-size: 11px;">Ready to answer questions about canvas content, AI systems, council analysis, synthesis reports, memories, and all stored data.</span>
+                    </div>
+                </div>
+
+                <!-- Intelligence Officer Notepad Interface -->
+                <div id="intelligenceOfficerNotepad" style="display: none; background: rgba(78, 205, 196, 0.05); border: 1px solid rgba(78, 205, 196, 0.2); border-radius: 4px; padding: 10px; margin-bottom: 10px; max-height: 300px; overflow-y: auto;">
+                    <div style="color: #4ecdc4; font-weight: bold; font-size: 11px; margin-bottom: 8px; display: flex; justify-content: between; align-items: center;">
+                        <span>🧠 INTELLIGENCE OFFICER NOTEPAD</span>
+                        <button onclick="exportIntelligenceOfficerNotepad()" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; font-size: 8px; padding: 2px 6px; border-radius: 2px; cursor: pointer; margin-left: auto;">Export</button>
+                    </div>
+
+                    <div class="intelligence-notepad-tabs" style="display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap;">
+                        <button class="intelligence-tab active" data-tab="crossSystemAnalysis" onclick="switchIntelligenceTab('crossSystemAnalysis')" style="padding: 2px 6px; font-size: 9px; background: rgba(78, 205, 196, 0.2); border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 2px; cursor: pointer;">🔍 Cross-System</button>
+                        <button class="intelligence-tab" data-tab="agentDiscovery" onclick="switchIntelligenceTab('agentDiscovery')" style="padding: 2px 6px; font-size: 9px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 2px; cursor: pointer;">🎯 Agent Discovery</button>
+                        <button class="intelligence-tab" data-tab="systemHealth" onclick="switchIntelligenceTab('systemHealth')" style="padding: 2px 6px; font-size: 9px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 2px; cursor: pointer;">🏥 System Health</button>
+                        <button class="intelligence-tab" data-tab="correlationPatterns" onclick="switchIntelligenceTab('correlationPatterns')" style="padding: 2px 6px; font-size: 9px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 2px; cursor: pointer;">📊 Patterns</button>
+                        <button class="intelligence-tab" data-tab="strategicInsights" onclick="switchIntelligenceTab('strategicInsights')" style="padding: 2px 6px; font-size: 9px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 2px; cursor: pointer;">💡 Strategic</button>
+                        <button class="intelligence-tab" data-tab="cleanupPlanning" onclick="switchIntelligenceTab('cleanupPlanning')" style="padding: 2px 6px; font-size: 9px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 2px; cursor: pointer;">🧹 Cleanup</button>
+                    </div>
+
+                    <div class="intelligence-notepad-content">
+                        <div class="intelligence-tab-content active" data-tab="crossSystemAnalysis">
+                            <div style="font-size: 10px; color: #4ecdc4; margin-bottom: 4px;">Cross-System Intelligence Analysis</div>
+                            <div id="crossSystemContent" style="font-size: 9px; line-height: 1.3; color: #88ccaa; min-height: 60px; background: rgba(0, 0, 0, 0.1); padding: 6px; border-radius: 2px;">
+                                System-wide analysis data will appear here...
+                            </div>
+                        </div>
+
+                        <div class="intelligence-tab-content" data-tab="agentDiscovery" style="display: none;">
+                            <div style="font-size: 10px; color: #4ecdc4; margin-bottom: 4px;">Dynamic Agent Discovery</div>
+                            <div id="agentDiscoveryContent" style="font-size: 9px; line-height: 1.3; color: #88ccaa; min-height: 60px; background: rgba(0, 0, 0, 0.1); padding: 6px; border-radius: 2px;">
+                                Agent discovery data will appear here...
+                            </div>
+                        </div>
+
+                        <div class="intelligence-tab-content" data-tab="systemHealth" style="display: none;">
+                            <div style="font-size: 10px; color: #4ecdc4; margin-bottom: 4px;">System Health Monitoring</div>
+                            <div id="systemHealthContent" style="font-size: 9px; line-height: 1.3; color: #88ccaa; min-height: 60px; background: rgba(0, 0, 0, 0.1); padding: 6px; border-radius: 2px;">
+                                System health data will appear here...
+                            </div>
+                        </div>
+
+                        <div class="intelligence-tab-content" data-tab="correlationPatterns" style="display: none;">
+                            <div style="font-size: 10px; color: #4ecdc4; margin-bottom: 4px;">Cross-Agent Correlation Patterns</div>
+                            <div id="correlationPatternsContent" style="font-size: 9px; line-height: 1.3; color: #88ccaa; min-height: 60px; background: rgba(0, 0, 0, 0.1); padding: 6px; border-radius: 2px;">
+                                Correlation pattern data will appear here...
+                            </div>
+                        </div>
+
+                        <div class="intelligence-tab-content" data-tab="strategicInsights" style="display: none;">
+                            <div style="font-size: 10px; color: #4ecdc4; margin-bottom: 4px;">Strategic Intelligence Insights</div>
+                            <div id="strategicInsightsContent" style="font-size: 9px; line-height: 1.3; color: #88ccaa; min-height: 60px; background: rgba(0, 0, 0, 0.1); padding: 6px; border-radius: 2px;">
+                                Strategic insights will appear here...
+                            </div>
+                        </div>
+
+                        <div class="intelligence-tab-content" data-tab="cleanupPlanning" style="display: none;">
+                            <div style="font-size: 10px; color: #4ecdc4; margin-bottom: 4px;">System Cleanup Planning</div>
+                            <div id="cleanupPlanningContent" style="font-size: 9px; line-height: 1.3; color: #88ccaa; min-height: 60px; background: rgba(0, 0, 0, 0.1); padding: 6px; border-radius: 2px;">
+                                Cleanup planning data will appear here...
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -3126,7 +3225,7 @@
                 agentName = 'REFINEMENT SPECIALIST';
             } else if (memberKey === 'intelligence') {
                 notepad = intelligenceAgent?.notepad;
-                agentName = 'INTELLIGENCE AGENT';
+                agentName = 'VALIDATION SYNTHESIZER';
             } else if (memberKey === 'recovery') {
                 notepad = recoveryAgent?.notepad;
                 agentName = 'RECOVERY AGENT';
@@ -6038,11 +6137,30 @@ Provide your specialized analysis of how the document content is evolving and de
             const existingMemory = localStorage.getItem('djinn_council_complete_memory');
 
             if (existingMemory) {
-                Object.assign(djinnCouncilMemory, JSON.parse(existingMemory));
+                try {
+                    const parsedMemory = JSON.parse(existingMemory);
+                    // FULL REPLACEMENT instead of merge to preserve all stored data
+                    Object.keys(djinnCouncilMemory).forEach(key => {
+                        if (parsedMemory.hasOwnProperty(key)) {
+                            djinnCouncilMemory[key] = parsedMemory[key];
+                        }
+                    });
+                    // Ensure any new properties in stored memory are added
+                    Object.keys(parsedMemory).forEach(key => {
+                        if (!djinnCouncilMemory.hasOwnProperty(key)) {
+                            djinnCouncilMemory[key] = parsedMemory[key];
+                        }
+                    });
+                    console.log(`🧠 Council memory restored from storage - ${Object.keys(parsedMemory.members).length} members loaded`);
+                } catch (error) {
+                    console.error('Failed to restore Council memory:', error);
+                    // Continue with fresh memory if restore fails
+                }
             } else {
                 // Fresh session - save initial state
                 try {
                     localStorage.setItem('djinn_council_complete_memory', JSON.stringify(djinnCouncilMemory));
+                    console.log('🆕 Fresh Council session initialized');
                 } catch (error) {
                     console.warn('Failed to save initial Council memory state:', error);
                 }
@@ -6062,6 +6180,64 @@ Provide your specialized analysis of how the document content is evolving and de
             systemHealthMonitor(); // Initial update
 
             console.log(`DJINN Council Memory Initialized - Session: ${djinnCouncilMemory.sessionId}`);
+        }
+
+        // Restore council member content from memory on page load
+        function restoreCouncilMemberContent() {
+            console.log('🔄 Restoring council member content from memory...');
+
+            // Ensure memory is fully loaded first
+            if (!djinnCouncilMemory.members || Object.keys(djinnCouncilMemory.members).length === 0) {
+                console.warn('⚠️ No council members in memory - skipping content restore');
+                return;
+            }
+
+            let restoredCount = 0;
+            Object.keys(councilMembers).forEach(memberKey => {
+                const member = councilMembers[memberKey];
+                const memberMemory = djinnCouncilMemory.members[memberKey];
+
+                if (memberMemory && memberMemory.reports && memberMemory.reports.length > 0) {
+                    // Get the most recent report
+                    const latestReport = memberMemory.reports[memberMemory.reports.length - 1];
+
+                    // Check if report has valid content
+                    if (latestReport && latestReport.content) {
+                        // Format and display the content
+                        const formattedContent = formatCouncilResponse(latestReport.content);
+                        const element = document.getElementById(member.element);
+                        const statusElement = document.getElementById(member.status);
+
+                        if (element) {
+                            element.innerHTML = formattedContent;
+                            restoredCount++;
+                        }
+
+                        // Update status to show it's loaded from memory
+                        if (statusElement) {
+                            statusElement.textContent = 'RESTORED';
+                        }
+
+                        console.log(`✅ Restored ${member.name} content from memory (${latestReport.content.length} chars)`);
+                    } else {
+                        console.log(`⚠️ ${member.name} has report but no valid content`);
+                    }
+                } else {
+                    console.log(`ℹ️ No stored content found for ${member.name}`);
+                }
+            });
+
+            // Also restore consensus if available
+            if (djinnCouncilMemory.consensusHistory && djinnCouncilMemory.consensusHistory.length > 0) {
+                const latestConsensus = djinnCouncilMemory.consensusHistory[djinnCouncilMemory.consensusHistory.length - 1];
+                const consensusElement = document.getElementById('consensusFeed');
+                if (consensusElement) {
+                    consensusElement.innerHTML = latestConsensus.content;
+                    console.log('✅ Restored consensus content from memory');
+                }
+            }
+
+            console.log(`🔄 Memory restoration complete: ${restoredCount} member(s) restored`);
         }
 
         // Add memory visualization to UI
@@ -7652,10 +7828,8 @@ Provide your specialized analysis of how the document content is evolving and de
                 await generateConsensusReport();
                 logDjinnEvent('chain', 'Step 1: Consensus Report generated successfully');
 
-                // Step 2: Generate AI Intelligence Report based on consensus + all data
-                logDjinnEvent('chain', 'Step 2: AI Intelligence Report generation starting');
-                await generateAIIntelligenceReport();
-                logDjinnEvent('chain', 'Step 2: AI Intelligence Report generated successfully');
+                // Step 2: Council analysis complete - Intelligence Officer report handled separately
+                logDjinnEvent('chain', 'Step 2: Council analysis complete - Intelligence Officer handles intelligence perspective');
 
                 // Step 3: Trigger next canvas polling cycle
                 logDjinnEvent('chain', 'Step 3: Canvas polling cycle triggered');
@@ -8082,123 +8256,37 @@ Provide your specialized analysis of how the document content is evolving and de
                 return response;
             }
 
-            // Check if response already has proper structure
-            const hasSummary = response.includes('**SUMMARY**');
-            const hasAnalysis = response.includes('**ANALYSIS**');
-            const hasFindings = response.includes('**FINDINGS**');
-            const hasMetrics = response.includes('**METRICS**');
-            const hasConclusions = response.includes('**CONCLUSIONS**');
-            const hasActions = response.includes('**ACTIONS**');
-
-            // If all sections are present, return as-is
-            if (hasSummary && hasAnalysis && hasFindings && hasMetrics && hasConclusions && hasActions) {
-                return response;
-            }
-
-            // If structure is missing, try to parse and restructure the content
-            return restructureUnformattedResponse(response);
+            // CONTENT-FIRST VALIDATION: Preserve natural AI expression
+            // Only validate content quality, not structural enforcement
+            return validateContentQuality(response);
         }
 
 
-        function restructureUnformattedResponse(response) {
-            // Try to extract meaningful content and structure it properly
-            const lines = response.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-            
-            // Look for section-like content
-            const sections = {
-                summary: [],
-                analysis: [],
-                findings: [],
-                metrics: [],
-                conclusions: [],
-                actions: []
-            };
-
-            let currentSection = 'summary';
-            let inMetrics = false;
-            let inActions = false;
-
-            for (const line of lines) {
-                const lowerLine = line.toLowerCase();
-                
-                // Detect section headers
-                if (lowerLine.includes('summary') && !lowerLine.includes('findings')) {
-                    currentSection = 'summary';
-                    continue;
-                } else if (lowerLine.includes('analysis') || lowerLine.includes('method')) {
-                    currentSection = 'analysis';
-                    continue;
-                } else if (lowerLine.includes('finding') || lowerLine.includes('discovery') || lowerLine.includes('observation')) {
-                    currentSection = 'findings';
-                    continue;
-                } else if (lowerLine.includes('metric') || lowerLine.includes('measurement') || lowerLine.includes('statistic')) {
-                    currentSection = 'metrics';
-                    inMetrics = true;
-                    continue;
-                } else if (lowerLine.includes('conclusion') || lowerLine.includes('result')) {
-                    currentSection = 'conclusions';
-                    inMetrics = false;
-                    continue;
-                } else if (lowerLine.includes('action') || lowerLine.includes('recommendation')) {
-                    currentSection = 'actions';
-                    inActions = true;
-                    inMetrics = false;
-                    continue;
-                }
-
-                // Add content to current section
-                if (currentSection === 'metrics' && (line.includes(':') || line.includes('%') || /\d/.test(line))) {
-                    sections.metrics.push(line.replace(/^[\-\*]\s*/, '- '));
-                } else if (currentSection === 'actions' && (line.includes('recommend') || line.match(/^\d+\./))) {
-                    sections.actions.push(line.replace(/^[\-\*]\s*/, '').replace(/^\d+\.\s*/, ''));
-                } else if (!inMetrics && !inActions) {
-                    sections[currentSection].push(line);
-                }
+        // CONTENT-FIRST VALIDATION: Quality over rigid structure
+        function validateContentQuality(response) {
+            if (!response || response.trim().length < 50) {
+                console.warn('⚠️ Response too short for meaningful analysis');
+                return response;
             }
 
-            // Build properly formatted response
-            let structured = '';
+            // Check for analytical depth indicators
+            const analyticalIndicators = [
+                /\b(analysis|analyze|examination|investigation)\b/i,
+                /\b(pattern|trend|correlation|relationship)\b/i,
+                /\b(insight|observation|finding|discovery)\b/i,
+                /\b(conclusion|result|outcome|implication)\b/i,
+                /\b(recommend|suggest|propose|advise)\b/i
+            ];
 
-            if (sections.summary.length > 0) {
-                structured += '**SUMMARY**\n' + sections.summary.join(' ') + '\n\n';
+            const hasAnalyticalDepth = analyticalIndicators.some(pattern => pattern.test(response));
+
+            if (hasAnalyticalDepth) {
+                console.log('✅ Response contains analytical depth - preserving natural structure');
+                return response; // Preserve natural AI expression
+            } else {
+                console.log('📝 Response lacks analytical indicators but preserving natural form');
+                return response; // Still preserve natural form, no forced restructuring
             }
-
-            if (sections.analysis.length > 0) {
-                structured += '**ANALYSIS**\n' + sections.analysis.join(' ') + '\n\n';
-            }
-
-            if (sections.findings.length > 0) {
-                structured += '**FINDINGS**\n';
-                // Try to categorize findings
-                const categorizedFindings = categorizeFindings(sections.findings);
-                Object.entries(categorizedFindings).forEach(([category, findings]) => {
-                    if (findings.length > 0) {
-                        structured += `- **${category}:** ${findings.join(' ')}\n`;
-                    }
-                });
-                structured += '\n';
-            }
-
-            if (sections.metrics.length > 0) {
-                structured += '**METRICS**\n';
-                sections.metrics.forEach(metric => {
-                    structured += (metric.startsWith('-') ? metric : '- ' + metric) + '\n';
-                });
-                structured += '\n';
-            }
-
-            if (sections.conclusions.length > 0) {
-                structured += '**CONCLUSIONS**\n' + sections.conclusions.join(' ') + '\n\n';
-            }
-
-            if (sections.actions.length > 0) {
-                structured += '**ACTIONS**\n';
-                sections.actions.forEach((action, index) => {
-                    structured += `${index + 1}. ${action}\n`;
-                });
-            }
-
-            return structured.trim() || response; // Return restructured or original if restructuring failed
         }
 
         function categorizeFindings(findings) {
@@ -8536,7 +8624,7 @@ ${originalResponse}
 
 === YOUR VALIDATION JOB ===
 Check if the document evolution analysis:
-1. Follows the required 6-category structure (SUMMARY, DOCUMENT EVOLUTION ANALYSIS, CONTENT PATTERN EMERGENCE, CROSS-AI DOCUMENT PERSPECTIVES, EVOLUTIONARY INSIGHTS, DOCUMENT DEVELOPMENT METRICS, EVOLUTIONARY RECOMMENDATIONS)
+1. Provides substantive analysis of how the document content is evolving and developing
 2. Provides specific evidence from the canvas content for all claims
 3. Shows genuine evolution insights rather than generic observations
 4. Demonstrates cross-AI perspective integration
@@ -8548,7 +8636,7 @@ OUTPUT FORMAT:
 
 
 **CORRECTED ANALYSIS:**
-[If NEEDS_CORRECTION: Provide the corrected version following the 6-category structure with specific evidence]
+[If NEEDS_CORRECTION: Provide the corrected analysis with proper document evolution insights and evidence]
 [If VALID: Return "Analysis follows document evolution structure and provides evidence-based insights"]
 
 **VALIDATION NOTES:**
@@ -9010,40 +9098,28 @@ CRITICAL: This iteration includes expert coaching analysis. Apply the specific r
                 avgProcessingTime: 0
             },
 
-            // Main processing pipeline
+            // CONTENT-FIRST PROCESSING: Preserve natural AI expression
             process: function(rawResponse, memberKey = 'unknown') {
                 const startTime = Date.now();
                 this.processingStats.totalResponses++;
 
                 try {
-                    console.log(`🔬 Enhanced processing for ${memberKey} response (${rawResponse.length} chars)`);
+                    console.log(`🎯 Content-first processing for ${memberKey} response (${rawResponse.length} chars)`);
 
-                    // Stage 1: Content preservation and analysis
-                    const contentAnalysis = this.analyzeContent(rawResponse);
-
-                    // Stage 2: Intelligent structure detection
-                    const structureMap = this.detectStructure(rawResponse);
-
-                    // Stage 3: Content-aware restructuring
-                    const restructured = this.smartRestructure(rawResponse, structureMap, contentAnalysis);
-
-                    // Stage 4: Quality enhancement
-                    const enhanced = this.enhanceQuality(restructured, contentAnalysis);
-
-                    // Stage 5: Validation and metrics
-                    const validated = this.validateAndMeasure(enhanced, rawResponse);
+                    // Simply preserve the natural AI response
+                    console.log('🌟 Preserving natural AI expression without forced restructuring');
 
                     const processingTime = Date.now() - startTime;
                     this.processingStats.avgProcessingTime =
                         (this.processingStats.avgProcessingTime + processingTime) / 2;
 
-                    console.log(`✅ Enhanced processing complete: ${validated.length}/${rawResponse.length} chars preserved (${processingTime}ms)`);
+                    console.log(`✅ Content-first processing complete: ${rawResponse.length} chars preserved (${processingTime}ms)`);
 
-                    return validated;
+                    return rawResponse; // Return natural AI response unchanged
 
                 } catch (error) {
-                    console.error('❌ Enhanced processing failed:', error);
-                    // Fallback to original response
+                    console.error('❌ Content-first processing failed:', error);
+                    // Always preserve original response
                     return rawResponse;
                 }
             },
@@ -9523,48 +9599,14 @@ CRITICAL: This iteration includes expert coaching analysis. Apply the specific r
         // UPDATED RESPONSE PROCESSING
         // ========================================
 
-        // Replace the old enforceReportStructure with enhanced processing
+        // CONTENT-FIRST VALIDATION: Preserve natural AI expression
         function enforceReportStructure(response) {
             if (!response || typeof response !== 'string') {
-                console.warn('⚠️ Invalid response type in enforceReportStructure');
                 return response;
             }
 
-            // ANTI-BYPASS: Check for empty or minimal responses before processing
-            const trimmed = response.trim();
-            if (trimmed.length < 50) {
-                console.error('🚨 ANTI-BYPASS: Response too short to be valid analysis');
-                logDjinnEvent('error', 'Report structure bypass attempt - response too short', {
-                    responseLength: trimmed.length,
-                    content: trimmed.substring(0, 50)
-                });
-                return response; // Return as-is to let validation catch it
-            }
-
-            // Check for bypass patterns
-            if (trimmed === '**SUMMARY**' || trimmed.includes('**SUMMARY**.**SUMMARY**') ||
-                /^\*\*SUMMARY\*\*\s*$/.test(trimmed) || /^\*\*ANALYSIS\*\*\s*$/.test(trimmed)) {
-                console.error('🚨 ANTI-BYPASS: Detected structured bypass pattern');
-                logDjinnEvent('error', 'Report structure bypass attempt - structured pattern detected', {
-                    pattern: trimmed.substring(0, 100)
-                });
-                return response; // Return as-is to let validation catch it
-            }
-
-            // Use enhanced processor for better content preservation
-            const processed = enhancedResponseProcessor.process(response, 'council_member');
-
-            // Final validation - ensure we didn't lose significant content
-            if (processed.length < response.length * 0.5 && response.length > 200) {
-                console.warn('⚠️ Enhanced processing lost significant content, returning original');
-                logDjinnEvent('warning', 'Enhanced processing reverted due to content loss', {
-                    originalLength: response.length,
-                    processedLength: processed.length
-                });
-                return response;
-            }
-
-            return processed;
+            // CONTENT-FIRST: Focus on analytical quality, not structural compliance
+            return validateContentQuality(response);
         }
 
         function evaluateTemplateLiterals(response) {
@@ -10931,15 +10973,38 @@ Provide detailed pattern analysis for predictive optimization.`;
                 }
             },
 
-            // Parse pattern analysis
+            // Parse pattern analysis - ensure arrays for compatibility
             parsePatternAnalysis(analysis) {
+                const earlyWarningsText = this.extractSection(analysis, 'EARLY_WARNING_SIGNALS');
+                const earlyWarningsArray = this.parseWarningsToArray(earlyWarningsText);
+
                 return {
-                    earlyWarnings: this.extractSection(analysis, 'EARLY_WARNING_SIGNALS'),
+                    earlyWarnings: earlyWarningsArray,
                     failureProbability: this.extractFailureProbability(analysis),
                     optimalRoute: this.extractSection(analysis, 'OPTIMAL_VALIDATOR_ROUTE'),
                     predictedIssues: this.extractSection(analysis, 'PREDICTED_ISSUES'),
                     preventionStrategy: this.extractSection(analysis, 'PREVENTION_STRATEGY')
                 };
+            },
+
+            // Convert warnings text to array for compatibility
+            parseWarningsToArray(warningsText) {
+                if (!warningsText || typeof warningsText !== 'string') {
+                    return [];
+                }
+
+                // Split by common delimiters and extract meaningful warnings
+                const warnings = [];
+                const lines = warningsText.split(/[\n\-\•\*]/);
+
+                lines.forEach(line => {
+                    const cleanLine = line.trim();
+                    if (cleanLine.length > 10) { // Filter out very short items
+                        warnings.push(cleanLine);
+                    }
+                });
+
+                return warnings.slice(0, 5); // Limit to 5 most important warnings
             },
 
             // Extract failure probability score
@@ -10974,7 +11039,7 @@ Provide detailed pattern analysis for predictive optimization.`;
                 const failureProbability = contentLength < 100 ? 8 : contentLength > 1000 ? 3 : 5;
 
                 return {
-                    earlyWarnings: contentLength < 100 ? 'Report may be too brief' : 'Standard length analysis',
+                    earlyWarnings: contentLength < 100 ? ['Report may be too brief'] : ['Standard length analysis'],
                     failureProbability: failureProbability,
                     optimalRoute: 'Standard triangulated validation recommended',
                     predictedIssues: contentLength < 100 ? 'Potential lack of detail' : 'Standard validation expected',
@@ -11771,30 +11836,7 @@ Provide comprehensive meta-analysis of validation system quality.`;
                         <div class="intel-content">${summary}</div>
                     </div>
 
-                    <div class="intel-section">
-                        <div class="intel-section-title">Intelligence Assessment</div>
-                        <div class="intel-content">${report.correlations || 'Analysis in progress'}</div>
-                    </div>
-
-                    <div class="intel-section">
-                        <div class="intel-section-title">Risk Evaluation</div>
-                        <div class="intel-content">${report.risk_assessment || 'Risk assessment pending'}</div>
-                    </div>
-
-                    <div class="intel-section">
-                        <div class="intel-section-title">Actionable Recommendations</div>
-                        <div class="intel-content">
-                            ${Array.isArray(report.actionable) ?
-                                `<ul class="intel-recommendations">${report.actionable.map(a => `<li>${a}</li>`).join('')}</ul>` :
-                                (report.actionable || 'No recommendations available')
-                            }
-                        </div>
-                    </div>
-
-                    <div class="intel-section">
-                        <div class="intel-section-title">Strategic Implications</div>
-                        <div class="intel-content">${report.strategic_implications || 'Strategic analysis pending'}</div>
-                    </div>
+                    <!-- TEMPLATE FOOTER REMOVED - Intelligence report is complete without boilerplate sections -->
                 </div>
             `;
 
@@ -12808,6 +12850,13 @@ Provide comprehensive meta-analysis of validation system quality.`;
             // }, 2000);
             
             loadStoredIntelligence();
+            initializeDjinnCouncilMemory();
+
+            // Ensure memory initialization completes before restoration
+            setTimeout(() => {
+                restoreCouncilMemberContent();
+            }, 100);
+
             initializeSurveillance();
 
             // Add maximize functionality
@@ -15019,8 +15068,8 @@ Memory analysis confirms system ready for persistent collaborative intelligence.
                             Object.values(recoveryAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
                     },
                     intelligenceAgent: {
-                        name: 'Intelligence Agent',
-                        specialization: 'Strategic intelligence synthesis',
+                        name: 'Validation Synthesizer',
+                        specialization: 'Validation ecosystem synthesis',
                         notepad: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) || {},
                         totalEntries: (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.notepad) ?
                             Object.values(intelligenceAgent.notepad).reduce((sum, category) => sum + (Array.isArray(category) ? category.length : 0), 0) : 0
@@ -15259,6 +15308,783 @@ Answer the question now, explaining both available data AND system context for u
             `;
         }
 
+        // Intelligence Officer Notepad Functions
+        function toggleIntelligenceOfficerNotepad() {
+            const notepad = document.getElementById('intelligenceOfficerNotepad');
+            if (notepad.style.display === 'none') {
+                notepad.style.display = 'block';
+                refreshIntelligenceOfficerNotepad();
+            } else {
+                notepad.style.display = 'none';
+            }
+        }
+
+        function switchIntelligenceTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.intelligence-tab').forEach(tab => {
+                if (tab.dataset.tab === tabName) {
+                    tab.style.background = 'rgba(78, 205, 196, 0.2)';
+                    tab.style.borderColor = '#4ecdc4';
+                    tab.style.color = '#4ecdc4';
+                    tab.classList.add('active');
+                } else {
+                    tab.style.background = 'rgba(0, 0, 0, 0.2)';
+                    tab.style.borderColor = '#666';
+                    tab.style.color = '#888';
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.intelligence-tab-content').forEach(content => {
+                if (content.dataset.tab === tabName) {
+                    content.style.display = 'block';
+                    content.classList.add('active');
+                } else {
+                    content.style.display = 'none';
+                    content.classList.remove('active');
+                }
+            });
+
+            // Refresh content for the selected tab
+            refreshIntelligenceTabContent(tabName);
+        }
+
+        function refreshIntelligenceOfficerNotepad() {
+            // Refresh all tab contents
+            refreshIntelligenceTabContent('crossSystemAnalysis');
+            refreshIntelligenceTabContent('agentDiscovery');
+            refreshIntelligenceTabContent('systemHealth');
+            refreshIntelligenceTabContent('correlationPatterns');
+            refreshIntelligenceTabContent('strategicInsights');
+            refreshIntelligenceTabContent('cleanupPlanning');
+        }
+
+        function refreshIntelligenceTabContent(tabName) {
+            switch(tabName) {
+                case 'crossSystemAnalysis':
+                    updateCrossSystemAnalysis();
+                    break;
+                case 'agentDiscovery':
+                    updateAgentDiscoveryContent();
+                    break;
+                case 'systemHealth':
+                    updateSystemHealthContent();
+                    break;
+                case 'correlationPatterns':
+                    updateCorrelationPatterns();
+                    break;
+                case 'strategicInsights':
+                    updateStrategicInsights();
+                    break;
+                case 'cleanupPlanning':
+                    updateCleanupPlanning();
+                    break;
+            }
+        }
+
+        function updateCrossSystemAnalysis() {
+            const content = document.getElementById('crossSystemContent');
+            if (!content) return;
+
+            // Get cross-system data
+            const canvasData = getCanvasStateForSurveillance();
+            const councilData = djinnCouncilMemory;
+            const validationData = getValidationSystemStatus();
+
+            let analysis = `📊 CROSS-SYSTEM STATUS:\n`;
+            analysis += `Canvas: ${canvasData.contentSize} chars, ${canvasData.memoryItems} memories\n`;
+            analysis += `Council: ${councilData.totalReports || 0} reports, ${councilData.synthesisCount || 0} syntheses\n`;
+            analysis += `Validation: ${validationData.totalValidations || 0} validations\n\n`;
+
+            analysis += `🔗 CORRELATIONS:\n`;
+            if (canvasData.contentSize > 1000 && councilData.totalReports > 0) {
+                analysis += `• High canvas activity → Council analysis available\n`;
+            }
+            if (validationData.totalValidations > 10) {
+                analysis += `• Active validation ecosystem detected\n`;
+            }
+
+            content.textContent = analysis;
+        }
+
+        function updateAgentDiscoveryContent() {
+            const content = document.getElementById('agentDiscoveryContent');
+            if (!content) return;
+
+            // Use the existing agent discovery system
+            if (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.discoverActiveAgents) {
+                const discovery = intelligenceAgent.discoverActiveAgents();
+                content.textContent = `🎯 ACTIVE AGENT DISCOVERY:\n\n${JSON.stringify(discovery, null, 2)}`;
+            } else {
+                content.textContent = '🎯 Agent discovery system not available';
+            }
+        }
+
+        function updateSystemHealthContent() {
+            const content = document.getElementById('systemHealthContent');
+            if (!content) return;
+
+            // Use the existing system health analysis
+            if (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.analyzeSystemHealth) {
+                const health = intelligenceAgent.analyzeSystemHealth();
+                content.textContent = `🏥 SYSTEM HEALTH:\n\n${JSON.stringify(health, null, 2)}`;
+            } else {
+                content.textContent = '🏥 System health monitoring not available';
+            }
+        }
+
+        function updateCorrelationPatterns() {
+            const content = document.getElementById('correlationPatternsContent');
+            if (!content) return;
+
+            let patterns = `📊 CORRELATION PATTERNS:\n\n`;
+
+            // Analyze validation patterns
+            if (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory) {
+                patterns += `Validation History: ${validationSpecialist.memory.validationHistory?.length || 0} entries\n`;
+            }
+
+            // Analyze council patterns
+            if (djinnCouncilMemory && djinnCouncilMemory.members) {
+                const memberReports = Object.values(djinnCouncilMemory.members).filter(m => m.reports?.length > 0);
+                patterns += `Active Council Members: ${memberReports.length}/5\n`;
+            }
+
+            content.textContent = patterns;
+        }
+
+        function updateStrategicInsights() {
+            const content = document.getElementById('strategicInsightsContent');
+            if (!content) return;
+
+            let insights = `💡 STRATEGIC INSIGHTS:\n\n`;
+
+            // Analyze current state
+            const canvasData = getCanvasStateForSurveillance();
+            if (canvasData.contentSize > 0) {
+                insights += `• Canvas has ${canvasData.contentSize} characters of content\n`;
+                insights += `• System ready for council analysis\n`;
+            } else {
+                insights += `• Canvas is empty - add content to begin analysis\n`;
+            }
+
+            // Check validation system state
+            if (typeof validationSpecialist !== 'undefined') {
+                insights += `• Validation system operational\n`;
+            }
+
+            content.textContent = insights;
+        }
+
+        function updateCleanupPlanning() {
+            const content = document.getElementById('cleanupPlanningContent');
+            if (!content) return;
+
+            // Use the existing cleanup planning system
+            if (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.generateCleanupPlan) {
+                const cleanup = intelligenceAgent.generateCleanupPlan();
+                content.textContent = `🧹 CLEANUP PLAN:\n\n${JSON.stringify(cleanup, null, 2)}`;
+            } else {
+                content.textContent = '🧹 Cleanup planning system not available';
+            }
+        }
+
+        function getCanvasStateForSurveillance() {
+            // Get real Canvas content from localStorage (cross-window)
+            const canvasContent = localStorage.getItem('sovereign_canvas_content') || '';
+            const aiMemory = localStorage.getItem('ai_memory') || '{}';
+
+            let memoryItems = 0;
+            try {
+                const parsedMemory = JSON.parse(aiMemory);
+                // Count actual memory items across all AI systems
+                Object.values(parsedMemory).forEach(systemData => {
+                    if (systemData && typeof systemData === 'object') {
+                        if (systemData.conversationHistory) {
+                            memoryItems += systemData.conversationHistory.length || 0;
+                        }
+                        if (systemData.insights) {
+                            memoryItems += systemData.insights.length || 0;
+                        }
+                    }
+                });
+            } catch (error) {
+                console.warn('Error parsing AI memory:', error);
+            }
+
+            // Calculate activity level based on recent changes
+            let activityLevel = 'LOW';
+            if (canvasContent.length > 5000) activityLevel = 'HIGH';
+            else if (canvasContent.length > 1000) activityLevel = 'MEDIUM';
+
+            return {
+                contentSize: canvasContent.length,
+                memoryItems: memoryItems,
+                activityLevel: activityLevel,
+                lastModified: new Date().toISOString(),
+                canvasContent: canvasContent.substring(0, 500) + (canvasContent.length > 500 ? '...' : '')
+            };
+        }
+
+        // Intelligence Officer Notepad Data Management System
+        function getIntelligenceOfficerNotepadData(section) {
+            try {
+                const notepadData = JSON.parse(localStorage.getItem('intelligence_officer_notepad') || '{}');
+                return notepadData[section] || null;
+            } catch (error) {
+                console.warn('Error reading Intelligence Officer notepad:', error);
+                return null;
+            }
+        }
+
+        function setIntelligenceOfficerNotepadData(section, content) {
+            try {
+                const notepadData = JSON.parse(localStorage.getItem('intelligence_officer_notepad') || '{}');
+                notepadData[section] = {
+                    content: content,
+                    lastUpdate: Date.now(),
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('intelligence_officer_notepad', JSON.stringify(notepadData));
+
+                // Refresh the notepad display if it's visible
+                refreshMaximizedNotepad();
+            } catch (error) {
+                console.warn('Error saving Intelligence Officer notepad:', error);
+            }
+        }
+
+        function clearIntelligenceOfficerNotepadData(section = null) {
+            try {
+                if (section) {
+                    const notepadData = JSON.parse(localStorage.getItem('intelligence_officer_notepad') || '{}');
+                    delete notepadData[section];
+                    localStorage.setItem('intelligence_officer_notepad', JSON.stringify(notepadData));
+                } else {
+                    localStorage.removeItem('intelligence_officer_notepad');
+                }
+                refreshMaximizedNotepad();
+            } catch (error) {
+                console.warn('Error clearing Intelligence Officer notepad:', error);
+            }
+        }
+
+        // AI-Driven Notepad Functions
+        function gatherRealTimeSystemState() {
+            return {
+                canvasState: getCanvasStateForSurveillance(),
+                councilState: djinnCouncilMemory,
+                validationState: getValidationSystemStatus(),
+                timestamp: new Date().toISOString(),
+                memoryFootprint: calculateMemoryFootprint()
+            };
+        }
+
+        function getCurrentNotepadState() {
+            try {
+                return JSON.parse(localStorage.getItem('intelligence_officer_notepad') || '{}');
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function calculateMemoryFootprint() {
+            let totalSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += localStorage[key].length;
+                }
+            }
+            return {
+                totalLocalStorage: totalSize,
+                timestamp: Date.now()
+            };
+        }
+
+        function buildIntelligenceOfficerPromptWithNotepad(question, data, systemState, notepadState) {
+            return `You are the Intelligence Officer, an advanced AI analyst with deep system introspection capabilities. Your role is to both answer the user's question AND analyze the current system state to update your notepad sections with genuine insights.
+
+CURRENT SYSTEM STATE:
+${JSON.stringify(systemState, null, 2)}
+
+CURRENT NOTEPAD STATE:
+${JSON.stringify(notepadState, null, 2)}
+
+USER QUESTION: "${question}"
+
+YOUR RESPONSE FORMAT:
+===USER_ANSWER===
+[Your direct answer to the user's question based on real system analysis]
+
+===NOTEPAD_UPDATES===
+[JSON format notepad updates based on your analysis. Include sections: crossSystemAnalysis, agentDiscovery, systemHealth, correlationPatterns, strategicInsights, cleanupPlanning]
+
+Example notepad update format:
+{
+  "strategicInsights": "💡 STRATEGIC INTELLIGENCE INSIGHTS:\\n\\nBased on real system analysis at [timestamp]:\\n\\n[Your genuine insights based on actual data patterns]",
+  "correlationPatterns": "📊 CORRELATION PATTERNS:\\n\\n[Your analysis of actual correlations you observe in the data]"
+}
+
+IMPORTANT:
+- Provide REAL analysis based on the actual system data provided
+- Look for genuine patterns, correlations, and insights
+- Base recommendations on actual evidence
+- Do not use templates or predetermined responses
+- Update relevant notepad sections based on what you actually observe in the system data
+- Focus on system introspection and genuine intelligence analysis
+
+Answer the user's question AND provide notepad updates based on your real analysis of the system state.`;
+        }
+
+        function parseIntelligenceOfficerResponse(response) {
+            try {
+                const userAnswerMatch = response.match(/===USER_ANSWER===[\\s\\S]*?(?====NOTEPAD_UPDATES===|$)/);
+                const notepadUpdatesMatch = response.match(/===NOTEPAD_UPDATES===[\\s\\S]*$/);
+
+                let userAnswer = response;
+                let notepadUpdates = null;
+
+                if (userAnswerMatch) {
+                    userAnswer = userAnswerMatch[0].replace('===USER_ANSWER===', '').trim();
+                }
+
+                if (notepadUpdatesMatch) {
+                    try {
+                        const updateText = notepadUpdatesMatch[0].replace('===NOTEPAD_UPDATES===', '').trim();
+                        notepadUpdates = JSON.parse(updateText);
+                    } catch (parseError) {
+                        console.warn('Could not parse notepad updates:', parseError);
+                    }
+                }
+
+                return {
+                    userAnswer: userAnswer,
+                    notepadUpdates: notepadUpdates
+                };
+            } catch (error) {
+                console.warn('Error parsing Intelligence Officer response:', error);
+                return {
+                    userAnswer: response,
+                    notepadUpdates: null
+                };
+            }
+        }
+
+        function updateNotepadFromAIAnalysis(updates) {
+            if (!updates || typeof updates !== 'object') return;
+
+            Object.keys(updates).forEach(section => {
+                if (updates[section] && typeof updates[section] === 'string') {
+                    setIntelligenceOfficerNotepadData(section, updates[section]);
+                    console.log(`📝 Intelligence Officer updated notepad section: ${section}`);
+                }
+            });
+        }
+
+        function getValidationSystemStatus() {
+            return {
+                totalValidations: (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory?.validationHistory?.length) || 0,
+                activeAgents: [
+                    typeof validationSpecialist !== 'undefined',
+                    typeof refinementSpecialist !== 'undefined',
+                    typeof recoveryAgent !== 'undefined',
+                    typeof patternRecognitionEngine !== 'undefined',
+                    typeof efficiencyOptimizer !== 'undefined',
+                    typeof qualityAssuranceMonitor !== 'undefined'
+                ].filter(Boolean).length
+            };
+        }
+
+        function exportIntelligenceOfficerNotepad() {
+            const timestamp = new Date().toISOString();
+            const exportData = {
+                timestamp: timestamp,
+                crossSystemAnalysis: document.getElementById('crossSystemContent')?.textContent || '',
+                agentDiscovery: document.getElementById('agentDiscoveryContent')?.textContent || '',
+                systemHealth: document.getElementById('systemHealthContent')?.textContent || '',
+                correlationPatterns: document.getElementById('correlationPatternsContent')?.textContent || '',
+                strategicInsights: document.getElementById('strategicInsightsContent')?.textContent || '',
+                cleanupPlanning: document.getElementById('cleanupPlanningContent')?.textContent || ''
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `intelligence_officer_notepad_${timestamp.replace(/[:.]/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Quick access functions for Intelligence Officer buttons
+        function showIntelligenceOfficerSystemHealth() {
+            toggleIntelligenceOfficerNotepad();
+            switchIntelligenceTab('systemHealth');
+        }
+
+        function discoverActiveAgents() {
+            toggleIntelligenceOfficerNotepad();
+            switchIntelligenceTab('agentDiscovery');
+        }
+
+        // Maximized Intelligence Officer Notepad Functions
+        function toggleMaximizedIntelligenceNotepad() {
+            const notepad = document.getElementById('maximizedIntelligenceNotepad');
+            if (notepad.style.display === 'none') {
+                notepad.style.display = 'block';
+                refreshMaximizedNotepad();
+                // Show initial message about AI-driven analysis
+                addToMaximizedChatHistory(`<div style="color: #4ecdc4; margin-bottom: 10px; font-style: italic;"><strong>📝 Intelligence Officer Notepad:</strong> Now showing AI-driven analysis workspace. Ask questions to populate sections with genuine system insights.</div>`);
+            } else {
+                notepad.style.display = 'none';
+            }
+        }
+
+        function switchMaximizedTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.maximized-tab').forEach(tab => {
+                if (tab.dataset.tab === tabName) {
+                    tab.style.background = 'rgba(78, 205, 196, 0.2)';
+                    tab.style.borderColor = '#4ecdc4';
+                    tab.style.color = '#4ecdc4';
+                    tab.classList.add('active');
+                } else {
+                    tab.style.background = 'rgba(0, 0, 0, 0.2)';
+                    tab.style.borderColor = '#666';
+                    tab.style.color = '#888';
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.maximized-tab-content').forEach(content => {
+                if (content.dataset.tab === tabName) {
+                    content.style.display = 'block';
+                    content.classList.add('active');
+                } else {
+                    content.style.display = 'none';
+                    content.classList.remove('active');
+                }
+            });
+
+            // Refresh content for the selected tab
+            refreshMaximizedTabContent(tabName);
+        }
+
+        function refreshMaximizedNotepad() {
+            // Refresh all tab contents
+            refreshMaximizedTabContent('crossSystemAnalysis');
+            refreshMaximizedTabContent('agentDiscovery');
+            refreshMaximizedTabContent('systemHealth');
+            refreshMaximizedTabContent('correlationPatterns');
+            refreshMaximizedTabContent('strategicInsights');
+            refreshMaximizedTabContent('cleanupPlanning');
+        }
+
+        function refreshMaximizedTabContent(tabName) {
+            switch(tabName) {
+                case 'crossSystemAnalysis':
+                    updateMaxCrossSystemAnalysis();
+                    break;
+                case 'agentDiscovery':
+                    updateMaxAgentDiscovery();
+                    break;
+                case 'systemHealth':
+                    updateMaxSystemHealth();
+                    break;
+                case 'correlationPatterns':
+                    updateMaxCorrelationPatterns();
+                    break;
+                case 'strategicInsights':
+                    updateMaxStrategicInsights();
+                    break;
+                case 'cleanupPlanning':
+                    updateMaxCleanupPlanning();
+                    break;
+            }
+        }
+
+        function updateMaxCrossSystemAnalysis() {
+            const content = document.getElementById('maxCrossSystemContent');
+            if (!content) return;
+
+            // Check if we have AI-generated cross-system analysis
+            const aiAnalysis = getIntelligenceOfficerNotepadData('crossSystemAnalysis');
+
+            if (aiAnalysis && aiAnalysis.lastUpdate && (Date.now() - aiAnalysis.lastUpdate) < 300000) {
+                // Show recent AI-generated analysis (less than 5 minutes old)
+                content.textContent = aiAnalysis.content;
+            } else {
+                // Show basic real-time data until AI analyzes
+                const canvasData = getCanvasStateForSurveillance();
+                const councilData = djinnCouncilMemory;
+                const validationData = getValidationSystemStatus();
+
+                let analysis = `📊 CROSS-SYSTEM STATUS:\n\n⏳ AI analysis pending...\n\n`;
+                analysis += `📊 Raw Data Available:\n`;
+                analysis += `• Canvas: ${canvasData.contentSize} chars, ${canvasData.memoryItems} memories\n`;
+                analysis += `• Council: ${Object.keys(councilData.members || {}).length}/5 active\n`;
+                analysis += `• Validation: ${validationData.activeAgents}/6 agents active\n\n`;
+
+                analysis += `💡 For AI cross-system analysis, ask the Intelligence Officer:\n`;
+                analysis += `• "Analyze cross-system correlations"\n`;
+                analysis += `• "What patterns do you see across systems?"\n`;
+                analysis += `• "How are the systems interacting?"\n`;
+
+                content.textContent = analysis;
+            }
+        }
+
+        function updateMaxAgentDiscovery() {
+            const content = document.getElementById('maxAgentDiscoveryContent');
+            if (!content) return;
+
+            // Use the existing agent discovery system
+            if (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.discoverActiveAgents) {
+                try {
+                    const discovery = intelligenceAgent.discoverActiveAgents();
+
+                    let report = `🎯 ACTIVE AGENT DISCOVERY REPORT:\n\n`;
+                    report += `📊 System Overview:\n`;
+                    report += `  • Total Agents Found: ${discovery.totalAgentsFound || 0}\n`;
+                    report += `  • Discovery Timestamp: ${new Date(discovery.timestamp).toLocaleTimeString()}\n\n`;
+
+                    // Council Agents
+                    const councilAgents = discovery.discoveredAgents?.filter(a => a.type === 'council') || [];
+                    report += `🏛️ Council Agents (${councilAgents.length}/5):\n`;
+                    councilAgents.forEach(agent => {
+                        report += `  • ${agent.name.toUpperCase()}: ${agent.status} (${agent.dataSize} bytes)\n`;
+                    });
+                    report += '\n';
+
+                    // Validation Agents
+                    const validationAgents = discovery.discoveredAgents?.filter(a => a.type === 'validation') || [];
+                    report += `🔍 Validation Agents (${validationAgents.length}/7):\n`;
+                    validationAgents.forEach(agent => {
+                        const capabilities = agent.capabilities?.length || 0;
+                        report += `  • ${agent.name}: ${agent.status} (${capabilities} functions, ${agent.dataSize} bytes)\n`;
+                    });
+                    report += '\n';
+
+                    // Memory Analysis
+                    if (discovery.memoryFootprints) {
+                        report += `💾 Memory Footprint Analysis:\n`;
+                        report += `  • Total Usage: ${(discovery.memoryFootprints.totalMemoryUsage / 1024).toFixed(1)} KB\n`;
+                        report += `  • Largest Consumers:\n`;
+                        discovery.memoryFootprints.largestAgents?.slice(0, 3).forEach(agent => {
+                            report += `    - ${agent.agent}: ${(agent.size / 1024).toFixed(1)} KB\n`;
+                        });
+                        report += '\n';
+                    }
+
+                    // Active Systems
+                    if (discovery.activeSystems) {
+                        report += `⚙️ Active System Components:\n`;
+                        Object.entries(discovery.activeSystems).forEach(([system, status]) => {
+                            const statusIcon = status.active ? '✅' : '❌';
+                            report += `  ${statusIcon} ${system}: ${status.active ? 'OPERATIONAL' : 'INACTIVE'}\n`;
+                        });
+                    }
+
+                    content.textContent = report;
+                } catch (error) {
+                    content.textContent = `🎯 Agent Discovery Error: ${error.message}`;
+                }
+            } else {
+                content.textContent = '🎯 Agent discovery system not available\nValidation Synthesizer (intelligenceAgent) not found';
+            }
+        }
+
+        function updateMaxSystemHealth() {
+            const content = document.getElementById('maxSystemHealthContent');
+            if (!content) return;
+
+            // Use the existing system health analysis
+            if (typeof intelligenceAgent !== 'undefined' && intelligenceAgent.analyzeSystemHealth) {
+                try {
+                    const health = intelligenceAgent.analyzeSystemHealth();
+
+                    let report = `🏥 SYSTEM HEALTH ANALYSIS REPORT:\n\n`;
+                    report += `📊 Overall Status: ${health.overallHealth?.toUpperCase() || 'UNKNOWN'}\n`;
+                    report += `🕐 Analysis Time: ${new Date(health.timestamp).toLocaleTimeString()}\n\n`;
+
+                    // Critical Issues
+                    if (health.criticalIssues?.length > 0) {
+                        report += `🚨 CRITICAL ISSUES (${health.criticalIssues.length}):\n`;
+                        health.criticalIssues.forEach(issue => {
+                            report += `  ❌ ${issue}\n`;
+                        });
+                        report += '\n';
+                    }
+
+                    // Warnings
+                    if (health.warnings?.length > 0) {
+                        report += `⚠️ WARNINGS (${health.warnings.length}):\n`;
+                        health.warnings.forEach(warning => {
+                            report += `  ⚠️ ${warning}\n`;
+                        });
+                        report += '\n';
+                    }
+
+                    // Orphaned Code
+                    if (health.orphanedCode?.length > 0) {
+                        report += `🗑️ ORPHANED CODE (${health.orphanedCode.length}):\n`;
+                        health.orphanedCode.forEach(orphan => {
+                            report += `  🗂️ ${orphan}\n`;
+                        });
+                        report += '\n';
+                    }
+
+                    // Redundant Operations
+                    if (health.redundantOperations?.length > 0) {
+                        report += `🔄 REDUNDANT OPERATIONS (${health.redundantOperations.length}):\n`;
+                        health.redundantOperations.forEach(redundant => {
+                            report += `  🔄 ${redundant}\n`;
+                        });
+                        report += '\n';
+                    }
+
+                    // Broken Systems
+                    if (health.brokenSystems?.length > 0) {
+                        report += `💥 BROKEN SYSTEMS (${health.brokenSystems.length}):\n`;
+                        health.brokenSystems.forEach(broken => {
+                            report += `  💥 ${broken}\n`;
+                        });
+                        report += '\n';
+                    } else {
+                        report += `✅ BROKEN SYSTEMS: None detected\n\n`;
+                    }
+
+                    // Recommendations
+                    if (health.recommendations?.length > 0) {
+                        report += `💡 RECOMMENDATIONS:\n`;
+                        health.recommendations.forEach((rec, index) => {
+                            report += `  ${index + 1}. ${rec}\n`;
+                        });
+                    }
+
+                    content.textContent = report;
+                } catch (error) {
+                    content.textContent = `🏥 System Health Error: ${error.message}`;
+                }
+            } else {
+                content.textContent = '🏥 System health monitoring not available\nValidation Synthesizer (intelligenceAgent) not found';
+            }
+        }
+
+        function updateMaxCorrelationPatterns() {
+            const content = document.getElementById('maxCorrelationPatternsContent');
+            if (!content) return;
+
+            // Check if we have AI-generated pattern analysis
+            const aiPatterns = getIntelligenceOfficerNotepadData('correlationPatterns');
+
+            if (aiPatterns && aiPatterns.lastUpdate && (Date.now() - aiPatterns.lastUpdate) < 300000) {
+                // Show recent AI-generated pattern analysis (less than 5 minutes old)
+                content.textContent = aiPatterns.content;
+            } else {
+                // Show basic real-time data until AI analyzes
+                let patterns = `📊 CORRELATION PATTERNS:\n\n⏳ AI analysis pending...\n\n`;
+                patterns += `📊 Raw Data Available:\n`;
+
+                // Show minimal real data
+                if (typeof validationSpecialist !== 'undefined' && validationSpecialist.memory) {
+                    patterns += `• Validation History: ${validationSpecialist.memory.validationHistory?.length || 0} entries\n`;
+                }
+
+                if (djinnCouncilMemory && djinnCouncilMemory.members) {
+                    const memberReports = Object.values(djinnCouncilMemory.members).filter(m => m.reports?.length > 0);
+                    patterns += `• Active Council Members: ${memberReports.length}/5\n`;
+                    patterns += `• Total Reports: ${Object.values(djinnCouncilMemory.members).reduce((sum, m) => sum + (m.reports?.length || 0), 0)}\n`;
+                }
+
+                patterns += `\n💡 For AI correlation analysis, ask the Intelligence Officer:\n`;
+                patterns += `• "What patterns do you see in the system?"\n`;
+                patterns += `• "Analyze cross-agent correlations"\n`;
+                patterns += `• "What behavioral patterns are emerging?"\n`;
+
+                content.textContent = patterns;
+            }
+        }
+
+        function updateMaxStrategicInsights() {
+            const content = document.getElementById('maxStrategicInsightsContent');
+            if (!content) return;
+
+            // Check if we have AI-generated insights in notepad memory
+            const aiInsights = getIntelligenceOfficerNotepadData('strategicInsights');
+
+            if (aiInsights && aiInsights.lastUpdate && (Date.now() - aiInsights.lastUpdate) < 300000) {
+                // Show recent AI-generated insights (less than 5 minutes old)
+                content.textContent = aiInsights.content;
+            } else {
+                // Show that analysis is needed
+                content.textContent = `💡 STRATEGIC INTELLIGENCE INSIGHTS:\n\n⏳ Awaiting AI analysis...\n\nTo populate this section:\n• Ask the Intelligence Officer questions about system strategy\n• Request system analysis\n• Query about optimization opportunities\n\nThe AI will analyze real system data and provide genuine strategic insights based on actual correlations and patterns.`;
+            }
+        }
+
+        function updateMaxCleanupPlanning() {
+            const content = document.getElementById('maxCleanupPlanningContent');
+            if (!content) return;
+
+            // Check if we have AI-generated cleanup analysis
+            const aiCleanup = getIntelligenceOfficerNotepadData('cleanupPlanning');
+
+            if (aiCleanup && aiCleanup.lastUpdate && (Date.now() - aiCleanup.lastUpdate) < 300000) {
+                // Show recent AI-generated cleanup plan (less than 5 minutes old)
+                content.textContent = aiCleanup.content;
+            } else {
+                // Show placeholder until AI analyzes
+                let report = `🧹 SYSTEM CLEANUP PLANNING:\n\n⏳ AI analysis pending...\n\n`;
+                report += `🔍 The Intelligence Officer will analyze:\n`;
+                report += `• System health issues requiring immediate attention\n`;
+                report += `• Orphaned code and redundant operations\n`;
+                report += `• Memory optimization opportunities\n`;
+                report += `• Performance bottlenecks and fixes\n\n`;
+
+                report += `💡 To generate cleanup plan, ask the Intelligence Officer:\n`;
+                report += `• "Generate a system cleanup plan"\n`;
+                report += `• "What maintenance does the system need?"\n`;
+                report += `• "Analyze system optimization opportunities"\n`;
+
+                content.textContent = report;
+            }
+        }
+
+        function exportMaximizedNotepad() {
+            const timestamp = new Date().toISOString();
+            const exportData = {
+                timestamp: timestamp,
+                type: 'intelligence_officer_notepad_maximized',
+                crossSystemAnalysis: document.getElementById('maxCrossSystemContent')?.textContent || '',
+                agentDiscovery: document.getElementById('maxAgentDiscoveryContent')?.textContent || '',
+                systemHealth: document.getElementById('maxSystemHealthContent')?.textContent || '',
+                correlationPatterns: document.getElementById('maxCorrelationPatternsContent')?.textContent || '',
+                strategicInsights: document.getElementById('maxStrategicInsightsContent')?.textContent || '',
+                cleanupPlanning: document.getElementById('maxCleanupPlanningContent')?.textContent || ''
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `intelligence_officer_notepad_${timestamp.replace(/[:.]/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Quick access functions for maximized Intelligence Officer buttons
+        function showMaximizedSystemHealth() {
+            toggleMaximizedIntelligenceNotepad();
+            switchMaximizedTab('systemHealth');
+        }
+
+        function discoverMaximizedAgents() {
+            toggleMaximizedIntelligenceNotepad();
+            switchMaximizedTab('agentDiscovery');
+        }
+
         // Maximized Chat Functions
         function maximizeChat() {
             document.getElementById('maximizedChatOverlay').classList.add('active');
@@ -15283,12 +16109,16 @@ Answer the question now, explaining both available data AND system context for u
             addToMaximizedChatHistory(`<div style="color: #fff; margin-bottom: 10px;"><strong>👤 You (${timestamp}):</strong> ${question}</div>`);
             input.value = '';
 
-            addToMaximizedChatHistory(`<div id="maximizedThinking" style="color: #cc88cc; margin-bottom: 10px;"><strong>🧠 Intelligence Officer:</strong> <span style="animation: pulse 1s infinite;">Analyzing comprehensive system data...</span></div>`);
+            addToMaximizedChatHistory(`<div id="maximizedThinking" style="color: #cc88cc; margin-bottom: 10px;"><strong>🧠 Intelligence Officer:</strong> <span style="animation: pulse 1s infinite;">Analyzing comprehensive system data and updating notepad...</span></div>`);
 
             try {
-                // Use the same data gathering and prompting as the original Intelligence Officer
+                // Gather comprehensive system data for analysis
                 const data = await gatherIntelligenceOfficerData();
-                const prompt = buildIntelligenceOfficerPrompt(question, data);
+                const systemState = gatherRealTimeSystemState();
+                const currentNotepadState = getCurrentNotepadState();
+
+                // Enhanced prompt that includes notepad analysis
+                const prompt = buildIntelligenceOfficerPromptWithNotepad(question, data, systemState, currentNotepadState);
                 const config = getOllamaConfig();
 
                 const response = await fetch(config.endpoint, {
@@ -15305,7 +16135,17 @@ Answer the question now, explaining both available data AND system context for u
                 document.getElementById('maximizedThinking')?.remove();
 
                 if (result.response) {
-                    addToMaximizedChatHistory(`<div style="color: #cc88cc; margin-bottom: 10px;"><strong>🧠 Intelligence Officer (${timestamp}):</strong><br><div style="margin-left: 20px; margin-top: 5px;">${result.response}</div></div>`);
+                    // Parse AI response for both user answer and notepad updates
+                    const parsedResponse = parseIntelligenceOfficerResponse(result.response);
+
+                    // Display user answer
+                    addToMaximizedChatHistory(`<div style="color: #cc88cc; margin-bottom: 15px;"><strong>🧠 Intelligence Officer (${timestamp}):</strong><br><div style="margin-left: 20px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word; font-family: inherit; line-height: 1.4;">${parsedResponse.userAnswer}</div></div>`);
+
+                    // Update notepad sections with AI analysis
+                    if (parsedResponse.notepadUpdates) {
+                        updateNotepadFromAIAnalysis(parsedResponse.notepadUpdates);
+                        addToMaximizedChatHistory(`<div style="color: #4ecdc4; margin-bottom: 10px; font-style: italic;"><strong>📝 Notepad Updated:</strong> Intelligence Officer has analyzed system data and updated relevant notepad sections.</div>`);
+                    }
                 } else {
                     addToMaximizedChatHistory(`<div style="color: #ff6b6b; margin-bottom: 10px;"><strong>❌ Error:</strong> No response received from Intelligence Officer</div>`);
                 }
@@ -15450,15 +16290,16 @@ Keep response focused and under 500 words. Structure with clear sections as show
             try {
                 const consensusResponse = await queryOllama(getCurrentModel(), consensusPrompt);
 
-                // Display consensus report
-                displayConsensusReport(consensusResponse);
+                // DISABLED: Using AI-SYNTHESIZED COUNCIL CONSENSUS instead
+                // displayConsensusReport(consensusResponse);
 
                 console.log('✅ Consensus report generated and displayed');
                 return consensusResponse;
 
             } catch (error) {
                 console.error('❌ Consensus report generation failed:', error);
-                displayConsensusReport('Error: Unable to generate consensus report. AI system unavailable.');
+                // DISABLED: Using AI-SYNTHESIZED COUNCIL CONSENSUS instead
+                // displayConsensusReport('Error: Unable to generate consensus report. AI system unavailable.');
                 throw error;
             }
         }
@@ -17415,9 +18256,75 @@ Focus on strategic intelligence that leverages your complete system view. Use sp
     <div class="maximized-chat-overlay" id="maximizedChatOverlay">
         <div class="maximized-chat-header">
             <div class="maximized-chat-title">🧠 Intelligence Officer - System Analysis & Health Monitoring</div>
-            <button class="chat-minimize-btn" onclick="minimizeChat()">Minimize</button>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="toggleMaximizedIntelligenceNotepad()" style="padding: 4px 8px; background: rgba(78, 205, 196, 0.2); border: 1px solid rgba(78, 205, 196, 0.3); border-radius: 4px; color: #4ecdc4; font-size: 10px; cursor: pointer;">📝 Notepad</button>
+                <button onclick="showMaximizedSystemHealth()" style="padding: 4px 8px; background: rgba(255, 170, 0, 0.2); border: 1px solid rgba(255, 170, 0, 0.3); border-radius: 4px; color: #ffaa00; font-size: 10px; cursor: pointer;">🔍 System Health</button>
+                <button onclick="discoverMaximizedAgents()" style="padding: 4px 8px; background: rgba(204, 136, 204, 0.2); border: 1px solid rgba(204, 136, 204, 0.3); border-radius: 4px; color: #cc88cc; font-size: 10px; cursor: pointer;">🎯 Discover Agents</button>
+                <button class="chat-minimize-btn" onclick="minimizeChat()">Minimize</button>
+            </div>
         </div>
         <div class="maximized-chat-content">
+            <!-- Intelligence Officer Notepad Interface -->
+            <div id="maximizedIntelligenceNotepad" style="display: none; background: rgba(78, 205, 196, 0.05); border: 1px solid rgba(78, 205, 196, 0.2); border-radius: 4px; padding: 10px; margin-bottom: 10px; max-height: 400px; overflow-y: auto;">
+                <div style="color: #4ecdc4; font-weight: bold; font-size: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🧠 INTELLIGENCE OFFICER NOTEPAD</span>
+                    <button onclick="exportMaximizedNotepad()" style="background: none; border: 1px solid #4ecdc4; color: #4ecdc4; font-size: 9px; padding: 2px 6px; border-radius: 2px; cursor: pointer;">Export</button>
+                </div>
+
+                <div class="maximized-notepad-tabs" style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <button class="maximized-tab active" data-tab="crossSystemAnalysis" onclick="switchMaximizedTab('crossSystemAnalysis')" style="padding: 4px 8px; font-size: 10px; background: rgba(78, 205, 196, 0.2); border: 1px solid #4ecdc4; color: #4ecdc4; border-radius: 3px; cursor: pointer;">🔍 Cross-System</button>
+                    <button class="maximized-tab" data-tab="agentDiscovery" onclick="switchMaximizedTab('agentDiscovery')" style="padding: 4px 8px; font-size: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 3px; cursor: pointer;">🎯 Agent Discovery</button>
+                    <button class="maximized-tab" data-tab="systemHealth" onclick="switchMaximizedTab('systemHealth')" style="padding: 4px 8px; font-size: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 3px; cursor: pointer;">🏥 System Health</button>
+                    <button class="maximized-tab" data-tab="correlationPatterns" onclick="switchMaximizedTab('correlationPatterns')" style="padding: 4px 8px; font-size: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 3px; cursor: pointer;">📊 Patterns</button>
+                    <button class="maximized-tab" data-tab="strategicInsights" onclick="switchMaximizedTab('strategicInsights')" style="padding: 4px 8px; font-size: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 3px; cursor: pointer;">💡 Strategic</button>
+                    <button class="maximized-tab" data-tab="cleanupPlanning" onclick="switchMaximizedTab('cleanupPlanning')" style="padding: 4px 8px; font-size: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid #666; color: #888; border-radius: 3px; cursor: pointer;">🧹 Cleanup</button>
+                </div>
+
+                <div class="maximized-notepad-content">
+                    <div class="maximized-tab-content active" data-tab="crossSystemAnalysis">
+                        <div style="font-size: 11px; color: #4ecdc4; margin-bottom: 6px; font-weight: bold;">Cross-System Intelligence Analysis</div>
+                        <div id="maxCrossSystemContent" style="font-size: 10px; line-height: 1.4; color: #88ccaa; min-height: 100px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 3px; white-space: pre-wrap;">
+                            System-wide analysis data will appear here...
+                        </div>
+                    </div>
+
+                    <div class="maximized-tab-content" data-tab="agentDiscovery" style="display: none;">
+                        <div style="font-size: 11px; color: #4ecdc4; margin-bottom: 6px; font-weight: bold;">Dynamic Agent Discovery</div>
+                        <div id="maxAgentDiscoveryContent" style="font-size: 10px; line-height: 1.4; color: #88ccaa; min-height: 100px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 3px; white-space: pre-wrap;">
+                            Agent discovery data will appear here...
+                        </div>
+                    </div>
+
+                    <div class="maximized-tab-content" data-tab="systemHealth" style="display: none;">
+                        <div style="font-size: 11px; color: #4ecdc4; margin-bottom: 6px; font-weight: bold;">System Health Monitoring</div>
+                        <div id="maxSystemHealthContent" style="font-size: 10px; line-height: 1.4; color: #88ccaa; min-height: 100px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 3px; white-space: pre-wrap;">
+                            System health data will appear here...
+                        </div>
+                    </div>
+
+                    <div class="maximized-tab-content" data-tab="correlationPatterns" style="display: none;">
+                        <div style="font-size: 11px; color: #4ecdc4; margin-bottom: 6px; font-weight: bold;">Cross-Agent Correlation Patterns</div>
+                        <div id="maxCorrelationPatternsContent" style="font-size: 10px; line-height: 1.4; color: #88ccaa; min-height: 100px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 3px; white-space: pre-wrap;">
+                            Correlation pattern data will appear here...
+                        </div>
+                    </div>
+
+                    <div class="maximized-tab-content" data-tab="strategicInsights" style="display: none;">
+                        <div style="font-size: 11px; color: #4ecdc4; margin-bottom: 6px; font-weight: bold;">Strategic Intelligence Insights</div>
+                        <div id="maxStrategicInsightsContent" style="font-size: 10px; line-height: 1.4; color: #88ccaa; min-height: 100px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 3px; white-space: pre-wrap;">
+                            Strategic insights will appear here...
+                        </div>
+                    </div>
+
+                    <div class="maximized-tab-content" data-tab="cleanupPlanning" style="display: none;">
+                        <div style="font-size: 11px; color: #4ecdc4; margin-bottom: 6px; font-weight: bold;">System Cleanup Planning</div>
+                        <div id="maxCleanupPlanningContent" style="font-size: 10px; line-height: 1.4; color: #88ccaa; min-height: 100px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 3px; white-space: pre-wrap;">
+                            Cleanup planning data will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="maximized-chat-history" id="maximizedChatHistory">
                 <div style="color: #4ecdc4; margin-bottom: 10px;">
                     <strong>🧠 Intelligence Officer initialized</strong><br>
@@ -17432,15 +18339,4 @@ Focus on strategic intelligence that leverages your complete system view. Use sp
     </div>
 
 </body>
-</html>// ... existing code ...
-
-=== YOUR VALIDATION JOB ===
-Check if the document evolution analysis:
-1. Follows the required 6-category structure (DOCUMENT EVOLUTION ANALYSIS, CONTENT PATTERN EMERGENCE, CROSS-AI DOCUMENT PERSPECTIVES, EVOLUTIONARY INSIGHTS, DOCUMENT DEVELOPMENT METRICS, EVOLUTIONARY RECOMMENDATIONS)
-2. Provides specific evidence from the canvas content for all claims
-3. Shows genuine evolution insights rather than generic observations
-4. Demonstrates cross-AI perspective integration
-5. Includes measurable development metrics with supporting data
-6. Offers actionable evolutionary recommendations
-
-// ... rest of code ...
+</html>

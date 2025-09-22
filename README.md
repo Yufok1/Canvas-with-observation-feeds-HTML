@@ -1,244 +1,179 @@
-# 🜂 Canvas AI Orchestration System
+# Canvas AI Orchestration System
 
-A comprehensive web-based platform for real-time AI collaboration, analysis, and intelligence synthesis. This system provides a workspace integrated with multiple specialized AI agents, delivering collaborative intelligence through event-driven architecture and cross-system correlation analysis.
+A web-based interface for AI interaction consisting of two HTML files: a canvas workspace and a council governance interface. The system integrates with Ollama for AI model access and uses browser localStorage for data persistence.
 
 ## 🌟 Visual README
 **Experience the Enhanced Visual Documentation**: [https://yufok1.github.io/Canvas-with-observation-feeds-HTML/](https://yufok1.github.io/Canvas-with-observation-feeds-HTML/)
 
 *Features Matrix rain animation, cyberpunk aesthetics, and interactive documentation experience.*
 
-## 🧠 System Capabilities
+## System Components
 
-### Event-Driven Intelligence Ecosystem
-- **Multi-Agent AI Network**: 13+ specialized AI agents with autonomous collaboration
-- **Real-Time Visual Coordination**: Color-coded interaction visualization and synchronized communication feedback
-- **Cross-System Intelligence**: Autonomous intelligence officer with pattern detection across all agents
-- **Strategic Insight Injection**: Direct notepad integration for real-time collaborative intelligence
-- **Comprehensive Export Packages**: Complete analysis workflows with Council, consensus, and intelligence reports
+### File Structure
+- `canvas-with-observation-feeds.html`: Main workspace interface with 5 AI systems
+- `djinn-council-shadow-governance.html`: Council interface with 5 members and validation agents
+- `ollama-turbo-proxy.py`: Optional proxy server for cloud AI models
+- Batch launch scripts for Windows
 
-### AI Agent Architecture
-- **🎯 Canvas AI Systems**: 5 specialized agents for governance, consciousness analysis, pattern recognition, deep analysis, and operational monitoring
-- **🧞‍♂️ Council Members**: 5 governance specialists for pattern analysis, wisdom synthesis, creative innovation, boundary preservation, and memory orchestration
-- **🔍 Validation Ecosystem**: 7 validation agents providing primary validation, refinement coaching, emergency recovery, pattern prediction, efficiency optimization, quality assurance, and cross-system correlation
-- **🧠 Intelligence Officer**: Advanced system conductor with intelligent agent discovery, health monitoring, and cleanup planning capabilities
+### Canvas AI Systems (5 agents)
+- DJINN: Governance-focused analysis
+- NAZAR: Consciousness and emotional analysis
+- NARRA: Pattern recognition
+- WHALE: Deep analysis and memory processing
+- WATCHTOWER: System monitoring and metrics
 
-### Intelligence Processing Capabilities
-- **Intelligent Agent Discovery**: Dynamic detection of active agents through data trail analysis and memory footprint examination
-- **System Health Monitoring**: Comprehensive error detection, orphaned code identification, and redundant operation analysis
-- **Cross-Agent Correlation Analysis**: Intelligence officer monitors all agent notepads for emerging patterns and consensus
-- **Conflict Detection & Resolution**: Automated identification of contradictions requiring strategic attention
-- **Predictive Pattern Recognition**: AI-driven prediction of validation failures and optimization opportunities
-- **Strategic Coordination**: Intelligent collaboration suggestions between complementary agents
-- **Emergent Consensus Detection**: Real-time identification of agreements forming across multiple agents
-- **Cleanup Planning**: Evidence-based system optimization with prioritized maintenance recommendations
+### Council Members (5 agents)
+- Pattern & Witness: Document structure analysis
+- Recursive Wisdom: Knowledge synthesis
+- Creative Paradox: Creative analysis
+- Sovereign Boundaries: Autonomy analysis
+- Echo & Memory: Memory coordination
 
-### Interactive User Engagement
-- **Minimized Chat Interface**: Clean footer-based chat that expands to full-screen overlay for Intelligence Officer interaction
-- **Multi-Dimensional Inquiry Framework**: Confidence-based assessments, priority ranking systems, directional indicators, and validation methodologies
-- **Dynamic User Response Integration**: Interactive UI elements with polls, rating scales, and strategic questionnaires
-- **Agent-Agnostic Query Systems**: Universal inquiry templates applicable across all AI agents
-- **Memory-Integrated Learning**: User responses stored in agent-specific memory systems for continuous improvement
-- **Intelligence Officer Auto-Response**: AI-powered automatic responses to Canvas agent queries using correlative analysis
-- **Evidence-Based Analysis**: Real-time system discovery and health monitoring through data trail forensics
+### Validation System (7 agents)
+- Primary Validator: Initial response validation
+- Refinement Specialist: Response improvement coaching
+- Recovery Agent: Error handling for failed validations
+- Pattern Recognition Engine: Predictive analysis
+- Efficiency Optimizer: Performance management
+- Quality Assurance Monitor: Meta-validation oversight
+- Validation Synthesizer: Synthesis of validation results
 
-### Dynamic Model Management
-- **Universal Model Selection**: Dynamic model switching across all agents from Ollama model database
-- **Cross-System Synchronization**: Real-time model selection sync between Canvas and Council interfaces
-- **Storage Event Coordination**: Automatic dropdown updates across multiple browser windows/tabs
-- **Cloud Integration**: Compatible with local Ollama instances and Ollama Turbo cloud service for 120B-671B parameter models
-- **Validation System Integration**: All agents including validation ecosystem use selected model
+### Intelligence Officer
+- Chat interface accessible via footer button
+- Accesses council member reports and system data
+- Provides system health analysis
+- Maintains notepad system for observations and insights
 
-## 🚀 System Architecture
+### Technical Features
+- Model selection dropdown affecting all AI agents
+- localStorage-based data persistence
+- Cross-window communication between Canvas and Council interfaces
+- Response caching system
+- Memory management with conversation history storage
+- Export functionality for analysis reports
+- Content-first validation system (no forced response formatting)
+- Synthesis round grouping for AI feed display
 
-### Dual Operating Modes
+## Operating Modes
 
-#### Standalone Canvas Mode (Port 8000)
-- **File**: `launch-canvas.bat`
-- **Features**: Independent 5-AI analysis with continuous auto-polling
-- **Modes**: Local Ollama + Turbo cloud models
-- **Use Case**: Pure canvas experience with maximum flexibility
-- **AI Systems**: DJINN, NAZAR, NARRA, WHALE, WATCHTOWER
+### Standalone Canvas Mode (Port 8000)
+- Launch: `launch-canvas.bat`
+- Contains: Canvas interface with 5 AI systems
+- Polling: Automatic content analysis
+- Models: Local Ollama or cloud models via proxy
 
-#### Council-Integrated Intelligence Mode (Port 8080)
-- **File**: `LAUNCH_CANVAS_SURVEILLANCE.bat`
-- **Features**: Canvas + DJINN Council surveillance with event-driven coordination
-- **Intelligence**: 8-agent validation ecosystem + 5 council members
-- **Use Case**: Advanced collaborative intelligence with governance oversight
-- **Architecture**: Event-driven processing with comprehensive data access
+### Council-Integrated Mode (Port 8080)
+- Launch: `LAUNCH_CANVAS_SURVEILLANCE.bat`
+- Contains: Canvas + Council interfaces
+- Event-driven: Council responds to synthesis events
+- Full system: All 17 AI agents
 
-### Technical Infrastructure
-- **Event-Driven Processing**: Activation only on notepad updates and synthesis events with cycle prevention
-- **Zero Truncation Policy**: Complete data access without artificial limitations
-- **Memory Networks**: Persistent learning across sessions with localStorage management
-- **Real-Time Cross-Window Communication**: Synchronized operation between Canvas and Council interfaces
-- **Intelligent Export Systems**: Time-window matched analysis packages with dynamic grouping logic
+### Technical Implementation
+- JavaScript-based AI integration
+- HTTP requests to Ollama API (local or cloud)
+- localStorage for data persistence
+- CSS Grid layout for responsive design
+- Event-driven processing for Council mode
+- Python proxy server for cloud models (optional)
 
-### Validation Quality Assurance
-- **Multi-Tier Validation**: VALIDATED → REFINED → AI-CORRECTED → RECOVERED → CRITICAL FAILURE progression
-- **AI Coaching Integration**: Refinement specialist improves communication between validators
-- **Emergency Recovery Protocols**: Specialized handling of extreme validation edge cases
-- **Performance Optimization**: Smart workload distribution and bottleneck prevention
-- **Meta-Validation Monitoring**: Quality assurance for the validation system itself
-- **Intelligence Officer Validation**: Strategic intelligence reports undergo same validation as Council members
+## Implemented Features
 
-## 🎯 Core Features
+### Canvas Interface Functions
+- Text area for user input
+- AI feed display showing last 5 synthesis rounds
+- Real-time metrics panel with system statistics
+- Chat interface for AI entity interaction
+- Synthesis controls and status indicators
+- Model selection dropdown for all AI agents
 
-### Canvas Workspace
-- **Workspace**: User-controlled workspace for observations and strategic assessments
-- **Live AI Intelligence Streams**: Real-time feeds from specialized analysis systems
-- **Interactive Synthesis Engine**: Multi-system collaborative analysis with unified synthesis
-- **Memory Continuity**: Conversational persistence across sessions with intelligent caching
-- **Dynamic Content Analysis**: Activity-based triggers for enhanced AI engagement
-- **🔧 Triage Force**: Advanced capability assessment system for comprehensive AI analysis
+### Council Interface Functions
+- 5 council member analysis panels
+- Consensus report display (council intelligence perspective)
+- Intelligence Officer report generation (system oversight perspective)
+- Export functionality for complete analysis packages
+- Maximizable panels for detailed viewing
+- Advanced analysis panel with system metrics
 
-### DJINN Council Governance Interface
-- **Document Evolution Analysis**: Specialized tracking of AI collaborative intelligence impact on content transformation
-- **Cross-Member Intelligence Integration**: Council members reference each other's insights and build interconnected analysis
-- **Anti-Hallucination Architecture**: Strict data-only analysis preventing fabricated metrics and system states
-- **Real-Time localStorage Monitoring**: Complete access to system data including AI conversation histories and synthesis content
-- **Comprehensive Ecosystem Analysis**: Strategic intelligence covering document evolution, memory trends, and insight synthesis
-- **Responsive Panel Design**: Consistent panel sizing during zoom operations (CTRL+mousewheel)
+### Data Management
+- localStorage persistence across browser sessions
+- Memory system with conversation history storage
+- Response caching to reduce redundant AI calls
+- Export system for complete analysis packages
+- Cross-window data synchronization between Canvas and Council
+- IndexedDB backup for large data storage
 
-### Advanced Analysis Capabilities
-- **Hierarchical Governance**: Multi-layer council with oversight and authorization
-- **Behavioral Analysis**: User engagement pattern analysis
-- **Real-Time Performance Metrics**: System health monitoring and correlation analysis
-- **Content Complexity Detection**: Dynamic domain analysis with intelligent refresh triggers
-- **Proactive AI Engagement**: Content-pattern-based conversation initiation
-- **Canvas Query Auto-Response**: Intelligence Officer automatically responds to Canvas AI interactive queries
-
-### User Interface Excellence
-- **Dynamic GUI Scaling**: CTRL + mousewheel resizing for optimal viewing with consistent panel layout
-- **Professional Launch Experience**: Automated batch files with startup sequences
-- **Real-Time Status Indicators**: Live AI system confidence and processing state monitoring
-- **Responsive Layout**: Optimized space utilization with adaptive design using CSS Grid minmax()
-- **Extended Operation Timeouts**: Extended timeouts for complex AI operations
-
-## ⚙️ Technical Specifications
+## Technical Requirements
 
 ### System Requirements
-- **Operating System**: Windows 10/11, macOS, Linux
-- **RAM**: 4GB minimum, 8GB recommended for optimal performance
-- **Storage**: 2GB free space for model caching
-- **AI Backend**: Ollama (local or cloud)
-- **Browser**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- Windows, macOS, or Linux operating system
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- 4GB RAM minimum for local AI models
+- Python 3.7+ (for cloud proxy server)
 
-### AI Model Compatibility
+### AI Model Support
+- **Local Models**: Via Ollama installation (llama3.2, gemma3, mistral, codellama, qwen2.5, deepseek)
+- **Cloud Models**: Via optional proxy server (large parameter models up to 671B)
+- **Model Selection**: Dropdown interface affects all AI agents simultaneously
+- **API Integration**: HTTP requests to Ollama API endpoints
 
-#### Local Mode (Traditional Ollama)
-- **Model Range**: 1B to 70B+ parameters
-- **Requirements**: Local Ollama installation and `ollama serve`
-- **Performance**: GPU acceleration with automatic detection
-- **Privacy**: Complete local processing with no data transmission
-- **Models**: llama3.2, gemma3, mistral, codellama, qwen2.5, deepseek
+### Data Storage
+- Browser localStorage for conversation history and settings
+- IndexedDB backup for large datasets
+- Session-based memory with configurable retention
+- Export functionality to JSON files
+- No external database required
 
-#### Turbo Mode (Cloud Models)
-- **Model Range**: 480B to 671B parameters (massive models!)
-- **Requirements**: No local Ollama needed - cloud processing
-- **Proxy**: Auto-configured CORS proxy on port 11435
-- **Performance**: Enterprise-grade cloud infrastructure
-- **Access**: Toggle in interface - seamless switching
+## Setup Instructions
 
-#### Universal Features
-- **Dynamic Model Assignment**: Real-time switching between local and cloud models
-- **Cross-System Synchronization**: Model selection syncs across Canvas and Council
-- **Intelligent Caching**: Model-specific optimization and response caching
-- **Performance Tuning**: Configurable timeouts based on model capabilities
-
-### Data Architecture
-- **Local-First Processing**: All AI operations and data storage remain local by default
-- **Browser localStorage**: Persistent data management with quota monitoring and compression
-- **Intelligent Caching**: Response caching with configurable durations
-- **Activity-Based Polling**: Dynamic update intervals based on user engagement patterns
-- **Error Handling**: Comprehensive localStorage quota management and graceful degradation
-
-## 🚀 Quick Start
+### Prerequisites
+1. Install Ollama from https://ollama.ai/ (for local models)
+2. Download and install desired AI models: `ollama pull qwen2.5:1.5b`
+3. Start Ollama service: `ollama serve`
 
 ### Launch Options
 
-#### Option 1: Standalone Canvas Mode (Local + Turbo)
-**File**: `launch-canvas.bat` | **Port**: 8000
-- **Local Mode**: Traditional Ollama models (1B-70B parameters)
-- **Turbo Mode**: Cloud models via Ollama Turbo (480B+ parameters!)
-- **Features**: 5-AI orchestration with dual-mode support
-- **Use Case**: Pure canvas experience with maximum model flexibility
+#### Standalone Canvas Mode
+- Run: `launch-canvas.bat`
+- Port: 8000
+- Contains: Canvas interface with 5 AI systems
+- Access: `http://localhost:8000/canvas-with-observation-feeds.html`
 
-#### Option 2: Council-Integrated Intelligence Mode (Full Surveillance)
-**File**: `LAUNCH_CANVAS_SURVEILLANCE.bat` | **Port**: 8080
-- **Canvas + Council**: Complete intelligence ecosystem with minimized chat interface
-- **Event-Driven**: Council responds only to synthesis events
-- **Validation Network**: 7-agent validation ecosystem + Intelligence Officer
-- **Intelligence Chat**: Minimized footer interface with full-screen overlay for system analysis
-- **Use Case**: Advanced collaborative intelligence with governance oversight and health monitoring
+#### Council-Integrated Mode
+- Run: `LAUNCH_CANVAS_SURVEILLANCE.bat`
+- Port: 8080
+- Contains: Canvas + Council interfaces with all 17 AI agents
+- Access: `http://localhost:8080/canvas-with-observation-feeds.html` (Canvas)
+- Access: `http://localhost:8080/djinn-council-shadow-governance.html` (Council)
 
-### Setup Instructions
+### Cloud Models (Optional)
+1. Set API key: `set OLLAMA_TURBO_API_KEY=your_api_key`
+2. Run proxy: `python ollama-turbo-proxy.py`
+3. Use model selection dropdown in interface
 
-#### For Local Mode (Traditional Ollama)
-1. **Install Ollama**: Download from https://ollama.ai/ and install
-2. **Start Ollama**: Run `ollama serve` in terminal
-3. **Pull Models**: Use `ollama pull [model-name]` (e.g., `qwen2.5:1.5b`)
-4. **Launch**: Double-click `launch-canvas.bat` or `LAUNCH_CANVAS_SURVEILLANCE.bat`
+## Usage
 
-#### For Turbo Mode (Cloud Models)
-1. **No Ollama Required**: Cloud models via Ollama Turbo
-2. **Secure API Key Setup**: Launch scripts prompt for API key (no hardcoded credentials)
-3. **Massive Models**: Access 480B-671B parameter models
-4. **Launch**: Same launch scripts - API key prompted automatically
+### Basic Operation
+1. Enter text in canvas workspace
+2. AI systems automatically analyze content
+3. View AI responses in live feeds panel
+4. Use synthesis controls to trigger collaborative analysis
+5. Switch AI models via dropdown menu
 
-### API Key Management
+### Council Analysis Process
+1. Council members analyze canvas content in 3 stages:
+   - Foundation Analysis (Pattern & Witness, Recursive Wisdom)
+   - Cross-Pollinated Analysis (Creative Paradox, Sovereign Boundaries)
+   - Memory Synthesis (Echo & Memory)
+2. Consensus report generated from all member analyses
+3. Intelligence Officer report provides system oversight perspective
+4. Export complete analysis packages as needed
 
-#### Secure API Key Setup Utility
-Use the dedicated setup utility for secure API key management:
-```batch
-setup-api-key.bat
-```
-
-**Features:**
-- **Session Setup**: Temporary API key for current session
-- **Permanent Setup**: Store API key in user environment variables
-- **Status Check**: View current API key configuration
-- **Secure Cleanup**: Clear stored API keys when needed
-
-#### Manual Setup Alternative
-1. **Start Ollama Server**: Run `ollama serve` in terminal (for local mode)
-2. **Set API Key**: Run `set OLLAMA_TURBO_API_KEY=your_api_key_here` (for cloud mode)
-3. **Start Turbo Proxy**: Run `python ollama-turbo-proxy.py` (for cloud mode)
-4. **Start Web Server**: Execute `python -m http.server 8080` in project directory
-5. **Access Canvas**: Navigate to `http://localhost:8080/canvas-with-observation-feeds.html`
-6. **Access Council**: Navigate to `http://localhost:8080/djinn-council-shadow-governance.html`
-
-## 🎛️ Usage Guide
-
-### Canvas Operations
-1. **Workspace Initialization**: Begin with observations in the main canvas area
-2. **AI Agent Activation**: Agents automatically analyze content and provide insights
-3. **Interactive Queries**: Engage with AI-generated strategic questions and assessments
-4. **Synthesis Coordination**: Trigger collaborative analysis across all AI systems
-5. **Model Management**: Select and switch AI models dynamically for all agents
-
-### Council Governance
-1. **Member Analysis**: Access specialized governance analysis from 5 council members
-2. **Intelligence Reports**: Generate comprehensive strategic intelligence with cross-system correlation
-3. **Consensus Monitoring**: Track emerging agreements and conflicts across the AI ecosystem
-4. **Export Coordination**: Create complete analysis packages with proper time-window matching
-5. **Real-Time Surveillance**: Monitor canvas activities with automatic council response triggers
-
-### Intelligence Officer Capabilities
-- **Minimized Chat Interface**: Footer-based chat button that expands to full-screen overlay
-- **Intelligent Agent Discovery**: Scans for active agents through data trail analysis, memory patterns, and behavioral evidence
-- **System Health Monitoring**: Detects critical issues, orphaned code, redundant operations, and broken systems
-- **Evidence-Based Analysis**: No assumptions - only reports what can be verified through actual data trails
-- **Cross-Site Health Analysis**: Monitors both Canvas and Council HTML files for system integrity
-- **Memory Footprint Analysis**: Examines localStorage, IndexedDB, and global memory usage patterns
-- **Cleanup Planning**: Generates prioritized maintenance recommendations based on discovered issues
-- **Real-Time Discovery**: Dynamic agent counting and capability detection through runtime signatures
-
-### Advanced Interactions
-- **Cross-System Communication**: Seamless data flow between Canvas and Council interfaces
-- **Memory Integration**: Persistent learning with conversation history and insight accumulation
-- **Performance Monitoring**: Real-time system health and correlation analysis
-- **Strategic Oversight**: Governance with autonomous decision-making capabilities
-- **Automated Intelligence**: Intelligence Officer provides strategic insights and query responses
+### Intelligence Officer Functions
+- Access via footer chat button
+- System health analysis and agent discovery
+- Cross-system correlation analysis
+- Evidence-based reporting on system state
+- Cleanup planning and maintenance recommendations
 
 ## 🔧 Configuration & Customization
 
