@@ -1801,13 +1801,23 @@ Should we strengthen this emerging pattern?<br>
                 // Start collaborative synthesis
                 const synthesisResult = await performCollaborativeSynthesis(canvasContent);
 
-                // Clear previous synthesis and show only the most recent
+                // ENHANCED: Cumulative synthesis building instead of clearing
                 const timestamp = new Date().toLocaleTimeString();
                 const synthesisHeader = `🎭 COLLABORATIVE SYNTHESIS - ${timestamp}
 ═══════════════════════════════════════════════════════════════════════════════\n\n`;
 
-                // Replace entire content with just the latest synthesis
-                synthesisCanvas.value = synthesisHeader + synthesisResult;
+                // Check if this is a new session or continuing previous work
+                const currentContent = synthesisCanvas.value.trim();
+                const isNewSession = !currentContent || currentContent.includes('🎭 AI SYNTHESIS BOARD CLEARED') ||
+                                   !currentContent.includes('🎭 COLLABORATIVE SYNTHESIS');
+
+                if (isNewSession) {
+                    // Start fresh for new session
+                    synthesisCanvas.value = synthesisHeader + synthesisResult;
+                } else {
+                    // Append to existing synthesis for cumulative building
+                    synthesisCanvas.value += '\n\n' + '═'.repeat(79) + '\n' + synthesisHeader + synthesisResult;
+                }
 
                 // Auto-scroll to bottom
                 synthesisCanvas.scrollTop = synthesisCanvas.scrollHeight;
@@ -1864,10 +1874,15 @@ Should we strengthen this emerging pattern?<br>
             const synthesisParts = [];
             const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
 
+            // ENHANCED: Gather rich historical data for synthesis intelligence
+            const historicalContext = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').slice(0, 3);
+            const councilIntelligence = JSON.parse(localStorage.getItem('djinn_council_complete_memory') || '{}');
+            const roundIntelligence = automatedSynthesisTracker.getRoundStatus();
+
             // Phase 1: Individual Analysis (Parallel)
-            console.log('🎭 Phase 1: Gathering individual AI insights...');
+            console.log('🎭 Phase 1: Gathering individual AI insights with historical context...');
             const individualInsights = await Promise.all(
-                systems.map(system => getSynthesisInsight(system, canvasContent, 'individual'))
+                systems.map(system => getSynthesisInsight(system, canvasContent, 'individual', '', historicalContext, councilIntelligence, roundIntelligence))
             );
 
             // Phase 2: Collaborative Integration (Sequential with memory)
@@ -1882,7 +1897,10 @@ Should we strengthen this emerging pattern?<br>
                     system,
                     collaborativeContext,
                     'collaborative',
-                    previousInsights
+                    previousInsights,
+                    historicalContext,
+                    councilIntelligence,
+                    roundIntelligence
                 );
 
                 synthesisParts.push(`\n═══ ${system.toUpperCase()} COLLABORATIVE CONTRIBUTION ═══\n${collaborativeInsight}`);
@@ -1913,40 +1931,44 @@ ${unifiedSynthesis}
 `;
         }
 
-        async function getSynthesisInsight(system, content, phase, previousContext = '') {
-            // No truncation - send full content to AI
-                
+        async function getSynthesisInsight(system, content, phase, previousContext = '', historicalContext = [], councilIntelligence = {}, roundIntelligence = {}) {
+            // Enhanced prompts with rich historical data and intelligence context
+
+            // Build historical synthesis context
+            const historyContext = historicalContext.length > 0
+                ? `\n=== HISTORICAL SYNTHESIS PATTERNS ===
+Recent synthesis rounds for learning continuity:
+${historicalContext.map((h, i) => `Round ${i+1}: ${h.summary || 'Analysis completed'} (${new Date(h.timestamp).toLocaleString()})`).join('\n')}
+============================\n`
+                : '';
+
+            // Build council intelligence context
+            const councilContext = councilIntelligence.consensusHistory?.length > 0
+                ? `\n=== COUNCIL INTELLIGENCE INSIGHTS ===
+Latest strategic intelligence from council analysis:
+${councilIntelligence.consensusHistory.slice(0, 2).map(c => `Council Focus: ${c.theme || 'Strategic analysis'} (Confidence: ${Math.round((c.confidence || 0.5) * 100)}%)`).join('\n')}
+============================\n`
+                : '';
+
+            // Build round intelligence context
+            const roundContext = roundIntelligence.roundId
+                ? `\n=== ROUND INTELLIGENCE ===
+Current Round: ${roundIntelligence.roundId} | Completed Systems: ${roundIntelligence.completedCount}/${roundIntelligence.totalRequired}
+Active Systems: ${roundIntelligence.systemResponses?.join(', ') || 'None'}
+============================\n`
+                : '';
+
             const synthesisPrompt = phase === 'individual'
                 ? `You are ${system.toUpperCase()}, an AI specialist. Analyze the following content and provide your unique perspective in 2-3 paragraphs. Focus on your area of expertise and what you bring to the collaborative synthesis.
 
-=== NOTEPAD SYSTEM USAGE ===
-You have a dynamic notepad system for continuous learning:
-- OBSERVATIONS: Record patterns, insights, and findings from content analysis
-- DIRECTIVES: Note analytical approaches, methodologies, and procedural insights
-- SELF_PROMPTS: Create questions for deeper investigation and follow-up analysis
-- SESSION_NOTES: Track analysis progress, key decisions, and collaborative outcomes
-- ORIENTATIONS: Record strategic shifts and contextual understanding changes
-
-Use your notepad to build expertise and maintain analytical continuity.
-==========================
-
+${historyContext}${councilContext}${roundContext}
 CONTENT TO ANALYZE:
 ${content}
 
 Your specialized analysis (2-3 paragraphs):`
                 : `You are ${system.toUpperCase()}, collaborating with other AI specialists. Review the previous insights and content, then provide your contribution to the collaborative synthesis in 2-3 paragraphs. Build upon what others have said while adding your unique perspective.
 
-=== NOTEPAD SYSTEM USAGE ===
-You have a dynamic notepad system for continuous learning:
-- OBSERVATIONS: Record patterns, insights, and findings from content analysis
-- DIRECTIVES: Note analytical approaches, methodologies, and procedural insights
-- SELF_PROMPTS: Create questions for deeper investigation and follow-up analysis
-- SESSION_NOTES: Track analysis progress, key decisions, and collaborative outcomes
-- ORIENTATIONS: Record strategic shifts and contextual understanding changes
-
-Use your notepad to build expertise and maintain analytical continuity.
-==========================
-
+${historyContext}${councilContext}${roundContext}
 CONTENT TO ANALYZE:
 ${content}
 
@@ -2090,7 +2112,7 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                         options: {
                             temperature: 0.7,
                             top_p: 0.9,
-                            num_predict: 2048 // Maximum tokens for complete responses
+                            num_predict: 8192 // Maximum tokens for complete responses
                         }
                     })
                 });
@@ -2184,8 +2206,8 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                         options: {
                             temperature: 0.7,
                             top_p: 0.9,
-                            num_predict: 2048, // Maximum tokens for complete synthesis
-                            max_tokens: 2048
+                            num_predict: 8192, // Maximum tokens for complete synthesis
+                            max_tokens: 8192
                         }
                     })
                 });

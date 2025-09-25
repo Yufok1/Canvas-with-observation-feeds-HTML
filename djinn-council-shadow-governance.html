@@ -10142,31 +10142,20 @@ Keep under 600 words. Focus on SYNTHESIS, not repetition. Create NEW insights fr
                         <div style="margin-top: 4px; font-size: 10px; color: #ff88ff;">Emergent Insights: ${consensusResult.emergentInsights?.length || 0} synthesized</div>
                     </div>`;
 
-                // Update consensus display with AI-synthesized insights
+                // Update consensus display - SIMPLIFIED to avoid confusion with intelligence reports
                 const consensusHTML = `
-                    <div class="intel-entry intel-insight">
-                        <div class="intel-timestamp">${new Date().toLocaleTimeString()}</div>
+                    <div class="consensus-entry">
+                        <div class="consensus-timestamp">${new Date().toLocaleTimeString()}</div>
                         <strong>🧠 AI-SYNTHESIZED COUNCIL CONSENSUS</strong><br>
                         <div style="margin: 8px 0; padding: 8px; background: rgba(204, 136, 204, 0.1); border-left: 3px solid #cc88cc; border-radius: 4px;">
                             ${synthesis}
                         </div>
-                        <strong>🔍 MEMBER ANALYSES</strong><br>
-                        <div style="margin: 8px 0; padding: 8px; background: rgba(0, 255, 136, 0.1); border-left: 3px solid #00ff88; border-radius: 4px;">
-                            ${memberInsights}
-                        </div>
                         ${collaborationSection}
-                        <strong>🎯 AI RISK ASSESSMENT</strong><br>
-                        <div style="margin: 8px 0; padding: 8px; background: rgba(255, 170, 0, 0.1); border-left: 3px solid #ffaa00; border-radius: 4px;">
-                            ${riskAssessment}
-                        </div>
-                        <strong>📋 AI STRATEGIC RECOMMENDATIONS</strong><br>
-                        <div style="margin: 8px 0; padding: 8px; background: rgba(255, 136, 255, 0.1); border-left: 3px solid #ff88ff; border-radius: 4px;">
-                            ${recommendations}
-                        </div>
                     </div>
                 `;
 
-                document.getElementById('consensusFeed').innerHTML = consensusHTML + document.getElementById('consensusFeed').innerHTML;
+                // DISABLED: Bad AI-SYNTHESIZED report - using proper generateConsensusReport instead
+                // document.getElementById('consensusFeed').innerHTML = consensusHTML + document.getElementById('consensusFeed').innerHTML;
 
                 return consensusResult;
 
@@ -16290,16 +16279,16 @@ Keep response focused and under 500 words. Structure with clear sections as show
             try {
                 const consensusResponse = await queryOllama(getCurrentModel(), consensusPrompt);
 
-                // DISABLED: Using AI-SYNTHESIZED COUNCIL CONSENSUS instead
-                // displayConsensusReport(consensusResponse);
+                // ENABLED: Using proper council consensus report
+                displayConsensusReport(consensusResponse);
 
                 console.log('✅ Consensus report generated and displayed');
                 return consensusResponse;
 
             } catch (error) {
                 console.error('❌ Consensus report generation failed:', error);
-                // DISABLED: Using AI-SYNTHESIZED COUNCIL CONSENSUS instead
-                // displayConsensusReport('Error: Unable to generate consensus report. AI system unavailable.');
+                // ENABLED: Using proper council consensus report
+                displayConsensusReport('Error: Unable to generate consensus report. AI system unavailable.');
                 throw error;
             }
         }
