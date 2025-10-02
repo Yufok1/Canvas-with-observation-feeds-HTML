@@ -2,6 +2,35 @@
 
 A streamlined web-based interface for AI interaction focused on the Canvas workspace. The system integrates with Ollama for AI model access and uses browser localStorage and IndexedDB for data persistence.
 
+## 🤝 Companion System: Llama Jack
+
+**Canvas works seamlessly with [Llama Jack](https://github.com/Yufok1/Llama-Jack)** - your AI-powered terminal workspace companion!
+
+### **Why Use Both Together?**
+- **Canvas**: Web-based AI analysis with 5 specialized agents (DJINN, NAZAR, NARRA, WHALE, WATCHTOWER)
+- **Llama Jack**: Terminal-based AI coding assistant with file editing, task management, and workspace exploration
+
+### **Shared Intelligence**
+Both systems share the same Ollama AI backend with intelligent resource orchestration:
+- **Load Balancing**: Automatic distribution between local and cloud AI
+- **Priority Modes**: Configure Canvas-priority, Jack-priority, or balanced operation
+- **Seamless Coordination**: They work together without resource conflicts
+
+### **Quick Integration**
+```bash
+# 1. Start Canvas (web interface)
+launch-canvas.bat
+
+# 2. Start Llama Jack (terminal companion)
+hi jack
+
+# Both systems now coordinate automatically!
+```
+
+**See [Llama Jack Integration Guide](https://github.com/Yufok1/Llama-Jack#-canvas-integration) for detailed setup.**
+
+---
+
 ## 🌟 Visual README
 **Experience the Enhanced Visual Documentation**: [https://yufok1.github.io/Canvas-with-observation-feeds-HTML/](https://yufok1.github.io/Canvas-with-observation-feeds-HTML/)
 
