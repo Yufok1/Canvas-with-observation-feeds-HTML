@@ -188,6 +188,8 @@ launch-canvas.bat
 
 **GitHub Repository**: [https://github.com/Yufok1/Canvas-with-observation-feeds-HTML](https://github.com/Yufok1/Canvas-with-observation-feeds-HTML)
 
+**Llama Jack**: [https://github.com/Yufok1/Llama-Jack](https://github.com/Yufok1/Llama-Jack) - AI orchestration and terminal integration
+
 **Matrix Rain Background**: [https://github.com/Yufok1/Matrix-Rain-HTML-Background](https://github.com/Yufok1/Matrix-Rain-HTML-Background)
 
 <!-- Matrix Rain Effect: Inspired by https://github.com/Yufok1/Matrix-Rain-HTML-Background -->
