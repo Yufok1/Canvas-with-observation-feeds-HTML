@@ -131,6 +131,13 @@ const backup = new BackupStorage();
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
     try {
+        // 🛠️ CRITICAL FIX: Don't backup DJINN Council surveillance keys
+        const criticalKeys = ['sovereign_canvas_content', 'ai_feeds', 'synthesis_canvas_content', 'synthesis_report_generated', 'ai_memory_state', 'djinn_council_complete_memory', 'synthesis_report', 'validation_specialist_memory'];
+        if (criticalKeys.includes(key)) {
+            originalSetItem.call(this, key, value); // Store directly, no IndexedDB backup
+            return;
+        }
+        
         // Cleanup if needed
         backup.cleanupIfNeeded();
         
@@ -149,6 +156,12 @@ const originalGetItem = localStorage.getItem;
 localStorage.getItem = function(key) {
     try {
         const value = originalGetItem.call(this, key);
+        
+        // 🛠️ CRITICAL FIX: Don't interfere with DJINN Council surveillance keys
+        const criticalKeys = ['sovereign_canvas_content', 'ai_feeds', 'synthesis_canvas_content', 'synthesis_report_generated', 'ai_memory_state', 'djinn_council_complete_memory', 'synthesis_report', 'validation_specialist_memory'];
+        if (criticalKeys.includes(key)) {
+            return value; // Return actual value, no IndexedDB interference
+        }
         
         // Check if it's an IndexedDB reference
         if (backup.isIndexedDBReference(value)) {

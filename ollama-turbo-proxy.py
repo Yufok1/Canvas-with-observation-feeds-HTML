@@ -15,23 +15,37 @@ import os
 import sys
 
 # Configuration
-PROXY_PORT = 11435
+
+# Proxy configuration
+PROXY_PORT = 11438
+PROXY_HOST = "127.0.0.1"  # Bind only to localhost for security
 OLLAMA_TURBO_BASE_URL = "https://ollama.com"
 API_KEY = os.environ.get('OLLAMA_TURBO_API_KEY', '')
 
+# CORS whitelist (add allowed origins here)
+CORS_WHITELIST = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000"
+]
+
 if not API_KEY:
-    print("❌ ERROR: OLLAMA_TURBO_API_KEY environment variable not set!")
-    print("💡 Please set the API key using: set OLLAMA_TURBO_API_KEY=your_api_key_here")
-    print("🔧 Or use the enhanced launch scripts that prompt for the API key")
+    print("ERROR: OLLAMA_TURBO_API_KEY environment variable not set!")
+    print("Please set the API key using: set OLLAMA_TURBO_API_KEY=your_api_key_here")
+    print("Or use the enhanced launch scripts that prompt for the API key")
     sys.exit(1)
 
 class OllamaTurboProxy(http.server.BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         """Handle CORS preflight requests"""
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        origin = self.headers.get('Origin', '')
+        if origin in CORS_WHITELIST:
+            self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', origin)
+        else:
+            self.send_response(403)
+            self.send_header('Access-Control-Allow-Origin', 'null')
+        self.send_header('Access-Control-Allow-Methods', '*')
+        self.send_header('Access-Control-Allow-Headers', '*')
         self.send_header('Access-Control-Max-Age', '86400')
         self.end_headers()
 
@@ -61,6 +75,10 @@ class OllamaTurboProxy(http.server.BaseHTTPRequestHandler):
             if method == 'POST' and content_length > 0:
                 post_data = self.rfile.read(content_length)
 
+            # CORS origin check
+            origin = self.headers.get('Origin', '')
+            allow_origin = origin if origin in CORS_WHITELIST else 'null'
+
             # Create request
             req = urllib.request.Request(
                 target_url,
@@ -70,34 +88,34 @@ class OllamaTurboProxy(http.server.BaseHTTPRequestHandler):
             )
 
             # Forward request to Ollama Turbo
-            print(f"🚀 Proxying {method} {self.path} to {target_url}")
+            print(f"Proxying {method} {self.path} to {target_url}")
             with urllib.request.urlopen(req, timeout=1800) as response:  # 30 min timeout for large models
                 # Read response
                 response_data = response.read()
 
                 # Send response back to browser
                 self.send_response(response.status)
-                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Origin', allow_origin)
                 self.send_header('Content-Type', 'application/json')
                 self.send_header('Content-Length', str(len(response_data)))
                 self.end_headers()
                 self.wfile.write(response_data)
 
-                print(f"✅ Successfully proxied {method} {self.path} ({len(response_data)} bytes)")
+                print(f"Successfully proxied {method} {self.path} ({len(response_data)} bytes)")
 
         except HTTPError as e:
-            print(f"❌ HTTP Error {e.code}: {e.reason}")
+            print(f"HTTP Error {e.code}: {e.reason}")
             self.send_response(e.code)
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Origin', 'null')
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             error_response = json.dumps({"error": f"HTTP {e.code}: {e.reason}"})
             self.wfile.write(error_response.encode())
 
         except Exception as e:
-            print(f"❌ Proxy Error: {str(e)}")
+            print(f"Proxy Error: {str(e)}")
             self.send_response(500)
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Origin', 'null')
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             error_response = json.dumps({"error": f"Proxy error: {str(e)}"})
@@ -108,30 +126,32 @@ class OllamaTurboProxy(http.server.BaseHTTPRequestHandler):
         pass  # Suppress default HTTP logs, we handle our own
 
 def main():
-    print("🔥 OLLAMA TURBO PROXY SERVER")
+    print("OLLAMA TURBO PROXY SERVER")
     print("=" * 50)
-    print(f"⚡ Turbo API: {OLLAMA_TURBO_BASE_URL}")
-    print(f"🌐 Proxy Port: {PROXY_PORT}")
-    print(f"🔑 API Key: {API_KEY[:20]}... (loaded from environment)")
+    print(f"Turbo API: {OLLAMA_TURBO_BASE_URL}")
+    print(f"Proxy Host: {PROXY_HOST}")
+    print(f"Proxy Port: {PROXY_PORT}")
+    print("API Key: [hidden]")
+    print("CORS Whitelist:", CORS_WHITELIST)
     print("=" * 50)
 
     try:
-        with socketserver.TCPServer(("", PROXY_PORT), OllamaTurboProxy) as httpd:
-            print(f"🚀 Proxy server started at: http://localhost:{PROXY_PORT}")
-            print("📡 Ready to forward requests to Ollama Turbo!")
-            print("🛑 Press Ctrl+C to stop")
+        with socketserver.TCPServer((PROXY_HOST, PROXY_PORT), OllamaTurboProxy) as httpd:
+            print(f"Proxy server started at: http://{PROXY_HOST}:{PROXY_PORT}")
+            print("Ready to forward requests to Ollama Turbo!")
+            print("Press Ctrl+C to stop")
             print("-" * 50)
             httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\n🛑 Proxy server stopped by user")
+        print("\nProxy server stopped by user")
     except OSError as e:
         if e.errno == 10048:  # Port already in use
-            print(f"❌ Port {PROXY_PORT} is already in use")
-            print("💡 Another proxy instance may already be running")
+            print(f"Port {PROXY_PORT} is already in use")
+            print("Another proxy instance may already be running")
         else:
-            print(f"❌ Error starting proxy: {e}")
+            print(f"Error starting proxy: {e}")
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"Unexpected error: {e}")
 
 if __name__ == "__main__":
     main()

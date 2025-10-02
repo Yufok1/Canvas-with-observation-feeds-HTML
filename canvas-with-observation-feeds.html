@@ -108,6 +108,127 @@
             max-height: 300px;
         }
 
+        /* Jack Terminal Mirror Integration */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr auto;
+            height: 100%;
+            gap: 8px;
+        }
+
+        .metrics-section {
+            grid-column: 1 / -1;
+            overflow-y: auto;
+            max-height: 150px;
+        }
+
+        .jack-terminal-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #001a1a, #002828, #001f1f);
+            border: 2px solid #00ffcc;
+            border-radius: 6px;
+            padding: 8px;
+            min-height: 150px;
+            position: relative;
+        }
+
+        .jack-terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 255, 204, 0.1);
+            border-radius: 4px;
+        }
+
+        .jack-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .jack-status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff4444;
+            animation: pulse 2s infinite;
+        }
+
+        .jack-status-indicator.connected {
+            background: #00ff44;
+        }
+
+        .jack-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .jack-btn {
+            background: rgba(0, 255, 204, 0.2);
+            border: 1px solid #00ffcc;
+            color: #00ffcc;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+
+        .jack-btn:hover {
+            background: rgba(0, 255, 204, 0.4);
+        }
+
+        .jack-terminal-display {
+            background: #000;
+            border: 1px solid #00ffcc;
+            border-radius: 4px;
+            padding: 8px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: #00ff44;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .jack-terminal-display.maximized {
+            position: fixed;
+            top: 50px;
+            left: 50px;
+            right: 50px;
+            bottom: 50px;
+            z-index: 1000;
+            height: auto;
+            font-size: 12px;
+        }
+
+        .jack-terminal-entry {
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+
+        .jack-terminal-entry.error {
+            color: #ff4444;
+        }
+
+        .jack-terminal-entry.warn {
+            color: #ffaa44;
+        }
+
+        .jack-terminal-entry.info {
+            color: #44aaff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         .surveillance-panel {
             grid-area: surveillance;
             background: linear-gradient(135deg, #0a0a0a, #151515);
@@ -530,12 +651,13 @@
                         </label>
                         <span id="turboStatus" style="margin-left: 5px; color: #00ff41; font-size: 9px;">[LOCAL]</span>
                     </span>
-                    <span class="query-controls" style="margin-left: 10px;">
-                        <label style="color: #4ecdc4; font-size: 10px; cursor: pointer;">
-                            <input type="checkbox" id="enableAIQuestions" checked style="margin-right: 4px; accent-color: #4ecdc4;">
-                            🤖 AI Questions
-                        </label>
-                        <span style="margin-left: 5px; color: #ffaa00; font-size: 9px;">(<span id="queryCount">0</span> pending)</span>
+                    <span class="memory-tracker" style="margin-left: 10px;">
+                        <span style="color: #4ecdc4; font-size: 10px;">
+                            🧠 AI Memories: <span id="totalMemoryCount">0</span>
+                        </span>
+                        <span style="margin-left: 5px; color: #999; font-size: 9px;" title="DJINN | NAZAR | NARRA | WHALE | WATCHTOWER">
+                            (DJ:<span id="djinnCount">0</span> NZ:<span id="nazarCount">0</span> NR:<span id="narraCount">0</span> WH:<span id="whaleCount">0</span> WT:<span id="watchtowerCount">0</span>)
+                        </span>
                     </span>
                 </div>
             </div>
@@ -550,8 +672,12 @@
                 <button class="canvas-btn" onclick="exportData()">📊 Export</button>
                 <button class="canvas-btn" onclick="clearCanvas()">🗑️ Clear</button>
                 <button class="canvas-btn" onclick="clearAIMemory()" title="Clear AI conversation memory">🧠 Clear Memory</button>
+                <button class="canvas-btn" onclick="smartSummarizeContent()" title="Reduce content size using AI-friendly summarization">📊 Smart Reduce</button>
                 <button class="canvas-btn" onclick="showTriageCapabilities()">🔧 Triage Force</button>
-                <span style="margin-left: auto; font-size: 10px;">Auto-save: <span id="autoSaveStatus">ON</span></span>
+                <span style="margin-left: auto; font-size: 10px;">
+                    📊 Size: <span id="contentSize">0</span> chars | 
+                    Auto-save: <span id="autoSaveStatus">ON</span>
+                </span>
             </div>
 
 
@@ -653,41 +779,27 @@ Ready for your first collaborative synthesis! 🚀</textarea>
 
                 </div>
 
-                <!-- LIVE METRICS -->
+                <!-- JACK TERMINAL MIRROR -->
                 <div class="bottom-section live-metrics">
-                    <div class="panel-title">📊 Live Metrics</div>
-                    <div id="metricsContainer">
-                        <div class="metric-item">
-                            <div>⚖️ Djinn Council</div>
-                            <div>Governance: <span id="djinnMetric">--</span>%</div>
+                    <div class="panel-title">🎯 Jack Terminal Mirror</div>
+                    <div class="jack-terminal-section" id="jackTerminalSection" style="height: 100%; margin: 0;">
+                        <div class="jack-terminal-header">
+                            <div class="jack-status">
+                                <div class="jack-status-indicator" id="jackStatusIndicator"></div>
+                                <span id="jackStatusText">Scanning for Jack...</span>
+                            </div>
+                            <div class="jack-controls">
+                                <button class="jack-btn" onclick="maximizeJackMirror()" title="Maximize Terminal">⛶</button>
+                                <button class="jack-btn" onclick="clearJackTerminal()" title="Clear Terminal">🗑</button>
+                                <button class="jack-btn" onclick="refreshJackConnection()" title="Refresh Connection">🔄</button>
+                            </div>
                         </div>
-                        <div class="metric-item">
-                            <div>🔮 Nazar Fractal</div>
-                            <div>Resonance: <span id="nazarMetric">--</span>%</div>
-                        </div>
-                        <div class="metric-item">
-                            <div>🌊 NAR'RA</div>
-                            <div>Patterns: <span id="narraMetric">--</span></div>
-                        </div>
-                        <div class="metric-item">
-                            <div>🐋 Whale Analysis</div>
-                            <div>Depth: <span id="whaleMetric">--</span>%</div>
-                        </div>
-                        <div class="metric-item">
-                            <div>🔱 Watchtower</div>
-                            <div>Operations: <span id="watchtowerMetric">--</span>%</div>
+                        <div class="jack-terminal-display" id="jackTerminalDisplay" style="height: calc(100% - 40px);">
+                            <div class="jack-terminal-entry">🔍 Searching for active Jack interface...</div>
                         </div>
                     </div>
 
-                    <div class="correlation-display" id="correlationDisplay">
-                        <h4 style="margin-bottom: 5px;">🔗 Live Correlations:</h4>
-                        <div>Initializing correlation analysis...</div>
-                    </div>
 
-                    <div class="memory-status" id="memoryStatus">
-                        <h4 style="margin-bottom: 5px;">🧠 AI Memory Status:</h4>
-                        <div>Initializing memory tracking...</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -736,6 +848,28 @@ Ready for your first collaborative synthesis! 🚀</textarea>
 
         // AI FEEDS STORAGE
         let aiFeeds = [];
+
+        // Check if this is a fresh session (page refresh/reload)
+        const sessionActive = sessionStorage.getItem('canvas_session_active');
+
+        if (!sessionActive) {
+            // Fresh session - clear old feeds from previous sessions
+            console.log('🆕 Fresh session detected - clearing old AI feeds');
+            localStorage.removeItem('ai_feeds');
+            sessionStorage.setItem('canvas_session_active', 'true');
+        } else {
+            // Same session - load existing feeds
+            try {
+                const storedFeeds = localStorage.getItem('ai_feeds');
+                if (storedFeeds) {
+                    aiFeeds = JSON.parse(storedFeeds);
+                    console.log('🔄 Loaded ' + aiFeeds.length + ' AI feeds from localStorage (same session)');
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not load AI feeds from localStorage:', error);
+                aiFeeds = [];
+            }
+        }
 
         // OBSERVATIONS STORAGE
         let observations = [];
@@ -884,6 +1018,20 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     this.currentRound.allComplete = true;
                     console.log(`🎉 ALL SYSTEMS COMPLETE: Round ${this.currentRound.roundId} finished with all 5 AI agents`);
 
+                    // Ping Jack about analysis cycle completion
+                    try {
+                        pingJackAnalysisCycleComplete();
+                    } catch (e) {
+                        console.log('Jack ping failed (Jack may not be running):', e.message);
+                    }
+
+                    // Ping Jack about all AI systems completion
+                    try {
+                        pingJackAISystemsComplete();
+                    } catch (e) {
+                        console.log('Jack ping failed (Jack may not be running):', e.message);
+                    }
+
                     // Automatically trigger synthesis
                     this.triggerAutomatedSynthesis();
                 }
@@ -982,6 +1130,13 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 // Get canvas data
                 const mainCanvas = document.getElementById('mainCanvas');
                 const canvasData = mainCanvas ? mainCanvas.value : '';
+
+                // Ping Jack about synthesis completion
+                try {
+                    pingJackSynthesisComplete();
+                } catch (e) {
+                    console.log('Jack ping failed (Jack may not be running):', e.message);
+                }
 
                 // Notify DJINN Council with synthesis report
                 window.postMessage({
@@ -1237,17 +1392,28 @@ Should we strengthen this emerging pattern?<br>
 
                 if (config.models) {
                     // Return Turbo models
+                    console.log('📡 Loading Turbo models:', config.models);
                     return config.models.map(name => ({ name }));
                 } else {
-                    // Fetch local models
+                    // Fetch local models with proper CORS handling
+                    console.log('📡 Fetching local models from:', config.tagsEndpoint);
                     const response = await fetch(config.tagsEndpoint, {
-                        headers: config.headers
+                        headers: config.headers,
+                        mode: config.corsMode === 'same-origin' ? 'same-origin' : 'cors',
+                        credentials: 'omit'
                     });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
                     const data = await response.json();
+                    console.log('✅ Local models fetched:', data.models);
                     return data.models || [];
                 }
             } catch (error) {
-                console.error('Failed to fetch Ollama models:', error);
+                console.error('❌ Failed to fetch Ollama models:', error);
+                console.error('Config used:', getOllamaConfig());
                 return [];
             }
         }
@@ -1255,14 +1421,20 @@ Should we strengthen this emerging pattern?<br>
         // Populate model selector with available models
         async function populateModelSelector() {
             const selector = document.getElementById('universalModelSelector');
-            if (!selector) return;
+            if (!selector) {
+                console.error('❌ Model selector element not found!');
+                return;
+            }
 
+            console.log('🔄 Populating model selector...');
             const models = await fetchOllamaModels();
 
             // Clear existing options
             selector.innerHTML = '';
+            console.log(`🗑️ Cleared dropdown, adding ${models.length} models...`);
 
             if (models.length === 0) {
+                console.warn('⚠️ No models available');
                 selector.innerHTML = '<option value="">No models available</option>';
                 return;
             }
@@ -1280,6 +1452,7 @@ Should we strengthen this emerging pattern?<br>
             selector.value = currentModel;
 
             console.log(`🧠 Loaded ${models.length} available models: ${models.map(m => m.name).join(', ')}`);
+            console.log(`📊 Dropdown now has ${selector.options.length} options, selected: ${selector.value}`);
         }
 
         // Get current selected model for all API calls
@@ -1339,27 +1512,46 @@ Should we strengthen this emerging pattern?<br>
             const turboEnabled = isTurboMode();
             const apiKey = localStorage.getItem('ollama_turbo_api_key');
 
-            if (turboEnabled && apiKey) {
+            console.log(`⚙️ getOllamaConfig - turboEnabled: ${turboEnabled}, hasApiKey: ${!!apiKey}`);
+
+            // Detect current port to handle CORS properly
+            const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+            const currentHost = window.location.hostname;
+
+            if (turboEnabled) {
                 // Use local proxy server for Turbo API access (bypasses CORS)
+                // Check if proxy server is different port (cross-origin)
+                const proxyPort = '11438';
+                const isCrossOrigin = (currentPort !== proxyPort);
+
+                console.log('⚡ Returning TURBO config with hardcoded models');
                 return {
-                    endpoint: 'http://localhost:11435/api/generate',
-                    tagsEndpoint: 'http://localhost:11435/api/tags',
+                    endpoint: `http://${currentHost}:11438/api/generate`,
+                    tagsEndpoint: `http://${currentHost}:11438/api/tags`,
                     headers: {
                         'Content-Type': 'application/json'
                         // API key handled by proxy server
+                        // Don't send Access-Control-* headers - those are response headers!
                     },
                     models: ['qwen3-coder:480b', 'deepseek-v3.1:671b', 'gpt-oss:120b', 'gpt-oss:20b'], // All available Turbo models
-                    isTurbo: true
+                    isTurbo: true,
+                    corsMode: isCrossOrigin ? 'cors' : 'same-origin',
+                    proxyStatus: 'turbo-proxy-required',
+                    requiresApiKey: !apiKey // Flag to indicate API key is needed
                 };
             } else {
+                // Always use port 11434 for local Ollama
+                console.log('🏠 Returning LOCAL config (will fetch models from Ollama)');
                 return {
-                    endpoint: 'http://localhost:11434/api/generate',
-                    tagsEndpoint: 'http://localhost:11434/api/tags',
+                    endpoint: `http://${currentHost}:11434/api/generate`,
+                    tagsEndpoint: `http://${currentHost}:11434/api/tags`,
                     headers: {
                         'Content-Type': 'application/json'
+                        // Don't send Access-Control-* headers - those are response headers!
                     },
                     models: null, // Will fetch from local Ollama
-                    isTurbo: false
+                    isTurbo: false,
+                    corsMode: 'cors'
                 };
             }
         }
@@ -1370,7 +1562,7 @@ Should we strengthen this emerging pattern?<br>
             const status = document.getElementById('turboStatus');
             const turboEnabled = toggle.checked;
 
-            localStorage.setItem('ollama_turbo_enabled', turboEnabled.toString());
+            console.log(`🔄 updateOllamaMode called - Toggle state: ${turboEnabled ? 'TURBO' : 'LOCAL'}`);
 
             if (turboEnabled) {
                 const apiKey = localStorage.getItem('ollama_turbo_api_key');
@@ -1379,21 +1571,32 @@ Should we strengthen this emerging pattern?<br>
                     const key = prompt('Enter your Ollama Turbo API key:\n\nGet your key at: https://ollama.com/settings/keys');
                     if (key) {
                         localStorage.setItem('ollama_turbo_api_key', key.trim());
+                        localStorage.setItem('ollama_turbo_enabled', 'true');
                         status.textContent = '[TURBO]';
                         status.style.color = '#ff6b6b';
-                        console.log('⚡ Ollama Turbo mode enabled');
+                        console.log('⚡ Ollama Turbo mode enabled with API key');
                     } else {
+                        // User cancelled - revert to local mode
                         toggle.checked = false;
                         localStorage.setItem('ollama_turbo_enabled', 'false');
+                        status.textContent = '[LOCAL]';
+                        status.style.color = '#00ff41';
+                        console.log('❌ Turbo cancelled - staying in Local mode');
                         return;
                     }
                 } else {
+                    // API key exists, enable turbo
+                    localStorage.setItem('ollama_turbo_enabled', 'true');
                     status.textContent = '[TURBO]';
                     status.style.color = '#ff6b6b';
-                    console.log('⚡ Ollama Turbo mode enabled');
+                    console.log('⚡ Ollama Turbo mode enabled (API key already set)');
                 }
 
+                // IMPORTANT: Force a small delay to ensure localStorage write completes
+                await new Promise(resolve => setTimeout(resolve, 10));
+
                 // Update model selector with Turbo models
+                console.log('📋 Loading Turbo model list...');
                 await populateModelSelector();
 
                 // Auto-select first available Turbo model
@@ -1402,15 +1605,22 @@ Should we strengthen this emerging pattern?<br>
                     const firstModel = selector.options[0].value;
                     if (firstModel) {
                         selector.value = firstModel;
-                        updateAllModels(); // This will sync to other page
+                        updateAllModels();
+                        console.log(`✅ Auto-selected Turbo model: ${firstModel}`);
                     }
                 }
             } else {
+                // Disable turbo - switch to local
+                localStorage.setItem('ollama_turbo_enabled', 'false');
                 status.textContent = '[LOCAL]';
                 status.style.color = '#00ff41';
                 console.log('🏠 Ollama Local mode enabled');
 
+                // IMPORTANT: Force a small delay to ensure localStorage write completes
+                await new Promise(resolve => setTimeout(resolve, 10));
+
                 // Update model selector with local models
+                console.log('📋 Loading Local model list...');
                 await populateModelSelector();
 
                 // Auto-select first available local model
@@ -1419,7 +1629,8 @@ Should we strengthen this emerging pattern?<br>
                     const firstModel = selector.options[0].value;
                     if (firstModel) {
                         selector.value = firstModel;
-                        updateAllModels(); // This will sync to other page
+                        updateAllModels();
+                        console.log(`✅ Auto-selected Local model: ${firstModel}`);
                     }
                 }
             }
@@ -1443,6 +1654,50 @@ Should we strengthen this emerging pattern?<br>
                     status.textContent = '[LOCAL]';
                     status.style.color = '#00ff41';
                 }
+            }
+        }
+
+        // CORS Diagnostic and Setup Helper
+        function checkCORSSetup() {
+            const config = getOllamaConfig();
+            const currentPort = window.location.port || '80';
+            
+            console.log('🔍 CORS Diagnostic Information:');
+            console.log(`📍 Canvas running on: ${window.location.origin}`);
+            console.log(`🎯 Ollama endpoint: ${config.endpoint}`);
+            console.log(`🔧 CORS mode: ${config.corsMode || 'cors'}`);
+            console.log(`🤖 Mode: ${config.isTurbo ? 'Turbo (Cloud)' : 'Local'}`);
+            
+            if (config.isTurbo) {
+                console.log('⚡ TURBO MODE DETECTED - Proxy server required');
+                console.log('🚨 CRITICAL: Turbo proxy must be running on port 11438');
+                console.log('💡 To start the proxy server:');
+                console.log('   1. Set API key: set OLLAMA_TURBO_API_KEY=your_key');
+                console.log('   2. Run: python ollama-turbo-proxy.py');
+                console.log('   3. Proxy should start on http://localhost:11438');
+                
+                // Test proxy connectivity
+                console.log('🔍 Testing proxy connectivity...');
+                fetch('http://localhost:11438/api/tags', { 
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: AbortSignal.timeout(5000)
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('✅ Turbo proxy server is responding');
+                    } else {
+                        console.log('❌ Turbo proxy server returned error:', response.status);
+                    }
+                }).catch(error => {
+                    console.log('❌ Turbo proxy server is NOT responding:', error.message);
+                    console.log('🔧 Please start the proxy server: python ollama-turbo-proxy.py');
+                });
+            } else if (config.corsMode === 'cors') {
+                console.log('⚠️ CROSS-ORIGIN DETECTED - Ollama needs CORS configuration');
+                console.log('💡 To fix CORS issues, run Ollama with:');
+                console.log(`   OLLAMA_ORIGINS="http://localhost:${currentPort}" ollama serve`);
+            } else {
+                console.log('✅ Same-origin mode - no CORS issues expected');
             }
         }
 
@@ -1600,13 +1855,16 @@ Should we strengthen this emerging pattern?<br>
                 timestamp: currentTime.toISOString(),
                 djinn: aiFeeds.length > 0 ? aiFeeds[0]?.djinn || { content: "❌ DJINN: Processing failed", confidence: 0.1, type: 'governance' } : { content: "🔄 DJINN: Initializing...", confidence: 0.5, type: 'governance' },
                 nazar: aiFeeds.length > 0 ? aiFeeds[0]?.nazar || { content: "❌ NAZAR: Processing failed", confidence: 0.1, type: 'emotional' } : { content: "🔄 NAZAR: Initializing...", confidence: 0.5, type: 'emotional' },
-                narra: aiFeeds.length > 0 ? aiFeeds[0]?.narra || { content: "❌ NARRA: Processing failed", confidence: 0.1, type: 'pattern' } : { content: "🔄 NARRA: Initializing...", confidence: 0.5, type: 'pattern' },
+                narra: aiFeeds.length > 0 ? aiFeeds[0]?.narra || { content: "❌ NARA: Processing failed", confidence: 0.1, type: 'pattern' } : { content: "🔄 NARRA: Initializing...", confidence: 0.5, type: 'pattern' },
                 whale: aiFeeds.length > 0 ? aiFeeds[0]?.whale || { content: "❌ WHALE: Processing failed", confidence: 0.1, type: 'analysis' } : { content: "🔄 WHALE: Initializing...", confidence: 0.5, type: 'analysis' },
                 watchtower: aiFeeds.length > 0 ? aiFeeds[0]?.watchtower || { content: "❌ WATCHTOWER: Processing failed", confidence: 0.1, type: 'operational' } : { content: "🔄 WATCHTOWER: Initializing...", confidence: 0.5, type: 'operational' }
             };
 
             aiFeeds.unshift(newFeed);
             if (aiFeeds.length > 30) aiFeeds.pop();
+            
+            // Store AI feeds in localStorage for DJINN Council access
+            localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             // Update metrics
             Object.keys(newFeed).forEach(system => {
@@ -1760,9 +2018,43 @@ Should we strengthen this emerging pattern?<br>
                     }
                 }
 
-                // Update canvas length display
+                // Update canvas length display with color-coding
                 if (lengthElement && mainCanvas) {
-                    lengthElement.textContent = mainCanvas.value.length;
+                    const contentLength = mainCanvas.value.length;
+                    lengthElement.textContent = contentLength;
+                    
+                    // Color-code based on content size for AI processing
+                    if (contentLength > 50000) {
+                        lengthElement.style.color = '#ef4444'; // Red - Very large
+                        lengthElement.title = 'Very large content - AI analysis may fail or be heavily truncated';
+                    } else if (contentLength > 20000) {
+                        lengthElement.style.color = '#f59e0b'; // Orange - Large
+                        lengthElement.title = 'Large content - AI will apply smart processing to fit within limits';
+                    } else if (contentLength > 10000) {
+                        lengthElement.style.color = '#eab308'; // Yellow - Medium
+                        lengthElement.title = 'Medium content - AI analysis will be comprehensive';
+                    } else {
+                        lengthElement.style.color = '#22c55e'; // Green - Good size
+                        lengthElement.title = 'Good content size for AI analysis';
+                    }
+                }
+                
+                // Also update the new contentSize element if it exists
+                const contentSizeElement = document.getElementById('contentSize');
+                if (contentSizeElement && mainCanvas) {
+                    const contentLength = mainCanvas.value.length;
+                    contentSizeElement.textContent = contentLength;
+                    
+                    // Apply same color coding
+                    if (contentLength > 50000) {
+                        contentSizeElement.style.color = '#ef4444';
+                    } else if (contentLength > 20000) {
+                        contentSizeElement.style.color = '#f59e0b'; 
+                    } else if (contentLength > 10000) {
+                        contentSizeElement.style.color = '#eab308';
+                    } else {
+                        contentSizeElement.style.color = '#22c55e';
+                    }
                 }
             },
 
@@ -1794,9 +2086,13 @@ Should we strengthen this emerging pattern?<br>
             synthesisStatus.style.color = '#ffd93d';
 
             try {
-                // Get current canvas content for synthesis
+                // Get current canvas content for synthesis with smart processing
                 const mainCanvas = document.getElementById('mainCanvas');
-                const canvasContent = mainCanvas ? mainCanvas.value : '';
+                const rawCanvasContent = mainCanvas ? mainCanvas.value : '';
+                
+                // 🚀 ENHANCED: Apply smart content processing for synthesis
+                const canvasContent = smartContentProcessor(rawCanvasContent, 'synthesis');
+                console.log(`📊 Synthesis content processed: ${rawCanvasContent.length} → ${canvasContent.length} characters`);
 
                 // Start collaborative synthesis
                 const synthesisResult = await performCollaborativeSynthesis(canvasContent);
@@ -2101,10 +2397,14 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                 let response;
 
                 console.log(`🚀 Attempting ${config.isTurbo ? 'Turbo' : 'Local'} request to: ${config.endpoint}`);
-                response = await fetch(config.endpoint, {
+                
+                // Determine fetch mode based on CORS configuration
+                const fetchOptions = {
                     method: 'POST',
                     headers: config.headers,
                     signal: controller.signal,
+                    mode: config.corsMode === 'same-origin' ? 'same-origin' : 'cors',
+                    credentials: 'omit', // Don't send credentials for CORS requests
                     body: JSON.stringify({
                         model: model,
                         prompt: prompt,
@@ -2115,7 +2415,10 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                             num_predict: 8192 // Maximum tokens for complete responses
                         }
                     })
-                });
+                };
+                
+                console.log(`🔧 Fetch mode: ${fetchOptions.mode}, CORS mode: ${config.corsMode || 'default'}`);
+                response = await fetch(config.endpoint, fetchOptions);
                 
                 clearTimeout(timeoutId);
                 console.log(`Ollama response status: ${response.status}`);
@@ -2166,8 +2469,21 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                 // Better error messages based on error type
                 if (error.name === 'AbortError') {
                     return `⏱️ ${system.toUpperCase()}: Request timeout after ${timeout/1000}s - Ollama may be overloaded or unresponsive`;
-                } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
-                    return `🔌 ${system.toUpperCase()}: Connection failed - Check if Ollama is running on localhost:11434`;
+                } else if (error.message.includes('NetworkError') || error.message.includes('fetch') || error.message.includes('CORS')) {
+                    const config = getOllamaConfig();
+                    if (config.corsMode === 'cors') {
+                        return `� ${system.toUpperCase()}: CORS blocked - Ollama server needs CORS headers. Start Ollama with: OLLAMA_ORIGINS=http://localhost:${window.location.port || '80'} ollama serve`;
+                    } else {
+                        return `�🔌 ${system.toUpperCase()}: Connection failed - Check if Ollama is running on localhost:11434`;
+                    }
+                } else if (error.message.includes('400') || error.message.includes('Bad Request')) {
+                    const promptSize = prompt.length;
+                    const isLargeContent = promptSize > 20000;
+                    if (isLargeContent) {
+                        return `📊 ${system.toUpperCase()}: Content too large (${promptSize} chars) - Smart processing applied but may need further reduction. Try clearing or summarizing canvas content.`;
+                    } else {
+                        return `❌ ${system.toUpperCase()}: Bad request - Check prompt format or model availability`;
+                    }
                 } else {
                     return `❌ ${system.toUpperCase()}: ${error.message}`;
                 }
@@ -2199,6 +2515,8 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
                     method: 'POST',
                     headers: config.headers,
                     signal: controller.signal,
+                    mode: config.corsMode === 'same-origin' ? 'same-origin' : 'cors',
+                    credentials: 'omit',
                     body: JSON.stringify({
                         model: model,
                         prompt: prompt,
@@ -2325,12 +2643,147 @@ Click "🎭 Synthesize" to begin collaborative analysis! 🚀`;
             }
         }
 
+        // 🚀 SMART CONTENT PROCESSOR FOR LARGE DOCUMENTS
+        function smartContentProcessor(rawContent, system) {
+            if (!rawContent || rawContent.trim().length === 0) return '';
+            
+            const contentLength = rawContent.length;
+            const MAX_CONTENT_SIZE = 15000; // Safe limit for AI analysis (~12-15K characters)
+            const CHUNK_SIZE = 8000; // Size per chunk for multi-part analysis
+            
+            console.log(`📏 Content size: ${contentLength} characters for ${system}`);
+            
+            // If content is within safe limits, return as-is
+            if (contentLength <= MAX_CONTENT_SIZE) {
+                console.log(`✅ Content size acceptable for ${system}`);
+                return rawContent;
+            }
+            
+            console.log(`⚠️ Large content detected (${contentLength} chars), applying smart processing for ${system}`);
+            
+            // Strategy 1: Extract key sections based on content structure
+            const structuredContent = extractKeyStructures(rawContent, system);
+            if (structuredContent.length <= MAX_CONTENT_SIZE) {
+                console.log(`✅ Structured extraction successful for ${system}`);
+                return structuredContent;
+            }
+            
+            // Strategy 2: System-specific intelligent chunking (unless it's summary mode)
+            if (system !== 'summary') {
+                const systemChunk = getSystemSpecificChunk(rawContent, system, MAX_CONTENT_SIZE);
+                if (systemChunk.length <= MAX_CONTENT_SIZE) {
+                    console.log(`✅ System-specific chunking successful for ${system}`);
+                    return systemChunk;
+                }
+            }
+            
+            // Strategy 3: Smart truncation with summary
+            const smartTruncated = smartTruncate(rawContent, MAX_CONTENT_SIZE);
+            console.log(`⚠️ Applied smart truncation for ${system}`);
+            return smartTruncated;
+        }
+        
+        // Extract key structural elements (headers, important sections)
+        function extractKeyStructures(content) {
+            const lines = content.split('\n');
+            const keyLines = [];
+            const maxLines = 200; // Reasonable line limit
+            
+            // For summary mode, be more selective
+            const isSummaryMode = arguments[1] === 'summary';
+            const selectivityThreshold = isSummaryMode ? 50 : 20; // Higher threshold for summary mode
+            
+            for (let i = 0; i < lines.length && keyLines.length < maxLines; i++) {
+                const line = lines[i].trim();
+                
+                // Keep headers, important markers, and non-empty significant lines
+                if (line.match(/^#{1,6}\s/) ||           // Markdown headers
+                    line.match(/^\*\*.*\*\*/) ||         // Bold text
+                    line.match(/^[A-Z][A-Z\s]{10,}$/) || // ALL CAPS headers
+                    line.match(/^[-=]{3,}$/) ||          // Separators
+                    line.match(/^\d+\./) ||              // Numbered lists
+                    line.match(/^[•\-\*]\s/) ||          // Bullet points
+                    (line.length > selectivityThreshold && line.length < 200 && !line.match(/^[\s\w]{1,3}$/))) { // Meaningful content with variable threshold
+                    keyLines.push(line);
+                    
+                    // For summary mode, also skip some less critical content
+                    if (isSummaryMode && keyLines.length % 3 === 0) {
+                        // Skip every 3rd line to reduce further
+                        continue;
+                    }
+                }
+            }
+            
+            const result = keyLines.join('\n');
+            const prefix = isSummaryMode ? '[SMART SUMMARY - Key Structures Only]' : '[STRUCTURED EXTRACTION]';
+            return result.length > 0 ? `${prefix}\n${result}` : content.substring(0, 10000);
+        }
+        
+        // Get content chunk most relevant to specific AI system
+        function getSystemSpecificChunk(content, system, maxSize) {
+            const keywords = {
+                'djinn': ['governance', 'decision', 'policy', 'authority', 'management', 'directive', 'control'],
+                'nazar': ['analysis', 'correlation', 'pattern', 'data', 'insight', 'observe', 'monitor'],
+                'narra': ['narrative', 'story', 'explanation', 'context', 'framework', 'structure', 'model'],
+                'whale': ['system', 'architecture', 'technical', 'implementation', 'design', 'process', 'method'],
+                'watchtower': ['security', 'risk', 'threat', 'monitor', 'alert', 'safety', 'watch', 'guard']
+            };
+            
+            const systemKeywords = keywords[system.toLowerCase()] || ['analysis', 'insight', 'observation'];
+            const lines = content.split('\n');
+            const relevantSections = [];
+            let currentSize = 0;
+            
+            // First pass: collect lines containing system keywords
+            for (const line of lines) {
+                if (currentSize + line.length > maxSize) break;
+                
+                const lowercaseLine = line.toLowerCase();
+                if (systemKeywords.some(keyword => lowercaseLine.includes(keyword))) {
+                    relevantSections.push(line);
+                    currentSize += line.length + 1; // +1 for newline
+                }
+            }
+            
+            // If we have relevant content, return it
+            if (relevantSections.length > 0) {
+                return `[${system.toUpperCase()} FOCUSED CONTENT]\n${relevantSections.join('\n')}`;
+            }
+            
+            // Fallback: return beginning of content
+            return content.substring(0, maxSize);
+        }
+        
+        // Smart truncation that preserves important content structure
+        function smartTruncate(content, maxSize) {
+            if (content.length <= maxSize) return content;
+            
+            // Try to cut at natural boundaries
+            const truncatedContent = content.substring(0, maxSize);
+            const lastParagraph = truncatedContent.lastIndexOf('\n\n');
+            const lastSentence = truncatedContent.lastIndexOf('.');
+            const lastSpace = truncatedContent.lastIndexOf(' ');
+            
+            // Cut at best natural boundary
+            let cutPoint = maxSize;
+            if (lastParagraph > maxSize * 0.8) cutPoint = lastParagraph;
+            else if (lastSentence > maxSize * 0.8) cutPoint = lastSentence + 1;
+            else if (lastSpace > maxSize * 0.9) cutPoint = lastSpace;
+            
+            const result = content.substring(0, cutPoint);
+            const remainingSize = content.length - cutPoint;
+            
+            return `${result}\n\n[CONTENT TRUNCATED - ${remainingSize} characters omitted for AI processing limits]`;
+        }
+
         // SYSTEM-SPECIFIC PROMPTS FOR REAL AI GENERATION
         function generateSystemPrompt(system) {
             // Get current canvas content for context-aware analysis
             const canvas = document.getElementById('mainCanvas');
-            const canvasContent = canvas ? canvas.value : '';
+            const rawCanvasContent = canvas ? canvas.value : '';
 
+            // 🚀 ENHANCED CONTENT HANDLING FOR LARGE DOCUMENTS
+            const canvasContent = smartContentProcessor(rawCanvasContent, system);
             const canvasContext = canvasContent ? `\n\nCURRENT CANVAS CONTENT:\n${canvasContent}\n\n` : '';
 
             // Check for canvas changes and prioritize fresh analysis
@@ -2491,16 +2944,21 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 console.log(`🧠 Cleared all AI memory`);
             }
 
+            // Clear AI feeds array and localStorage
+            aiFeeds = [];
+            
             // Clear from localStorage to persist the clearing
             try {
                 localStorage.removeItem('ai_memory_state');
-                console.log('🗑️ AI memory cleared from localStorage');
+                localStorage.removeItem('ai_feeds');
+                console.log('🗑️ AI memory and feeds cleared from localStorage');
             } catch (error) {
                 console.warn('Failed to clear AI memory from localStorage:', error);
             }
 
             updateMemoryStatus();
             updateHeaderOrchestrationStatus();
+            updateFeeds(); // Update the feeds display to show cleared state
         }
 
         function saveMemoryToStorage() {
@@ -3471,33 +3929,57 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         }
 
 
-        // MEMORY STATUS DISPLAY
+        // MEMORY STATUS DISPLAY - Updates both detail section (if exists) and header counters
         function updateMemoryStatus() {
-            const memoryStatus = document.getElementById('memoryStatus');
-            if (!memoryStatus) return;
-
-            let statusHTML = '<div style="font-size: 11px; color: #666; margin-top: 5px;">';
-            statusHTML += '<strong>🧠 AI Memory Status:</strong><br>';
-
+            // Calculate memory totals
             const totalMemoryItems = Object.values(aiMemory).reduce((total, system) => {
                 return total + (system.conversationHistory ? system.conversationHistory.length : 0);
             }, 0);
 
-            if (totalMemoryItems === 0) {
-                statusHTML += '<span style="color: #888;">Fresh session - no memory data yet</span><br>';
-            } else {
-                Object.keys(aiMemory).forEach(system => {
-                    const memory = aiMemory[system];
-                    const hasMemory = memory.conversationHistory.length > 0;
-                    const memoryCount = memory.conversationHistory.length;
-                    const insightCount = memory.keyInsights.length;
-
-                    statusHTML += `${system.toUpperCase()}: ${hasMemory ? '✅' : '⏳'} (${memoryCount} responses, ${insightCount} insights)<br>`;
-                });
+            // Update header memory counters
+            const totalMemoryElement = document.getElementById('totalMemoryCount');
+            if (totalMemoryElement) {
+                totalMemoryElement.textContent = totalMemoryItems;
             }
 
-            statusHTML += '</div>';
-            memoryStatus.innerHTML = statusHTML;
+            // Update individual system counters in header
+            const systemCounts = {
+                djinn: aiMemory.djinn?.conversationHistory?.length || 0,
+                nazar: aiMemory.nazar?.conversationHistory?.length || 0,
+                narra: aiMemory.narra?.conversationHistory?.length || 0,
+                whale: aiMemory.whale?.conversationHistory?.length || 0,
+                watchtower: aiMemory.watchtower?.conversationHistory?.length || 0
+            };
+
+            Object.entries(systemCounts).forEach(([system, count]) => {
+                const element = document.getElementById(`${system}Count`);
+                if (element) {
+                    element.textContent = count;
+                }
+            });
+
+            // Update detailed memory status section (if it exists - removed in Jack integration)
+            const memoryStatus = document.getElementById('memoryStatus');
+            if (memoryStatus) {
+                let statusHTML = '<div style="font-size: 11px; color: #666; margin-top: 5px;">';
+                statusHTML += '<strong>🧠 AI Memory Status:</strong><br>';
+
+                if (totalMemoryItems === 0) {
+                    statusHTML += '<span style="color: #888;">Fresh session - no memory data yet</span><br>';
+                } else {
+                    Object.keys(aiMemory).forEach(system => {
+                        const memory = aiMemory[system];
+                        const hasMemory = memory.conversationHistory.length > 0;
+                        const memoryCount = memory.conversationHistory.length;
+                        const insightCount = memory.keyInsights.length;
+
+                        statusHTML += `${system.toUpperCase()}: ${hasMemory ? '✅' : '⏳'} (${memoryCount} responses, ${insightCount} insights)<br>`;
+                    });
+                }
+
+                statusHTML += '</div>';
+                memoryStatus.innerHTML = statusHTML;
+            }
         }
 
         // REAL-TIME HEADER ORCHESTRATION STATUS UPDATE
@@ -3639,7 +4121,17 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 // Update localStorage immediately for DJINN Council surveillance
                 localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
                 localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
-
+                
+                console.log('📊 Canvas localStorage updated, length:', mainCanvas.value.length);
+                
+                // Trigger notepad updates for all agents (no reports)
+                if (typeof triggerNotepadUpdates === 'function') {
+                    triggerNotepadUpdates('canvas_change', {
+                        content: mainCanvas.value,
+                        timestamp: new Date().toISOString(),
+                        source: 'canvas'
+                    });
+                }
             });
 
             mainCanvas.addEventListener('change', function() {
@@ -3647,6 +4139,8 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 // Update localStorage immediately for DJINN Council surveillance
                 localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
                 localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
+                
+                console.log('📊 Canvas localStorage updated (change), length:', mainCanvas.value.length);
             });
 
             // Add paste event listener
@@ -3693,27 +4187,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
             console.log('🚀 AI Polling started with activity optimization');
             
-        // DATA CONNECTIVITY: Update localStorage for AI visibility + notepad updates (no reports)
-        const mainCanvas = document.getElementById('mainCanvas');
-        if (mainCanvas) {
-            mainCanvas.addEventListener('input', function() {
-                // Update data for AI visibility + trigger notepad updates
-                setTimeout(() => {
-                    // Update canvas data
-                    localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
-                    localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
-                    
-                    // Trigger notepad updates for all agents (no reports)
-                    triggerNotepadUpdates('canvas_change', {
-                        content: mainCanvas.value,
-                        timestamp: new Date().toISOString(),
-                        source: 'canvas'
-                    });
-                    
-                    console.log('📊 Canvas data updated + notepad updates triggered');
-                }, 100); // Quick data update
-            });
-        }
+        // 🛠️ REMOVED DUPLICATE EVENT LISTENER - Using the original listeners above to prevent conflicts
 
             // Start activity monitoring
             startActivityMonitoring();
@@ -3771,6 +4245,31 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 await pollAIDataParallel();
                 scheduleNextPoll(); // Schedule next poll
             }, interval);
+            
+            // Expose timer reference for external clearing
+            window.aiPollingInterval = pollingTimer;
+        }
+
+        // Clear AI polling interval - fixes missing function error
+        function clearAIPollingInterval() {
+            // Clear the timeout that drives the next poll
+            if (pollingTimer) {
+                clearTimeout(pollingTimer);
+                pollingTimer = null;
+                console.log('🛑 AI polling interval cleared');
+            }
+            
+            // Also clear any legacy interval variable (if ever used)
+            if (window.aiPollingInterval) {
+                clearTimeout(window.aiPollingInterval); // Use clearTimeout since we're storing setTimeout reference
+                delete window.aiPollingInterval;
+            }
+            
+            // Update polling status display
+            const pollingStatus = document.getElementById('pollingStatus');
+            if (pollingStatus) {
+                pollingStatus.textContent = '⏹️ STOPPED';
+            }
         }
 
         async function pollAIData() {
@@ -3848,6 +4347,9 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
             aiFeeds.unshift(newFeed);
             if (aiFeeds.length > 30) aiFeeds.pop();
+            
+            // Store AI feeds in localStorage for DJINN Council access
+            localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             // Update metrics
             Object.keys(newFeed).forEach(system => {
@@ -3869,6 +4371,9 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 }
                 return true;
             });
+            
+            // Store AI feeds in localStorage for DJINN Council access
+            localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             const synthesisMessage = `⚡ ${system.toUpperCase()}: ${getSystemAction(system)}... AI response incoming`;
             updateFeedUI(system, synthesisMessage);
@@ -3928,6 +4433,9 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                     }
                     return true; // Keep everything else
                 });
+                
+                // Store AI feeds in localStorage for DJINN Council access
+                localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
             }
 
             // Create a new feed entry
@@ -3946,6 +4454,9 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             if (aiFeeds.length > 20) {
                 aiFeeds = aiFeeds.slice(0, 20);
             }
+
+            // 🛠️ CRITICAL FIX: Store AI feeds in localStorage for DJINN Council access
+            localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             // Update the display
             updateFeeds();
@@ -4216,11 +4727,18 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         }
 
         function updateMetrics() {
-            document.getElementById('djinnMetric').textContent = systemMetrics.djinn.toFixed(1);
-            document.getElementById('nazarMetric').textContent = systemMetrics.nazar.toFixed(1);
-            document.getElementById('narraMetric').textContent = Math.floor(systemMetrics.narra * 10);
-            document.getElementById('whaleMetric').textContent = systemMetrics.whale.toFixed(1);
-            document.getElementById('watchtowerMetric').textContent = systemMetrics.watchtower.toFixed(1);
+            // Update metrics only if the elements exist (they were removed for Jack terminal integration)
+            const djinnElement = document.getElementById('djinnMetric');
+            const nazarElement = document.getElementById('nazarMetric');
+            const narraElement = document.getElementById('narraMetric');
+            const whaleElement = document.getElementById('whaleMetric');
+            const watchtowerElement = document.getElementById('watchtowerMetric');
+            
+            if (djinnElement) djinnElement.textContent = systemMetrics.djinn.toFixed(1);
+            if (nazarElement) nazarElement.textContent = systemMetrics.nazar.toFixed(1);
+            if (narraElement) narraElement.textContent = Math.floor(systemMetrics.narra * 10);
+            if (whaleElement) whaleElement.textContent = systemMetrics.whale.toFixed(1);
+            if (watchtowerElement) watchtowerElement.textContent = systemMetrics.watchtower.toFixed(1);
         }
 
         function updateCorrelations() {
@@ -4257,7 +4775,38 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
             const canvas = document.getElementById('mainCanvas');
             if (canvas) {
-                document.getElementById('canvasLength').textContent = canvas.value.length;
+                const contentLength = canvas.value.length;
+                const lengthElement = document.getElementById('canvasLength');
+                const contentSizeElement = document.getElementById('contentSize');
+                
+                // Update both length displays with color coding
+                if (lengthElement) {
+                    lengthElement.textContent = contentLength;
+                    // Apply color coding based on AI processing capacity
+                    if (contentLength > 50000) {
+                        lengthElement.style.color = '#ef4444'; // Red - Very large
+                    } else if (contentLength > 20000) {
+                        lengthElement.style.color = '#f59e0b'; // Orange - Large
+                    } else if (contentLength > 10000) {
+                        lengthElement.style.color = '#eab308'; // Yellow - Medium
+                    } else {
+                        lengthElement.style.color = '#22c55e'; // Green - Good size
+                    }
+                }
+                
+                if (contentSizeElement) {
+                    contentSizeElement.textContent = contentLength;
+                    // Apply same color coding
+                    if (contentLength > 50000) {
+                        contentSizeElement.style.color = '#ef4444';
+                    } else if (contentLength > 20000) {
+                        contentSizeElement.style.color = '#f59e0b'; 
+                    } else if (contentLength > 10000) {
+                        contentSizeElement.style.color = '#eab308';
+                    } else {
+                        contentSizeElement.style.color = '#22c55e';
+                    }
+                }
             }
 
             // Update synthesis round status
@@ -4661,8 +5210,47 @@ Your direct response as ${entity.toUpperCase()}:`;
                 const canvas = document.getElementById('mainCanvas');
                 if (canvas) {
                     canvas.value = '';
+                    // 🛠️ CRITICAL FIX: Update localStorage so Council knows canvas was cleared
+                    localStorage.setItem('sovereign_canvas_content', '');
+                    localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
                 }
                 observations = [];
+            }
+        }
+
+        // 🚀 SMART CONTENT REDUCTION FOR LARGE DOCUMENTS
+        function smartSummarizeContent() {
+            const canvas = document.getElementById('mainCanvas');
+            if (!canvas || !canvas.value.trim()) {
+                alert('No content to summarize!');
+                return;
+            }
+            
+            const currentLength = canvas.value.length;
+            if (currentLength < 15000) {
+                alert(`Content is already optimally sized (${currentLength} characters). No reduction needed.`);
+                return;
+            }
+            
+            if (!confirm(`Current content: ${currentLength} characters\n\nThis will apply intelligent summarization to make content AI-friendly while preserving key information.\n\nProceed with smart reduction?`)) {
+                return;
+            }
+            
+            const originalContent = canvas.value;
+            
+            // Apply the same smart processing logic used for AI analysis
+            const processedContent = smartContentProcessor(originalContent, 'summary');
+            
+            if (processedContent.length < currentLength) {
+                canvas.value = `[SMART SUMMARIZED - Original: ${currentLength} chars → Processed: ${processedContent.length} chars]\n\n${processedContent}`;
+                
+                // Update displays
+                canvasChangeTracker.trackChange(canvas.value);
+                triggerCanvasChangeDetection();
+                
+                alert(`✅ Content successfully reduced!\n\nOriginal: ${currentLength} characters\nProcessed: ${processedContent.length} characters\nReduction: ${Math.round((1 - processedContent.length/currentLength) * 100)}%`);
+            } else {
+                alert('⚠️ Content could not be reduced significantly. Consider manually editing or clearing sections that are not essential for AI analysis.');
             }
         }
 
@@ -5027,47 +5615,76 @@ Your direct response as ${entity.toUpperCase()}:`;
         }
 
         function setupStandaloneMode() {
-            console.log('🚀 Setting up standalone mode with automatic polling');
+            console.log('🚀 Setting up standalone mode with manual control');
 
-            // Ensure polling is not disabled for standalone mode
-            window.canvasPollingDisabled = false;
+            // Ensure polling is DISABLED for standalone mode (wait for manual start)
+            window.canvasPollingDisabled = true;
+            window.canvasPollingActive = false;
 
-            // Hide the Start Analysis button (not needed in standalone mode)
+            // SHOW the Start Analysis button for manual control in solo Canvas mode
             const startBtn = document.getElementById('startAnalysisBtn');
             if (startBtn) {
-                startBtn.style.display = 'none';
+                startBtn.style.display = 'inline-block';
+                startBtn.title = 'Start the analysis cycle in solo Canvas mode';
+                startBtn.innerHTML = '🚀 START SOLO ANALYSIS';
+                console.log('🎯 Start Analysis button enabled for solo Canvas control');
             }
 
-            // Start automatic polling and AI processing
-            console.log('⚡ Enabling automatic AI polling and processing');
-            startAIDataPolling();
+            // DON'T start automatic polling - wait for manual Start button press
+            console.log('⏸️ Manual control mode - waiting for Start button press');
 
-            // Start auto-save functionality
+            // Start auto-save functionality (this is always useful)
             startAutoSave();
 
-            // Update status to show active polling
+            // Update status to show manual control mode
             const pollingStatus = document.getElementById('pollingStatus');
             if (pollingStatus) {
-                pollingStatus.textContent = 'AUTO-ACTIVE';
-                pollingStatus.style.color = '#00ff41';
+                pollingStatus.textContent = 'MANUAL';
+                pollingStatus.style.color = '#ffaa00';
             }
 
             const orchestrationStatus = document.getElementById('orchestrationStatus');
             if (orchestrationStatus) {
-                orchestrationStatus.textContent = 'AUTONOMOUS';
-                orchestrationStatus.style.color = '#00ff41';
+                orchestrationStatus.textContent = 'MANUAL CONTROL';
+                orchestrationStatus.style.color = '#ffaa00';
             }
 
             console.log('✅ Standalone mode fully initialized with continuous AI processing');
         }
 
-        // Function to start the initial analysis cycle when in council integration mode
+        // Function to start the analysis cycle (works in both council integration and solo Canvas modes)
         function startInitialAnalysis() {
             console.log('🚀 INITIATING ANALYSIS CYCLE - Manual trigger activated');
 
-            // Hide the start button after first use
+            // In solo Canvas mode, change button to "Stop Analysis" for control
             const startBtn = document.getElementById('startAnalysisBtn');
-            if (startBtn) {
+            if (startBtn && !isCouncilIntegrated) {
+                // Solo Canvas mode - toggle button
+                if (window.canvasPollingActive) {
+                    // Stop analysis
+                    startBtn.innerHTML = '🚀 START SOLO ANALYSIS';
+                    startBtn.title = 'Start the analysis cycle in solo Canvas mode';
+                    startBtn.style.background = 'rgba(78, 205, 196, 0.3)';
+                    startBtn.style.borderColor = '#4ecdc4';
+                    window.canvasPollingDisabled = true;
+                    window.canvasPollingActive = false;
+                    
+                    // Stop any active polling intervals
+                    clearAIPollingInterval();
+                    
+                    console.log('⏹️ Solo Canvas analysis stopped');
+                } else {
+                    // Start analysis
+                    startBtn.innerHTML = '⏹️ STOP ANALYSIS';
+                    startBtn.title = 'Stop the current analysis cycle';
+                    startBtn.style.background = 'rgba(255, 107, 107, 0.3)';
+                    startBtn.style.borderColor = '#ff6b6b';
+                    window.canvasPollingDisabled = false;
+                    window.canvasPollingActive = true;
+                    console.log('▶️ Solo Canvas analysis started');
+                }
+            } else if (startBtn && isCouncilIntegrated) {
+                // Council integration mode - hide button after first use
                 startBtn.style.display = 'none';
                 startBtn.disabled = true;
             }
@@ -5075,37 +5692,68 @@ Your direct response as ${entity.toUpperCase()}:`;
             // Update status to show analysis has started
             const pollingStatus = document.getElementById('pollingStatus');
             if (pollingStatus) {
-                pollingStatus.textContent = '🚀 STARTING';
-                pollingStatus.style.color = '#4ecdc4';
+                if (!isCouncilIntegrated && window.canvasPollingActive) {
+                    pollingStatus.textContent = 'ACTIVE';
+                    pollingStatus.style.color = '#00ff41';
+                } else if (!isCouncilIntegrated && !window.canvasPollingActive) {
+                    pollingStatus.textContent = 'STOPPED';
+                    pollingStatus.style.color = '#ff6b6b';
+                } else {
+                    pollingStatus.textContent = '🚀 STARTING';
+                    pollingStatus.style.color = '#4ecdc4';
+                }
             }
 
             const orchestrationStatus = document.getElementById('orchestrationStatus');
             if (orchestrationStatus) {
-                orchestrationStatus.textContent = 'IGNITION';
-                orchestrationStatus.style.color = '#4ecdc4';
+                if (!isCouncilIntegrated && window.canvasPollingActive) {
+                    orchestrationStatus.textContent = 'SOLO ACTIVE';
+                    orchestrationStatus.style.color = '#00ff41';
+                } else if (!isCouncilIntegrated && !window.canvasPollingActive) {
+                    orchestrationStatus.textContent = 'MANUAL CONTROL';
+                    orchestrationStatus.style.color = '#ffaa00';
+                } else {
+                    orchestrationStatus.textContent = 'IGNITION';
+                    orchestrationStatus.style.color = '#4ecdc4';
+                }
             }
 
-            // Trigger the first canvas cycle
-            triggerCanvasCycle();
+            // Trigger the canvas cycle
+            if (isCouncilIntegrated || (!isCouncilIntegrated && window.canvasPollingActive)) {
+                triggerCanvasCycle();
+                
+                // In solo mode, start continuous polling
+                if (!isCouncilIntegrated && window.canvasPollingActive) {
+                    console.log('⚡ Starting continuous AI polling in solo Canvas mode');
+                    startAIDataPolling();
+                }
+            }
         }
 
         function triggerCanvasCycle() {
-            console.log('🎯 Triggered canvas cycle from council intelligence completion');
+            console.log('🎯 Triggered canvas cycle - processing AI analysis');
 
-            // Temporarily re-enable polling for this cycle
-            console.log('🔓 Temporarily enabling canvas polling for intelligence-driven cycle');
-            window.canvasPollingDisabled = false;
+            // Temporarily re-enable polling for this cycle (if not already enabled)
+            const wasDisabled = window.canvasPollingDisabled;
+            if (wasDisabled) {
+                console.log('🔓 Temporarily enabling canvas polling for analysis cycle');
+                window.canvasPollingDisabled = false;
+            }
 
             // Process one complete AI cycle
             pollAIDataParallel().then(() => {
-                // Re-disable polling after completion
-                if (isCouncilIntegrated) {
+                // Re-disable polling after completion ONLY in council integration mode
+                if (isCouncilIntegrated && wasDisabled) {
                     console.log('🔒 Re-disabling canvas polling - waiting for next intelligence report');
                     window.canvasPollingDisabled = true;
+                } else if (!isCouncilIntegrated) {
+                    console.log('✅ Solo Canvas cycle complete - continuing based on user control');
+                    // In solo mode, keep the current polling state
+                    window.canvasPollingDisabled = !window.canvasPollingActive;
                 }
             }).catch(error => {
                 console.error('Canvas cycle failed:', error);
-                // Re-disable polling even on error
+                // Re-disable polling even on error in council mode
                 if (isCouncilIntegrated) {
                     window.canvasPollingDisabled = true;
                 }
@@ -5113,6 +5761,11 @@ Your direct response as ${entity.toUpperCase()}:`;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Check CORS setup and provide diagnostic info
+            setTimeout(() => {
+                checkCORSSetup();
+            }, 1000);
+
             // Initialize canvas mode
             if (isCouncilIntegrated) {
                 setupCouncilIntegration();
@@ -5890,11 +6543,11 @@ Your strategic oversight (2-3 sentences):`;
             // Initialize query count
             updateQueryCount();
 
-             // Initialize model selector
-             populateModelSelector();
-
-             // Initialize Turbo mode
+             // Initialize Turbo mode FIRST (must be before model selector)
              initializeTurboMode();
+
+             // Initialize model selector (depends on turbo mode state)
+             populateModelSelector();
 
              // Check for API key in URL parameters (for launch script integration)
              const urlParams = new URLSearchParams(window.location.search);
@@ -5913,7 +6566,424 @@ Your strategic oversight (2-3 sentences):`;
                  // No default API key - user must provide one via interface or launch script
                  console.log('ℹ️ No Ollama Turbo API key found. Please provide one via the interface or launch script.');
              }
+
+             // Start Jack terminal mirror monitoring
+             startJackTerminalMonitoring();
          });
+
+         // ═══════════════════════════════════════════════════════════════════
+         // JACK TERMINAL MIRROR SYSTEM
+         // ═══════════════════════════════════════════════════════════════════
+
+         let jackConnectionStatus = false;
+         let jackTerminalInterval = null;
+         let lastJackContent = '';
+
+         async function startJackTerminalMonitoring() {
+             console.log('🔍 Starting Jack terminal monitoring...');
+             
+             // Initial connection attempt
+             await checkJackConnection();
+             
+             // Set up regular monitoring
+             jackTerminalInterval = setInterval(async () => {
+                 await updateJackTerminalDisplay();
+             }, 2000); // Check every 2 seconds
+         }
+
+         async function checkJackConnection() {
+             try {
+                 const response = await fetch('http://localhost:11435/jack/terminal-log', {
+                     method: 'GET',
+                     mode: 'cors',
+                     headers: { 
+                         'Accept': 'application/json',
+                         'Content-Type': 'application/json'
+                     }
+                 });
+                 
+                 if (response.ok) {
+                     jackConnectionStatus = true;
+                     updateJackStatus('Connected to Jack', true);
+                     return true;
+                 } else {
+                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                 }
+             } catch (error) {
+                 // Instead of error, show info/status
+                 jackConnectionStatus = false;
+                 updateJackStatus(`Jack not connected`, false);
+                 const display = document.getElementById('jackTerminalDisplay');
+                 if (display) {
+                     display.innerHTML = `<div class="jack-terminal-entry info">🔍 Jack mirror offline – no connection (Canvas unaffected)</div>`;
+                 }
+                 // Do NOT throw or log as error
+                 return false;
+             }
+         }
+
+         async function updateJackTerminalDisplay() {
+             if (!jackConnectionStatus) {
+                 if (await checkJackConnection()) {
+                     // Connection restored
+                     const display = document.getElementById('jackTerminalDisplay');
+                     display.innerHTML = '<div class="jack-terminal-entry info">🎯 Jack connection restored!</div>';
+                 }
+                 return;
+             }
+
+             try {
+                 const response = await fetch('http://localhost:11435/jack/terminal-log', {
+                     method: 'GET',
+                     mode: 'cors',
+                     headers: { 
+                         'Accept': 'application/json',
+                         'Content-Type': 'application/json'
+                     }
+                 });
+                 
+                 if (!response.ok) {
+                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                 }
+                 
+                 const content = await response.text();
+                 if (content !== lastJackContent) {
+                     lastJackContent = content;
+                     displayJackTerminalContent(content);
+                 }
+             } catch (error) {
+                 jackConnectionStatus = false;
+                 updateJackStatus(`Jack not connected`, false);
+
+                 const display = document.getElementById('jackTerminalDisplay');
+                 if (display) {
+                     display.innerHTML = `<div class="jack-terminal-entry info">🔍 Jack mirror offline – no connection (Canvas unaffected)</div>`;
+                 }
+                 // Do NOT throw or log as error
+             }
+         }
+
+         function displayJackTerminalContent(content) {
+             const display = document.getElementById('jackTerminalDisplay');
+             
+             if (!content || content.trim() === '') {
+                 display.innerHTML = '<div class="jack-terminal-entry">📡 Jack terminal ready - waiting for activity...</div>';
+                 return;
+             }
+
+             try {
+                 // Parse JSON response from Jack
+                 const logData = JSON.parse(content);
+                 
+                 if (logData.logs && Array.isArray(logData.logs)) {
+                     // Format logs as terminal entries
+                     const formattedLogs = logData.logs.map(log => {
+                         const timestamp = new Date(log.timestamp).toLocaleTimeString();
+                         const message = cleanAnsiCodes(log.message);
+                         const className = getJackLineClass(message);
+                         return `<div class="jack-terminal-entry ${className}">[${timestamp}] ${escapeHtml(message)}</div>`;
+                     });
+                     
+                     display.innerHTML = formattedLogs.join('');
+                 } else {
+                     // Fallback for non-JSON content
+                     const lines = content.split('\n').filter(line => line.trim());
+                     const recentLines = lines.slice(-50);
+                     
+                     display.innerHTML = recentLines.map(line => {
+                         const cleanLine = cleanAnsiCodes(line);
+                         const className = getJackLineClass(cleanLine);
+                         return `<div class="jack-terminal-entry ${className}">${escapeHtml(cleanLine)}</div>`;
+                     }).join('');
+                 }
+             } catch (error) {
+                 // Fallback if JSON parsing fails
+                 const lines = content.split('\n').filter(line => line.trim());
+                 const recentLines = lines.slice(-50);
+                 
+                 display.innerHTML = recentLines.map(line => {
+                     const cleanLine = cleanAnsiCodes(line);
+                     const className = getJackLineClass(cleanLine);
+                     return `<div class="jack-terminal-entry ${className}">${escapeHtml(cleanLine)}</div>`;
+                 }).join('');
+             }
+             
+             scrollJackTerminalToBottom();
+         }
+
+         function cleanAnsiCodes(text) {
+             // Remove ANSI escape codes for cleaner display
+             return text.replace(/\u001b\[[0-9;]*m/g, '');
+         }
+
+         function getJackLineClass(line) {
+             const lowerLine = line.toLowerCase();
+             if (lowerLine.includes('error') || lowerLine.includes('failed') || lowerLine.includes('❌')) {
+                 return 'error';
+             }
+             if (lowerLine.includes('warn') || lowerLine.includes('warning') || lowerLine.includes('⚠️')) {
+                 return 'warn';
+             }
+             if (lowerLine.includes('info') || lowerLine.includes('ℹ️') || lowerLine.includes('🔍')) {
+                 return 'info';
+             }
+             return '';
+         }
+
+         function updateJackStatus(message, connected) {
+             const indicator = document.getElementById('jackStatusIndicator');
+             const statusText = document.getElementById('jackStatusText');
+             
+             if (connected) {
+                 indicator.classList.add('connected');
+                 statusText.textContent = `🎯 ${message}`;
+             } else {
+                 indicator.classList.remove('connected');
+                 statusText.textContent = `🔍 ${message}`;
+             }
+         }
+
+         function scrollJackTerminalToBottom() {
+             const display = document.getElementById('jackTerminalDisplay');
+             display.scrollTop = display.scrollHeight;
+         }
+
+         function escapeHtml(text) {
+             const div = document.createElement('div');
+             div.textContent = text;
+             return div.innerHTML;
+         }
+
+         // Control functions
+         function maximizeJackMirror() {
+             const display = document.getElementById('jackTerminalDisplay');
+             display.classList.toggle('maximized');
+             
+             if (display.classList.contains('maximized')) {
+                 // Add close button when maximized
+                 const closeBtn = document.createElement('button');
+                 closeBtn.className = 'jack-btn';
+                 closeBtn.style.position = 'absolute';
+                 closeBtn.style.top = '10px';
+                 closeBtn.style.right = '10px';
+                 closeBtn.style.zIndex = '1001';
+                 closeBtn.innerHTML = '✕';
+                 closeBtn.onclick = maximizeJackMirror;
+                 document.body.appendChild(closeBtn);
+                 display.closeBtn = closeBtn;
+             } else {
+                 // Remove close button
+                 if (display.closeBtn) {
+                     document.body.removeChild(display.closeBtn);
+                     display.closeBtn = null;
+                 }
+             }
+         }
+
+         function clearJackTerminal() {
+             const display = document.getElementById('jackTerminalDisplay');
+             display.innerHTML = '<div class="jack-terminal-entry">🧹 Terminal cleared</div>';
+             lastJackContent = '';
+         }
+
+         function refreshJackConnection() {
+             updateJackStatus('Refreshing...', false);
+             checkJackConnection().then(connected => {
+                 if (connected) {
+                     updateJackTerminalDisplay();
+                 }
+             });
+         }
+
+         // ═══════════════════════════════════════════════════════════════════
+         // JACK INTEGRATION - EVENT-DRIVEN NOTIFICATIONS
+         // ═══════════════════════════════════════════════════════════════════
+
+         // Ping Jack when major analysis reports are completed
+         async function pingJackAnalysisComplete(eventType) {
+             if (!jackConnectionStatus) {
+                 console.log(`🔕 Jack not connected - skipping ${eventType} ping`);
+                 return;
+             }
+
+             try {
+                 // Just send the ping notification - Jack will read localStorage/IndexedDB when needed
+                 const response = await fetch('http://localhost:11435/jack/canvas-ping', {
+                     method: 'POST',
+                     mode: 'cors',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'Accept': 'application/json'
+                     },
+                     body: JSON.stringify({
+                         event: eventType,
+                         timestamp: new Date().toISOString(),
+                         source: 'canvas'
+                     })
+                 });
+
+                 if (response.ok) {
+                     const result = await response.json();
+                     console.log(`📡 Jack pinged successfully: ${eventType}`);
+                 } else {
+                     console.warn(`⚠️ Jack ping failed for ${eventType}: ${response.status}`);
+                 }
+             } catch (error) {
+                 console.warn(`⚠️ Jack ping error for ${eventType}:`, error.message);
+             }
+         }
+
+         // Specific ping functions for different analysis completions
+         function pingJackSynthesisComplete() {
+             // Send ping notification and sync storage data for Rich CLI access
+             pingJackAnalysisCompleteWithSync('synthesis_complete', true);
+         }
+
+         function pingJackAnalysisCycleComplete() {
+             pingJackAnalysisComplete('analysis_cycle_complete');
+         }
+
+         function pingJackAISystemsComplete() {
+             pingJackAnalysisComplete('ai_systems_complete');
+         }
+
+         // Sync storage data with Jack (for Rich CLI access)
+         async function syncStorageWithJack() {
+             if (!jackConnectionStatus) {
+                 console.log('🔕 Jack not connected - skipping storage sync');
+                 return false;
+             }
+
+             try {
+                 // Collect current localStorage data
+                 const localStorageData = {};
+                 for (let i = 0; i < localStorage.length; i++) {
+                     const key = localStorage.key(i);
+                     localStorageData[key] = localStorage.getItem(key);
+                 }
+
+                 // Collect current IndexedDB data
+                 const indexedDBData = {};
+                 
+                 // Get analysis history
+                 if (window.analysisHistory && analysisHistory.length > 0) {
+                     indexedDBData.analysisHistory = analysisHistory.slice(-10); // Last 10 entries
+                 }
+                 
+                 // Get synthesis reports
+                 if (window.synthesisReports && synthesisReports.length > 0) {
+                     indexedDBData.synthesisReports = synthesisReports.slice(-5); // Last 5 reports
+                 }
+                 
+                 // Get AI feeds data
+                 if (window.aiFeeds && aiFeeds.length > 0) {
+                     indexedDBData.aiFeeds = aiFeeds.slice(-20); // Last 20 feed entries
+                 }
+
+                 // Send storage data to Jack
+                 const response = await fetch('http://localhost:11435/jack/canvas-storage-sync', {
+                     method: 'POST',
+                     mode: 'cors',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'Accept': 'application/json'
+                     },
+                     body: JSON.stringify({
+                         localStorage: localStorageData,
+                         indexedDB: indexedDBData,
+                         source: 'canvas',
+                         timestamp: new Date().toISOString()
+                     })
+                 });
+
+                 if (response.ok) {
+                     const result = await response.json();
+                     console.log('📊 Canvas storage synced with Jack:', result.message);
+                     return true;
+                 } else {
+                     console.warn('⚠️ Storage sync failed:', response.status);
+                     return false;
+                 }
+             } catch (error) {
+                 console.warn('⚠️ Storage sync error:', error.message);
+                 return false;
+             }
+         }
+
+         // Enhanced ping function that optionally syncs storage data
+         async function pingJackAnalysisCompleteWithSync(eventType, syncStorage = false) {
+             // Send the regular ping notification
+             await pingJackAnalysisComplete(eventType);
+             
+             // Optionally sync storage data for Rich CLI access
+             if (syncStorage) {
+                 await syncStorageWithJack();
+             }
+         }
+
+         // Storage cleanup utilities
+         function cleanupCanvasStorage() {
+             console.log('🧹 Starting Canvas localStorage cleanup...');
+             let removedCount = 0;
+             const keysToRemove = [];
+             
+             // Identify cleanup patterns
+             for (let i = 0; i < localStorage.length; i++) {
+                 const key = localStorage.key(i);
+                 
+                 // Remove health test entries (these accumulate over time)
+                 if (key && key.startsWith('health_test_')) {
+                     keysToRemove.push(key);
+                 }
+                 
+                 // Remove old __localStorage_test__ entries
+                 if (key && key === '__localStorage_test__') {
+                     keysToRemove.push(key);
+                 }
+                 
+                 // Remove old sync triggers (keep only latest)
+                 if (key && key.includes('_sync_trigger')) {
+                     const value = localStorage.getItem(key);
+                     const timestamp = parseInt(value);
+                     const hourAgo = Date.now() - (60 * 60 * 1000);
+                     if (timestamp < hourAgo) {
+                         keysToRemove.push(key);
+                     }
+                 }
+             }
+             
+             // Remove identified keys
+             keysToRemove.forEach(key => {
+                 localStorage.removeItem(key);
+                 removedCount++;
+             });
+             
+             console.log(`🧹 Cleanup complete: Removed ${removedCount} obsolete localStorage entries`);
+             console.log(`📊 Remaining localStorage keys: ${localStorage.length}`);
+             
+             return removedCount;
+         }
+
+         // Auto cleanup on page load (runs once)
+         function initCanvasStorageCleanup() {
+             const lastCleanupKey = 'canvas_last_cleanup';
+             const lastCleanup = localStorage.getItem(lastCleanupKey);
+             const now = Date.now();
+             const dayAgo = 24 * 60 * 60 * 1000;
+             
+             // Only cleanup once per day
+             if (!lastCleanup || (now - parseInt(lastCleanup)) > dayAgo) {
+                 cleanupCanvasStorage();
+                 localStorage.setItem(lastCleanupKey, now.toString());
+             }
+         }
+
+         // Run cleanup on load
+         window.addEventListener('load', initCanvasStorageCleanup);
+
+         // Note: Jack will read localStorage and IndexedDB directly when needed
+         // Pings are just notifications - no data transfer required
+         // Use syncStorageWithJack() to provide storage data for Rich CLI access
     </script>
 
 </body>
