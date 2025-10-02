@@ -221,7 +221,7 @@ a:hover { color: #ff6b6b !important; text-shadow: 0 0 12px rgba(255, 107, 107, 1
 .markdown-body { background: transparent !important; color: #ffffff !important; }
 .repository-content { background: transparent !important; }
 </style>
-<canvas id="matrixRainCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;"></canvas>
+<canvas id="matrixRainCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;"></canvas>
 <script>
 // Matrix Rain Animation - Enhanced visibility
 let matrixCanvas, matrixCtx, matrixDrops, matrixInterval;
