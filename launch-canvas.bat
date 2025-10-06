@@ -33,20 +33,6 @@ echo  [##########] Canvas Initialization
 echo  [##########] Intelligence Feeds
 echo.
 echo  ============================================
-echo  API KEY CONFIGURATION
-echo  ============================================
-echo.
-echo  For Turbo Mode (cloud AI models), you need an Ollama Turbo API key.
-echo  You can skip this if you only plan to use Local Mode.
-echo.
-set /p "OLLAMA_TURBO_API_KEY=Enter your Ollama Turbo API key (or press Enter to skip): "
-if not "%OLLAMA_TURBO_API_KEY%"=="" (
-    echo  [OK] API key configured for this session
-) else (
-    echo  [INFO] No API key provided - Turbo mode will be unavailable
-)
-echo.
-echo  ============================================
 echo  STARTING SERVERS
 echo  ============================================
 echo.

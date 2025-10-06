@@ -176,6 +176,41 @@ launch-canvas.bat
 - **Export Capabilities**: Data export and analysis report generation
 - **Cyberpunk Aesthetics**: Dark theme with pulse animations and neon styling
 
+### Interface Layout
+
+The Canvas interface features a responsive grid-based layout with specialized panels:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    🜂 CANVAS HEADER                      │
+│         Orchestration Status & System Controls         │
+├─────────────────────┬───────────────────────────────────┤
+│                     │                                   │
+│    📝 SOVEREIGN     │      📡 LIVE AI FEEDS & CHAT      │
+│       CANVAS        │                                   │
+│   (Document Editor) │   • DJINN Analysis Feed           │
+│                     │   • NAZAR Pattern Recognition     │
+│                     │   • NARRA Emotional Intelligence  │
+│                     │   • WHALE Governance Oversight    │
+│                     │   • WATCHTOWER Surveillance       │
+├─────────────────────┼───────────────────────────────────┤
+│                     │                                   │
+│   📊 SYNTHESIS      │      🎯 JACK TERMINAL MIRROR      │
+│    REPORTS          │                                   │
+│   (AI Analysis)     │   • Real-time Jack Commands       │
+│                     │   • Canvas Search Integration     │
+│                     │   • Constraint & Commentary       │
+│                     │   • Live Metrics & Status         │
+└─────────────────────┴───────────────────────────────────┘
+```
+
+#### Panel Functions
+- **Header Panel**: Orchestration status, mode indicators, system controls
+- **Sovereign Canvas**: Main document editor with real-time AI analysis
+- **Live AI Feeds & Chat**: Real-time agent outputs and interactive chat
+- **Synthesis Reports**: AI-generated analysis with developmental continuity
+- **Jack Terminal Mirror**: Integrated terminal for Llama Jack coordination
+
 ## Usage Modes
 
 ### Standalone Canvas Operation

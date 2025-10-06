@@ -40,6 +40,7 @@ This project includes two comprehensive Windows batch scripts for launching the 
 - 🔄 **Event-Driven Architecture**: Council responds only to synthesis events (no continuous polling)
 - 🚫 **Zero Truncation Policy**: Complete data access without truncation limits
 - 🎯 **Mode Detection**: Automatic detection of standalone vs council-integrated operation
+- 🎯 **Jack Terminal Mirror**: Integrated terminal interface for Llama Jack coordination with real-time command execution and status monitoring
 - 🔧 **Latest Enhancements**: Event-driven intelligence dispatch system, notepad cross-correlation, visual agent coordination, comprehensive export packages (September 16, 2025)
 
 ## Usage

@@ -14,14 +14,14 @@ class BackupStorage {
         try {
             this.db = await new Promise((resolve, reject) => {
                 const request = indexedDB.open('CanvasAIBackup', 1);
-                
+
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
                     if (!db.objectStoreNames.contains('storage')) {
                         db.createObjectStore('storage', { keyPath: 'key' });
                     }
                 };
-                
+
                 request.onsuccess = (e) => resolve(e.target.result);
                 request.onerror = (e) => reject(e.target.error);
             });
@@ -34,7 +34,7 @@ class BackupStorage {
     // Store large item in IndexedDB
     async storeInIndexedDB(key, value) {
         if (!this.db) return false;
-        
+
         try {
             const transaction = this.db.transaction(['storage'], 'readwrite');
             const store = transaction.objectStore('storage');
@@ -54,7 +54,7 @@ class BackupStorage {
     // Retrieve item from IndexedDB
     async getFromIndexedDB(key) {
         if (!this.db) return null;
-        
+
         try {
             const transaction = this.db.transaction(['storage'], 'readonly');
             const store = transaction.objectStore('storage');
@@ -92,14 +92,14 @@ class BackupStorage {
             const currentSize = JSON.stringify(localStorage).length;
             if (currentSize > this.maxLocalStorage) {
                 console.log(`🧹 localStorage approaching limit (${currentSize} bytes), cleaning up...`);
-                
+
                 // Find large items to move to IndexedDB
                 const largeItems = Object.keys(localStorage)
                     .map(key => ({ key, value: localStorage.getItem(key) }))
                     .filter(item => item.value && item.value.length > this.sizeThreshold)
                     .sort((a, b) => b.value.length - a.value.length)
                     .slice(0, 5); // Move 5 largest items
-                
+
                 for (const item of largeItems) {
                     const success = await this.storeInIndexedDB(item.key, item.value);
                     if (success) {
@@ -137,10 +137,10 @@ localStorage.setItem = function(key, value) {
             originalSetItem.call(this, key, value); // Store directly, no IndexedDB backup
             return;
         }
-        
+
         // Cleanup if needed
         backup.cleanupIfNeeded();
-        
+
         // Backup large items
         backup.backupIfNeeded(key, value).then(processedValue => {
             originalSetItem.call(this, key, processedValue);
@@ -156,13 +156,13 @@ const originalGetItem = localStorage.getItem;
 localStorage.getItem = function(key) {
     try {
         const value = originalGetItem.call(this, key);
-        
+
         // 🛠️ CRITICAL FIX: Don't interfere with DJINN Council surveillance keys
         const criticalKeys = ['sovereign_canvas_content', 'ai_feeds', 'synthesis_canvas_content', 'synthesis_report_generated', 'ai_memory_state', 'djinn_council_complete_memory', 'synthesis_report', 'validation_specialist_memory'];
         if (criticalKeys.includes(key)) {
             return value; // Return actual value, no IndexedDB interference
         }
-        
+
         // Check if it's an IndexedDB reference
         if (backup.isIndexedDBReference(value)) {
             // For now, return null to prevent JSON parsing errors
@@ -170,7 +170,7 @@ localStorage.getItem = function(key) {
             console.log(`📦 IndexedDB reference detected for ${key}, returning null to prevent JSON errors`);
             return null;
         }
-        
+
         return value;
     } catch (error) {
         return originalGetItem.call(this, key);
@@ -181,13 +181,13 @@ localStorage.getItem = function(key) {
 localStorage.getItemAsync = async function(key) {
     try {
         const value = originalGetItem.call(this, key);
-        
+
         if (backup.isIndexedDBReference(value)) {
             const actualKey = backup.extractKeyFromReference(value);
             const indexedValue = await backup.getFromIndexedDB(actualKey);
             return indexedValue || value; // Return IndexedDB value or fallback to reference
         }
-        
+
         return value;
     } catch (error) {
         return originalGetItem.call(this, key);

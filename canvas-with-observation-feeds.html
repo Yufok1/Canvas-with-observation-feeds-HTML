@@ -849,6 +849,17 @@ Ready for your first collaborative synthesis! 🚀</textarea>
         // AI FEEDS STORAGE
         let aiFeeds = [];
 
+        // ANALYSIS HISTORY STORAGE (for Jack sync)
+        let analysisHistory = [];
+
+        // SYNTHESIS REPORTS STORAGE (for Jack sync)
+        let synthesisReports = [];
+
+        // Make arrays globally accessible for Jack sync
+        window.aiFeeds = aiFeeds;
+        window.analysisHistory = analysisHistory;
+        window.synthesisReports = synthesisReports;
+
         // Check if this is a fresh session (page refresh/reload)
         const sessionActive = sessionStorage.getItem('canvas_session_active');
 
@@ -863,12 +874,42 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 const storedFeeds = localStorage.getItem('ai_feeds');
                 if (storedFeeds) {
                     aiFeeds = JSON.parse(storedFeeds);
+                    window.aiFeeds = aiFeeds; // Update global reference
                     console.log('🔄 Loaded ' + aiFeeds.length + ' AI feeds from localStorage (same session)');
                 }
             } catch (error) {
                 console.warn('⚠️ Could not load AI feeds from localStorage:', error);
                 aiFeeds = [];
+                window.aiFeeds = aiFeeds;
             }
+        }
+
+        // Load analysis history from localStorage
+        try {
+            const storedAnalysisHistory = localStorage.getItem('canvas_analysis_history');
+            if (storedAnalysisHistory) {
+                analysisHistory = JSON.parse(storedAnalysisHistory);
+                window.analysisHistory = analysisHistory;
+                console.log('🔄 Loaded ' + analysisHistory.length + ' analysis history entries from localStorage');
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load analysis history from localStorage:', error);
+            analysisHistory = [];
+            window.analysisHistory = analysisHistory;
+        }
+
+        // Load synthesis reports from localStorage
+        try {
+            const storedSynthesisReports = localStorage.getItem('canvas_synthesis_reports');
+            if (storedSynthesisReports) {
+                synthesisReports = JSON.parse(storedSynthesisReports);
+                window.synthesisReports = synthesisReports;
+                console.log('🔄 Loaded ' + synthesisReports.length + ' synthesis reports from localStorage');
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load synthesis reports from localStorage:', error);
+            synthesisReports = [];
+            window.synthesisReports = synthesisReports;
         }
 
         // OBSERVATIONS STORAGE
@@ -1000,9 +1041,26 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     confidence: this.extractConfidence(response)
                 };
 
+                // Add to global analysis history for Jack sync
+                if (!window.analysisHistory) window.analysisHistory = [];
+                window.analysisHistory.push({
+                    system: system,
+                    response: response,
+                    timestamp: new Date().toISOString(),
+                    confidence: this.extractConfidence(response),
+                    roundId: this.currentRound.roundId
+                });
+
+                // Persist analysis history to localStorage
+                try {
+                    localStorage.setItem('canvas_analysis_history', JSON.stringify(window.analysisHistory));
+                } catch (error) {
+                    console.warn('⚠️ Could not save analysis history to localStorage:', error);
+                }
+
                 console.log(`✅ ${system.toUpperCase()} completed round ${this.currentRound.roundId} (${this.currentRound.completedSystems.size}/5)`);
 
-                // Update DJINN council communication immediately after completion
+                // Update Canvas system communication immediately after completion
                 this.updateDjinnCouncilCommunication();
 
                 // Check if all systems are complete
@@ -1114,7 +1172,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 synthesisStatus.style.animation = status === 'working' ? 'pulse 1s infinite' : 'none';
                 synthesisCanvas.placeholder = placeholderText;
 
-                // Update localStorage for DJINN council communication
+                // Update localStorage for Canvas system communication
                 localStorage.setItem('synthesis_progress', statusText);
             },
 
@@ -1123,13 +1181,22 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 this.currentRound.synthesisCompleted = true;
                 console.log(`✅ SYNTHESIS COMPLETE: Round ${this.currentRound.roundId} synthesis report generated`);
 
+                // Get canvas data first (needed for synthesis reports)
+                const mainCanvas = document.getElementById('mainCanvas');
+                const canvasData = mainCanvas ? mainCanvas.value : '';
+
                 // Get synthesis report content
                 const synthesisCanvas = document.getElementById('synthesisCanvas');
                 const synthesisReport = synthesisCanvas ? synthesisCanvas.value : '';
 
-                // Get canvas data
-                const mainCanvas = document.getElementById('mainCanvas');
-                const canvasData = mainCanvas ? mainCanvas.value : '';
+                // Add to global synthesis reports for Jack sync
+                if (!window.synthesisReports) window.synthesisReports = [];
+                window.synthesisReports.push({
+                    report: synthesisReport,
+                    timestamp: new Date().toISOString(),
+                    roundId: this.currentRound.roundId,
+                    canvasData: canvasData
+                });
 
                 // Ping Jack about synthesis completion
                 try {
@@ -1138,7 +1205,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     console.log('Jack ping failed (Jack may not be running):', e.message);
                 }
 
-                // Notify DJINN Council with synthesis report
+                // Notify Canvas System with synthesis report
                 window.postMessage({
                     type: 'SYNTHESIS_REPORT_COMPLETE',
                     synthesisReport: synthesisReport,
@@ -1147,7 +1214,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                     timestamp: new Date().toISOString()
                 }, '*');
 
-                console.log(`📡 DJINN Council notified: Synthesis report dispatched for round ${this.currentRound.roundId}`);
+                console.log(`📡 Canvas System notified: Synthesis report dispatched for round ${this.currentRound.roundId}`);
 
                 // Update monitoring system
                 this.updateEvolutionTracking();
@@ -1165,13 +1232,16 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 };
 
                 // Store in localStorage for persistence
-                const evolutionHistory = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]');
+                // Fix for IndexedDB markers
+                const evolutionHistoryData = localStorage.getItem('ai_evolution_history');
+                const resolvedHistoryData = evolutionHistoryData && evolutionHistoryData.includes('__INDEXED_DATA_MARKER_') ? '[]' : evolutionHistoryData;
+                const evolutionHistory = JSON.parse(resolvedHistoryData || '[]');
                 evolutionHistory.unshift(evolutionData);
                 if (evolutionHistory.length > 20) evolutionHistory.pop(); // Keep last 20 rounds
 
                 localStorage.setItem('ai_evolution_history', JSON.stringify(evolutionHistory));
 
-                // Update DJINN council communication
+                // Update Canvas system communication
                 this.updateDjinnCouncilCommunication();
 
                 console.log(`📊 Evolution tracking updated for round ${this.currentRound.roundId}`);
@@ -1190,7 +1260,7 @@ Ready for your first collaborative synthesis! 🚀</textarea>
                 };
 
                 localStorage.setItem('canvas_synthesis_status', JSON.stringify(councilData));
-                console.log(`📡 Updated DJINN council communication: ${councilData.completedSystems}/5 systems complete (${councilData.completedSystemsList.join(', ')})`);
+                console.log(`📡 Updated Canvas system communication: ${councilData.completedSystems}/5 systems complete (${councilData.completedSystemsList.join(', ')})`);
             },
 
             // Check if synthesis is currently in progress
@@ -1735,7 +1805,7 @@ Should we strengthen this emerging pattern?<br>
         async function pollAIDataParallel() {
             // Check if polling is disabled in council integration mode
             if (window.canvasPollingDisabled) {
-                console.log('🛑 AI Data Polling blocked - waiting for council intelligence completion');
+                console.log('🛑 AI Data Polling blocked - waiting for canvas intelligence completion');
                 return;
             }
 
@@ -1863,7 +1933,7 @@ Should we strengthen this emerging pattern?<br>
             aiFeeds.unshift(newFeed);
             if (aiFeeds.length > 30) aiFeeds.pop();
             
-            // Store AI feeds in localStorage for DJINN Council access
+            // Store AI feeds in localStorage for Canvas System access
             localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             // Update metrics
@@ -2171,14 +2241,39 @@ Should we strengthen this emerging pattern?<br>
             const systems = ['djinn', 'nazar', 'narra', 'whale', 'watchtower'];
 
             // ENHANCED: Gather rich historical data for synthesis intelligence
-            const historicalContext = JSON.parse(localStorage.getItem('ai_evolution_history') || '[]').slice(0, 3);
-            const councilIntelligence = JSON.parse(localStorage.getItem('djinn_council_complete_memory') || '{}');
+            // Fix for IndexedDB markers
+            const evolutionHistoryData = localStorage.getItem('ai_evolution_history');
+            const resolvedHistoryData = evolutionHistoryData && evolutionHistoryData.includes('__INDEXED_DATA_MARKER_') ? '[]' : evolutionHistoryData;
+            const historicalContext = JSON.parse(resolvedHistoryData || '[]').slice(0, 3);
+            // Fix for IndexedDB markers (legacy support)
+            const councilMemoryData = localStorage.getItem('canvas_system_complete_memory');
+            const resolvedCouncilData = councilMemoryData && councilMemoryData.includes('__INDEXED_DATA_MARKER_') ? '{}' : councilMemoryData;
+            const councilIntelligence = JSON.parse(resolvedCouncilData || '{}');
             const roundIntelligence = automatedSynthesisTracker.getRoundStatus();
 
-            // Phase 1: Individual Analysis (Parallel)
-            console.log('🎭 Phase 1: Gathering individual AI insights with historical context...');
+            // 🚀 CRITICAL ENHANCEMENT: Add true continuity from accumulated data
+            // Include previous synthesis reports for developmental continuity
+            const previousSynthesisContext = window.synthesisReports && window.synthesisReports.length > 0
+                ? window.synthesisReports.slice(-2).map(report => ({
+                    roundId: report.roundId,
+                    timestamp: report.timestamp,
+                    keyInsights: report.report.substring(0, 500) + (report.report.length > 500 ? '...' : '')
+                }))
+                : [];
+
+            // Include live AI feeds for real-time contextual awareness
+            const liveFeedContext = window.aiFeeds && window.aiFeeds.length > 0
+                ? window.aiFeeds.slice(-3).map(feed => ({
+                    timestamp: feed.timestamp,
+                    type: feed.type || 'analysis',
+                    keyPoints: Object.values(feed).filter(v => typeof v === 'string' && v.length > 10).slice(0, 2)
+                }))
+                : [];
+
+            // Phase 1: Individual Analysis (Parallel) with full historical continuity
+            console.log('🎭 Phase 1: Gathering individual AI insights with full historical continuity...');
             const individualInsights = await Promise.all(
-                systems.map(system => getSynthesisInsight(system, canvasContent, 'individual', '', historicalContext, councilIntelligence, roundIntelligence))
+                systems.map(system => getSynthesisInsight(system, canvasContent, 'individual', '', historicalContext, councilIntelligence, roundIntelligence, previousSynthesisContext, liveFeedContext))
             );
 
             // Phase 2: Collaborative Integration (Sequential with memory)
@@ -2205,7 +2300,7 @@ Should we strengthen this emerging pattern?<br>
 
             // Phase 3: Unified Synthesis
             console.log('🎭 Phase 3: Creating unified synthesis...');
-            const unifiedSynthesis = await createUnifiedSynthesis(individualInsights, collaborativeContext);
+            const unifiedSynthesis = await createUnifiedSynthesis(individualInsights, collaborativeContext, previousSynthesisContext, liveFeedContext);
 
             return `
 🎭 COLLABORATIVE AI SYNTHESIS RESULTS
@@ -2227,7 +2322,7 @@ ${unifiedSynthesis}
 `;
         }
 
-        async function getSynthesisInsight(system, content, phase, previousContext = '', historicalContext = [], councilIntelligence = {}, roundIntelligence = {}) {
+        async function getSynthesisInsight(system, content, phase, previousContext = '', historicalContext = [], councilIntelligence = {}, roundIntelligence = {}, previousSynthesisContext = [], liveFeedContext = []) {
             // Enhanced prompts with rich historical data and intelligence context
 
             // Build historical synthesis context
@@ -2238,7 +2333,7 @@ ${historicalContext.map((h, i) => `Round ${i+1}: ${h.summary || 'Analysis comple
 ============================\n`
                 : '';
 
-            // Build council intelligence context
+            // Build canvas intelligence context
             const councilContext = councilIntelligence.consensusHistory?.length > 0
                 ? `\n=== COUNCIL INTELLIGENCE INSIGHTS ===
 Latest strategic intelligence from council analysis:
@@ -2254,17 +2349,38 @@ Active Systems: ${roundIntelligence.systemResponses?.join(', ') || 'None'}
 ============================\n`
                 : '';
 
+            // 🚀 CRITICAL ENHANCEMENT: Add true developmental continuity
+            // Include previous synthesis reports for building upon past insights
+            const synthesisContinuity = previousSynthesisContext.length > 0
+                ? `\n=== SYNTHESIS CONTINUITY - BUILD UPON PREVIOUS INSIGHTS ===
+Previous synthesis rounds (maintain developmental progression):
+${previousSynthesisContext.map((synth, i) => `Synthesis ${i+1} (${synth.roundId}): ${synth.keyInsights}`).join('\n')}
+
+CRITICAL: Build upon these previous insights. Do NOT repeat them - advance the analysis developmentally.
+============================\n`
+                : '';
+
+            // Include live AI feeds for real-time contextual awareness
+            const liveFeedContinuity = liveFeedContext.length > 0
+                ? `\n=== LIVE AI FEED CONTINUITY - REAL-TIME CONTEXT ===
+Current live AI analysis feeds (integrate with your analysis):
+${liveFeedContext.map((feed, i) => `Feed ${i+1}: ${feed.keyPoints.join(' • ')} (${new Date(feed.timestamp).toLocaleTimeString()})`).join('\n')}
+
+INTEGRATE these live insights with your current analysis for comprehensive understanding.
+============================\n`
+                : '';
+
             const synthesisPrompt = phase === 'individual'
                 ? `You are ${system.toUpperCase()}, an AI specialist. Analyze the following content and provide your unique perspective in 2-3 paragraphs. Focus on your area of expertise and what you bring to the collaborative synthesis.
 
-${historyContext}${councilContext}${roundContext}
+${historyContext}${councilContext}${roundContext}${synthesisContinuity}${liveFeedContinuity}
 CONTENT TO ANALYZE:
 ${content}
 
 Your specialized analysis (2-3 paragraphs):`
                 : `You are ${system.toUpperCase()}, collaborating with other AI specialists. Review the previous insights and content, then provide your contribution to the collaborative synthesis in 2-3 paragraphs. Build upon what others have said while adding your unique perspective.
 
-${historyContext}${councilContext}${roundContext}
+${historyContext}${councilContext}${roundContext}${synthesisContinuity}${liveFeedContinuity}
 CONTENT TO ANALYZE:
 ${content}
 
@@ -2282,11 +2398,33 @@ Your collaborative contribution (2-3 paragraphs):`;
             }
         }
 
-        async function createUnifiedSynthesis(individualInsights, collaborativeContext) {
+        async function createUnifiedSynthesis(individualInsights, collaborativeContext, previousSynthesisContext = [], liveFeedContext = []) {
             // No truncation - send full insights to AI
+            
+            // 🚀 CRITICAL ENHANCEMENT: Add true developmental continuity to unified synthesis
+            // Include previous synthesis reports for building upon past insights
+            const synthesisContinuity = previousSynthesisContext.length > 0
+                ? `\n=== SYNTHESIS CONTINUITY - BUILD UPON PREVIOUS INSIGHTS ===
+Previous synthesis rounds (maintain developmental progression):
+${previousSynthesisContext.map((synth, i) => `Synthesis ${i+1} (${synth.roundId}): ${synth.keyInsights}`).join('\n')}
+
+CRITICAL: Build upon these previous insights. Do NOT repeat them - advance the analysis developmentally.
+============================\n`
+                : '';
+
+            // Include live AI feeds for real-time contextual awareness
+            const liveFeedContinuity = liveFeedContext.length > 0
+                ? `\n=== LIVE AI FEED CONTINUITY - REAL-TIME CONTEXT ===
+Current live AI analysis feeds (integrate with your analysis):
+${liveFeedContext.map((feed, i) => `Feed ${i+1}: ${feed.keyPoints.join(' • ')} (${new Date(feed.timestamp).toLocaleTimeString()})`).join('\n')}
+
+INTEGRATE these live insights with your current analysis for comprehensive understanding.
+============================\n`
+                : '';
             
             const synthesisPrompt = `You are the SYNTHESIS COORDINATOR. Review all insights and create a unified synthesis in 3-4 paragraphs that integrates their perspectives.
 
+${synthesisContinuity}${liveFeedContinuity}
 INDIVIDUAL INSIGHTS:
 ${individualInsights.join('\n\n')}
 
@@ -3749,7 +3887,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             return memoryContext;
         }
 
-        // Get DJINN Council intelligence context (council-integrated mode only)
+        // Get Canvas System intelligence context (council-integrated mode only)
         function getCouncilIntelligenceContext() {
             try {
                 // Get the most recent intelligence reports and consensus data
@@ -3789,12 +3927,12 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                     councilContext += `${consensusData}\n`;
                 }
 
-                councilContext += `\n⚡ INTEGRATION DIRECTIVE: Use this council intelligence as strategic context for your specialized analysis. The council's findings provide governance oversight, pattern recognition, risk assessment, and memory synthesis that should inform but not override your unique analytical perspective.\n`;
+                councilContext += `\n⚡ INTEGRATION DIRECTIVE: Use this canvas intelligence as strategic context for your specialized analysis. The council's findings provide governance oversight, pattern recognition, risk assessment, and memory synthesis that should inform but not override your unique analytical perspective.\n`;
 
                 return councilContext;
 
             } catch (error) {
-                console.warn('Error loading council intelligence context:', error);
+                console.warn('Error loading canvas intelligence context:', error);
                 return '';
             }
         }
@@ -4118,7 +4256,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
             mainCanvas.addEventListener('input', function() {
                 canvasChangeTracker.hasChanged(mainCanvas.value);
-                // Update localStorage immediately for DJINN Council surveillance
+                // Update localStorage immediately for Canvas System surveillance
                 localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
                 localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
                 
@@ -4136,7 +4274,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
 
             mainCanvas.addEventListener('change', function() {
                 canvasChangeTracker.hasChanged(mainCanvas.value);
-                // Update localStorage immediately for DJINN Council surveillance
+                // Update localStorage immediately for Canvas System surveillance
                 localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
                 localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
                 
@@ -4148,7 +4286,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 // Use setTimeout to capture content after paste
                 setTimeout(() => {
                     canvasChangeTracker.hasChanged(mainCanvas.value);
-                    // Update localStorage immediately for DJINN Council surveillance
+                    // Update localStorage immediately for Canvas System surveillance
                     localStorage.setItem('sovereign_canvas_content', mainCanvas.value);
                     localStorage.setItem('sovereign_canvas_timestamp', new Date().toISOString());
                 }, 10);
@@ -4168,7 +4306,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 // Update synthesis and other displays
                 updateDisplays();
 
-                // Update DJINN council communication periodically
+                // Update Canvas system communication periodically
                 automatedSynthesisTracker.updateDjinnCouncilCommunication();
             }, 5000); // Check every 5 seconds
 
@@ -4181,7 +4319,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
         async function startAIDataPolling() {
             // Check if polling is disabled in council integration mode
             if (window.canvasPollingDisabled) {
-                console.log('🛑 AI Polling blocked - waiting for council intelligence completion');
+                console.log('🛑 AI Polling blocked - waiting for canvas intelligence completion');
                 return;
             }
 
@@ -4348,7 +4486,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             aiFeeds.unshift(newFeed);
             if (aiFeeds.length > 30) aiFeeds.pop();
             
-            // Store AI feeds in localStorage for DJINN Council access
+            // Store AI feeds in localStorage for Canvas System access
             localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             // Update metrics
@@ -4372,7 +4510,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 return true;
             });
             
-            // Store AI feeds in localStorage for DJINN Council access
+            // Store AI feeds in localStorage for Canvas System access
             localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             const synthesisMessage = `⚡ ${system.toUpperCase()}: ${getSystemAction(system)}... AI response incoming`;
@@ -4434,7 +4572,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                     return true; // Keep everything else
                 });
                 
-                // Store AI feeds in localStorage for DJINN Council access
+                // Store AI feeds in localStorage for Canvas System access
                 localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
             }
 
@@ -4455,7 +4593,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
                 aiFeeds = aiFeeds.slice(0, 20);
             }
 
-            // 🛠️ CRITICAL FIX: Store AI feeds in localStorage for DJINN Council access
+            // 🛠️ CRITICAL FIX: Store AI feeds in localStorage for Canvas System access
             localStorage.setItem('ai_feeds', JSON.stringify(aiFeeds));
 
             // Update the display
@@ -4995,7 +5133,7 @@ ${randomVariation} Monitor how the theoretical concepts above translate to opera
             // ROUTING DECISIONS
             if (targetEntity === 'nazar') {
                 return {
-                    routing: `Internal council consensus (${(avgCouncilScore * 100).toFixed(1)}%): Processing through fractal consciousness layers...`,
+                    routing: `Internal canvas consensus (${(avgCouncilScore * 100).toFixed(1)}%): Processing through fractal consciousness layers...`,
                     authorized: true,
                     requiresGovernance: false,
                     councilAnalysis: councilAnalysis
@@ -5589,7 +5727,7 @@ Your direct response as ${entity.toUpperCase()}:`;
                 console.log('🚀 Start Analysis button enabled for initial cycle ignition');
             }
 
-            // Listen for council intelligence completion events
+            // Listen for canvas intelligence completion events
             window.addEventListener('message', function(event) {
                 if (event.data.type === 'council_intelligence_complete') {
                     console.log('📊 Council intelligence complete - triggering next canvas cycle');
@@ -6425,7 +6563,7 @@ Your strategic oversight (2-3 sentences):`;
              const avgConfidence = Object.values(systemMetrics).reduce((a, b) => a + b, 0) / 5;
              updateSurvElement('survConfidence', `${avgConfidence.toFixed(1)}%`);
 
-             // DJINN Council Status from localStorage
+             // Canvas System Status from localStorage
              updateCouncilSurveillance();
 
              // System correlation analysis
@@ -6450,7 +6588,7 @@ Your strategic oversight (2-3 sentences):`;
          function updateCouncilSurveillance() {
              try {
                  // Get council data from localStorage (cross-window communication)
-                 const councilMemory = JSON.parse(localStorage.getItem('djinn_council_complete_memory') || '{}');
+                 const councilMemory = JSON.parse(localStorage.getItem('canvas_system_complete_memory') || '{}');
                  const synthesisstatus = JSON.parse(localStorage.getItem('canvas_synthesis_status') || '{}');
 
                  // Council state
@@ -6865,19 +7003,19 @@ Your strategic oversight (2-3 sentences):`;
                  // Collect current IndexedDB data
                  const indexedDBData = {};
                  
-                 // Get analysis history
-                 if (window.analysisHistory && analysisHistory.length > 0) {
-                     indexedDBData.analysisHistory = analysisHistory.slice(-10); // Last 10 entries
+                 // Get ALL analysis history (Jack will accumulate and deduplicate)
+                 if (window.analysisHistory && window.analysisHistory.length > 0) {
+                     indexedDBData.analysisHistory = window.analysisHistory.slice(); // Send ALL entries
                  }
                  
-                 // Get synthesis reports
-                 if (window.synthesisReports && synthesisReports.length > 0) {
-                     indexedDBData.synthesisReports = synthesisReports.slice(-5); // Last 5 reports
+                 // Get ALL synthesis reports (Jack will accumulate and deduplicate)
+                 if (window.synthesisReports && window.synthesisReports.length > 0) {
+                     indexedDBData.synthesisReports = window.synthesisReports.slice(); // Send ALL reports
                  }
                  
-                 // Get AI feeds data
-                 if (window.aiFeeds && aiFeeds.length > 0) {
-                     indexedDBData.aiFeeds = aiFeeds.slice(-20); // Last 20 feed entries
+                 // Get ALL AI feeds data (Jack will accumulate and deduplicate)
+                 if (window.aiFeeds && window.aiFeeds.length > 0) {
+                     indexedDBData.aiFeeds = window.aiFeeds.slice(); // Send ALL feed entries
                  }
 
                  // Send storage data to Jack
@@ -6988,3 +7126,7 @@ Your strategic oversight (2-3 sentences):`;
 
 </body>
 </html> 
+
+
+
+
