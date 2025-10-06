@@ -884,30 +884,40 @@ Ready for your first collaborative synthesis! 🚀</textarea>
             }
         }
 
-        // Load analysis history from localStorage
+        // Load analysis history from localStorage (with IndexedDB fallback)
         try {
-            const storedAnalysisHistory = localStorage.getItem('canvas_analysis_history');
-            if (storedAnalysisHistory) {
-                analysisHistory = JSON.parse(storedAnalysisHistory);
+            localStorage.getItemAsync('canvas_analysis_history').then(storedAnalysisHistory => {
+                if (storedAnalysisHistory) {
+                    analysisHistory = JSON.parse(storedAnalysisHistory);
+                    window.analysisHistory = analysisHistory;
+                    console.log('🔄 Loaded ' + analysisHistory.length + ' analysis history entries from storage');
+                }
+            }).catch(error => {
+                console.warn('⚠️ Could not load analysis history from storage:', error);
+                analysisHistory = [];
                 window.analysisHistory = analysisHistory;
-                console.log('🔄 Loaded ' + analysisHistory.length + ' analysis history entries from localStorage');
-            }
+            });
         } catch (error) {
-            console.warn('⚠️ Could not load analysis history from localStorage:', error);
+            console.warn('⚠️ Could not load analysis history from storage:', error);
             analysisHistory = [];
             window.analysisHistory = analysisHistory;
         }
 
-        // Load synthesis reports from localStorage
+        // Load synthesis reports from localStorage (with IndexedDB fallback)
         try {
-            const storedSynthesisReports = localStorage.getItem('canvas_synthesis_reports');
-            if (storedSynthesisReports) {
-                synthesisReports = JSON.parse(storedSynthesisReports);
+            localStorage.getItemAsync('canvas_synthesis_reports').then(storedSynthesisReports => {
+                if (storedSynthesisReports) {
+                    synthesisReports = JSON.parse(storedSynthesisReports);
+                    window.synthesisReports = synthesisReports;
+                    console.log('🔄 Loaded ' + synthesisReports.length + ' synthesis reports from storage');
+                }
+            }).catch(error => {
+                console.warn('⚠️ Could not load synthesis reports from storage:', error);
+                synthesisReports = [];
                 window.synthesisReports = synthesisReports;
-                console.log('🔄 Loaded ' + synthesisReports.length + ' synthesis reports from localStorage');
-            }
+            });
         } catch (error) {
-            console.warn('⚠️ Could not load synthesis reports from localStorage:', error);
+            console.warn('⚠️ Could not load synthesis reports from storage:', error);
             synthesisReports = [];
             window.synthesisReports = synthesisReports;
         }
